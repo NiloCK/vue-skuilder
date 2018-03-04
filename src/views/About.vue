@@ -1,9 +1,8 @@
 <template>
   <div class="about">
     <h1>This is an about page</h1>
-    <Viewable data="hello" />
     <component v-bind:is="type" data="awefzvitawezfvitawef"/>
-    <multiplication-horizontal v-bind:problem="problem" />
+    <multiplication-horizontal v-bind:question="problem" />
   </div>
 </template>
 
