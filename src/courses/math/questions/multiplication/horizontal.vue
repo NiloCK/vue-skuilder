@@ -12,8 +12,9 @@ import { SingleDigitMultiplicationQuestion } from "./index";
 
 @Component
 export default class multiplicationHorizontal extends Viewable {
-  answer: string;
-  @Prop() question: SingleDigitMultiplicationQuestion;
+  answer: string = "";
+  @Prop()
+  question: SingleDigitMultiplicationQuestion = new SingleDigitMultiplicationQuestion();
 
   submit() {
     alert(this.question.isCorrect(parseInt(this.answer)));

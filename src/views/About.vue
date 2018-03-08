@@ -15,7 +15,7 @@ import { SingleDigitMultiplicationQuestion } from "@/courses/math/questions/mult
 
 export default {
   // problem: SingleDigitMultiplicationQuestion = new SingleDigitMultiplicationQuestion();
-  data: function() {
+  data: () => {
     return {
       type: "Viewable",
       problem: new SingleDigitMultiplicationQuestion()

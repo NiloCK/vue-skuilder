@@ -12,6 +12,7 @@
   "dependencies": {
     "pouchdb-authentication": "^1.1.2",
     "pouchdb-browser": "^6.4.3",
+    "pouchdb-find": "^6.4.3",
     "register-service-worker": "^1.0.0",
     "vue": "^2.5.13",
     "vue-class-component": "^6.0.0",
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@types/jest": "^22.0.1",
     "@types/pouchdb-browser": "^6.1.2",
+    "@types/pouchdb-find": "^6.3.2",
     "@vue/cli-plugin-babel": "^3.0.0-beta.1",
     "@vue/cli-plugin-e2e-nightwatch": "^3.0.0-beta.1",
     "@vue/cli-plugin-pwa": "^3.0.0-beta.1",

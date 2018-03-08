@@ -9,17 +9,17 @@ interface SingleDigitMultiplicationQuestionProps {
 export class SingleDigitMultiplicationQuestion extends Question {
     data: SingleDigitMultiplicationQuestionProps;
 
-    isCorrect(answer: Answer) {
-        let { a, b } = this.data;
-
-        return a * b === answer;
-    }
-
     constructor(data?: SingleDigitMultiplicationQuestionProps) {
         super();
         this.data = data ? data : {
             a: randomInt(0, 10),
             b: randomInt(0, 10)
         }
+    }
+
+    isCorrect(answer: Answer) {
+        let { a, b } = this.data;
+
+        return a * b === answer;
     }
 }
