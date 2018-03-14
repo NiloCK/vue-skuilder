@@ -1,19 +1,32 @@
-import * as pouch from 'pouchdb-browser';
-import PouchDBFind from 'pouchdb-find';
+import pouch from 'pouchdb-browser';
+import * as PouchDBFind from 'pouchdb-find';
 import PouchDBAuth from 'pouchdb-authentication';
 import { Answer } from '@/courses/base/Course';
 
-pouch.plugin(require(PouchDBAuth));
-pouch.plugin(require(PouchDBFind));
+pouch.plugin(PouchDBAuth);
+pouch.plugin(PouchDBFind);
 
 const databaseName = "record";
 const remote: PouchDB.Database = new pouch(
-    'https://nilock.cloudant.com/math',
+    'http://localhost:5984/math/',
     {
         skip_setup: true
     }
 );
 const local: PouchDB.Database = new pouch('local');
+
+interface PouchData extends PouchDB.Core.IdMeta, PouchDB.Core.GetMeta {
+    data: string[]
+}
+
+export function testDataRetrieval(): Promise<PouchData> {
+    return remote.get<PouchData>("c782b919c68ca62ff987d8ffa3001bd7");
+}
+
+let a;
+testDataRetrieval().then(info => {
+    a = info.data
+})
 
 export function getCourseDatabase(courseName: String): PouchDB.Database {
     return new pouch(
@@ -25,7 +38,7 @@ export function getCourseDatabase(courseName: String): PouchDB.Database {
 }
 
 export function getCourseQuestions(courseName: string) {
-    let db = getCourseDatabase(courseName);
+    const db = getCourseDatabase(courseName);
     return db.find({
         fields: ['type'],
         selector: { name: 'viewList' }
