@@ -23,11 +23,6 @@ export function testDataRetrieval(): Promise<PouchData> {
     return remote.get<PouchData>("c782b919c68ca62ff987d8ffa3001bd7");
 }
 
-let a;
-testDataRetrieval().then(info => {
-    a = info.data
-})
-
 export function getCourseDatabase(courseName: String): PouchDB.Database {
     return new pouch(
         "https://nilock.cloudant.com/" + courseName,
