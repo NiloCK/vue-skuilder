@@ -4,13 +4,13 @@ var data = {
     "a": {
         "c": ["_rlp", "", "", [["br", "pl", "sp", "tr"]]],
         "d": ["w", "fm"],
-        "k": ["bfJlmrstw"],
+        "k": ["bfJlmrstw", "", "", [["br", "fl", "mist"]]],
         "l": ["_mst"],
-        "m": ["fglnst"],
-        "n": ["ls", "bm"],
+        "m": ["fglnst", "", "", [["fl", "fr"]]],
+        "n": ["ls", "bm", "", [["pl", "cr"]]],
         "f": ["s"],
         "g": ["mp", "rsw"],
-        "p": ["_", "t"],
+        "p": ["_", "t", "", [["gr"]]],
         "r": ["dh", "bcf", "_"],
         "s": ["bc"],
         "t": ["dgl", "_fhmr", "", [["sk", "st", "pl", "cr"]]],
@@ -127,7 +127,7 @@ function consonantWord(openingConsonant, vowel, finalConsonant, double) {
 
     ret += openingConsonant + vowel + finalConsonant + 'e';
     if (double) {
-        ret += '   ' + openingConsonant + vowel + finalConsonant;
+        ret += ',' + openingConsonant + vowel + finalConsonant;
     }
     return ret;
 }
@@ -144,3 +144,33 @@ function blendedConsonantWord(blend, vowel, finalConsonant, double) {
     return ret;
 }
 
+function init() {
+
+    var div = document.getElementById('words');
+    var words = div.innerText.split(',');
+
+    div.innerHTML = '';
+    shuffle(words);
+    words = words.slice(0, 4); // display a max of 5 words on each card
+    div.innerHTML = words.join('<br><br>');
+
+    function shuffle(array) {
+        var currentIndex = array.length, temporaryValue, randomIndex;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+
+        return array;
+    }
+
+}
