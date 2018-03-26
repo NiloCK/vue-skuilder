@@ -5,11 +5,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
 export default class Viewable extends Vue {
-  @Prop() data: any;
+  @Prop() public data: any;
 }
 </script>
 

@@ -6,37 +6,37 @@ import { Answer } from '@/courses/base/Course';
 pouch.plugin(PouchDBAuth);
 pouch.plugin(PouchDBFind);
 
-const databaseName = "record";
+const databaseName = 'record';
 const remote: PouchDB.Database = new pouch(
     'http://localhost:5984/math/',
     {
-        skip_setup: true
-    }
+        skip_setup: true,
+    },
 );
 const local: PouchDB.Database = new pouch('local');
 
 interface PouchData extends PouchDB.Core.IdMeta, PouchDB.Core.GetMeta {
-    data: string[]
+    data: string[];
 }
 
 export function testDataRetrieval(): Promise<PouchData> {
-    return remote.get<PouchData>("c782b919c68ca62ff987d8ffa3001bd7");
+    return remote.get<PouchData>('testData');
 }
 
-export function getCourseDatabase(courseName: String): PouchDB.Database {
+export function getCourseDatabase(courseName: string): PouchDB.Database {
     return new pouch(
-        "https://nilock.cloudant.com/" + courseName,
+        'https://nilock.cloudant.com/' + courseName,
         {
-            skip_setup: true
-        }
-    )
+            skip_setup: true,
+        },
+    );
 }
 
 export function getCourseQuestions(courseName: string) {
     const db = getCourseDatabase(courseName);
     return db.find({
         fields: ['type'],
-        selector: { name: 'viewList' }
+        selector: { name: 'viewList' },
     });
 }
 
@@ -50,9 +50,9 @@ export interface QuestionRecord {
 }
 
 enum CourseDataTypes {
-    DATA = "data",
-    CARD = "card",
-    VIEWLIST = "viewList"
+    DATA = 'data',
+    CARD = 'card',
+    VIEWLIST = 'viewList',
 }
 
 interface DocID {
@@ -63,13 +63,11 @@ interface CourseData {
     type: CourseDataTypes;
 }
 
-interface QuestionData extends CourseData {
-
-}
+// interface QuestionData extends CourseData {}
 
 interface ViewList extends CourseData {
     questionType: string;
-    viewList: Array<string>;
+    viewList: string[];
 }
 
 interface Card extends CourseData {

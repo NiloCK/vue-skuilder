@@ -10,22 +10,22 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
-import { testDataRetrieval } from "../db/index";
+import Vue from 'vue';
+import { Component, Prop } from 'vue-property-decorator';
+import { testDataRetrieval } from '../db/index';
 
 @Component({
-  data() {
-    return {
-      viewables: []
-    };
-  }
+  // data() {
+  //   return {
+  //     // viewables: []
+  //   };
+  // }
 })
 export default class Edit extends Vue {
   public viewables: string[] = [];
 
   private created() {
-    testDataRetrieval().then(info => {
+    testDataRetrieval().then((info) => {
       this.viewables = info.data;
     });
   }

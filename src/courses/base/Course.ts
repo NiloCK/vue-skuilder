@@ -1,27 +1,14 @@
-enum Viewables {
-    Persion,
-    Dog
-}
+export abstract class Answer {}
 
-class Cat {
-    kind: Viewables = Viewables.Persion;
-}
-class Dog {
-
-}
-
-export abstract class Answer {
-
-}
-
+// tslint:disable-next-line:max-classes-per-file
 export abstract class Question {
-    static dataShape: PropDefinition[];
-    abstract isCorrect(answer: Answer): boolean;
+    public static dataShape: PropDefinition[];
+    public abstract isCorrect(answer: Answer): boolean;
 }
 
 enum PropType {
-    String = "string",
-    Number = "number"
+    String = 'string',
+    Number = 'number',
     // image, audio, video, etc. Various blob data
 }
 

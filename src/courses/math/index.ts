@@ -1,5 +1,5 @@
-import multiplicationHorizontal from './questions/multiplication/horizontal.vue'
+import multiplicationHorizontal from './questions/multiplication/horizontal.vue';
 
 export default {
-    multiplicationHorizontal
-}
+    multiplicationHorizontal,
+};

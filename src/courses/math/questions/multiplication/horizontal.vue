@@ -6,18 +6,18 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
-import Viewable from "@/courses/base/Viewable.vue";
-import { SingleDigitMultiplicationQuestion } from "./index";
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import Viewable from '@/courses/base/Viewable.vue';
+import { SingleDigitMultiplicationQuestion } from './index';
 
 @Component
-export default class multiplicationHorizontal extends Viewable {
-  answer: string = "";
+export default class MultiplicationHorizontal extends Viewable {
+  public answer: string = '';
   @Prop()
-  question: SingleDigitMultiplicationQuestion = new SingleDigitMultiplicationQuestion();
+  public question: SingleDigitMultiplicationQuestion = new SingleDigitMultiplicationQuestion();
 
-  submit() {
-    alert(this.question.isCorrect(parseInt(this.answer)));
+  public submit() {
+    alert(this.question.isCorrect(parseInt(this.answer, 10)));
   }
 }
 </script>

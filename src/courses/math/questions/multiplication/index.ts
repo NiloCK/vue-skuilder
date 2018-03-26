@@ -1,5 +1,5 @@
-import { Question, Answer } from "@/courses/base/Course";
-import { randomInt } from "@/courses/math/utility";
+import { Question, Answer } from '@/courses/base/Course';
+import { randomInt } from '@/courses/math/utility';
 
 interface SingleDigitMultiplicationQuestionProps {
     a: number;
@@ -7,18 +7,18 @@ interface SingleDigitMultiplicationQuestionProps {
 }
 
 export class SingleDigitMultiplicationQuestion extends Question {
-    data: SingleDigitMultiplicationQuestionProps;
+    public data: SingleDigitMultiplicationQuestionProps;
 
     constructor(data?: SingleDigitMultiplicationQuestionProps) {
         super();
         this.data = data ? data : {
             a: randomInt(0, 10),
-            b: randomInt(0, 10)
-        }
+            b: randomInt(0, 10),
+        };
     }
 
-    isCorrect(answer: Answer) {
-        let { a, b } = this.data;
+    public isCorrect(answer: Answer) {
+        const { a, b } = this.data;
 
         return a * b === answer;
     }
