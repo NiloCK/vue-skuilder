@@ -10,8 +10,8 @@ const databaseName = 'record';
 const remote: PouchDB.Database = new pouch(
     'http://localhost:5984/math/',
     {
-        skip_setup: true,
-    },
+        skip_setup: true
+    }
 );
 const local: PouchDB.Database = new pouch('local');
 
@@ -27,8 +27,8 @@ export function getCourseDatabase(courseName: string): PouchDB.Database {
     return new pouch(
         'https://nilock.cloudant.com/' + courseName,
         {
-            skip_setup: true,
-        },
+            skip_setup: true
+        }
     );
 }
 
@@ -36,7 +36,7 @@ export function getCourseQuestions(courseName: string) {
     const db = getCourseDatabase(courseName);
     return db.find({
         fields: ['type'],
-        selector: { name: 'viewList' },
+        selector: { name: 'viewList' }
     });
 }
 
@@ -52,7 +52,7 @@ export interface QuestionRecord {
 enum CourseDataTypes {
     DATA = 'data',
     CARD = 'card',
-    VIEWLIST = 'viewList',
+    VIEWLIST = 'viewList'
 }
 
 interface DocID {

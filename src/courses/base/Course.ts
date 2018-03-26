@@ -8,7 +8,7 @@ export abstract class Question {
 
 enum PropType {
     String = 'string',
-    Number = 'number',
+    Number = 'number'
     // image, audio, video, etc. Various blob data
 }
 

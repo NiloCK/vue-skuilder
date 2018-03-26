@@ -14,10 +14,10 @@ interface VowelConsonentWordData {
 export default {
     a: {
         c: [
-            '_rlp', '', [['br', 'pl', 'sp', 'tr']],
+            '_rlp', '', [['br', 'pl', 'sp', 'tr']]
         ],
         d: [
-            'w', 'fm',
+            'w', 'fm'
         ],
         k: ['bfJlmrstw']
         ,
@@ -30,13 +30,13 @@ export default {
         r: ['dh', 'bcdf', '_'],
         s: ['bc'],
         t: ['dgl', '_fhmr', '', [['sk', 'st', 'pl', 'cr']]],
-        v: ['cDgprsw', '', 'h'],
+        v: ['cDgprsw', '', 'h']
     },
     e: {
         k: ['_d'],
         n: ['g'],
         r: ['', 'h', 'w'],
-        t: ['P'],
+        t: ['P']
     },
     i: {
         b: ['', '', '', [['br', 'tr']]],
@@ -50,7 +50,7 @@ export default {
         p: ['pw', 'r', '', [[], ['gr', 'tr', 'str']]],
         r: ['_dfhtw'],
         s: ['rw'],
-        t: ['', 'bks'],
+        t: ['', 'bks']
     },
     o: {
         b: ['', 'r', '', [['gl', 'str']]],
@@ -63,7 +63,7 @@ export default {
         s: ['', '', 'l', [['cl']]],
         t: ['mv', 'n'],
         v: ['cw', '', 'dlm', [['st']]],
-        z: ['d'],
+        z: ['d']
     },
     u: {
         b: ['', 'crt'],
@@ -74,6 +74,6 @@ export default {
         n: ['dt', 'r'],
         r: ['', '', 'cps'],
         s: ['fr', '_'],
-        t: ['m', 'c'],
-    },
+        t: ['m', 'c']
+    }
 };

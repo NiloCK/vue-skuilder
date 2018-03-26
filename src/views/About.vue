@@ -18,12 +18,12 @@ export default {
   data: () => {
     return {
       type: 'Viewable',
-      problem: new SingleDigitMultiplicationQuestion(),
+      problem: new SingleDigitMultiplicationQuestion()
     };
   },
   components: {
     Viewable,
-    multiplicationHorizontal,
-  },
+    multiplicationHorizontal
+  }
 };
 </script>

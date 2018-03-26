@@ -13,7 +13,7 @@ export class SingleDigitMultiplicationQuestion extends Question {
         super();
         this.data = data ? data : {
             a: randomInt(0, 10),
-            b: randomInt(0, 10),
+            b: randomInt(0, 10)
         };
     }
 
