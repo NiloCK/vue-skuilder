@@ -1,18 +1,20 @@
 <template>
   <div>
       <h1>Editing Course Data</h1>
-      <ul>
-          <li v-for="item in viewables" :key="item.id">
-              {{item}}
-          </li>
-      </ul>
+      Select a course to contribute to:
+      <select v-model="selectedCourse">
+        <option v-for="course in courseList" :key="course.id" :value="course">
+          {{course}}
+        </option>
+      </select>
+      <div>{{selectedCourse}}</div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
-import { testDataRetrieval } from '../db/index';
+import { getCourseList } from '../db/index';
 
 @Component({
   // data() {
@@ -22,14 +24,13 @@ import { testDataRetrieval } from '../db/index';
   // }
 })
 export default class Edit extends Vue {
-  public viewables: string[] = [];
+  public courseList: string[] = [];
+  public selectedCourse: string = '';
 
   private created() {
-    testDataRetrieval().then((info) => {
-      this.viewables = info.data;
+    getCourseList().then((courseList) => {
+      this.courseList = courseList.courses;
     });
   }
 }
 </script>
-
-
