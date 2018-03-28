@@ -19,6 +19,73 @@ interface PouchData extends PouchDB.Core.IdMeta, PouchDB.Core.GetMeta {
     data: string[];
 }
 
+enum DocType {
+    DISPLAYABLE_DATA,
+    CARD,
+    DATASHAPE,
+    VIEW,
+    PEDAGOGY
+}
+
+/**
+ * Interface for all data on course content and pedagogy stored
+ * in the c/pouch database.
+ */
+interface SkuilderCourseData extends PouchDB.Core.IdMeta, PouchDB.Core.GetMeta {
+    course: string;
+    docType: DocType;
+}
+interface CardData extends SkuilderCourseData {
+    // DocType.CARD
+    id_displayable_data: PouchDB.Core.DocumentId;
+    id_view: PouchDB.Core.DocumentId;
+}
+
+/**
+ * The name of a Viewable component in a skuilder course
+ */
+type VueComponentName = string;
+interface ViewData extends SkuilderCourseData {
+    // DocType.VIEW
+    id_datashape: PouchDB.Core.DocumentId;
+    name: VueComponentName;
+}
+
+/**
+ * The data used to hydrate viewable components (questions, info, etc)
+ */
+interface DisplayableData extends SkuilderCourseData {
+    // DocType.DISPLAYABLE_DATA
+    id_datashape: PouchDB.Core.DocumentId;
+    data: Field[];
+}
+
+interface Field {
+    data: any;
+    name: string;
+}
+
+/**
+ * The name of a defined interface for ctor args of a question type or viewable type
+ */
+type ViewableTypeCtor = string;
+interface DataShapeData extends SkuilderCourseData {
+    // DocType.DATASHAPE
+    name: ViewableTypeCtor;
+    fields: FieldDefinition[];
+}
+
+interface FieldDefinition {
+    name: string;
+    type: FieldType;
+}
+
+enum FieldType {
+    STRING = 'string',
+    NUMBER = 'number',
+    INT = 'int'
+}
+
 export function testDataRetrieval(): Promise<PouchData> {
     return remote.get<PouchData>('testData');
 }
@@ -47,30 +114,4 @@ export interface QuestionRecord {
     isCorrect: boolean;
     attempts: number;
     time: number;
-}
-
-enum CourseDataTypes {
-    DATA = 'data',
-    CARD = 'card',
-    VIEWLIST = 'viewList'
-}
-
-interface DocID {
-    id: string;
-}
-
-interface CourseData {
-    type: CourseDataTypes;
-}
-
-// interface QuestionData extends CourseData {}
-
-interface ViewList extends CourseData {
-    questionType: string;
-    viewList: string[];
-}
-
-interface Card extends CourseData {
-    data: DocID;
-    view: string;
 }
