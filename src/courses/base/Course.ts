@@ -1,3 +1,5 @@
+import { DataShapeData, NoteCtor } from '@/db/types';
+
 export abstract class Answer {}
 
 // tslint:disable-next-line:max-classes-per-file
@@ -15,4 +17,27 @@ enum PropType {
 export interface PropDefinition {
     name: string;
     type: PropType;
+}
+
+// tslint:disable-next-line:max-classes-per-file
+class Course {
+    public name: string = '';
+    public cardTypes: Array<[DataShapeData, NoteCtor[]]> = [];
+
+    /**
+     *
+     */
+    constructor(name: string, cardTypes: Array<[DataShapeData, NoteCtor[]]>) {
+        this.name = name;
+        this.cardTypes = cardTypes;
+    }
+
+    public getDataShapeNames(): string[] {
+        const ret: string[] = [];
+        this.cardTypes.forEach( (cardType) => {
+            ret.push(cardType[0].name);
+        });
+        return ret;
+    }
+
 }
