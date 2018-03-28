@@ -57,10 +57,10 @@ export interface Field {
 /**
  * The name of a defined interface for ctor args of a question type or viewable type
  */
-export type ViewableTypeCtor = string;
+export type NoteCtor = string;
 export interface DataShapeData extends SkuilderCourseData {
     // DocType.DATASHAPE
-    name: ViewableTypeCtor;
+    name: NoteCtor;
     fields: FieldDefinition[];
 }
 
