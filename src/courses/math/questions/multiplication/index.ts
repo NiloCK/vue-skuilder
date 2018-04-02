@@ -22,7 +22,7 @@ export default fields;
 
 export class SingleDigitMultiplicationQuestion extends Question {
     public static dataShape = {
-        name: 'SingleDigitMultiplidationQuestionProps',
+        name: 'SingleDigitMultiplicationQuestion',
         fields
     };
     public data: SingleDigitMultiplicationQuestionProps;
