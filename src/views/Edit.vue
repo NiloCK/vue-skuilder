@@ -15,6 +15,7 @@
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { getCourseList } from '../db/index';
+import Courses from '../courses';
 
 @Component({
   // data() {
@@ -28,9 +29,13 @@ export default class Edit extends Vue {
   public selectedCourse: string = '';
 
   private created() {
-    getCourseList().then((courseList) => {
-      this.courseList = courseList.courses;
-    });
+    this.courseList = Object.getOwnPropertyNames(Courses);
+    // Courses.math.forEach( (type) => {
+    //   this.courseList.push( type.dataShape.name );
+    // });
+    // getCourseList().then((courseList) => {
+    //   this.courseList = courseList.courses;
+    // });
   }
 }
 </script>

@@ -1,5 +1,5 @@
-import multiplicationHorizontal from './questions/multiplication/horizontal.vue';
+import { SingleDigitMultiplicationQuestion } from '@/courses/math/questions/multiplication';
 
-export default {
-    multiplicationHorizontal
-};
+export default [
+    SingleDigitMultiplicationQuestion
+];
