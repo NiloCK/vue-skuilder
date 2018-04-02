@@ -1,4 +1,4 @@
-import { Answer } from '@/courses/base/Course';
+import { Answer, DataShape } from '@/base-course/Course';
 
 export enum DocType {
     DISPLAYABLE_DATA,
@@ -12,10 +12,7 @@ export enum DocType {
  * Interface for all data on course content and pedagogy stored
  * in the c/pouch database.
  */
-export interface SkuilderCourseData extends
-        PouchDB.Core.IdMeta,
-        PouchDB.Core.GetMeta,
-        PouchDB.Core.Response {
+export interface SkuilderCourseData {
     course: string;
     docType: DocType;
 }
@@ -58,10 +55,9 @@ export interface Field {
  * The name of a defined interface for ctor args of a question type or viewable type
  */
 export type NoteCtor = string;
-export interface DataShapeData extends SkuilderCourseData {
+
+export interface DataShapeData extends SkuilderCourseData, DataShape {
     // DocType.DATASHAPE
-    name: NoteCtor;
-    fields: FieldDefinition[];
 }
 
 export interface FieldDefinition {
