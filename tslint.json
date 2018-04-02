@@ -23,6 +23,7 @@
         "multiline": "never",
         "singleline": "never"
       }
-    ]
+    ],
+    "variable-name": false
   }
 }
