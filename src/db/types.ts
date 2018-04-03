@@ -63,6 +63,7 @@ export interface DataShapeData extends SkuilderCourseData, DataShape {
 export interface FieldDefinition {
     name: string;
     type: FieldType;
+    validator?: (value: any) => boolean;
 }
 
 export enum FieldType {
