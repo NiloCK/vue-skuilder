@@ -7,13 +7,14 @@
           {{course}}
         </option>
       </select>
-      <div>{{selectedCourse}}</div>
+      <CourseEditor v-bind:course="selectedCourse" />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import CourseEditor from '../components/Edit/CourseEditor.vue';
+import { Component } from 'vue-property-decorator';
 import { getCourseList } from '../db/index';
 import Courses from '../courses';
 
@@ -23,6 +24,9 @@ import Courses from '../courses';
   //     // viewables: []
   //   };
   // }
+  components: {
+    CourseEditor
+  }
 })
 export default class Edit extends Vue {
   public courseList: string[] = [];
