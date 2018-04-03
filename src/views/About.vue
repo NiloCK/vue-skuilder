@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Viewable from '@/courses/base/Viewable.vue';
+import Viewable from '@/base-course/Viewable.vue';
 import multiplicationHorizontal from '@/courses/math/questions/multiplication/horizontal.vue';
 import { Component } from 'vue-property-decorator';
 import { SingleDigitMultiplicationQuestion } from '@/courses/math/questions/multiplication';
