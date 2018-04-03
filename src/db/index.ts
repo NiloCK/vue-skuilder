@@ -5,7 +5,6 @@ import { Answer, DataShape } from '@/base-course/Course';
 import { CourseListData, DataShapeData, DocType, CardData, NoteCtor } from '@/db/types';
 
 pouch.plugin(PouchDBAuth);
-// pouch.plugin(require('pouchdb-find').default);
 pouch.plugin(PouchDBFind);
 
 const databaseName = 'record';
