@@ -21,8 +21,6 @@ const fields: FieldDefinition[] = [
     }
 ];
 
-export default fields;
-
 export class SingleDigitDivisionQuestion extends Question {
     public static dataShape = {
         name: 'SingleDigitDivisionQuestion',

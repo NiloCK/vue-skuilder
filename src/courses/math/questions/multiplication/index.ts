@@ -18,8 +18,6 @@ const fields: FieldDefinition[] = [
     }
 ];
 
-export default fields;
-
 export class SingleDigitMultiplicationQuestion extends Question {
     public static dataShape = {
         name: 'SingleDigitMultiplicationQuestion',
