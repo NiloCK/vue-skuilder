@@ -24,26 +24,28 @@ export interface View {
 }
 
 // tslint:disable-next-line:max-classes-per-file
-export class Course {
-    public name: string = '';
-    // public cardTypes: Array<[DataShape, VueComponentName[]]> = [];
-    public questionTypes: Array<typeof Question> = [];
+// export class Course {
+//     public name: string = '';
+//     // public cardTypes: Array<[DataShape, VueComponentName[]]> = [];
+//     public questionTypes: Array<typeof Question> = [];
 
-    /**
-     *
-     */
-    constructor(
-        name: string,
-        cardTypes: Array<typeof Question>) {
-            this.name = name;
-            this.questionTypes = cardTypes;
-    }
+//     /**
+//      *
+//      */
+//     constructor(
+//         name: string,
+//         cardTypes: Array<typeof Question>) {
+//             this.name = name;
+//             this.questionTypes = cardTypes;
+//     }
 
-    public getDataShapeNames() {
-        const ret: string[] = [];
-        this.questionTypes.forEach( (qType) => {
-            
-        })
-    }
+//     public getDataShapeNames() {
+//         const ret: string[] = [];
+//         this.questionTypes.forEach( (qType) => {
+//         })
+//     }
 
+// }
+export interface Course {
+    viewableTypes: Array<typeof Question>;
 }
