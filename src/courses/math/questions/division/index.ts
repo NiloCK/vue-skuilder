@@ -14,7 +14,10 @@ const fields: FieldDefinition[] = [
     },
     {
         name: 'b',
-        type: FieldType.INT
+        type: FieldType.INT,
+        validator: (value: string) => {
+            return parseInt(value, 10) > 0;
+        }
     }
 ];
 
