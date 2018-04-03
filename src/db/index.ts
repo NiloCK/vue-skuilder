@@ -1,10 +1,11 @@
 import pouch from 'pouchdb-browser';
-import * as PouchDBFind from 'pouchdb-find';
+import PouchDBFind from 'pouchdb-find';
 import PouchDBAuth from 'pouchdb-authentication';
 import { Answer, DataShape } from '@/base-course/Course';
 import { CourseListData, DataShapeData, DocType, CardData, NoteCtor } from '@/db/types';
 
 pouch.plugin(PouchDBAuth);
+// pouch.plugin(require('pouchdb-find').default);
 pouch.plugin(PouchDBFind);
 
 const databaseName = 'record';
@@ -33,6 +34,22 @@ export function addDataShape(course: string, dataShape: DataShape) {
 }
 export function getDataShape(id: PouchDB.Core.DocumentId): Promise<DataShapeData> {
     return remote.get<DataShapeData>(id);
+}
+
+/**
+ * Returns a list of the registered dataShapes for the course
+ * @param course The name of the course to search
+ */
+export function getDataShapes(course: string) {
+    return remote.find({
+        selector: {
+            course,
+            docType: DocType.DATASHAPE
+        }
+    });
+    // return remote.query({
+    //     selector: {}
+    // })
 }
 
 /**
