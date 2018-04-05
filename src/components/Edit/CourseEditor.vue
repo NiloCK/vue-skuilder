@@ -25,7 +25,7 @@ import { getDataShapes } from '@/db';
 
 @Component({})
 export default class CourseEditor extends Vue {
-  @Prop() public course: string;
+  @Prop() public course: string = '';
   public dataShapes: DataShape[] = [];
   public selectedShape: string = '';
   public testInt: number = 30;
