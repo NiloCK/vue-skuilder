@@ -1,4 +1,4 @@
-import { NoteCtor, FieldDefinition, VueComponentName } from '@/db/types';
+import { NoteCtor, VueComponentName } from '@/db/types';
 
 export abstract class Answer {}
 
@@ -17,6 +17,18 @@ enum PropType {
 export interface DataShape {
     name: NoteCtor;
     fields: FieldDefinition[];
+}
+
+export interface FieldDefinition {
+    name: string;
+    type: FieldType;
+    validator?: (value: any) => boolean;
+}
+
+export enum FieldType {
+    STRING = 'string',
+    NUMBER = 'number',
+    INT = 'int'
 }
 
 export interface View {

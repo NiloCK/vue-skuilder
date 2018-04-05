@@ -60,18 +60,6 @@ export interface DataShapeData extends SkuilderCourseData, DataShape {
     // DocType.DATASHAPE
 }
 
-export interface FieldDefinition {
-    name: string;
-    type: FieldType;
-    validator?: (value: any) => boolean;
-}
-
-export enum FieldType {
-    STRING = 'string',
-    NUMBER = 'number',
-    INT = 'int'
-}
-
 export interface QuestionRecord {
     course: string;
     cardID: string;

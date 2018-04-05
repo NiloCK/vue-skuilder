@@ -1,6 +1,6 @@
-import { Question, Answer } from '@/base-course/Course';
+import { Question, Answer, FieldDefinition, FieldType } from '@/base-course/Course';
 import { randomInt } from '@/courses/math/utility';
-import { DataShapeData, FieldType, FieldDefinition } from '@/db/types';
+import { DataShapeData } from '@/db/types';
 
 interface SingleDigitDivisionQuestionProps {
     a: number;
