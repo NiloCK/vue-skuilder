@@ -1,4 +1,4 @@
-import { Question, Answer, FieldDefinition, FieldType } from '@/base-course/Course';
+import { Question, Answer, FieldDefinition, FieldType, Status } from '@/base-course/Course';
 import { randomInt } from '@/courses/math/utility';
 import { DataShapeData } from '@/db/types';
 
@@ -15,8 +15,27 @@ const fields: FieldDefinition[] = [
     {
         name: 'b',
         type: FieldType.INT,
-        validator: (value: string) => {
-            return parseInt(value, 10) > 0;
+        validator: {
+            instructions: 'An integer between 1 and 10, inclusive.',
+            test: (value: string) => {
+                const input = parseInt(value, 10);
+                if (0 < input && input < 11) {
+                    return {
+                        status: Status.ok,
+                        msg: ''
+                    };
+                } else if (input === 0) {
+                    return {
+                        status: Status.error,
+                        msg: 'Thou shalt not divide by zero.'
+                    };
+                } else {
+                    return {
+                        status: Status.error,
+                        msg: 'Single digit division problem divisors must be between 1 and 10, inclusive.'
+                    };
+                }
+            }
         }
     }
 ];

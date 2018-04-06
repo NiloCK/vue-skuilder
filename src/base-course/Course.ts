@@ -22,7 +22,24 @@ export interface DataShape {
 export interface FieldDefinition {
     name: string;
     type: FieldType;
-    validator?: (value: any) => boolean;
+    validator?: Validator;
+}
+
+export enum Status {
+    ok = 'ok',
+    warning = 'warning',
+    error = 'error'
+}
+
+interface Validator {
+    instructions?: string;
+    placeholder?: string;
+    test: (value: string) => ValidationResult;
+}
+
+interface ValidationResult {
+    status: Status;
+    msg: string;
 }
 
 export enum FieldType {
