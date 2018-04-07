@@ -22,4 +22,3 @@ export default class FieldInput extends Vue {
   @Prop() public field: FieldDefinition;
 }
 </script>
-
