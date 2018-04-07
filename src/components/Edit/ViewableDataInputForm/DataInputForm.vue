@@ -10,8 +10,13 @@
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { FieldDefinition } from '@/base-course/Course';
+import FieldInput from './FieldInputs/index.vue';
 
-@Component({})
+@Component({
+    components: {
+        FieldInput
+    }
+})
 export default class DataInputForm extends Vue {
   @Prop() public fields: FieldDefinition[] = [];
 
