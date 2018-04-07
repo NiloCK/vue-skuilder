@@ -54,29 +54,6 @@ export interface View {
     name: string;
 }
 
-// tslint:disable-next-line:max-classes-per-file
-// export class Course {
-//     public name: string = '';
-//     // public cardTypes: Array<[DataShape, VueComponentName[]]> = [];
-//     public questionTypes: Array<typeof Question> = [];
-
-//     /**
-//      *
-//      */
-//     constructor(
-//         name: string,
-//         cardTypes: Array<typeof Question>) {
-//             this.name = name;
-//             this.questionTypes = cardTypes;
-//     }
-
-//     public getDataShapeNames() {
-//         const ret: string[] = [];
-//         this.questionTypes.forEach( (qType) => {
-//         })
-//     }
-
-// }
 export interface Course {
     viewableTypes: Array<typeof Question>;
 }
