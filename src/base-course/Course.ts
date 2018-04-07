@@ -37,7 +37,7 @@ interface Validator {
     test: (value: string) => ValidationResult;
 }
 
-interface ValidationResult {
+export interface ValidationResult {
     status: Status;
     msg: string;
 }
