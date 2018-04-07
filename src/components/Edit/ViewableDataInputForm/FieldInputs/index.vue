@@ -16,8 +16,17 @@
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { FieldDefinition, FieldType } from '@/base-course/Course';
+import NumberInput from './NumberInput.vue';
+import StringInput from './StringInput.vue';
+import IntegerInput from './IntegerInput.vue';
 
-@Component({})
+@Component({
+    components: {
+        NumberInput,
+        StringInput,
+        IntegerInput
+    }
+})
 export default class FieldInput extends Vue {
   @Prop() public field: FieldDefinition;
 }
