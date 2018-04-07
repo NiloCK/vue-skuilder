@@ -34,8 +34,10 @@ export enum Status {
 interface Validator {
     instructions?: string;
     placeholder?: string;
-    test: (value: string) => ValidationResult;
+    test: ValidatingFunction;
 }
+
+export type ValidatingFunction = (value: string) => ValidationResult;
 
 export interface ValidationResult {
     status: Status;
