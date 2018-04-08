@@ -8,12 +8,6 @@ export abstract class Question {
     public abstract isCorrect(answer: Answer): boolean;
 }
 
-enum PropType {
-    String = 'string',
-    Number = 'number'
-    // image, audio, video, etc. Various blob data
-}
-
 export interface DataShape {
     name: NoteCtor;
     fields: FieldDefinition[];
