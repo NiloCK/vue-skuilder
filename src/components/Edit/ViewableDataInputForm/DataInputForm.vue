@@ -1,8 +1,9 @@
 <template>
-  <form action="">
+  <form autocomplete="off">
       <div v-for="field in fields" :key="field.name" :value="field">
           <FieldInput v-bind:field="field" />
       </div>
+      <button v-on:click="sayhi">Add Data</button>
   </form>
 </template>
 
@@ -20,6 +21,9 @@ import FieldInput from './FieldInputs/index.vue';
 export default class DataInputForm extends Vue {
   @Prop() public fields: FieldDefinition[];
 
+  public sayhi() {
+      alert('hi');
+  }
 }
 </script>
 
