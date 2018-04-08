@@ -1,6 +1,6 @@
 <template>
     <div>
-        <input type="text" v-bind:name="field.name">
+        <input type="number" v-bind:name="field.name">
         <label v-bind:for="field.name">{{field.name}}</label>
     </div>
 </template>

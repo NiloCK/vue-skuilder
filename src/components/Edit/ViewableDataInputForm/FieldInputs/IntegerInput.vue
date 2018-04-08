@@ -1,6 +1,6 @@
 <template>
     <div>
-        <input type="text" v-bind:name="field.name">
+        <input type="number" v-bind:name="field.name">
         <label v-bind:for="field.name">{{field.name}}</label>
     </div>
 </template>
@@ -9,9 +9,9 @@
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import {
-  FieldDefinition,
   FieldType,
-  ValidatingFunction
+  ValidatingFunction,
+  FieldDefinition
 } from '@/base-course/Course';
 import { integerValidator } from './typeValidators';
 
