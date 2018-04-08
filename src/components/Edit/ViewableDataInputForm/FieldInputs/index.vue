@@ -1,13 +1,13 @@
 <template>
     <div>
-        <div v-if="field.type === FieldType.STRING">
-            <StringInput field="field" />
+        <div v-if="field.type === str">
+            <StringInput v-bind:field="field" />
         </div>
-        <div v-else-if="field.type === FieldType.NUMBER">
-            <NumberInput field="field" />
+        <div v-else-if="field.type === num">
+            <NumberInput v-bind:field="field" />
         </div>
-        <div v-else-if="field.type === FieldType.INT">
-            <IntegerInput field="field" />
+        <div v-else-if="field.type === int">
+            <IntegerInput v-bind:field="field" />
         </div>
     </div>
 </template>
@@ -29,5 +29,8 @@ import IntegerInput from './IntegerInput.vue';
 })
 export default class FieldInput extends Vue {
   @Prop() public field: FieldDefinition;
+  private readonly str: string = FieldType.STRING;
+  private readonly int: string = FieldType.INT;
+  private readonly num: string = FieldType.NUMBER;
 }
 </script>

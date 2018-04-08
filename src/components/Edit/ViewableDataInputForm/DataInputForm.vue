@@ -1,7 +1,7 @@
 <template>
   <form action="">
       <div v-for="field in fields" :key="field.name" :value="field">
-          <FieldInput field="field" />
+          <FieldInput v-bind:field="field" />
       </div>
   </form>
 </template>
@@ -18,7 +18,7 @@ import FieldInput from './FieldInputs/index.vue';
     }
 })
 export default class DataInputForm extends Vue {
-  @Prop() public fields: FieldDefinition[] = [];
+  @Prop() public fields: FieldDefinition[];
 
 }
 </script>
