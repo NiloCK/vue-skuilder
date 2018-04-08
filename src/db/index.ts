@@ -1,8 +1,9 @@
 import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import PouchDBAuth from 'pouchdb-authentication';
-import { Answer, DataShape } from '@/base-course/Course';
+import { Answer } from '@/base-course/Course';
 import { CourseListData, DataShapeData, DocType, CardData, NoteCtor } from '@/db/types';
+import { DataShape } from '@/base-course/Interfaces/DataShape';
 
 pouch.plugin(PouchDBAuth);
 pouch.plugin(PouchDBFind);

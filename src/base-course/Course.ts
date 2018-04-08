@@ -1,4 +1,8 @@
 import { NoteCtor, VueComponentName } from '@/db/types';
+import { FieldType } from '@/enums/FieldType';
+import { Status } from '@/enums/Status';
+import { Validator } from '@/base-course/Interfaces/Validator';
+import { DataShape } from '@/base-course/Interfaces/DataShape';
 
 export abstract class Answer {}
 
@@ -6,46 +10,6 @@ export abstract class Answer {}
 export abstract class Question {
     public static dataShape: DataShape;
     public abstract isCorrect(answer: Answer): boolean;
-}
-
-export interface DataShape {
-    name: NoteCtor;
-    fields: FieldDefinition[];
-}
-
-export interface FieldDefinition {
-    name: string;
-    type: FieldType;
-    validator?: Validator;
-}
-
-export enum Status {
-    ok = 'ok',
-    warning = 'warning',
-    error = 'error'
-}
-
-interface Validator {
-    instructions?: string;
-    placeholder?: string;
-    test: ValidatingFunction;
-}
-
-export type ValidatingFunction = (value: string) => ValidationResult;
-
-export interface ValidationResult {
-    status: Status;
-    msg: string;
-}
-
-export enum FieldType {
-    STRING = 'string',
-    NUMBER = 'number',
-    INT = 'int'
-}
-
-export interface View {
-    name: string;
 }
 
 export interface Course {

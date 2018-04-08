@@ -1,5 +1,6 @@
-import { ValidationResult, Status } from '@/base-course/Course';
 import { isNumber } from 'util';
+import { Status } from '@/enums/Status';
+import { ValidationResult } from '@/base-course/Interfaces/ValidationResult';
 
 const okResult: ValidationResult = {
     status: Status.ok,

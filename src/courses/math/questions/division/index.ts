@@ -1,6 +1,9 @@
-import { Question, Answer, FieldDefinition, FieldType, Status } from '@/base-course/Course';
+import { Question, Answer } from '@/base-course/Course';
 import { randomInt } from '@/courses/math/utility';
 import { DataShapeData } from '@/db/types';
+import { FieldType } from '@/enums/FieldType';
+import { Status } from '@/enums/Status';
+import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 
 interface SingleDigitDivisionQuestionProps {
     a: number;

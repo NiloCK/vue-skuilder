@@ -8,7 +8,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
-import { FieldDefinition, FieldType, ValidatingFunction } from '@/base-course/Course';
+import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
+import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
 
 @Component
 export default class StringInput extends Vue {

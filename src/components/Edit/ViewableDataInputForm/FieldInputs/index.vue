@@ -15,7 +15,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
-import { FieldDefinition, FieldType } from '@/base-course/Course';
+import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
+import { FieldType } from '@/enums/FieldType';
 import NumberInput from './NumberInput.vue';
 import StringInput from './StringInput.vue';
 import IntegerInput from './IntegerInput.vue';

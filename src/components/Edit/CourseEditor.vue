@@ -13,7 +13,7 @@
         </option>
       </select>
       
-      <DataInputForm v-bind:fields="selectedShape.fields" />
+      <DataInputForm v-bind:fields="selectedShape" />
       
   </div>
 </template>
@@ -22,7 +22,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
-import { DataShape } from '@/base-course/Course';
+import { DataShape } from '@/base-course/Interfaces/DataShape';
 import Courses from '@/courses';
 import { getDataShapes } from '@/db';
 import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';

@@ -1,4 +1,5 @@
-import { Answer, DataShape } from '@/base-course/Course';
+import { Answer } from '@/base-course/Course';
+import { DataShape } from '@/base-course/Interfaces/DataShape';
 
 export enum DocType {
     DISPLAYABLE_DATA,

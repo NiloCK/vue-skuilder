@@ -8,11 +8,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
-import {
-  FieldType,
-  ValidatingFunction,
-  FieldDefinition
-} from '@/base-course/Course';
+import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
+import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
 import { integerValidator } from './typeValidators';
 
 @Component({})
