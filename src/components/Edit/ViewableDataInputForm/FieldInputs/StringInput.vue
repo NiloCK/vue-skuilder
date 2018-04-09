@@ -10,9 +10,10 @@ import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
+import { FieldInput } from '../FieldInput';
 
 @Component
-export default class StringInput extends Vue {
+export default class StringInput extends FieldInput {
   @Prop() public field: FieldDefinition;
 
   public getValidators(): ValidatingFunction[] {

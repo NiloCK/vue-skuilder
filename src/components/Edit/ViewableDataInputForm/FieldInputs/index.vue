@@ -1,13 +1,13 @@
 <template>
     <div>
         <div v-if="field.type === str">
-            <StringInput v-bind:field="field" />
+            <StringInput v-model="input" v-bind:field="field" />
         </div>
         <div v-else-if="field.type === num">
-            <NumberInput v-bind:field="field" />
+            <NumberInput v-model="input" v-bind:field="field" />
         </div>
         <div v-else-if="field.type === int">
-            <IntegerInput v-bind:field="field" />
+            <IntegerInput v-model="input" v-bind:field="field" />
         </div>
     </div>
 </template>
@@ -20,6 +20,8 @@ import { FieldType } from '@/enums/FieldType';
 import NumberInput from './NumberInput.vue';
 import StringInput from './StringInput.vue';
 import IntegerInput from './IntegerInput.vue';
+import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
+import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
 
 @Component({
     components: {
@@ -28,10 +30,16 @@ import IntegerInput from './IntegerInput.vue';
         IntegerInput
     }
 })
-export default class FieldInput extends Vue {
+export default class FormInput extends FieldInput {
   @Prop() public field: FieldDefinition;
+  public input: FieldInput;
+
   private readonly str: string = FieldType.STRING;
   private readonly int: string = FieldType.INT;
   private readonly num: string = FieldType.NUMBER;
+
+  public getValidators(): ValidatingFunction[] {
+      return this.input.getValidators();
+  }
 }
 </script>

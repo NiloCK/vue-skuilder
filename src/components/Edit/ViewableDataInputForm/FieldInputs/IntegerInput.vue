@@ -11,9 +11,10 @@ import { Component, Prop } from 'vue-property-decorator';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
 import { integerValidator } from './typeValidators';
+import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
 
 @Component({})
-export default class IntegerInput extends Vue {
+export default class IntegerInput extends FieldInput {
   @Prop() public field: FieldDefinition;
 
   public getValidators(): ValidatingFunction[] {
