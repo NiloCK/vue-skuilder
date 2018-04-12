@@ -13,7 +13,7 @@
         </option>
       </select>
       
-      <DataInputForm v-bind:dataShape="selectedShape" />
+      <DataInputForm v-if="selectedShape.name" v-bind:dataShape="selectedShape" />
       
   </div>
 </template>
