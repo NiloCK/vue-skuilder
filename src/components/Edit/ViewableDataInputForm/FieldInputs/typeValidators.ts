@@ -27,7 +27,7 @@ export function integerValidator(value: string): ValidationResult {
     };
 
     if (numberValidator(value).status === Status.error) {
-        return errorResult;
+        return numberValidator(value);
     }
 
     if (isInteger(value)) {
