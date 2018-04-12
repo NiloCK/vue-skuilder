@@ -1,6 +1,11 @@
 <template>
     <div>
-        <input type="number" v-bind:name="field.name">
+        <input
+            v-model="store[field.name]"
+            v-bind:name="field.name"
+            @change="validate"
+            type="number"            
+        />
         <label v-bind:for="field.name">{{field.name}}</label>
     </div>
 </template>
@@ -15,7 +20,6 @@ import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
 
 @Component({})
 export default class NumberInput extends FieldInput {
-  @Prop() public field: FieldDefinition;
 
   public getValidators(): ValidatingFunction[] {
     const ret = [numberValidator];

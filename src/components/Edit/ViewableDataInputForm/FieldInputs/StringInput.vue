@@ -1,6 +1,12 @@
 <template>
     <div>
-        <input type="text" v-bind:name="field.name">
+        <input
+            v-model="store[field.name]"
+            v-bind:name="field.name"
+            @change="validate"
+            type="text"
+            v-bind:class="validationStatus.status"
+        >
         <label v-bind:for="field.name">{{field.name}}</label>
     </div>
 </template>
@@ -14,7 +20,6 @@ import { FieldInput } from '../FieldInput';
 
 @Component
 export default class StringInput extends FieldInput {
-  @Prop() public field: FieldDefinition;
 
   public getValidators(): ValidatingFunction[] {
       if (this.field.validator) {
