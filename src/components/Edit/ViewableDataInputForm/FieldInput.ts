@@ -42,7 +42,7 @@ export abstract class FieldInput extends Vue {
             index++;
         }
 
-        // the belos works (eg, vue reactivity), but
+        // the below works (eg, vue reactivity), but
         // this.validationStatus = ret does NOT
         this.validationStatus.status = ret.status;
         this.validationStatus.msg = ret.msg;
