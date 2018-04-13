@@ -2,7 +2,7 @@ import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import PouchDBAuth from 'pouchdb-authentication';
 import { Answer } from '@/base-course/Course';
-import { CourseListData, DataShapeData, DocType, CardData, NoteCtor } from '@/db/types';
+import { CourseListData, DataShapeData, DocType, CardData, NoteCtor, DisplayableData } from '@/db/types';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 
 pouch.plugin(PouchDBAuth);
@@ -34,6 +34,24 @@ export function addDataShape(course: string, dataShape: DataShape) {
 }
 export function getDataShape(id: PouchDB.Core.DocumentId): Promise<DataShapeData> {
     return remote.get<DataShapeData>(id);
+}
+
+export function addNote(course: string, shape: DataShape, data: any){
+    const payload: DisplayableData = {
+        course,
+        data: [],
+        docType: DocType.DISPLAYABLE_DATA,
+        id_datashape: shape.name
+    };
+
+    shape.fields.forEach( (field) => {
+        payload.data.push({
+            name: field.name,
+            data: data[field.name]
+        });
+    });
+
+    remote.post<DisplayableData>(payload);
 }
 
 /**

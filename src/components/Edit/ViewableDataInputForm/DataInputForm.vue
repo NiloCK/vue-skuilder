@@ -33,6 +33,7 @@ import { FieldType } from '@/enums/FieldType';
 import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
+import { addNote } from '@/db';
 
 @Component({
     components: {
@@ -62,6 +63,7 @@ export default class DataInputForm extends Vue {
       Object.getOwnPropertyNames(this.store).forEach( (prop) => {
           alert(prop + ':\t' + this.store[prop]);
       });
+      addNote('math', this.dataShape, this.store);
   }
 }
 </script>
