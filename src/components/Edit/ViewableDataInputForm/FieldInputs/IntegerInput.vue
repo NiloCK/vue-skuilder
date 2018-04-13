@@ -25,7 +25,6 @@ import { Status } from '@/enums/Status';
 export default class IntegerInput extends FieldInput {
 
   public getValidators(): ValidatingFunction[] {
-    alert('getValidators has started');
     const ret = [integerValidator];
 
     if (this.field.validator) {
@@ -37,13 +36,5 @@ export default class IntegerInput extends FieldInput {
 </script>
 
 <style scoped>
-/* todo: see how to import this styling
-so that it can be shared among the other inputs
- */
-.ok {
-    box-shadow: 10px 5px 5px green;
-}
-.error {
-    box-shadow: 10px 5px 5px red;
-}
+@import './FieldInput.css'
 </style>
