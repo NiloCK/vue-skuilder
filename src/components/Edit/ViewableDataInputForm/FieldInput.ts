@@ -28,8 +28,6 @@ export abstract class FieldInput extends Vue {
         // public validate() {...} used instead
         // ...
 
-        // alert(this);
-        // alert(this.store[this.field.name]);
         let ret: ValidationResult = {
             status: Status.ok,
             msg: ''
