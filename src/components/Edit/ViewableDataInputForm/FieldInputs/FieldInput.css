@@ -1,6 +1,12 @@
 .ok {
-    box-shadow: 2px 2px 2px green;
+    box-shadow: 2px 2px 2px #383;
+}
+.warn {
+    box-shadow: 2px 2px 2px yellow;
 }
 .error {
     box-shadow: 2px 2px 2px red;
+}
+input {
+    margin: 3px;
 }
