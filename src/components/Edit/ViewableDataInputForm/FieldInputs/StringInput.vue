@@ -1,5 +1,6 @@
 <template>
     <div>
+        <label v-bind:for="field.name">{{field.name}}: </label>
         <input
             v-model="store[field.name]"
             v-bind:name="field.name"
@@ -7,7 +8,6 @@
             type="text"
             v-bind:class="validationStatus.status"
         >
-        <label v-bind:for="field.name">{{field.name}}</label>
     </div>
 </template>
 
@@ -30,3 +30,7 @@ export default class StringInput extends FieldInput {
   }
 }
 </script>
+
+<style scoped>
+@import './FieldInput.css'
+</style>
