@@ -19,11 +19,6 @@ import { getCourseList } from '../db/index';
 import Courses from '../courses';
 
 @Component({
-  // data() {
-  //   return {
-  //     // viewables: []
-  //   };
-  // }
   components: {
     CourseEditor
   }
@@ -34,12 +29,6 @@ export default class Edit extends Vue {
 
   private created() {
     this.courseList = Object.getOwnPropertyNames(Courses);
-    // Courses.math.forEach( (type) => {
-    //   this.courseList.push( type.dataShape.name );
-    // });
-    // getCourseList().then((courseList) => {
-    //   this.courseList = courseList.courses;
-    // });
   }
 }
 </script>
