@@ -7,7 +7,7 @@
           {{course}}
         </option>
       </select>
-      <CourseEditor v-bind:course="selectedCourse" />
+      <CourseEditor v-if="selectedCourse" v-bind:course="selectedCourse" />
   </div>
 </template>
 
