@@ -10,8 +10,3 @@ const math: Course = {
 }
 
 export default math;
-
-// export default [
-//     SingleDigitMultiplicationQuestion,
-//     SingleDigitDivisionQuestion
-// ];
