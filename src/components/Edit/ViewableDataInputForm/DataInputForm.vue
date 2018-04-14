@@ -44,6 +44,7 @@ import { addNote } from '@/db';
 })
 export default class DataInputForm extends Vue {
   @Prop() public dataShape: DataShape;
+  @Prop() public course: string;
   public fields: FormInput[] = [];
   public store: any = {}; // todo: see about typing this
 
@@ -63,7 +64,7 @@ export default class DataInputForm extends Vue {
       Object.getOwnPropertyNames(this.store).forEach( (prop) => {
           alert(prop + ':\t' + this.store[prop]);
       });
-      addNote('math', this.dataShape, this.store);
+      addNote(this.course, this.dataShape, this.store);
   }
 }
 </script>
