@@ -1,5 +1,5 @@
 <template>
-  <form autocomplete="off">
+  <div autocomplete="off">
       <div v-for="field in dataShape.fields" :key="dataShape.fields.indexOf(field)">
         <div v-if="field.type === str">
             <StringInput
@@ -21,7 +21,7 @@
         </div>          
       </div>
       <button v-on:click="submit">Add Data</button>
-  </form>
+  </div>
 </template>
 
 <script lang="ts">
@@ -61,9 +61,11 @@ export default class DataInputForm extends Vue {
       // submit data from this.store to the database
 
       // test Fcn: works!!
-      Object.getOwnPropertyNames(this.store).forEach( (prop) => {
-          alert(prop + ':\t' + this.store[prop]);
-      });
+    //   alert(`
+    //   Course: ${this.course}
+    //   dataShape: ${JSON.stringify(this.dataShape)}
+    //   data: ${JSON.stringify(this.store)}
+    //   `);
       addNote(this.course, this.dataShape, this.store);
   }
 }
