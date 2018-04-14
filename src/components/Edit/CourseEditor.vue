@@ -1,8 +1,5 @@
 <template>
-  <div v-if="course">
-      <div>
-          You are editing: {{ course }}. {{ testInt }}
-      </div>
+  <div class="courseEditor" v-if="course">
       <div>
           There are {{ dataShapes.length }} data shapes in the course.
       </div>
@@ -37,7 +34,7 @@ import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
   }
 })
 export default class CourseEditor extends Vue {
-  @Prop() public course: string = '';
+  @Prop() public course: string;
   public dataShapes: DataShape[];
   public selectedShape: DataShape = {name: '', fields: []};
   public testInt: number = 30;
@@ -59,3 +56,9 @@ export default class CourseEditor extends Vue {
   }
 }
 </script>
+
+<style scoped>
+div {
+  margin-top: 15px;
+}
+</style>
