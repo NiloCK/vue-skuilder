@@ -2,11 +2,11 @@ import { Answer } from '@/base-course/Course';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 
 export enum DocType {
-    DISPLAYABLE_DATA,
-    CARD,
-    DATASHAPE,
-    VIEW,
-    PEDAGOGY
+    DISPLAYABLE_DATA = 'DISPLAYABLE_DATA',
+    CARD = 'CARD',
+    DATASHAPE = 'DATASHAPE',
+    VIEW = 'VIEW',
+    PEDAGOGY = 'PEDAGOGY'
 }
 
 /**
