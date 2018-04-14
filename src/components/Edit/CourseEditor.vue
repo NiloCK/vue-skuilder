@@ -37,18 +37,8 @@ export default class CourseEditor extends Vue {
   @Prop() public course: string;
   public dataShapes: DataShape[];
   public selectedShape: DataShape = {name: '', fields: []};
-  public testInt: number = 30;
 
   public created() {
-    // Works, but not on 'created' - function is returning a doc
-    // but component populates with testInt = 0.
-    // When the program is recompiled w/ the component 'in view',
-    // testInt updates to the number expected (by manually looking
-    // in the database)
-    getDataShapes(this.course).then( (resp) => {
-      this.testInt = resp.docs.length;
-    });
-
     this.dataShapes = [
       Courses.math[0].dataShape,
       Courses.math[1].dataShape
