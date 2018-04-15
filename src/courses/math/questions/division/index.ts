@@ -4,6 +4,7 @@ import { DataShapeData } from '@/db/types';
 import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
+import HorizontalDivision from './horizontal.vue';
 
 interface SingleDigitDivisionQuestionProps {
     a: number;
@@ -45,8 +46,9 @@ const fields: FieldDefinition[] = [
 
 export class SingleDigitDivisionQuestion extends Question {
     public static dataShape = {
-        name: 'SingleDigitDivisionQuestion',
-        fields
+        name: SingleDigitDivisionQuestion.name,
+        fields,
+        views: [ HorizontalDivision ]
     };
     public data: SingleDigitDivisionQuestionProps;
 

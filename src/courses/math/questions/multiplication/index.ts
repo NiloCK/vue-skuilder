@@ -3,6 +3,7 @@ import { randomInt } from '@/courses/math/utility';
 import { DataShapeData } from '@/db/types';
 import { FieldType } from '@/enums/FieldType';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
+import HorizontalMultiplication from './horizontal.vue';
 
 interface SingleDigitMultiplicationQuestionProps {
     a: number;
@@ -22,8 +23,9 @@ const fields: FieldDefinition[] = [
 
 export class SingleDigitMultiplicationQuestion extends Question {
     public static dataShape = {
-        name: 'SingleDigitMultiplicationQuestion',
-        fields
+        name: SingleDigitMultiplicationQuestion.name,
+        fields,
+        views: [ HorizontalMultiplication ]
     };
     public data: SingleDigitMultiplicationQuestionProps;
 
