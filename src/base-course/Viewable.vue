@@ -6,10 +6,11 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import { DisplayableData } from '@/db/types';
 
 @Component
 export default class Viewable extends Vue {
-  @Prop() public data: any;
+  @Prop() public data: DisplayableData;
 }
 </script>
 
