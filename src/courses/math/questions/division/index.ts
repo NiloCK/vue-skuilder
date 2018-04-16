@@ -6,7 +6,7 @@ import { Status } from '@/enums/Status';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import HorizontalDivision from './horizontal.vue';
 
-interface SingleDigitDivisionQuestionProps {
+export interface SingleDigitDivisionQuestionProps {
     a: number;
     b: number;
 }

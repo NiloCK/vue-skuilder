@@ -8,16 +8,18 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import Viewable from '@/base-course/Viewable.vue';
-import { SingleDigitDivisionQuestion } from './index';
+import { SingleDigitDivisionQuestion, SingleDigitDivisionQuestionProps } from './index';
 
 @Component
 export default class DivisionHorizontal extends Viewable {
   public answer: string = '';
-  @Prop()
-  public question: SingleDigitDivisionQuestion = new SingleDigitDivisionQuestion();
 
   public submit() {
     alert(this.question.isCorrect(parseInt(this.answer, 10)));
+  }
+
+  get question() {
+    return new SingleDigitDivisionQuestion(this.data as SingleDigitDivisionQuestionProps);
   }
 }
 </script>
