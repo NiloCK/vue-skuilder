@@ -10,7 +10,7 @@ import { DisplayableData } from '@/db/types';
 
 @Component
 export default class Viewable extends Vue {
-  @Prop() public data: DisplayableData;
+  @Prop() public data: any;
 }
 </script>
 
