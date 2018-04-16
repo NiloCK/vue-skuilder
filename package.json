@@ -10,6 +10,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "moment": "^2.22.1",
     "pouchdb-authentication": "^1.1.2",
     "pouchdb-browser": "^6.4.3",
     "pouchdb-find": "^6.4.3",
