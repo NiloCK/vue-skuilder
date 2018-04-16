@@ -36,7 +36,7 @@ import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
 export default class CourseEditor extends Vue {
   @Prop() public course: string;
   public dataShapes: DataShape[] = [];
-  public selectedShape: DataShape = {name: '', fields: []};
+  public selectedShape: DataShape = {name: '', fields: [], views: []};
 
   public created() {
     Courses[this.course].viewableTypes.forEach( (type) => {
