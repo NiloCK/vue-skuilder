@@ -21,6 +21,11 @@
         </div>          
       </div>
       <button v-on:click="submit">Add Data</button>
+
+      <CardViewer 
+        v-bind:view="dataShape.views[0]"
+        v-bind:data="store" 
+      />
   </div>
 </template>
 
@@ -34,12 +39,14 @@ import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
 import { addNote } from '@/db';
+import CardViewer from '@/components/Study/CardViewer.vue';
 
 @Component({
     components: {
         NumberInput,
         StringInput,
-        IntegerInput
+        IntegerInput,
+        CardViewer
     }
 })
 export default class DataInputForm extends Vue {
@@ -56,7 +63,7 @@ export default class DataInputForm extends Vue {
       alert(this.dataShape.fields.length);
   }
   public submit() {
-      // check validators
+      // todo: check validators
 
       // submit data from this.store to the database
 
