@@ -8,12 +8,12 @@ export interface CourseList {
 export function getViews(courses: CourseList) {
     const ret: any = {};
     Object.keys(courses).forEach( (course) => {
-        alert(`Course: ${JSON.stringify(course)}`);
+        // alert(`Course: ${JSON.stringify(course)}`);
         courses[course].viewableTypes.forEach( (type) => {
-            alert(`dataShape type: ${type.name}`);
+            // alert(`dataShape type: ${type.name}`);
             type.dataShape.views.forEach( (view) => {
                 if (view) {
-                    alert(JSON.stringify(view));
+                    // alert(JSON.stringify(view));
                     ret[view.name] = view.name;
                 }
             });
