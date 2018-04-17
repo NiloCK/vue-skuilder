@@ -7,14 +7,15 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import Viewable from '@/base-course/Viewable';
+import { QuestionView } from '@/base-course/Viewable';
 import { SingleDigitMultiplicationQuestion } from './index';
 
 @Component
-export default class MultiplicationHorizontal extends Viewable {
+export default class MultiplicationHorizontal extends QuestionView<SingleDigitMultiplicationQuestion> {
   public answer: string = '';
-  @Prop()
-  public question: SingleDigitMultiplicationQuestion = new SingleDigitMultiplicationQuestion();
+  get question() {
+    return new SingleDigitMultiplicationQuestion(this.data);
+  }
 
   public submit() {
     alert(this.question.isCorrect(parseInt(this.answer, 10)));

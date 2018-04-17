@@ -7,11 +7,11 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import Viewable from '@/base-course/Viewable';
+import { QuestionView } from '@/base-course/Viewable';
 import { SingleDigitDivisionQuestion, SingleDigitDivisionQuestionProps } from './index';
 
 @Component
-export default class DivisionHorizontal extends Viewable {
+export default class DivisionHorizontal extends QuestionView<SingleDigitDivisionQuestion> {
   public answer: string = '';
 
   public submit() {
@@ -19,7 +19,7 @@ export default class DivisionHorizontal extends Viewable {
   }
 
   get question() {
-    return new SingleDigitDivisionQuestion(this.data as SingleDigitDivisionQuestionProps);
+    return new SingleDigitDivisionQuestion(this.data);
   }
 }
 </script>

@@ -27,4 +27,3 @@ export default class CardViewer extends Vue {
 // Argument of type '{ components: VueConstructor<Vue>[]; }'
 // is not assignable to parameter of type 'VueClass<Vue>'.
 </script>
-
