@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import Viewable from '@/base-course/Viewable.vue';
+import Viewable from '@/base-course/Viewable';
 import { SingleDigitDivisionQuestion, SingleDigitDivisionQuestionProps } from './index';
 
 @Component

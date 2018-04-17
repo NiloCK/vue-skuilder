@@ -15,7 +15,7 @@ import { DisplayableData } from '@/db/types';
 // import { getCourseList } from '../db/index';
 import Courses from '@/courses';
 import { getViews } from '@/courses';
-import Viewable from '@/base-course/Viewable.vue';
+import Viewable from '@/base-course/Viewable';
 
 @Component({
     components: getViews(Courses)
