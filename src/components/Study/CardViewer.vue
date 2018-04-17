@@ -15,15 +15,14 @@ import { DisplayableData } from '@/db/types';
 // import { getCourseList } from '../db/index';
 import Courses from '@/courses';
 import { getViews } from '@/courses';
+import Viewable from '@/base-course/Viewable.vue';
 
 @Component({
     components: getViews(Courses)
 })
 export default class CardViewer extends Vue {
-  @Prop() public view: VueConstructor<Vue>;
+  @Prop() public view: VueConstructor<Viewable>;
   @Prop() public data: DisplayableData;
-
-  public test() {}
 }
 // Argument of type '{ components: VueConstructor<Vue>[]; }'
 // is not assignable to parameter of type 'VueClass<Vue>'.
