@@ -5,11 +5,7 @@ import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import HorizontalDivision from './horizontal.vue';
-
-export interface SingleDigitDivisionQuestionProps {
-    a: number;
-    b: number;
-}
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 
 const fields: FieldDefinition[] = [
     {
@@ -50,23 +46,25 @@ export class SingleDigitDivisionQuestion extends Question {
         fields,
         views: [ HorizontalDivision ]
     };
-    public data: SingleDigitDivisionQuestionProps;
+
+    public a: number;
+    public b: number;
 
     /**
      * @param data a and b are seed props that will pop a question of
      * the form [(a*b) / b = ___]. So, b must be non-zero.
      */
-    constructor(data?: SingleDigitDivisionQuestionProps) {
-        super();
-        this.data = data ? data : {
-            a: randomInt(0, 10),
-            b: randomInt(1, 10)
-        };
+    constructor(data: ViewData) {
+        super(data);
+        this.a = data.a as number;
+        this.b = data.b as number;
     }
 
     public isCorrect(answer: Answer) {
-        const { a, b } = this.data;
+        return this.a * this.b === answer;
+    }
 
-        return a * b === answer;
+    public dataShape() {
+        return SingleDigitDivisionQuestion.dataShape;
     }
 }

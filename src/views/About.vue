@@ -11,13 +11,19 @@ import Vue from 'vue';
 import multiplicationHorizontal from '@/courses/math/questions/multiplication/horizontal.vue';
 import { Component } from 'vue-property-decorator';
 import { SingleDigitMultiplicationQuestion } from '@/courses/math/questions/multiplication';
+import { randomInt } from '@/courses/math/utility';
 
 export default {
   // problem: SingleDigitMultiplicationQuestion = new SingleDigitMultiplicationQuestion();
   data: () => {
     return {
       type: 'Viewable',
-      problem: new SingleDigitMultiplicationQuestion()
+      problem: new SingleDigitMultiplicationQuestion(
+        {
+          a: randomInt(0, 10),
+          b: randomInt(0, 10)
+        }
+      )
     };
   },
   components: {

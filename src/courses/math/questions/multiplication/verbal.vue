@@ -1,7 +1,7 @@
 <template>
   <div>
-      {{question.a}} &times; {{question.b}} = 
-       <input type="text" v-model="answer" @keyup.enter="submit" />
+      {{question.a}} times {{question.b}} is 
+      <input type="text" v-model="answer" @keyup.enter="submit" />
   </div>
 </template>
 
@@ -11,7 +11,7 @@ import { QuestionView } from '@/base-course/Viewable';
 import { SingleDigitMultiplicationQuestion } from './index';
 
 @Component
-export default class MultiplicationHorizontal extends QuestionView<SingleDigitMultiplicationQuestion> {
+export default class VerbalMultiplication extends QuestionView<SingleDigitMultiplicationQuestion> {
   public answer: string = '';
   get question() {
     return new SingleDigitMultiplicationQuestion(this.data);

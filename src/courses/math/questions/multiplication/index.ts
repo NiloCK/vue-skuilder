@@ -3,12 +3,9 @@ import { randomInt } from '@/courses/math/utility';
 import { DataShapeData } from '@/db/types';
 import { FieldType } from '@/enums/FieldType';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 import HorizontalMultiplication from './horizontal.vue';
-
-interface SingleDigitMultiplicationQuestionProps {
-    a: number;
-    b: number;
-}
+import VerbalMultiplication from './verbal.vue';
 
 const fields: FieldDefinition[] = [
     {
@@ -25,21 +22,24 @@ export class SingleDigitMultiplicationQuestion extends Question {
     public static dataShape = {
         name: SingleDigitMultiplicationQuestion.name,
         fields,
-        views: [ HorizontalMultiplication ]
+        views: [ HorizontalMultiplication,
+        VerbalMultiplication ]
     };
-    public data: SingleDigitMultiplicationQuestionProps;
 
-    constructor(data?: SingleDigitMultiplicationQuestionProps) {
-        super();
-        this.data = data ? data : {
-            a: randomInt(0, 10),
-            b: randomInt(0, 10)
-        };
+    public a: number;
+    public b: number;
+
+    constructor(data: ViewData) {
+        super(data);
+        this.a = data.a as number;
+        this.b = data.b as number;
     }
 
     public isCorrect(answer: Answer) {
-        const { a, b } = this.data;
+        return this.a * this.b === answer;
+    }
 
-        return a * b === answer;
+    public dataShape() {
+        return SingleDigitMultiplicationQuestion.dataShape;
     }
 }
