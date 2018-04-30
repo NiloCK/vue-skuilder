@@ -20,18 +20,19 @@
             />
         </div>          
       </div>
-      <button v-on:click="submit">Add Data</button>
+      <button v-bind:disabled="!userInputIsValid" v-on:click="submit">Add Data</button>
 
-      <CardViewer 
+      <CardViewer
+        v-if="userInputIsValid"
         v-bind:view="dataShape.views[0]"
-        v-bind:data="store" 
+        v-bind:data="store"
       />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import { Component, Prop, Watch } from 'vue-property-decorator';
 import FormInput from './FieldInputs/index.vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { FieldType } from '@/enums/FieldType';
@@ -53,27 +54,33 @@ export default class DataInputForm extends Vue {
   @Prop() public dataShape: DataShape;
   @Prop() public course: string;
   public fields: FormInput[] = [];
-  public store: any = {}; // todo: see about typing this
+  public store: any = {
+      validation: {}
+  }; // todo: see about typing this
 
   private readonly str: string = FieldType.STRING;
   private readonly int: string = FieldType.INT;
   private readonly num: string = FieldType.NUMBER;
 
-  public sayhi() {
-      alert(this.dataShape.fields.length);
+  public get userInputIsValid(): boolean {
+      let ret: boolean =
+        Object.getOwnPropertyNames(this.store['validation']).length ===
+        this.dataShape.fields.length + 1; // +1 here b/c of the validation key
+
+      Object.getOwnPropertyNames(this.store['validation']).forEach( (name) => {
+          if (this.store['validation'][name] === false) {
+              ret = false;
+          }
+      });
+
+    //   alert(ret);
+      return ret;
   }
+
   public submit() {
-      // todo: check validators
-
-      // submit data from this.store to the database
-
-      // test Fcn: works!!
-    //   alert(`
-    //   Course: ${this.course}
-    //   dataShape: ${JSON.stringify(this.dataShape)}
-    //   data: ${JSON.stringify(this.store)}
-    //   `);
+    if (this.userInputIsValid) {
       addNote(this.course, this.dataShape, this.store);
+    }
   }
 }
 </script>

@@ -44,6 +44,18 @@ export abstract class FieldInput extends Vue {
         // this.validationStatus = ret does NOT
         this.validationStatus.status = ret.status;
         this.validationStatus.msg = ret.msg;
+ 
+        const validationResult = ret.status === Status.ok;
+
+        Vue.set(this.store['validation'], this.field.name, validationResult);
+
+        if (!validationResult) {
+            // removing from the store object triggers vue reactivity on
+            // the DataInputForm. This is a brutal hack, to be replaced
+            // if / when I learn about Vuex, and implement better state
+            // management on this form
+            delete this.store[this.field.name];
+        }
 
         return ret;
     }
