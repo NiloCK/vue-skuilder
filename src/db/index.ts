@@ -60,6 +60,29 @@ export function addNote(course: string, shape: DataShape, data: any) {
 }
 
 /**
+ * Returns a promise with doc stubs for all notes of the given dataShape
+ * @param course The course name.
+ * @param shape The datashape of the notes to be returned.
+ */
+export function getNotes(course: string, shape: DataShape) {
+    return remote.find({
+        selector: {
+            course,
+            docType: DocType.DISPLAYABLE_DATA,
+            id_datashape: shape.name
+        }
+    });
+
+    // .then( (results) => {
+    //     results.docs.forEach( (doc) => {
+    //         remote.get<DisplayableData>(doc._id).then( (doc) => {
+    //             alert(JSON.stringify(doc));
+    //         });
+    //     });
+    // });
+}
+
+/**
  * Returns a list of the registered dataShapes for the course
  * @param course The name of the course to search
  */
