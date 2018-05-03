@@ -35,7 +35,7 @@ import Vue from 'vue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
 import FormInput from './FieldInputs/index.vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
-import { FieldType } from '@/enums/FieldType';
+import { FieldType, fieldConverters } from '@/enums/FieldType';
 import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
@@ -55,7 +55,8 @@ export default class DataInputForm extends Vue {
   @Prop() public course: string;
   public fields: FormInput[] = [];
   public store: any = {
-      validation: {}
+      validation: {},
+      convertedInput: {}
   }; // todo: see about typing this
 
   private readonly str: string = FieldType.STRING;
@@ -64,22 +65,32 @@ export default class DataInputForm extends Vue {
 
   public get userInputIsValid(): boolean {
       let ret: boolean =
-        Object.getOwnPropertyNames(this.store['validation']).length ===
+        Object.getOwnPropertyNames(this.store.validation).length ===
         this.dataShape.fields.length + 1; // +1 here b/c of the validation key
 
-      Object.getOwnPropertyNames(this.store['validation']).forEach( (name) => {
-          if (this.store['validation'][name] === false) {
+      Object.getOwnPropertyNames(this.store.validation).forEach( (fieldName) => {
+          if (this.store.validation[fieldName] === false) {
               ret = false;
           }
       });
 
+      if (ret) {
+          this.convertInput();
+      }
     //   alert(ret);
       return ret;
   }
 
+  public convertInput() {
+      this.dataShape.fields.forEach( (fieldDef) => {
+          this.store.convertedInput[fieldDef.name] =
+            fieldConverters[fieldDef.type](this.store[fieldDef.name])
+      });
+  }
+
   public submit() {
     if (this.userInputIsValid) {
-      addNote(this.course, this.dataShape, this.store);
+      addNote(this.course, this.dataShape, this.store.convertedInput);
     }
   }
 }
