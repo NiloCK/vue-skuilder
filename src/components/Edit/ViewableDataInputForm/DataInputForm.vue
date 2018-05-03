@@ -27,6 +27,8 @@
         v-bind:view="dataShape.views[0]"
         v-bind:data="store"
       />
+
+      <DataShapeTable v-bind:dataShape="dataShape" />      
   </div>
 </template>
 
@@ -41,13 +43,15 @@ import StringInput from './FieldInputs/StringInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
 import { addNote } from '@/db';
 import CardViewer from '@/components/Study/CardViewer.vue';
+import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue';
 
 @Component({
     components: {
         NumberInput,
         StringInput,
         IntegerInput,
-        CardViewer
+        CardViewer,
+        DataShapeTable
     }
 })
 export default class DataInputForm extends Vue {
