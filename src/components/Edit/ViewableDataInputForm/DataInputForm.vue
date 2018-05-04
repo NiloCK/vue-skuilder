@@ -28,7 +28,10 @@
         v-bind:data="store"
       />
 
-      <DataShapeTable v-bind:dataShape="dataShape" />      
+      <DataShapeTable
+        v-bind:dataShape="dataShape"
+        v-bind:data="existingData"
+      />
   </div>
 </template>
 
@@ -41,9 +44,11 @@ import { FieldType, fieldConverters } from '@/enums/FieldType';
 import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
-import { addNote } from '@/db';
+import { addNote, getNotes, getDoc } from '@/db';
+import { DisplayableData, DataShapeData } from '@/db/types';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue';
+import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 
 @Component({
     components: {
@@ -57,6 +62,8 @@ import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue';
 export default class DataInputForm extends Vue {
   @Prop() public dataShape: DataShape;
   @Prop() public course: string;
+  public existingData: ViewData[] = [];
+
   public fields: FormInput[] = [];
   public store: any = {
       validation: {},
@@ -83,6 +90,24 @@ export default class DataInputForm extends Vue {
       }
     //   alert(ret);
       return ret;
+  }
+
+  @Watch('dataShape')
+  public onDataShapeChange(value?: DataShape, old?: DataShape) {
+      this.existingData = [];
+      getNotes(this.course, this.dataShape).then( (results) => {
+          results.docs.forEach( (doc) => {
+              getDoc<DisplayableData>(doc._id).then( (fullDoc) => {
+                  this.existingData.push(
+                      displayableDataToViewData(fullDoc)
+                  );
+              });
+          });
+      });
+  }
+
+  public created() {
+      this.onDataShapeChange();
   }
 
   public convertInput() {

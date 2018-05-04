@@ -17,6 +17,7 @@ import { Component, Prop } from 'vue-property-decorator';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import DataShapeTableHeader from './DataShapeTableHeader.vue';
 import DataShapeTableRow from './DataShapeTableRow.vue';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 
 @Component({
   components: {
@@ -26,10 +27,7 @@ import DataShapeTableRow from './DataShapeTableRow.vue';
 })
 export default class DataShapeTable extends Vue {
   @Prop() private dataShape: DataShape;
-  @Prop() private data = [
-    { a: 4, b: 6 },
-    { b: 3, a: 5 }
-  ];
+  @Prop() private data: ViewData[];
 }
 </script>
 

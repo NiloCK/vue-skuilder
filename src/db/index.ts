@@ -59,6 +59,10 @@ export function addNote(course: string, shape: DataShape, data: any) {
     return remote.post<DisplayableData>(payload);
 }
 
+export function getDoc<T>(id: PouchDB.Core.DocumentId): Promise<T> {
+    return remote.get<T>(id);
+}
+
 /**
  * Returns a promise with doc stubs for all notes of the given dataShape
  * @param course The course name.
