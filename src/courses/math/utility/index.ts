@@ -19,5 +19,5 @@ export function intValidator(min: number, max: number): Validator {
                 msg: ''
             };
         }
-    }
+    };
 }

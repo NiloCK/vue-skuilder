@@ -44,9 +44,10 @@ export abstract class FieldInput extends Vue {
         // this.validationStatus = ret does NOT
         this.validationStatus.status = ret.status;
         this.validationStatus.msg = ret.msg;
- 
+
         const validationResult = ret.status === Status.ok;
 
+        // tslint:disable-next-line:no-string-literal
         Vue.set(this.store['validation'], this.field.name, validationResult);
 
         if (!validationResult) {

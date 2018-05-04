@@ -13,5 +13,3 @@ export const fieldConverters = {
         return parseInt(value, 10);
     }
 };
-
-

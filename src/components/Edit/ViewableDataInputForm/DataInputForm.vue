@@ -88,7 +88,7 @@ export default class DataInputForm extends Vue {
   public convertInput() {
       this.dataShape.fields.forEach( (fieldDef) => {
           this.store.convertedInput[fieldDef.name] =
-            fieldConverters[fieldDef.type](this.store[fieldDef.name])
+            fieldConverters[fieldDef.type](this.store[fieldDef.name]);
       });
   }
 

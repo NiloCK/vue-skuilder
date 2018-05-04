@@ -35,7 +35,7 @@ export class SingleDigitAdditionQuestion extends Question {
 
     public isCorrect(answer: Answer) {
         alert(`a: ${this.a}, b: ${this.b}, answer: ${answer}`);
-        alert(`this.a + this.b: ${this.a + this.b}`); 
+        alert(`this.a + this.b: ${this.a + this.b}`);
         return (1 * this.a) + this.b === answer;
     }
 

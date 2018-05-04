@@ -13,7 +13,7 @@ import { Component, Prop } from 'vue-property-decorator';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 
 @Component
-export default class DataShapeTableRow extends Vue { 
+export default class DataShapeTableRow extends Vue {
   @Prop() private dataShape: DataShape;
   @Prop() private data: {};
 }

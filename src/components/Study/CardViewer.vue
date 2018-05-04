@@ -7,14 +7,13 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
 import { VueConstructor } from 'vue';
-import CourseEditor from '../components/Edit/CourseEditor.vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { DisplayableData } from '@/db/types';
-// import { getCourseList } from '../db/index';
-import Courses from '@/courses';
 import { getViews } from '@/courses';
+import Vue from 'vue';
+import CourseEditor from '../components/Edit/CourseEditor.vue';
+import Courses from '@/courses';
 import Viewable from '@/base-course/Viewable';
 
 @Component({
