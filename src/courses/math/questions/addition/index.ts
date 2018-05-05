@@ -3,8 +3,9 @@ import { randomInt } from '@/courses/math/utility';
 import { DataShapeData } from '@/db/types';
 import { FieldType } from '@/enums/FieldType';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
-import HorizontalAddition from './horizontal.vue';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
+import HorizontalAddition from './horizontal.vue';
+import VerbalAddition from './verbal.vue';
 
 const fields: FieldDefinition[] = [
     {
@@ -21,7 +22,7 @@ export class SingleDigitAdditionQuestion extends Question {
     public static dataShape = {
         name: SingleDigitAdditionQuestion.name,
         fields,
-        views: [ HorizontalAddition ]
+        views: [ HorizontalAddition, VerbalAddition ]
     };
 
     public a: number;
