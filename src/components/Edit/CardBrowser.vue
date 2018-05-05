@@ -1,8 +1,8 @@
 <template>
     <div>
-        <button v-on:click='decrementView()'>Previous View</button>
+        <button v-on:click='decrementView'>Previous View</button>
         {{ views[viewIndex].name }}
-        <button v-on:click='incrementView()'>Next View</button>
+        <button v-on:click='incrementView'>Next View</button>
         <br><br>
         <CardViewer :view='views[viewIndex]' :data='data' />
         <br><br>
