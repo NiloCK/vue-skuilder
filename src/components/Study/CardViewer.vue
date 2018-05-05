@@ -1,8 +1,6 @@
 <template>
     <div>
-        <component :is="view" v-bind:data="data" />
-        <br><br>
-        This is a <b>{{view.name}}</b> component, with the following data: {{JSON.stringify(data)}}
+        <component :is="view" v-bind:data="data" />        
     </div>
 </template>
 
@@ -26,3 +24,9 @@ export default class CardViewer extends Vue {
 // Argument of type '{ components: VueConstructor<Vue>[]; }'
 // is not assignable to parameter of type 'VueClass<Vue>'.
 </script>
+
+<style scoped>
+div {
+    border: solid 2px red;
+}
+</style>
