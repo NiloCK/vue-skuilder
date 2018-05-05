@@ -22,9 +22,9 @@
       </div>
       <button v-bind:disabled="!userInputIsValid" v-on:click="submit">Add Data</button>
 
-      <CardViewer
+      <CardBrowser
         v-if="userInputIsValid"
-        v-bind:view="dataShape.views[0]"
+        v-bind:views="dataShape.views"
         v-bind:data="store"
       />
 
@@ -46,7 +46,7 @@ import StringInput from './FieldInputs/StringInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
 import { addNote, getNotes, getDoc } from '@/db';
 import { DisplayableData, DataShapeData } from '@/db/types';
-import CardViewer from '@/components/Study/CardViewer.vue';
+import CardBrowser from '@/components/Edit/CardBrowser.vue';
 import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 
@@ -55,7 +55,7 @@ import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/Vi
         NumberInput,
         StringInput,
         IntegerInput,
-        CardViewer,
+        CardBrowser,
         DataShapeTable
     }
 })
