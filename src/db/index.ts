@@ -19,12 +19,6 @@ const remote: PouchDB.Database = new pouch(
 );
 const local: PouchDB.Database = new pouch('local');
 
-/**
- *
- */
-export async function getCourseList(): Promise<CourseListData> {
-    return remote.get<CourseListData>('courses');
-}
 
 export function addDataShape(course: string, dataShape: DataShape) {
     // return remote.post<DataShapeData>({

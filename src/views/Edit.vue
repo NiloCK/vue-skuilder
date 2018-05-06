@@ -8,14 +8,16 @@
         </option>
       </select>
       <CourseEditor v-if="selectedCourse" v-bind:course="selectedCourse" />
+
+      <ComponentRegistration />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import CourseEditor from '../components/Edit/CourseEditor.vue';
+import CompenentRegistration from '../components/Edit/ComponentRegistration/ComponentRegistration.vue';
 import { Component } from 'vue-property-decorator';
-import { getCourseList } from '../db/index';
 import Courses from '../courses';
 
 @Component({
