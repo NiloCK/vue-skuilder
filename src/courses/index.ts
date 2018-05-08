@@ -24,6 +24,17 @@ export function getViews(courses: CourseList) {
     return ret;
 }
 
+export function getCourseDataShapes(courses: CourseList) {
+    const ret: any = {};
+    Object.keys(courses).forEach( (course) => {
+        courses[course].viewableTypes.forEach( (type) => {
+            ret[`${course}.dataShapes.${type.name}`] = type.dataShape;
+        });
+    });
+    // alert(JSON.stringify(ret));
+    return ret;
+}
+
 const courseList: CourseList = {
     math,
     wordWork
