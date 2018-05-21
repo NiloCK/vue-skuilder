@@ -24,7 +24,7 @@ export function getViews(courses: CourseList) {
     return ret;
 }
 
-function getView(courses: CourseList, viewStr: string){
+export function getView(courses: CourseList, viewStr: string){
     const view: ViewDescriptor = getViewDescriptor(viewStr);
     
     const course = courses[view.course];
@@ -44,7 +44,7 @@ function getView(courses: CourseList, viewStr: string){
             } else {
                 throw `View ${view.view} not found. ${viewStr} appears to be invalid.`;
             }
-            
+
         } else {
             throw `dataShape ${view.dataShape} not found. ${viewStr} appears to be invalid.`;
         }
