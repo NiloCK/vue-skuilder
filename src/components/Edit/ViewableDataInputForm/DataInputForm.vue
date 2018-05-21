@@ -25,7 +25,7 @@
       <CardBrowser
         v-if="userInputIsValid"
         v-bind:views="dataShape.views"
-        v-bind:data="store"
+        v-bind:data="store.convertedInput"
       />
 
       <DataShapeTable
@@ -106,6 +106,11 @@ export default class DataInputForm extends Vue {
       });
   }
 
+  @Watch('store')
+  public storeChange(v: {}, old?: any) {
+      this.convertInput();
+  }
+
   public created() {
       this.onDataShapeChange();
   }
@@ -115,6 +120,16 @@ export default class DataInputForm extends Vue {
           this.store.convertedInput[fieldDef.name] =
             fieldConverters[fieldDef.type](this.store[fieldDef.name]);
       });
+      if (this.store.convertedInput.toggle){
+          delete this.store.convertedInput.toggle
+      } else {
+          this.store.convertedInput.toggle = true;
+      }
+  }
+
+  public get convertedInput() {
+      this.convertInput();
+      return this.store.convertedInput;
   }
 
   public submit() {
