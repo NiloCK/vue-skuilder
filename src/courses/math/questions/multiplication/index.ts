@@ -1,20 +1,39 @@
-import { Question, Answer } from '@/base-course/Course';
-import { randomInt } from '@/courses/math/utility';
-import { DataShapeData } from '@/db/types';
-import { FieldType } from '@/enums/FieldType';
+import { Answer, Question } from '@/base-course/Course';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
-import HorizontalMultiplication from './horizontal.vue';
+import { FieldType } from '@/enums/FieldType';
+import { Status } from '@/enums/Status';
+import MultiplicationHorizontal from './horizontal.vue';
 import VerbalMultiplication from './verbal.vue';
+
+const validator = {
+    instructions: 'An integer between 0 and 10, inclusive.',
+    test: (value: string) => {
+        const input = parseInt(value, 10);
+        if (0 <= input && input <= 10) {
+            return {
+                status: Status.ok,
+                msg: ''
+            };
+        } else {
+            return {
+                status: Status.error,
+                msg: 'Single digit multiplication problem inputs must be between 0 and 10, inclusive.'
+            };
+        }
+    }
+}
 
 const fields: FieldDefinition[] = [
     {
         name: 'a',
-        type: FieldType.INT
+        type: FieldType.INT,
+        validator: validator
     },
     {
         name: 'b',
-        type: FieldType.INT
+        type: FieldType.INT,
+        validator: validator
     }
 ];
 
@@ -22,8 +41,10 @@ export class SingleDigitMultiplicationQuestion extends Question {
     public static dataShape = {
         name: SingleDigitMultiplicationQuestion.name,
         fields,
-        views: [ HorizontalMultiplication,
-        VerbalMultiplication ]
+        views: [
+            VerbalMultiplication,
+            MultiplicationHorizontal
+        ]
     };
 
     public a: number;
