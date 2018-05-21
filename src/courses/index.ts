@@ -24,6 +24,60 @@ export function getViews(courses: CourseList) {
     return ret;
 }
 
+function getView(courses: CourseList, viewStr: string){
+    const view: ViewDescriptor = getViewDescriptor(viewStr);
+    
+    const course = courses[view.course];
+
+    if (course) {
+        const dataShape = course.viewableTypes.find( (dataShape) => {
+            return dataShape.name === view.dataShape
+        });
+
+        if (dataShape) {
+            const dataView = dataShape.dataShape.views.find( (dataView) => {
+                return dataView.name === view.view;
+            });
+
+            if (dataView){
+                return dataView;
+            } else {
+                throw `View ${view.view} not found. ${viewStr} appears to be invalid.`;
+            }
+            
+        } else {
+            throw `dataShape ${view.dataShape} not found. ${viewStr} appears to be invalid.`;
+        }
+    } else {
+        throw `Course ${view.course} not found. ${viewStr} appears to be invalid.`;
+    }
+
+    return courses[view.course].viewableTypes.find( (dataShape) => {
+        return dataShape.name === view.dataShape
+    })!.dataShape.views.find( (dataView) => {
+        return dataView.name === view.view;
+    });
+}
+function getViewDescriptor(viewStr: string): ViewDescriptor{
+    const splitArray = viewStr.split('.');
+
+    if (splitArray.length != 3){
+        throw "viewStr not valid";
+    } else {
+        return {
+            course: splitArray[0],
+            dataShape: splitArray[1],
+            view: splitArray[2]
+        };
+    }
+}
+
+interface ViewDescriptor {
+    course: string,
+    dataShape: string,
+    view: string
+}
+
 export function getCourseDataShapes(courses: CourseList) {
     const ret: any = {};
     Object.keys(courses).forEach( (course) => {

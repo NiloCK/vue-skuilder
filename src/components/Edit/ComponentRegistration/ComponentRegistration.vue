@@ -2,7 +2,12 @@
   <div>
     <ul>
       <li v-for="dataShape in dataShapes" :key="dataShape.name" >
-       {{ dataShape.name }}  - {{ dataShape.registered }}
+       {{ dataShape.name }} - {{ dataShape.registered }}
+       <ul>
+         <li v-for="view in dataShape.dataShape.views" :key="view.name">
+           {{ view.name }}
+         </li>
+       </ul>
       </li>  
     </ul>
       
@@ -49,6 +54,7 @@ export default class ComponentRegistration extends Vue {
         });
       });
     });
+    // this.dataShapes[0].dataShape.views
   }
 }
 </script>
