@@ -1,9 +1,7 @@
-import { Question, Answer } from '@/base-course/Course';
-import { randomInt } from '@/courses/math/utility';
-import { DataShapeData } from '@/db/types';
-import { FieldType } from '@/enums/FieldType';
+import { Answer, Question } from '@/base-course/Course';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
+import { FieldType } from '@/enums/FieldType';
 import HorizontalAddition from './horizontal.vue';
 import VerbalAddition from './verbal.vue';
 
