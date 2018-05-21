@@ -22,7 +22,7 @@ export default abstract class Viewable extends Vue {
 // tslint:disable-next-line:max-classes-per-file
 export abstract class QuestionView<Q extends Question> extends Viewable {
     protected attempts: number = 1; // starts at the 1st attempt
-    abstract get question(): Q;
+    public abstract get question(): Q;
 
     protected grade(): QuestionRecord {
         return {
