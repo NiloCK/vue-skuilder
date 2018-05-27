@@ -52,11 +52,6 @@ export function getView(courses: CourseList, viewStr: string){
         throw `Course ${view.course} not found. ${viewStr} appears to be invalid.`;
     }
 
-    return courses[view.course].viewableTypes.find( (dataShape) => {
-        return dataShape.name === view.dataShape
-    })!.dataShape.views.find( (dataView) => {
-        return dataView.name === view.view;
-    });
 }
 function getViewDescriptor(viewStr: string): ViewDescriptor{
     const splitArray = viewStr.split('.');
