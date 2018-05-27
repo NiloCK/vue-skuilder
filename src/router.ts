@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import Home from './views/Home.vue';
 import About from './views/About.vue';
 import Edit from './views/Edit.vue';
+import Study from './views/Study.vue';
 
 Vue.use(Router);
 
@@ -22,6 +23,11 @@ export default new Router({
       path: '/edit',
       name: 'edit',
       component: Edit
+    },
+    {
+      path: '/study',
+      name: 'study',
+      component: Study
     }
   ]
 });
