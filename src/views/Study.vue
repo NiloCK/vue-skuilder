@@ -25,24 +25,28 @@ import Courses from '@/courses';
 })
 export default class Study extends Vue{
     public view: VueConstructor<Vue> | undefined;
-    public data: DisplayableData = {
-        id_datashape: 'asdf',
-        data: [
-            {
-                data: 7,
-                name: 'a'
-            },
-            {
-                data: 4,
-                name: 'b'
-            }
-        ],
-        course: 'math',
-        docType: DocType.DISPLAYABLE_DATA
+    // public data: DisplayableData = {
+    //     id_datashape: 'asdf',
+    //     data: [
+    //         {
+    //             data: 7,
+    //             name: 'a'
+    //         },
+    //         {
+    //             data: 4,
+    //             name: 'b'
+    //         }
+    //     ],
+    //     course: 'math',
+    //     docType: DocType.DISPLAYABLE_DATA
+    // }
+    public data: any = {
+        a: 4,
+        b: 6
     }
 
     created() {
-        alert('hi');
+        // alert('hi');
         this.view = getView(Courses, 'math.SingleDigitDivisionQuestion.DivisionHorizontal');
     }
 };
