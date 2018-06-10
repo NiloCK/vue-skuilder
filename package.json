@@ -44,5 +44,6 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "license": "AGPL-3.0-or-later"
 }
