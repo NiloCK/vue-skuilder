@@ -1,3 +1,36 @@
-### Licence
+# Usage
+
+## Installation
+
+After cloning the repository,
+
+ - `npm install` or `yarn install`
+
+ The app expects to find a CouchDB (or other database respecting the CouchDB replication protocol) server running at `http://localhost:5984/`. See `/src/db/index.ts` to point the app toward a different database.
+
+  - [CouchDB Website](http://couchdb.apache.org/)
+
+## Development Build / Serve
+
+ - `npm run serve` or `yarn serve`
+
+Does an in-memory build of the project and hosts with the webpack dev server. Hot reloading and source maps included for debugging.
+
+## Production Build
+
+- `npm run build` or `yarn build`
+
+Outputs a static web page in the `/build` folder
+
+# Debugging
+
+For now, debugging is available only in the browser via [vue-devtools](https://github.com/vuejs/vue-devtools).
+
+ - [Firefox Addon](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
+ - [Chrome Extension](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+
+
+
+# Licence
 
 [AGPL-3.0](https://opensource.org/licenses/AGPL-3.0)
