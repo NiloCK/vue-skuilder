@@ -24,7 +24,7 @@ export class EqualityTest extends Question {
         views: [ TrueFalse ]
     };
 
-    public a: string;
+    public a: string; // vueComponent / "MathJax expression" or something
     public b: string;
 
     /**

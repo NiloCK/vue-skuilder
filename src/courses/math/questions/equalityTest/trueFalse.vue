@@ -1,7 +1,8 @@
 <template>
   <div>
       {{question.a}} &equals; {{question.b}} 
-        <MultipleChoice />
+
+      <TFSelect />
   </div>
 </template>
 
@@ -9,11 +10,11 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { QuestionView } from '@/base-course/Viewable';
 import { EqualityTest } from './index';
-import MultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
+import TFSelect from '@/base-course/Components/TrueFalse.vue';
 
 @Component({
     components: {
-        MultipleChoice
+        TFSelect
     }
 })
 export default class TrueFalse extends QuestionView<EqualityTest> {
