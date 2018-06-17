@@ -1,4 +1,5 @@
 import { Course } from '@/base-course/Course';
+import french from './french';
 import math from './math';
 import wordWork from './word-work';
 
@@ -11,27 +12,29 @@ export function getViews(courses: CourseList) {
     Object.keys(courses).forEach((course) => {
         // alert(`Course: ${JSON.stringify(course)}`);
         courses[course].viewableTypes.forEach((type) => {
-            // alert(`dataShape type: ${type.name}`);
-            type.dataShape.views.forEach((view) => {
-                if (view) {
-                    // alert(JSON.stringify(view));
-                    ret[view.name] = view.name;
-                }
-            });
+            if (type !== undefined) {
+                // alert(`dataShape type: ${type.name}`);
+                type.dataShape.views.forEach((view) => {
+                    if (view !== undefined) {
+                        // alert(JSON.stringify(view));
+                        ret[view.name] = view.name;
+                    }
+                });
+            }
         });
     });
 
     return ret;
 }
 
-export function getView(courses: CourseList, viewStr: string){
+export function getView(courses: CourseList, viewStr: string) {
     const view: ViewDescriptor = getViewDescriptor(viewStr);
-    
+
     const course = courses[view.course];
 
     if (course) {
         const dataShape = course.viewableTypes.find( (dataShape) => {
-            return dataShape.name === view.dataShape
+            return dataShape.name === view.dataShape;
         });
 
         if (dataShape) {
@@ -39,25 +42,25 @@ export function getView(courses: CourseList, viewStr: string){
                 return dataView.name === view.view;
             });
 
-            if (dataView){
+            if (dataView) {
                 return dataView;
             } else {
-                throw `View ${view.view} not found. ${viewStr} appears to be invalid.`;
+                throw new Error(`View ${view.view} not found. ${viewStr} appears to be invalid.`);
             }
 
         } else {
-            throw `dataShape ${view.dataShape} not found. ${viewStr} appears to be invalid.`;
+            throw new Error(`dataShape ${view.dataShape} not found. ${viewStr} appears to be invalid.`);
         }
     } else {
-        throw `Course ${view.course} not found. ${viewStr} appears to be invalid.`;
+        throw new Error(`Course ${view.course} not found. ${viewStr} appears to be invalid.`);
     }
 
 }
-function getViewDescriptor(viewStr: string): ViewDescriptor{
+function getViewDescriptor(viewStr: string): ViewDescriptor {
     const splitArray = viewStr.split('.');
 
-    if (splitArray.length != 3){
-        throw "viewStr not valid";
+    if (splitArray.length !== 3) {
+        throw new Error('viewStr not valid');
     } else {
         return {
             course: splitArray[0],
@@ -68,16 +71,18 @@ function getViewDescriptor(viewStr: string): ViewDescriptor{
 }
 
 interface ViewDescriptor {
-    course: string,
-    dataShape: string,
-    view: string
+    course: string;
+    dataShape: string;
+    view: string;
 }
 
 export function getCourseDataShapes(courses: CourseList) {
     const ret: any = {};
     Object.keys(courses).forEach( (course) => {
         courses[course].viewableTypes.forEach( (type) => {
-            ret[`${course}.dataShapes.${type.name}`] = type.dataShape;
+            if (type !== undefined) {
+                ret[`${course}.dataShapes.${type.name}`] = type.dataShape;
+            }
         });
     });
     // alert(JSON.stringify(ret));
@@ -86,7 +91,8 @@ export function getCourseDataShapes(courses: CourseList) {
 
 const courseList: CourseList = {
     math,
-    wordWork
+    wordWork,
+    french
 };
 
 export default courseList;
