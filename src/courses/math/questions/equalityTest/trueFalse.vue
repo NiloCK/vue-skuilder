@@ -2,7 +2,7 @@
   <div>
       {{question.a}} &equals; {{question.b}} 
 
-      <TFSelect />
+      <TFSelect v-bind:MouseTrap="MouseTrap" />
   </div>
 </template>
 
@@ -25,6 +25,7 @@ export default class TrueFalse extends QuestionView<EqualityTest> {
   }
 
   get question() {
+    // alert(`this.Mousetrap == ${Object.keys(this.MouseTrap)}`);
     return new EqualityTest(this.data);
   }
 }

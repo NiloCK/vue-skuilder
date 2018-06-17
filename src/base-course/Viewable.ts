@@ -1,12 +1,14 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { DisplayableData, QuestionRecord } from '@/db/types';
 import moment from 'moment';
+import MouseTrap from 'mousetrap';
 import { Question, Displayable } from '@/base-course/Course';
 
 // @Component
 export default abstract class Viewable extends Vue {
   @Prop() public data: any;
   protected startTime: moment.Moment;
+  protected MouseTrap: MousetrapInstance = new MouseTrap(this.$el);
 
   public created() {
     this.startTime = moment();
