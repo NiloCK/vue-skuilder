@@ -2,8 +2,9 @@
     <div>
         <RadioSelect
             :choiceList="['True', 'False']"
-            :MouseTrap="MouseTrap" 
-        /> 
+            :MouseTrap="MouseTrap"
+            :submit="submit"
+        />
     </div>
 </template>
 
@@ -19,5 +20,6 @@ import RadioSelect from './RadioMultipleChoice.vue';
 })
 export default class TrueFalse extends Vue {
     @Prop() public MouseTrap: MousetrapInstance;
+    @Prop() public submit: (selection: number) => void;
 }
 </script>

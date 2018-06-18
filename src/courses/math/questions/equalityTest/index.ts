@@ -38,7 +38,7 @@ export class EqualityTest extends Question {
     }
 
     public isCorrect(answer: Answer) {
-        return true;
+        return (this.a === this.b) === answer;
     }
 
     public dataShape() {

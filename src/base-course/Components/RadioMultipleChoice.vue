@@ -23,22 +23,23 @@ import MultipleChoiceOption from './MultipleChoiceOption.vue';
 export default class RadioSelect extends Vue {
     @Prop() public choiceList: string[];
     @Prop() public MouseTrap: MousetrapInstance;
+    @Prop() public submit: (selection: number) => void;
 
     public currentSelection: number = -1;
 
     public created() {
         this.MouseTrap.bind('left', this.decrementSelection);
         this.MouseTrap.bind('right', this.incrementSelection);
-        this.MouseTrap.bind('enter', this.submit);
+        this.MouseTrap.bind('enter', this.forwardSelection);
 
         for (let i = 0; i < this.choiceList.length; i++) {
             this.bindNumberKey(i + 1);
         }
     }
 
-    public submit(): void {
+    public forwardSelection(): void {
         if (this.currentSelection !== -1) {
-            alert(this.currentSelection);
+            this.submit(this.currentSelection);
         }
     }
 
