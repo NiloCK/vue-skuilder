@@ -28,12 +28,14 @@ export default class MultipleChoiceOption extends Vue {
 <style scoped>
 .choice {
     display: inline-block;
+    border-radius: 4px;
     padding: 15px;
     margin: 10px;
 }
 
 .selected{
-    transition: transform ease-out .15s;
+    transition: all ease-out .15s;
+    box-shadow: 2px 3px 4px 2px;
     transform:
         translateY(-10px)
         /* rotate(3deg) */
@@ -46,7 +48,6 @@ export default class MultipleChoiceOption extends Vue {
 }
 .choice:nth-child(2){
     /* section for 'selected' element */
-    /* box-shadow: 0 0 7px 6px; */
     /* transform: rotate(45); */
 
     /* end section */
