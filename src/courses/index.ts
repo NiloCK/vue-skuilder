@@ -54,8 +54,36 @@ export function getView(courses: CourseList, viewStr: string) {
     } else {
         throw new Error(`Course ${view.course} not found. ${viewStr} appears to be invalid.`);
     }
-
 }
+
+export function getDataShape(courses: CourseList, shapeStr: string) {
+    const shape: ShapeDescriptor = getDataShapeDescriptor(shapeStr);
+    const course = courses[shape.course];
+
+    if (course) {
+        const dataShape = course.viewableTypes.find( (dataShape) => {
+            return dataShape.name === shape.dataShape;
+        });
+
+        return dataShape;
+    } else {
+        throw new Error(`Course ${shape.course} not found. ${shapeStr} appears to be invalid.`);
+    }
+}
+
+function getDataShapeDescriptor(shapeStr: string): ShapeDescriptor {
+    const splitArray = shapeStr.split('.');
+
+    if (splitArray.length !== 2) {
+        throw new Error('shapeStr not valid');
+    } else {
+        return {
+            course: splitArray[0],
+            dataShape: splitArray[1]
+        };
+    }
+}
+
 function getViewDescriptor(viewStr: string): ViewDescriptor {
     const splitArray = viewStr.split('.');
 
@@ -68,6 +96,11 @@ function getViewDescriptor(viewStr: string): ViewDescriptor {
             view: splitArray[2]
         };
     }
+}
+
+interface ShapeDescriptor {
+    course: string;
+    dataShape: string;
 }
 
 interface ViewDescriptor {
