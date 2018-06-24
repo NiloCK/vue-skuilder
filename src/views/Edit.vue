@@ -9,7 +9,7 @@
       </select>
       <CourseEditor v-if="selectedCourse" v-bind:course="selectedCourse" />
 
-      <ComponentRegistration />
+      <!-- <ComponentRegistration /> -->
   </div>
 </template>
 
