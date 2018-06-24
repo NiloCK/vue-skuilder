@@ -7,6 +7,7 @@
         :selected='choiceList.indexOf(choice) === currentSelection'
         :number='choiceList.indexOf(choice)'
         :setSelection='setSelection'
+        :submit='forwardSelection'
     />
   </div>
 </template>

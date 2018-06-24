@@ -2,6 +2,7 @@
     <div
         :class='className'
         @mouseover="select"
+        @click="submitThisOption"
     >
         {{ content }}
     </div>
@@ -18,9 +19,15 @@ export default class MultipleChoiceOption extends Vue {
     @Prop() public selected: boolean;
     @Prop() public number: number;
     @Prop() public setSelection: (selection: number) => void;
+    @Prop() public submit: () => void;
 
     public select(): void {
         this.setSelection(this.number);
+    }
+
+    public submitThisOption(): void {
+        this.select();
+        this.submit();
     }
 
     get className(): string {
