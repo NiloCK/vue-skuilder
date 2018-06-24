@@ -1,11 +1,8 @@
+import { DataShape } from '@/base-course/Interfaces/DataShape';
+import { CardData, DataShapeData, DisplayableData, DocType } from '@/db/types';
+import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
-import PouchDBAuth from 'pouchdb-authentication';
-import { Answer } from '@/base-course/Course';
-import { CourseListData, DataShapeData, DocType, CardData, NoteCtor, DisplayableData } from '@/db/types';
-import { DataShape } from '@/base-course/Interfaces/DataShape';
-import Vue from 'vue';
-import { VueConstructor } from 'vue';
 
 pouch.plugin(PouchDBAuth);
 pouch.plugin(PouchDBFind);
@@ -19,15 +16,16 @@ const remote: PouchDB.Database = new pouch(
 );
 const local: PouchDB.Database = new pouch('local');
 
+export function putDataShape(course: string, dataShape: DataShape) {
 
-export function addDataShape(course: string, dataShape: DataShape) {
-    // return remote.post<DataShapeData>({
-    //     docType: DocType.DATASHAPE,
-    //     name: dataShape.name,
-    //     course,
-    //     fields: dataShape.fields,
-    //     views: new Array<VueConstructor<Vue>>()
-    // });
+    const dataShapeId: string = `${course}.${dataShape.name}`;
+
+    return remote.put({
+        course,
+        id: dataShapeId,
+        viewList: [],
+        docType: DocType.DATASHAPE
+    });
 }
 export function getDataShape(id: PouchDB.Core.DocumentId): Promise<DataShapeData> {
     return remote.get<DataShapeData>(id);
@@ -36,6 +34,12 @@ export function getDataShape(id: PouchDB.Core.DocumentId): Promise<DataShapeData
 export function addNote(course: string, shape: DataShape, data: any) {
     // todo: make less crappy - test for duplicate insertions
     // w/ db.find(payload). ?
+    // shape.views.forEach( (view) => {
+    //     remote.put({
+    //         _id: view.name
+    //     });
+    // });
+
     const payload: DisplayableData = {
         course,
         data: [],
