@@ -57,10 +57,6 @@ export function addNote(course: string, shape: DataShape, data: any) {
     return remote.post<DisplayableData>(payload);
 }
 
-export function getDoc<T>(id: PouchDB.Core.DocumentId): Promise<T> {
-    return remote.get<T>(id);
-}
-
 /**
  * Returns a promise with doc stubs for all notes of the given dataShape
  * @param course The course name.
@@ -85,19 +81,25 @@ export function getNotes(course: string, shape: DataShape) {
 }
 
 /**
- * Returns a list of the registered dataShapes for the course
+ * Returns a list of the registered dataShapes for the specified course,
+ * or a list of all registered dataShapes if no course name is provided
  * @param course The name of the course to search
  */
-export function getDataShapes(course: string) {
-    return remote.find({
-        selector: {
-            course,
-            docType: DocType.DATASHAPE
-        }
-    });
-    // return remote.query({
-    //     selector: {}
-    // })
+export function getDataShapes(course?: string) {
+    if (course) {
+        return remote.find({
+            selector: {
+                course,
+                docType: DocType.DATASHAPE
+            }
+        });
+    } else {
+        return remote.find({
+            selector: {
+                docType: DocType.DATASHAPE
+            }
+        });
+    }
 }
 
 /**
