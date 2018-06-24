@@ -16,6 +16,10 @@ const remote: PouchDB.Database = new pouch(
 );
 const local: PouchDB.Database = new pouch('local');
 
+export function getDoc<T>(id: PouchDB.Core.DocumentId): Promise<T> {
+    return remote.get<T>(id);
+}
+
 export function putDataShape(course: string, dataShape: DataShape) {
 
     const dataShapeId: string = `${course}.${dataShape.name}`;
