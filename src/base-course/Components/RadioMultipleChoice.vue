@@ -6,6 +6,7 @@
         :content='choice'
         :selected='choiceList.indexOf(choice) === currentSelection'
         :number='choiceList.indexOf(choice)'
+        :setSelection='setSelection'
     />
   </div>
 </template>
@@ -40,6 +41,12 @@ export default class RadioSelect extends Vue {
     public forwardSelection(): void {
         if (this.currentSelection !== -1) {
             this.submit(this.currentSelection);
+        }
+    }
+
+    public setSelection(selection: number): void {
+        if (selection < this.choiceList.length) {
+            this.currentSelection = selection;
         }
     }
 

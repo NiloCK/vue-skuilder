@@ -1,5 +1,8 @@
 <template>
-    <div :class='className'>
+    <div
+        :class='className'
+        @mouseover="select"
+    >
         {{ content }}
     </div>
 </template>
@@ -14,6 +17,11 @@ export default class MultipleChoiceOption extends Vue {
     @Prop() public content: string;
     @Prop() public selected: boolean;
     @Prop() public number: number;
+    @Prop() public setSelection: (selection: number) => void;
+
+    public select(): void {
+        this.setSelection(this.number);
+    }
 
     get className(): string {
         if (this.selected) {
