@@ -120,8 +120,8 @@ export default class DataInputForm extends Vue {
           this.store.convertedInput[fieldDef.name] =
             fieldConverters[fieldDef.type](this.store[fieldDef.name]);
       });
-      if (this.store.convertedInput.toggle){
-          delete this.store.convertedInput.toggle
+      if (this.store.convertedInput.toggle) {
+          delete this.store.convertedInput.toggle;
       } else {
           this.store.convertedInput.toggle = true;
       }
