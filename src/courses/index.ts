@@ -65,7 +65,11 @@ export function getDataShape(courses: CourseList, shapeStr: string) {
             return dataShape.name === shape.dataShape;
         });
 
-        return dataShape;
+        if (dataShape){
+            return dataShape;
+        } else {
+            throw new Error(`Datashape ${shape.dataShape} not found. ${shapeStr} appears to be invalid.`);
+        }
     } else {
         throw new Error(`Course ${shape.course} not found. ${shapeStr} appears to be invalid.`);
     }
