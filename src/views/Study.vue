@@ -23,7 +23,7 @@ import Courses from '@/courses';
         CardViewer
     }
 })
-export default class Study extends Vue{
+export default class Study extends Vue {
     public view: VueConstructor<Vue> | undefined;
     // public data: DisplayableData = {
     //     id_datashape: 'asdf',
@@ -43,11 +43,11 @@ export default class Study extends Vue{
     public data: any = {
         a: 4,
         b: 6
-    }
+    };
 
-    created() {
+    public created() {
         // alert('hi');
         this.view = getView(Courses, 'math.SingleDigitDivisionQuestion.DivisionHorizontal');
     }
-};
+}
 </script>
