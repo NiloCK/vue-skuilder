@@ -57,8 +57,9 @@ export interface Field {
  */
 export type NoteCtor = string;
 
-export interface DataShapeData extends SkuilderCourseData, DataShape {
-    // DocType.DATASHAPE
+export interface DataShapeData extends SkuilderCourseData {
+    _id: PouchDB.Core.DocumentId;
+    viewList: string[];
 }
 
 export interface QuestionRecord {
