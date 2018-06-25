@@ -1,11 +1,11 @@
 <template>
   <div class="courseEditor" v-if="course">
       <div>
-          There are {{ dataShapes.length }} data shapes in the course.
+          There are {{ registeredDataShapes.length }} registered data shapes in the course.
       </div>
       Which data type are you adding?
       <select v-model="selectedShape">
-        <option v-for="shape in dataShapes" :key="shape.name" :value="shape">
+        <option v-for="shape in registeredDataShapes" :key="shape.name" :value="shape">
           {{shape.name}}
         </option>
       </select>
@@ -25,8 +25,11 @@ import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import Courses from '@/courses';
-import { getDataShapes } from '@/db';
+import { getDataShape } from '@/courses';
+import { getDataShapes, getDoc } from '@/db';
 import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
+import { DataShapeData } from '@/db/types';
+import _ from 'lodash';
 
 @Component({
   components: {
@@ -35,6 +38,7 @@ import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
 })
 export default class CourseEditor extends Vue {
   @Prop() public course: string;
+  public registeredDataShapes: DataShape[] = [];
   public dataShapes: DataShape[] = [];
   public selectedShape: DataShape = {name: '', fields: [], views: []};
 
@@ -42,6 +46,19 @@ export default class CourseEditor extends Vue {
     Courses[this.course].viewableTypes.forEach( (type) => {
       this.dataShapes.push(type.dataShape);
     });
+
+    getDataShapes(this.course).then( (results) => {
+      results.docs.forEach( (doc) => {
+        getDoc<DataShapeData>(doc._id).then( (dataShapeDoc) => {
+          const shape = getDataShape(Courses, dataShapeDoc._id);
+          if (shape) {
+            this.registeredDataShapes.push(shape.dataShape);
+          }
+          // alert(_.difference(this.dataShapes, this.registeredDataShapes));
+        });
+      });
+    });
+
   }
 }
 </script>
