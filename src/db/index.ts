@@ -31,6 +31,23 @@ export function putDataShape(course: string, dataShape: DataShape) {
         viewList: []
     });
 }
+
+export function putDataShapeView(
+    course: string,
+    dataShapeName: string,
+    viewName: string
+) {
+    getDoc<DataShapeData>(`${course}.${dataShapeName}`).then( (dataShape) => {
+        if (dataShape.viewList.indexOf(viewName) === -1) {
+            dataShape.viewList.push(viewName);
+            remote.put(dataShape);
+        } else {
+            throw new Error(
+`putDataShapeView failed: ${course}.${dataShapeName} already contains a view named ${viewName}`
+            );
+        }
+    });
+}
 export function getDataShape(id: PouchDB.Core.DocumentId): Promise<DataShapeData> {
     return remote.get<DataShapeData>(id);
 }
