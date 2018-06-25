@@ -22,18 +22,18 @@ const validator = {
             };
         }
     }
-}
+};
 
 const fields: FieldDefinition[] = [
     {
         name: 'a',
         type: FieldType.INT,
-        validator: validator
+        validator
     },
     {
         name: 'b',
         type: FieldType.INT,
-        validator: validator
+        validator
     }
 ];
 
