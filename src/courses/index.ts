@@ -33,13 +33,13 @@ export function getView(courses: CourseList, viewStr: string) {
     const course = courses[view.course];
 
     if (course) {
-        const dataShape = course.viewableTypes.find( (dataShape) => {
-            return dataShape.name === view.dataShape;
+        const dataShape = course.viewableTypes.find( (testDataShape) => {
+            return testDataShape.name === view.dataShape;
         });
 
         if (dataShape) {
-            const dataView = dataShape.dataShape.views.find( (dataView) => {
-                return dataView.name === view.view;
+            const dataView = dataShape.dataShape.views.find( (testDataView) => {
+                return testDataView.name === view.view;
             });
 
             if (dataView) {
@@ -61,11 +61,11 @@ export function getDataShape(courses: CourseList, shapeStr: string) {
     const course = courses[shape.course];
 
     if (course) {
-        const dataShape = course.viewableTypes.find( (dataShape) => {
-            return dataShape.name === shape.dataShape;
+        const dataShape = course.viewableTypes.find( (testDataShape) => {
+            return testDataShape.name === shape.dataShape;
         });
 
-        if (dataShape){
+        if (dataShape) {
             return dataShape;
         } else {
             throw new Error(`Datashape ${shape.dataShape} not found. ${shapeStr} appears to be invalid.`);
