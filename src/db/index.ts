@@ -24,11 +24,11 @@ export function putDataShape(course: string, dataShape: DataShape) {
 
     const dataShapeId: string = `${course}.${dataShape.name}`;
 
-    return remote.put({
+    return remote.put<DataShapeData>({
         course,
-        id: dataShapeId,
-        viewList: [],
-        docType: DocType.DATASHAPE
+        docType: DocType.DATASHAPE,
+        _id: dataShapeId,
+        viewList: []
     });
 }
 export function getDataShape(id: PouchDB.Core.DocumentId): Promise<DataShapeData> {
