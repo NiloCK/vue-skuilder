@@ -21,6 +21,7 @@
     "vue-class-component": "^6.0.0",
     "vue-property-decorator": "^6.0.0",
     "vue-router": "^3.0.1",
+    "vue-simple-spinner": "^1.2.8",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
