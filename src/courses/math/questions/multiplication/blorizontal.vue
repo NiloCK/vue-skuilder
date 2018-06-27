@@ -12,13 +12,13 @@ import { SingleDigitMultiplicationQuestion } from './index';
 
 @Component
 export default class MultiplicationHorizontal extends QuestionView<SingleDigitMultiplicationQuestion> {
-  public answer: string = '';
-  get question() {
-    return new SingleDigitMultiplicationQuestion(this.data);
-  }
+    public answer: string = '';
+    get question() {
+        return new SingleDigitMultiplicationQuestion(this.data);
+    }
 
-  public submit() {
-    alert(this.question.isCorrect(parseInt(this.answer, 10)));
-  }
+    public submit() {
+        alert(this.question.isCorrect(parseInt(this.answer, 10)));
+    }
 }
 </script>

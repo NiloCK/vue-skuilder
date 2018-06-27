@@ -3,8 +3,8 @@ import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
-import MultiplicationHorizontal from './horizontal.vue';
 import VerbalMultiplication from './verbal.vue';
+import MultiplicationHorizontal from './blorizontal.vue';
 
 const validator = {
     instructions: 'An integer between 0 and 10, inclusive.',
