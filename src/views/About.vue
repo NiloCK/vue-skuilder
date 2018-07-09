@@ -2,13 +2,11 @@
   <div class="about">
     <h1>This is an about page</h1>
     
-    <multiplication-horizontal v-bind:question="problem" />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import multiplicationHorizontal from '@/courses/math/questions/multiplication/horizontal.vue';
 import { Component } from 'vue-property-decorator';
 import { SingleDigitMultiplicationQuestion } from '@/courses/math/questions/multiplication';
 import { randomInt } from '@/courses/math/utility';
@@ -27,7 +25,6 @@ export default {
     };
   },
   components: {
-    multiplicationHorizontal
   }
 };
 </script>
