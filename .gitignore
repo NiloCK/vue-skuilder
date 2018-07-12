@@ -21,3 +21,6 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+
+# Temp notes for issue management while offline
+/issues
