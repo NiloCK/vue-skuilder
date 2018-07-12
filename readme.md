@@ -20,9 +20,11 @@ Does an in-memory build of the project and hosts with the webpack dev server. Ho
 
 ## Production Build
 
+Check for relevant flags in `/src/ENVIRONMENT_VARS.ts` before building for production.
+
 - `npm run build` or `yarn build`
 
-Outputs a static web page in the `/build` folder
+Outputs a static web page in the `/build` folder.
 
 # Debugging
 

@@ -4,9 +4,11 @@
       <li v-for="dataShape in dataShapes" :key="dataShape.name" >
        {{ dataShape.name }} - {{ dataShape.registered }}
        <ul>
-         <li v-for="view in dataShape.dataShape.views" :key="view.name">
-           {{ view.name }}
-         </li>
+         <div v-for="view in dataShape.dataShape.views" :key="view.name">
+          <li v-if="view">
+            {{ view.name }}
+          </li>
+         </div>
        </ul>
       </li>  
     </ul>
@@ -39,14 +41,14 @@ export default class ComponentRegistration extends Vue {
   public created() {
     // alert('hello');
     const dataShapeData = getCourseDataShapes(Courses);
-    Object.keys(dataShapeData).forEach( (dataShapeName) => {
-      getDoc(dataShapeName).then( (doc) => {
+    Object.keys(dataShapeData).forEach((dataShapeName) => {
+      getDoc(dataShapeName).then((doc) => {
         this.dataShapes.push({
           name: dataShapeName,
           dataShape: dataShapeData[dataShapeName],
           registered: true
         });
-      }).catch( (err) => {
+      }).catch((err) => {
         this.dataShapes.push({
           name: dataShapeName,
           dataShape: dataShapeData[dataShapeName],
