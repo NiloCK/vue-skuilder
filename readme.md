@@ -37,4 +37,7 @@ For now, debugging is available only in the browser via [vue-devtools](https://g
 
 # Licence
 
+The project in general follows the AGPL-3.0 licence. However, materials in `/src/base-course/` fall under the MIT licence (this folder will eventually be pulled to its own repository/package - see #3).
+
 [AGPL-3.0](https://opensource.org/licenses/AGPL-3.0)
+[MIT](https://opensource.org/liconces/MIT)
