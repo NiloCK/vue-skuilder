@@ -1,5 +1,6 @@
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { CardData, DataShapeData, DisplayableData, DocType } from '@/db/types';
+import { remote_db_url, debug_mode } from '@/ENVIRONMENT_VARS';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
@@ -7,9 +8,13 @@ import PouchDBFind from 'pouchdb-find';
 pouch.plugin(PouchDBAuth);
 pouch.plugin(PouchDBFind);
 
+if (debug_mode) {
+    pouch.debug.enable('pouchdb:find');
+}
+
 const databaseName = 'record';
 const remote: PouchDB.Database = new pouch(
-    'http://localhost:5984/skuilder/',
+    remote_db_url,
     {
         skip_setup: true
     }
@@ -37,13 +42,13 @@ export function putDataShapeView(
     dataShapeName: string,
     viewName: string
 ) {
-    getDoc<DataShapeData>(`${course}.${dataShapeName}`).then( (dataShape) => {
+    getDoc<DataShapeData>(`${course}.${dataShapeName}`).then((dataShape) => {
         if (dataShape.viewList.indexOf(viewName) === -1) {
             dataShape.viewList.push(viewName);
             remote.put(dataShape);
         } else {
             throw new Error(
-`putDataShapeView failed: ${course}.${dataShapeName} already contains a view named ${viewName}`
+                `putDataShapeView failed: ${course}.${dataShapeName} already contains a view named ${viewName}`
             );
         }
     });
@@ -68,7 +73,7 @@ export function addNote(course: string, shape: DataShape, data: any) {
         id_datashape: shape.name
     };
 
-    shape.fields.forEach( (field) => {
+    shape.fields.forEach((field) => {
         payload.data.push({
             name: field.name,
             data: data[field.name]
@@ -158,13 +163,13 @@ function addView(
     name: string,
     dataShape: PouchDB.Core.DocumentId) {
 
-        remote.find({
-            selector: {
-                course,
-                docType: DocType.DATASHAPE,
-                name
-            }
-        }).then();
+    remote.find({
+        selector: {
+            course,
+            docType: DocType.DATASHAPE,
+            name
+        }
+    }).then();
 }
 
 // export function getCourseDatabase(courseName: string): PouchDB.Database {

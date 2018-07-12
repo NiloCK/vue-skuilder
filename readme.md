@@ -6,9 +6,11 @@ After cloning the repository,
 
  - `npm install` or `yarn install`
 
- The app expects to find a CouchDB (or other database respecting the CouchDB replication protocol) server running at `http://localhost:5984/`. See `/src/db/index.ts` to point the app toward a different database.
+ The app needs to be configured with the url of a CouchDB (or other database respecting the CouchDB replication protocol) server. See `/src/ENVIRONMENT_VARS.ts` to point the app toward a specific database. The default value points to a locally running CouchDB instance at the default port.
 
   - [CouchDB Website](http://couchdb.apache.org/)
+
+  Note that CORS may need to be enabled in your CouchDB install.
 
 ## Development Build / Serve
 
