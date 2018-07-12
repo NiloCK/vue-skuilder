@@ -18,11 +18,11 @@ const fields: FieldDefinition[] = [
 ];
 
 export class EqualityTest extends Question {
-    public static dataShape = {
+    public static dataShapes = [{
         name: EqualityTest.name,
         fields,
-        views: [ TrueFalse ]
-    };
+        views: [TrueFalse]
+    }];
 
     public a: string; // vueComponent / "MathJax expression" or something
     public b: string;
@@ -31,17 +31,17 @@ export class EqualityTest extends Question {
      * @param data a and b are seed props that will pop a question of
      * the form [(a*b) / b = ___]. So, b must be non-zero.
      */
-    constructor(data: ViewData) {
+    constructor(data: ViewData[]) {
         super(data);
-        this.a = data.a as string;
-        this.b = data.b as string;
+        this.a = data[0].a as string;
+        this.b = data[0].b as string;
     }
 
     public isCorrect(answer: Answer) {
         return (this.a === this.b) === answer;
     }
 
-    public dataShape() {
-        return EqualityTest.dataShape;
+    public dataShapes() {
+        return EqualityTest.dataShapes;
     }
 }

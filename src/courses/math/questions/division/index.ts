@@ -41,11 +41,11 @@ const fields: FieldDefinition[] = [
 ];
 
 export class SingleDigitDivisionQuestion extends Question {
-    public static dataShape = {
+    public static dataShapes = [{
         name: SingleDigitDivisionQuestion.name,
         fields,
-        views: [ HorizontalDivision ]
-    };
+        views: [HorizontalDivision]
+    }];
 
     public a: number;
     public b: number;
@@ -54,17 +54,17 @@ export class SingleDigitDivisionQuestion extends Question {
      * @param data a and b are seed props that will pop a question of
      * the form [(a*b) / b = ___]. So, b must be non-zero.
      */
-    constructor(data: ViewData) {
+    constructor(data: ViewData[]) {
         super(data);
-        this.a = data.a as number;
-        this.b = data.b as number;
+        this.a = data[0].a as number;
+        this.b = data[0].b as number;
     }
 
     public isCorrect(answer: Answer) {
         return this.a * this.b === answer;
     }
 
-    public dataShape() {
-        return SingleDigitDivisionQuestion.dataShape;
+    public dataShapes() {
+        return SingleDigitDivisionQuestion.dataShapes;
     }
 }

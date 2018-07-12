@@ -14,7 +14,7 @@ export function getViews(courses: CourseList) {
         courses[course].viewableTypes.forEach((type) => {
             if (type !== undefined) {
                 // alert(`dataShape type: ${type.name}`);
-                type.dataShape.views.forEach((view) => {
+                type.dataShapes[0].views.forEach((view) => {
                     if (view !== undefined) {
                         // alert(JSON.stringify(view));
                         ret[view.name] = view.name;
@@ -33,12 +33,12 @@ export function getView(courses: CourseList, viewStr: string) {
     const course = courses[view.course];
 
     if (course) {
-        const dataShape = course.viewableTypes.find( (testDataShape) => {
+        const dataShape = course.viewableTypes.find((testDataShape) => {
             return testDataShape.name === view.dataShape;
         });
 
         if (dataShape) {
-            const dataView = dataShape.dataShape.views.find( (testDataView) => {
+            const dataView = dataShape.dataShapes[0].views.find((testDataView) => {
                 return testDataView.name === view.view;
             });
 
@@ -61,7 +61,7 @@ export function getDataShape(courses: CourseList, shapeStr: string) {
     const course = courses[shape.course];
 
     if (course) {
-        const dataShape = course.viewableTypes.find( (testDataShape) => {
+        const dataShape = course.viewableTypes.find((testDataShape) => {
             return testDataShape.name === shape.dataShape;
         });
 
@@ -115,10 +115,10 @@ interface ViewDescriptor {
 
 export function getCourseDataShapes(courses: CourseList) {
     const ret: any = {};
-    Object.keys(courses).forEach( (course) => {
-        courses[course].viewableTypes.forEach( (type) => {
+    Object.keys(courses).forEach((course) => {
+        courses[course].viewableTypes.forEach((type) => {
             if (type !== undefined) {
-                ret[`${course}.dataShapes.${type.name}`] = type.dataShape;
+                ret[`${course}.dataShapes.${type.name}`] = type.dataShapes;
             }
         });
     });

@@ -38,29 +38,29 @@ const fields: FieldDefinition[] = [
 ];
 
 export class SingleDigitMultiplicationQuestion extends Question {
-    public static dataShape = {
+    public static dataShapes = [{
         name: SingleDigitMultiplicationQuestion.name,
         fields,
         views: [
             VerbalMultiplication,
             MultiplicationHorizontal
         ]
-    };
+    }];
 
     public a: number;
     public b: number;
 
-    constructor(data: ViewData) {
+    constructor(data: ViewData[]) {
         super(data);
-        this.a = data.a as number;
-        this.b = data.b as number;
+        this.a = data[0].a as number;
+        this.b = data[0].b as number;
     }
 
     public isCorrect(answer: Answer) {
         return this.a * this.b === answer;
     }
 
-    public dataShape() {
-        return SingleDigitMultiplicationQuestion.dataShape;
+    public dataShapes() {
+        return SingleDigitMultiplicationQuestion.dataShapes;
     }
 }

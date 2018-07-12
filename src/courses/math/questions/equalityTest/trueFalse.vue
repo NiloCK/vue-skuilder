@@ -16,22 +16,22 @@ import { EqualityTest } from './index';
 import TFSelect from '@/base-course/Components/TrueFalse.vue';
 
 @Component({
-    components: {
-        TFSelect
-    }
+  components: {
+    TFSelect
+  }
 })
 export default class TrueFalse extends QuestionView<EqualityTest> {
   public answer: boolean;
 
   public submit(selection: number) {
     alert(
-      this.question.isCorrect( selection === 0 )
+      this.question.isCorrect(selection === 0)
     );
   }
 
   get question() {
     // alert(`this.Mousetrap == ${Object.keys(this.MouseTrap)}`);
-    return new EqualityTest(this.data);
+    return new EqualityTest([this.data]);
   }
 }
 </script>

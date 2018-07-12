@@ -17,19 +17,19 @@ const fields: FieldDefinition[] = [
 ];
 
 export class SingleDigitAdditionQuestion extends Question {
-    public static dataShape = {
+    public static dataShapes = [{
         name: SingleDigitAdditionQuestion.name,
         fields,
-        views: [ HorizontalAddition, VerbalAddition ]
-    };
+        views: [HorizontalAddition, VerbalAddition]
+    }];
 
     public a: number;
     public b: number;
 
-    constructor(data: ViewData) {
+    constructor(data: ViewData[]) {
         super(data);
-        this.a = data.a as number;
-        this.b = data.b as number;
+        this.a = data[0].a as number;
+        this.b = data[0].b as number;
     }
 
     public isCorrect(answer: Answer) {
@@ -38,7 +38,7 @@ export class SingleDigitAdditionQuestion extends Question {
         return (1 * this.a) + this.b === answer;
     }
 
-    public dataShape() {
-        return SingleDigitAdditionQuestion.dataShape;
+    public dataShapes() {
+        return SingleDigitAdditionQuestion.dataShapes;
     }
 }

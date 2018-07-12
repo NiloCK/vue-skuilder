@@ -14,7 +14,7 @@ import { SingleDigitAdditionQuestion } from './index';
 export default class VerbalAddition extends QuestionView<SingleDigitAdditionQuestion> {
   public answer: string = '';
   get question() {
-    return new SingleDigitAdditionQuestion(this.data);
+    return new SingleDigitAdditionQuestion([this.data]);
   }
 
   public submit() {

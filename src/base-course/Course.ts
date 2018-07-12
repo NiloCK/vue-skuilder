@@ -6,27 +6,29 @@ import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 
-export abstract class Answer {}
+export abstract class Answer { }
 
 // tslint:disable-next-line:max-classes-per-file
 export abstract class Displayable {
-    public static dataShape: DataShape;
+    public static dataShapes: DataShape[];
     /**
      *
      */
-    constructor(viewData: ViewData) {
-        validateData(this.dataShape(), viewData);
+    constructor(viewData: ViewData[]) {
+        validateData(this.dataShapes(), viewData);
     }
 
-    public abstract dataShape(): DataShape;
+    public abstract dataShapes(): DataShape[];
 }
 
-function validateData(shape: DataShape, data: ViewData) {
-    shape.fields.forEach( (field) => {
-        if (data[field.name] === undefined) {
-            throw new Error(`field validation failed: ${field.name}`);
-        }
-    });
+function validateData(shape: DataShape[], data: ViewData[]) {
+    for (let i = 0; i < shape.length; i++) {
+        shape[i].fields.forEach((field) => {
+            if (data[i][field.name] === undefined) {
+                throw new Error(`field validation failed: ${field.name}`);
+            }
+        });
+    }
 }
 
 // tslint:disable-next-line:max-classes-per-file

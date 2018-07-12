@@ -17,10 +17,10 @@ export default {
     return {
       type: 'Viewable',
       problem: new SingleDigitMultiplicationQuestion(
-        {
+        [{
           a: randomInt(0, 10),
           b: randomInt(0, 10)
-        }
+        }]
       )
     };
   },

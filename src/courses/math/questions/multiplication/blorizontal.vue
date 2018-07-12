@@ -14,7 +14,7 @@ import { SingleDigitMultiplicationQuestion } from './index';
 export default class MultiplicationHorizontal extends QuestionView<SingleDigitMultiplicationQuestion> {
     public answer: string = '';
     get question() {
-        return new SingleDigitMultiplicationQuestion(this.data);
+        return new SingleDigitMultiplicationQuestion([this.data]);
     }
 
     public submit() {

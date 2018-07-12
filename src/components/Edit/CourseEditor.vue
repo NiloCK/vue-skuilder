@@ -60,7 +60,7 @@ export default class CourseEditor extends Vue {
 
   public created() {
     Courses[this.course].viewableTypes.forEach((type) => {
-      this.dataShapes.push(type.dataShape);
+      this.dataShapes.push(type.dataShapes[0]);
     });
 
     getDataShapes(this.course).then((results) => {
@@ -68,7 +68,7 @@ export default class CourseEditor extends Vue {
         getDoc<DataShapeData>(doc._id).then((dataShapeDoc) => {
           const shape = getDataShape(Courses, dataShapeDoc._id);
           if (shape) {
-            this.registeredDataShapes.push(shape.dataShape);
+            this.registeredDataShapes.push(shape.dataShapes[0]);
           }
           // alert(_.difference(this.dataShapes, this.registeredDataShapes));
         });
