@@ -14,7 +14,7 @@ export function getViews(courses: CourseList) {
         courses[course].viewableTypes.forEach((type) => {
             if (type !== undefined) {
                 // alert(`dataShape type: ${type.name}`);
-                type.dataShapes[0].views.forEach((view) => {
+                type.views.forEach((view) => {
                     if (view !== undefined) {
                         // alert(JSON.stringify(view));
                         ret[view.name] = view.name;
@@ -33,12 +33,12 @@ export function getView(courses: CourseList, viewStr: string) {
     const course = courses[view.course];
 
     if (course) {
-        const dataShape = course.viewableTypes.find((testDataShape) => {
+        const questionType = course.viewableTypes.find((testDataShape) => {
             return testDataShape.name === view.dataShape;
         });
 
-        if (dataShape) {
-            const dataView = dataShape.dataShapes[0].views.find((testDataView) => {
+        if (questionType) {
+            const dataView = questionType.views.find((testDataView) => {
                 return testDataView.name === view.view;
             });
 

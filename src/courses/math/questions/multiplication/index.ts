@@ -40,12 +40,13 @@ const fields: FieldDefinition[] = [
 export class SingleDigitMultiplicationQuestion extends Question {
     public static dataShapes = [{
         name: SingleDigitMultiplicationQuestion.name,
-        fields,
-        views: [
-            VerbalMultiplication,
-            MultiplicationHorizontal
-        ]
+        fields
     }];
+
+    public static views = [
+        VerbalMultiplication,
+        MultiplicationHorizontal
+    ];
 
     public a: number;
     public b: number;
@@ -62,5 +63,9 @@ export class SingleDigitMultiplicationQuestion extends Question {
 
     public dataShapes() {
         return SingleDigitMultiplicationQuestion.dataShapes;
+    }
+
+    public views() {
+        return SingleDigitMultiplicationQuestion.views;
     }
 }

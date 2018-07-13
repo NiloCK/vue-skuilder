@@ -20,9 +20,12 @@ const fields: FieldDefinition[] = [
 export class EqualityTest extends Question {
     public static dataShapes = [{
         name: EqualityTest.name,
-        fields,
-        views: [TrueFalse]
+        fields
     }];
+
+    public static views = [
+        TrueFalse
+    ];
 
     public a: string; // vueComponent / "MathJax expression" or something
     public b: string;
@@ -43,5 +46,9 @@ export class EqualityTest extends Question {
 
     public dataShapes() {
         return EqualityTest.dataShapes;
+    }
+
+    public views() {
+        return EqualityTest.views;
     }
 }

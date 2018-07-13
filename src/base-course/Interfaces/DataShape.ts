@@ -1,10 +1,7 @@
-import Vue from 'vue';
-import {VueConstructor} from 'vue';
-import { NoteCtor } from '@/db/types';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
+import { NoteCtor } from '@/db/types';
 
 export interface DataShape {
     name: NoteCtor;
     fields: FieldDefinition[];
-    views: Array<VueConstructor<Vue>>;
 }

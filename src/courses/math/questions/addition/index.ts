@@ -19,9 +19,13 @@ const fields: FieldDefinition[] = [
 export class SingleDigitAdditionQuestion extends Question {
     public static dataShapes = [{
         name: SingleDigitAdditionQuestion.name,
-        fields,
-        views: [HorizontalAddition, VerbalAddition]
+        fields
     }];
+
+    public static views = [
+        HorizontalAddition,
+        VerbalAddition
+    ];
 
     public a: number;
     public b: number;
@@ -40,5 +44,9 @@ export class SingleDigitAdditionQuestion extends Question {
 
     public dataShapes() {
         return SingleDigitAdditionQuestion.dataShapes;
+    }
+
+    public views() {
+        return SingleDigitAdditionQuestion.views;
     }
 }

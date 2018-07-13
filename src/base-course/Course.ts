@@ -1,16 +1,15 @@
-import { NoteCtor, VueComponentName } from '@/db/types';
-import { FieldType } from '@/enums/FieldType';
-import { Status } from '@/enums/Status';
-import { Validator } from '@/base-course/Interfaces/Validator';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
-import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
+import Vue, { VueConstructor } from 'vue';
 
 export abstract class Answer { }
 
 // tslint:disable-next-line:max-classes-per-file
 export abstract class Displayable {
     public static dataShapes: DataShape[];
+
+    public static views: Array<VueConstructor<Vue>>;
+
     /**
      *
      */
@@ -19,6 +18,7 @@ export abstract class Displayable {
     }
 
     public abstract dataShapes(): DataShape[];
+    public abstract views(): Array<VueConstructor<Vue>>;
 }
 
 function validateData(shape: DataShape[], data: ViewData[]) {

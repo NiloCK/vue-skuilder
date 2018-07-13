@@ -43,9 +43,12 @@ const fields: FieldDefinition[] = [
 export class SingleDigitDivisionQuestion extends Question {
     public static dataShapes = [{
         name: SingleDigitDivisionQuestion.name,
-        fields,
-        views: [HorizontalDivision]
+        fields
     }];
+
+    public static views = [
+        HorizontalDivision
+    ];
 
     public a: number;
     public b: number;
@@ -66,5 +69,9 @@ export class SingleDigitDivisionQuestion extends Question {
 
     public dataShapes() {
         return SingleDigitDivisionQuestion.dataShapes;
+    }
+
+    public views() {
+        return SingleDigitDivisionQuestion.views;
     }
 }
