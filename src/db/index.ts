@@ -4,6 +4,9 @@ import { remote_db_url, debug_mode } from '@/ENVIRONMENT_VARS';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
+import process from 'process';
+
+(window as any).process = process; // required as a fix for pouchdb - see #18
 
 pouch.plugin(PouchDBAuth);
 pouch.plugin(PouchDBFind);
