@@ -6,7 +6,9 @@ After cloning the repository,
 
  - `npm install` or `yarn install`
 
- The app needs to be configured with the url of a CouchDB (or other database respecting the CouchDB replication protocol) server. See `/src/ENVIRONMENT_VARS.ts` to point the app toward a specific database. The default value points to a locally running CouchDB instance at the default port.
+ The app needs to be configured with the url of a CouchDB (or other database respecting the CouchDB replication protocol) server. See `/src/ENVIRONMENT_VARS.ts` to point the app toward a specific database. The default value, for ease of development startup, points to an in-browser pouch-db database.
+
+ The alternate value in `ENVIRONMENT_VARS.TS` points to the default url of a locally running CouchDB database.
 
   - [CouchDB Website](http://couchdb.apache.org/)
 
