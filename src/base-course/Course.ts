@@ -80,16 +80,10 @@ export class SCourse {
         this.questionList = questionList;
     }
 
-    public getQuestion(name: string): [boolean, typeof Question | null] {
-        const index = this.questionList.findIndex((question) => {
+    public getQuestion(name: string): typeof Question | undefined {
+        return this.questionList.find((question) => {
             return question.name === name;
         });
-
-        if (index !== -1) {
-            return [true, this.questionList[index]];
-        } else {
-            return [false, null];
-        }
     }
 
 }
