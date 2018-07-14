@@ -34,8 +34,7 @@ import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import Spinner from 'vue-simple-spinner';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
-// import Spinner from '@/components/Misc/Spinner.vue';
-import Courses from '@/courses';
+import Courses, { NameSpacer } from '@/courses';
 import { getDataShape } from '@/courses';
 import { getDataShapes, getDoc } from '@/db';
 import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
@@ -54,22 +53,27 @@ export default class CourseEditor extends Vue {
   @Prop() public course: string;
   public registeredDataShapes: DataShape[] = [];
   public dataShapes: DataShape[] = [];
-  public selectedShape: DataShape = { name: '', fields: [], views: [] };
+  public selectedShape: DataShape = { name: '', fields: [] };
   private loading: boolean = true;
   private editingMode: boolean = true;
 
   public created() {
-    Courses[this.course].viewableTypes.forEach((type) => {
-      this.dataShapes.push(type.dataShapes[0]);
+    Courses.getCourse(this.course)!.questions.forEach((question) => {
+      question.dataShapes.forEach((dataShape) => {
+        this.dataShapes.push(dataShape);
+      });
     });
 
     getDataShapes(this.course).then((results) => {
       results.docs.forEach((doc) => {
         getDoc<DataShapeData>(doc._id).then((dataShapeDoc) => {
-          const shape = getDataShape(Courses, dataShapeDoc._id);
-          if (shape) {
-            this.registeredDataShapes.push(shape.dataShapes[0]);
-          }
+
+          this.registeredDataShapes.push(
+            this.dataShapes.find((shape) => {
+              return shape.name === NameSpacer.getDataShapeDescriptor(dataShapeDoc._id).dataShape;
+            })!
+          );
+
           // alert(_.difference(this.dataShapes, this.registeredDataShapes));
         });
       });

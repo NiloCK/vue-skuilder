@@ -65,11 +65,11 @@ export class SCourse {
      * This function returns the map {[index:string]: string} of display
      * components needed by the CardViewer component
      */
-    public get allViewsMap(): { [index: string]: string } {
-        const ret: { [index: string]: string } = {};
+    public get allViewsMap(): { [index: string]: VueConstructor<Vue> } {
+        const ret: { [index: string]: VueConstructor<Vue> } = {};
 
         this.allViews.forEach((view) => {
-            ret[view.name] = view.name;
+            ret[view.name] = view;
         });
 
         return ret;

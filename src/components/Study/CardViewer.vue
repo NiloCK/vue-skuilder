@@ -8,18 +8,17 @@
 import { VueConstructor } from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { DisplayableData } from '@/db/types';
-import { getViews } from '@/courses';
 import Vue from 'vue';
 import CourseEditor from '../components/Edit/CourseEditor.vue';
 import Courses from '@/courses';
 import Viewable from '@/base-course/Viewable';
 
 @Component({
-    components: getViews(Courses)
+    components: Courses.allViews()
 })
 export default class CardViewer extends Vue {
-  @Prop() public view: VueConstructor<Viewable>;
-  @Prop() public data: DisplayableData;
+    @Prop() public view: VueConstructor<Viewable>;
+    @Prop() public data: DisplayableData;
 }
 // Argument of type '{ components: VueConstructor<Vue>[]; }'
 // is not assignable to parameter of type 'VueClass<Vue>'.
@@ -27,6 +26,6 @@ export default class CardViewer extends Vue {
 
 <style scoped>
 div {
-    border: solid 2px red;
+  border: solid 2px red;
 }
 </style>

@@ -3,6 +3,7 @@ import french from './french';
 import math from './math';
 import wordWork from './word-work';
 import Vue, { VueConstructor } from 'vue';
+import { DataShape } from '@/base-course/Interfaces/DataShape';
 
 export interface CourseList {
     [index: string]: Course;
@@ -29,8 +30,8 @@ export class SCourseList {
      * allViews supplies the CardViewer component with the required
      * Vue components it needs at run-time.
      */
-    public allViews(): { [index: string]: string } {
-        const ret: { [index: string]: string } = {};
+    public allViews(): { [index: string]: VueConstructor<Vue> } {
+        const ret: { [index: string]: VueConstructor<Vue> } = {};
 
         this.courseList.forEach((course) => {
             Object.assign(ret, course.allViewsMap);
@@ -43,7 +44,7 @@ export class SCourseList {
 
         let description: ViewDescriptor;
         if (typeof viewDescription === 'string') {
-            description = getViewDescriptor(viewDescription);
+            description = NameSpacer.getViewDescriptor(viewDescription);
         } else {
             description = viewDescription;
         }
@@ -72,6 +73,30 @@ export class SCourseList {
             throw new Error(`course ${description.course} does not exist.`);
         }
     }
+
+    public allDataShapes(): ShapeDescriptor[] {
+        const ret: ShapeDescriptor[] = [];
+
+        this.courseList.forEach((course) => {
+            course.questions.forEach((question) => {
+                question.dataShapes.forEach((shape) => {
+                    ret.push({
+                        course: course.name,
+                        dataShape: shape.name
+                    });
+                })
+            });
+        });
+
+        return ret;
+    }
+
+    public getDataShape(description: ShapeDescriptor): DataShape {
+        return this.getCourse(description.course)!
+            .getQuestion(description.dataShape)!
+            .dataShapes[0];
+
+    }
 }
 
 export function getViews(courses: CourseList) {
@@ -95,7 +120,7 @@ export function getViews(courses: CourseList) {
 }
 
 export function getView(courses: CourseList, viewStr: string) {
-    const view: ViewDescriptor = getViewDescriptor(viewStr);
+    const view: ViewDescriptor = NameSpacer.getViewDescriptor(viewStr);
 
     const course = courses[view.course];
 
@@ -124,7 +149,7 @@ export function getView(courses: CourseList, viewStr: string) {
 }
 
 export function getDataShape(courses: CourseList, shapeStr: string) {
-    const shape: ShapeDescriptor = getDataShapeDescriptor(shapeStr);
+    const shape: ShapeDescriptor = NameSpacer.getDataShapeDescriptor(shapeStr);
     const course = courses[shape.course];
 
     if (course) {
@@ -142,44 +167,56 @@ export function getDataShape(courses: CourseList, shapeStr: string) {
     }
 }
 
-function getDataShapeDescriptor(shapeStr: string): ShapeDescriptor {
-    const splitArray = shapeStr.split('.');
+// tslint:disable-next-line:max-classes-per-file
+export class NameSpacer {
+    public static getDataShapeDescriptor(shapeStr: string): ShapeDescriptor {
+        const splitArray = shapeStr.split('.');
 
-    if (splitArray.length !== 2) {
-        throw new Error('shapeStr not valid');
-    } else {
-        return {
-            course: splitArray[0],
-            dataShape: splitArray[1]
-        };
+        if (splitArray.length !== 3) {
+            throw new Error('shapeStr not valid');
+        } else {
+            return {
+                course: splitArray[0],
+                dataShape: splitArray[2]
+            };
+        }
     }
+    public static getDataShapeString(shapeDescription: ShapeDescriptor) {
+        return `${shapeDescription.course}.datashape.${shapeDescription.dataShape}`;
+    }
+
+    public static getViewDescriptor(viewStr: string): ViewDescriptor {
+        const splitArray = viewStr.split('.');
+
+        if (splitArray.length !== 4) {
+            throw new Error('viewStr not valid');
+        } else {
+            return {
+                course: splitArray[0],
+                questionType: splitArray[2],
+                view: splitArray[3]
+            };
+        }
+    }
+
+    public static getViewString(viewDescription: ViewDescriptor): string {
+        return `${viewDescription.course}.question.` +
+            `${viewDescription.questionType}.${viewDescription.view}`;
+    }
+
 }
 
-function getViewDescriptor(viewStr: string): ViewDescriptor {
-    const splitArray = viewStr.split('.');
-
-    if (splitArray.length !== 3) {
-        throw new Error('viewStr not valid');
-    } else {
-        return {
-            course: splitArray[0],
-            questionType: splitArray[1],
-            view: splitArray[2]
-        };
-    }
-}
-
-interface ShapeDescriptor {
+export interface ShapeDescriptor {
     course: string;
     dataShape: string;
 }
 
-interface QuestionDescriptor {
+export interface QuestionDescriptor {
     course: string;
     questionType: string;
 }
 
-interface ViewDescriptor {
+export interface ViewDescriptor {
     course: string;
     questionType: string;
     view: string;
@@ -198,10 +235,10 @@ export function getCourseDataShapes(courses: CourseList) {
     return ret;
 }
 
-const courseList: CourseList = {
+const courseList: SCourseList = new SCourseList([
     math,
     wordWork,
     french
-};
+]);
 
 export default courseList;

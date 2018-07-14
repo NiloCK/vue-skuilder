@@ -1,8 +1,5 @@
-import { Course } from '@/base-course/Course';
+import { SCourse } from '@/base-course/Course';
 
-const wordWork: Course = {
-    viewableTypes: [
-    ]
-};
+const wordWork: SCourse = new SCourse('wordWork', []);
 
 export default wordWork;

@@ -21,7 +21,7 @@
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
-import Courses from '@/courses';
+import Courses, { NameSpacer } from '@/courses';
 import { getCourseDataShapes } from '@/courses';
 import { getDataShapes, getDoc } from '@/db';
 
@@ -40,23 +40,24 @@ export default class ComponentRegistration extends Vue {
 
   public created() {
     // alert('hello');
-    const dataShapeData = getCourseDataShapes(Courses);
-    Object.keys(dataShapeData).forEach((dataShapeName) => {
-      getDoc(dataShapeName).then((doc) => {
+    const dataShapeData = Courses.allDataShapes();
+
+    dataShapeData.forEach((shape) => {
+      getDoc(NameSpacer.getDataShapeString(shape)).then((doc) => {
         this.dataShapes.push({
-          name: dataShapeName,
-          dataShape: dataShapeData[dataShapeName],
+          name: shape.dataShape,
+          dataShape: Courses.getDataShape(shape),
           registered: true
         });
       }).catch((err) => {
         this.dataShapes.push({
-          name: dataShapeName,
-          dataShape: dataShapeData[dataShapeName],
+          name: shape.dataShape,
+          dataShape: Courses.getDataShape(shape),
           registered: false
         });
       });
     });
-    // this.dataShapes[0].dataShape.views
+
   }
 }
 </script>

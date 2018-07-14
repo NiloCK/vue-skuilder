@@ -31,7 +31,9 @@ export default class Edit extends Vue {
   public selectedCourse: string = '';
 
   private created() {
-    this.courseList = Object.getOwnPropertyNames(Courses);
+    this.courseList = Courses.courses.map((course) => {
+      return course.name;
+    });
   }
 }
 </script>
