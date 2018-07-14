@@ -1,10 +1,77 @@
-import { Course } from '@/base-course/Course';
+import { Course, SCourse } from '@/base-course/Course';
 import french from './french';
 import math from './math';
 import wordWork from './word-work';
+import Vue, { VueConstructor } from 'vue';
 
 export interface CourseList {
     [index: string]: Course;
+}
+
+export class SCourseList {
+    private readonly courseList: SCourse[];
+
+    public get courses(): SCourse[] {
+        return this.courseList;
+    }
+
+    constructor(courses: SCourse[]) {
+        this.courseList = courses;
+    }
+
+    public getCourse(name: string): SCourse | undefined {
+        return this.courseList.find((course) => {
+            return course.name === name;
+        });
+    }
+
+    /**
+     * allViews supplies the CardViewer component with the required
+     * Vue components it needs at run-time.
+     */
+    public allViews(): { [index: string]: string } {
+        const ret: { [index: string]: string } = {};
+
+        this.courseList.forEach((course) => {
+            Object.assign(ret, course.allViewsMap);
+        });
+
+        return ret;
+    }
+
+    public getView(viewDescription: ViewDescriptor | string): VueConstructor<Vue> {
+
+        let description: ViewDescriptor;
+        if (typeof viewDescription === 'string') {
+            description = getViewDescriptor(viewDescription);
+        } else {
+            description = viewDescription;
+        }
+
+        const course = this.getCourse(description.course);
+        if (course) {
+            const question = course.getQuestion(description.questionType);
+            if (question) {
+                const ret = question.views.find((view) => {
+                    return view.name === description.view;
+                });
+
+                if (ret) {
+                    return ret;
+                } else {
+                    throw new Error(
+                        `view ${description.view} does not exist.`
+                    );
+                }
+            } else {
+                throw new Error(
+                    `question ${description.questionType} does not exist.`
+                );
+            }
+        } else {
+            throw new Error(`course ${description.course} does not exist.`);
+        }
+    }
 }
 
 export function getViews(courses: CourseList) {
@@ -34,7 +101,7 @@ export function getView(courses: CourseList, viewStr: string) {
 
     if (course) {
         const questionType = course.viewableTypes.find((testDataShape) => {
-            return testDataShape.name === view.dataShape;
+            return testDataShape.name === view.questionType;
         });
 
         if (questionType) {
@@ -49,7 +116,7 @@ export function getView(courses: CourseList, viewStr: string) {
             }
 
         } else {
-            throw new Error(`dataShape ${view.dataShape} not found. ${viewStr} appears to be invalid.`);
+            throw new Error(`dataShape ${view.questionType} not found. ${viewStr} appears to be invalid.`);
         }
     } else {
         throw new Error(`Course ${view.course} not found. ${viewStr} appears to be invalid.`);
@@ -96,7 +163,7 @@ function getViewDescriptor(viewStr: string): ViewDescriptor {
     } else {
         return {
             course: splitArray[0],
-            dataShape: splitArray[1],
+            questionType: splitArray[1],
             view: splitArray[2]
         };
     }
@@ -107,9 +174,14 @@ interface ShapeDescriptor {
     dataShape: string;
 }
 
+interface QuestionDescriptor {
+    course: string;
+    questionType: string;
+}
+
 interface ViewDescriptor {
     course: string;
-    dataShape: string;
+    questionType: string;
     view: string;
 }
 
