@@ -39,3 +39,57 @@ export abstract class Question extends Displayable {
 export interface Course {
     viewableTypes: Array<typeof Question>;
 }
+
+// tslint:disable-next-line:max-classes-per-file
+export class SCourse {
+    public readonly name: string;
+    private readonly questionList: Array<typeof Question>;
+
+    public get questions(): Array<typeof Question> {
+        return this.questionList;
+    }
+
+    public get allViews(): Array<VueConstructor<Vue>> {
+        const ret = new Array<VueConstructor<Vue>>();
+
+        this.questionList.forEach((question) => {
+            question.views.forEach((view) => {
+                ret.push(view);
+            });
+        });
+
+        return ret;
+    }
+
+    /**
+     * This function returns the map {[index:string]: string} of display
+     * components needed by the CardViewer component
+     */
+    public get allViewsMap(): { [index: string]: string } {
+        const ret: { [index: string]: string } = {};
+
+        this.allViews.forEach((view) => {
+            ret[view.name] = view.name;
+        });
+
+        return ret;
+    }
+
+    constructor(name: string, questionList: Array<typeof Question>) {
+        this.name = name;
+        this.questionList = questionList;
+    }
+
+    public getQuestion(name: string): [boolean, typeof Question | null] {
+        const index = this.questionList.findIndex((question) => {
+            return question.name === name;
+        });
+
+        if (index !== -1) {
+            return [true, this.questionList[index]];
+        } else {
+            return [false, null];
+        }
+    }
+
+}
