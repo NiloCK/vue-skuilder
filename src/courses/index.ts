@@ -76,10 +76,15 @@ export class CourseList {
         this.courseList.forEach((course) => {
             course.questions.forEach((question) => {
                 question.dataShapes.forEach((shape) => {
+                    if (ret.findIndex((testShape) => {
+                        return testShape.course === course.name &&
+                            testShape.dataShape === shape.name;
+                    }) === -1) {
                     ret.push({
                         course: course.name,
                         dataShape: shape.name
                     });
+                    }
                 });
             });
         });
