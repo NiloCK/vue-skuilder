@@ -4,6 +4,7 @@ import math from './math';
 import wordWork from './word-work';
 import Vue, { VueConstructor } from 'vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
+import { DataShapeName } from '@/enums/DataShapeNames';
 
 export class CourseList {
     private readonly courseList: Course[];
@@ -80,10 +81,10 @@ export class CourseList {
                         return testShape.course === course.name &&
                             testShape.dataShape === shape.name;
                     }) === -1) {
-                    ret.push({
-                        course: course.name,
-                        dataShape: shape.name
-                    });
+                        ret.push({
+                            course: course.name,
+                            dataShape: shape.name
+                        });
                     }
                 });
             });
@@ -93,10 +94,22 @@ export class CourseList {
     }
 
     public getDataShape(description: ShapeDescriptor): DataShape {
-        return this.getCourse(description.course)!
-            .getQuestion(description.dataShape)!
-            .dataShapes[0];
+        let ret: DataShape | undefined;
 
+        this.getCourse(description.course)!
+            .questions.forEach((question) => {
+                question.dataShapes.forEach((shape) => {
+                    if (shape.name === description.dataShape) {
+                        ret = shape;
+                    }
+                });
+            });
+
+        if (ret) {
+            return ret;
+        } else {
+            throw new Error(`DataShape ${NameSpacer.getDataShapeString(description)} not found`);
+        }
     }
 }
 
