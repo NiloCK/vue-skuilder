@@ -160,23 +160,3 @@ function addCard(
 export function getCard(id: PouchDB.Core.DocumentId): Promise<CardData> {
     return remote.get<CardData>(id);
 }
-
-/**
- * Adds a View (ie, a 'Card Type' from Anki) to the database
- * @param course The name of the course that the View belongs to
- * @param name The name of the Vue component class
- * @param dataShapeName The name of the dataShape definition for hydrating this view
- */
-function addView(
-    course: string,
-    name: string,
-    dataShape: PouchDB.Core.DocumentId) {
-
-    remote.find({
-        selector: {
-            course,
-            docType: DocType.DATASHAPE,
-            name
-        }
-    }).then();
-}
