@@ -44,6 +44,15 @@ export function putQuestionType(course: string, question: typeof Question) {
     });
 }
 
+export function getQuestions(course: string) {
+    return remote.find({
+        selector: {
+            docType: DocType.QUESTIONTYPE,
+            course
+        }
+    });
+}
+
 export function putDataShape(course: string, dataShape: DataShape) {
 
     const dataShapeId: string = NameSpacer.getDataShapeString({
