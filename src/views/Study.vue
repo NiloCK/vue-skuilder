@@ -15,7 +15,6 @@ import { DisplayableData, DocType } from '@/db/types';
 import Viewable from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
-import { getView } from '@/courses';
 import Courses from '@/courses';
 
 @Component({
@@ -46,8 +45,9 @@ export default class Study extends Vue {
     };
 
     public created() {
-        // alert('hi');
-        this.view = getView(Courses, 'math.SingleDigitDivisionQuestion.DivisionHorizontal');
+        // view lookup has changed since #22
+        // this.view = getView(Courses, 'math.SingleDigitDivisionQuestion.DivisionHorizontal');
+
     }
 }
 </script>

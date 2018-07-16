@@ -35,7 +35,6 @@ import { Component, Prop } from 'vue-property-decorator';
 import Spinner from 'vue-simple-spinner';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import Courses, { NameSpacer } from '@/courses';
-import { getDataShape } from '@/courses';
 import { getDataShapes, getDoc } from '@/db';
 import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
 import { DataShapeData } from '@/db/types';

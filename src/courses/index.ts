@@ -1,13 +1,9 @@
-import { Course, SCourse } from '@/base-course/Course';
+import { SCourse } from '@/base-course/Course';
 import french from './french';
 import math from './math';
 import wordWork from './word-work';
 import Vue, { VueConstructor } from 'vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
-
-export interface CourseList {
-    [index: string]: Course;
-}
 
 export class SCourseList {
     private readonly courseList: SCourse[];
@@ -84,7 +80,7 @@ export class SCourseList {
                         course: course.name,
                         dataShape: shape.name
                     });
-                })
+                });
             });
         });
 
@@ -96,74 +92,6 @@ export class SCourseList {
             .getQuestion(description.dataShape)!
             .dataShapes[0];
 
-    }
-}
-
-export function getViews(courses: CourseList) {
-    const ret: any = {};
-    Object.keys(courses).forEach((course) => {
-        // alert(`Course: ${JSON.stringify(course)}`);
-        courses[course].viewableTypes.forEach((type) => {
-            if (type !== undefined) {
-                // alert(`dataShape type: ${type.name}`);
-                type.views.forEach((view) => {
-                    if (view !== undefined) {
-                        // alert(JSON.stringify(view));
-                        ret[view.name] = view.name;
-                    }
-                });
-            }
-        });
-    });
-
-    return ret;
-}
-
-export function getView(courses: CourseList, viewStr: string) {
-    const view: ViewDescriptor = NameSpacer.getViewDescriptor(viewStr);
-
-    const course = courses[view.course];
-
-    if (course) {
-        const questionType = course.viewableTypes.find((testDataShape) => {
-            return testDataShape.name === view.questionType;
-        });
-
-        if (questionType) {
-            const dataView = questionType.views.find((testDataView) => {
-                return testDataView.name === view.view;
-            });
-
-            if (dataView) {
-                return dataView;
-            } else {
-                throw new Error(`View ${view.view} not found. ${viewStr} appears to be invalid.`);
-            }
-
-        } else {
-            throw new Error(`dataShape ${view.questionType} not found. ${viewStr} appears to be invalid.`);
-        }
-    } else {
-        throw new Error(`Course ${view.course} not found. ${viewStr} appears to be invalid.`);
-    }
-}
-
-export function getDataShape(courses: CourseList, shapeStr: string) {
-    const shape: ShapeDescriptor = NameSpacer.getDataShapeDescriptor(shapeStr);
-    const course = courses[shape.course];
-
-    if (course) {
-        const dataShape = course.viewableTypes.find((testDataShape) => {
-            return testDataShape.name === shape.dataShape;
-        });
-
-        if (dataShape) {
-            return dataShape;
-        } else {
-            throw new Error(`Datashape ${shape.dataShape} not found. ${shapeStr} appears to be invalid.`);
-        }
-    } else {
-        throw new Error(`Course ${shape.course} not found. ${shapeStr} appears to be invalid.`);
     }
 }
 
@@ -220,19 +148,6 @@ export interface ViewDescriptor {
     course: string;
     questionType: string;
     view: string;
-}
-
-export function getCourseDataShapes(courses: CourseList) {
-    const ret: any = {};
-    Object.keys(courses).forEach((course) => {
-        courses[course].viewableTypes.forEach((type) => {
-            if (type !== undefined) {
-                ret[`${course}.dataShapes.${type.name}`] = type.dataShapes;
-            }
-        });
-    });
-    // alert(JSON.stringify(ret));
-    return ret;
 }
 
 const courseList: SCourseList = new SCourseList([

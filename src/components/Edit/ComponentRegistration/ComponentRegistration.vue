@@ -22,7 +22,6 @@ import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import Courses, { NameSpacer } from '@/courses';
-import { getCourseDataShapes } from '@/courses';
 import { getDataShapes, getDoc } from '@/db';
 
 interface DataShapeRegistrationStatus {
