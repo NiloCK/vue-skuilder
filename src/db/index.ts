@@ -1,10 +1,12 @@
 import { DataShape } from '@/base-course/Interfaces/DataShape';
-import { CardData, DataShapeData, DisplayableData, DocType } from '@/db/types';
+import { CardData, DataShapeData, DisplayableData, DocType, QuestionData } from '@/db/types';
 import { remote_db_url, debug_mode } from '@/ENVIRONMENT_VARS';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
+import { NameSpacer } from '@/courses';
+import { Question } from '@/base-course/Course';
 
 (window as any).process = process; // required as a fix for pouchdb - see #18
 
@@ -56,18 +58,23 @@ export function putDataShape(course: string, dataShape: DataShape) {
     });
 }
 
-export function putDataShapeView(
+export function putQuestionView(
     course: string,
-    dataShapeName: string,
+    questionName: string,
     viewName: string
 ) {
-    getDoc<DataShapeData>(`${course}.${dataShapeName}`).then((dataShape) => {
-        if (dataShape.viewList.indexOf(viewName) === -1) {
-            dataShape.viewList.push(viewName);
-            remote.put(dataShape);
+    const questionID = NameSpacer.getQuestionString({
+        course,
+        questionType: questionName
+    });
+
+    getDoc<QuestionData>(questionID).then((question) => {
+        if (question.viewList.indexOf(viewName) === -1) {
+            question.viewList.push(viewName);
+            remote.put(question);
         } else {
             throw new Error(
-                `putDataShapeView failed: ${course}.${dataShapeName} already contains a view named ${viewName}`
+                `putQuestionView failed: ${course}.${questionName} already contains a view named ${viewName}`
             );
         }
     });
