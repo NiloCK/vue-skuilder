@@ -81,13 +81,7 @@ export function putQuestionView(
 }
 
 export function addNote(course: string, shape: DataShape, data: any) {
-    // todo: make less crappy - test for duplicate insertions
-    // w/ db.find(payload). ?
-    // shape.views.forEach( (view) => {
-    //     remote.put({
-    //         _id: view.name
-    //     });
-    // });
+    // todo: make less crappy - test for duplicate insertions - #15
 
     const payload: DisplayableData = {
         course,
@@ -119,14 +113,6 @@ export function getNotes(course: string, shape: DataShape) {
             id_datashape: shape.name
         }
     });
-
-    // .then( (results) => {
-    //     results.docs.forEach( (doc) => {
-    //         remote.get<DisplayableData>(doc._id).then( (doc) => {
-    //             alert(JSON.stringify(doc));
-    //         });
-    //     });
-    // });
 }
 
 /**
@@ -194,20 +180,3 @@ function addView(
         }
     }).then();
 }
-
-// export function getCourseDatabase(courseName: string): PouchDB.Database {
-//     return new pouch(
-//         'https://nilock.cloudant.com/' + courseName,
-//         {
-//             skip_setup: true
-//         }
-//     );
-// }
-
-// export function getCourseQuestions(courseName: string) {
-//     const db = getCourseDatabase(courseName);
-//     return db.find({
-//         fields: ['type'],
-//         selector: { name: 'viewList' }
-//     });
-// }
