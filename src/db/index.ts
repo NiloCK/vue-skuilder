@@ -28,6 +28,20 @@ export function getDoc<T>(id: PouchDB.Core.DocumentId): Promise<T> {
     return remote.get<T>(id);
 }
 
+export function putQuestionType(course: string, question: typeof Question) {
+    const questionID = NameSpacer.getQuestionString({
+        course,
+        questionType: question.name
+    });
+
+    return remote.put<QuestionData>({
+        _id: questionID,
+        course,
+        docType: DocType.QUESTIONTYPE,
+        viewList: question.views.map((view) => view.name)
+    });
+}
+
 export function putDataShape(course: string, dataShape: DataShape) {
 
     const dataShapeId: string = `${course}.${dataShape.name}`;
