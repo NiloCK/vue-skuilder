@@ -3,8 +3,12 @@
     <h3>DataShapes</h3>
     <ul>
       <li v-for="dataShape in dataShapes" :key="dataShape.name" >
-       {{ dataShape.name }} - {{ dataShape.registered }}
-       <button @click="registerShape(dataShape.name)">Register</button>
+       {{ dataShape.name }}
+        <button
+          v-if="!dataShape.registered"
+          @click="registerShape(dataShape.name)">
+          Register
+        </button>
        <ul>
          <div v-for="view in dataShape.dataShape.views" :key="view.name">
           <li v-if="view">
@@ -18,8 +22,12 @@
     <h3>Questions</h3>
     <ul>
       <li v-for="question in questions" :key="question.name">
-        {{ question.name }} - {{ question.registered }}
-        <button @click="registerQuestion(question.name)">Register</button>
+        {{ question.name }}
+        <button
+          v-if="!question.registered"
+          @click="registerQuestion(question.name)">
+          Register
+        </button>
       </li>
     </ul>
       
