@@ -44,13 +44,15 @@ export function putQuestionType(course: string, question: typeof Question) {
 
 export function putDataShape(course: string, dataShape: DataShape) {
 
-    const dataShapeId: string = `${course}.${dataShape.name}`;
+    const dataShapeId: string = NameSpacer.getDataShapeString({
+        course,
+        dataShape: dataShape.name
+    });
 
     return remote.put<DataShapeData>({
         course,
         docType: DocType.DATASHAPE,
-        _id: dataShapeId,
-        viewList: []
+        _id: dataShapeId
     });
 }
 
