@@ -6,8 +6,8 @@
  */
 
 export const remote_db_url: string =
-    'devRemote';
-// 'http://localhost:5984/skuilder/';
+    // 'devRemote';
+    'http://localhost:5984/skuilder/';
 
 /**
  * A global flag to enable debug messaging mode for different libraries

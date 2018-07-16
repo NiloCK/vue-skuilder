@@ -1,12 +1,12 @@
+import { Question } from '@/base-course/Course';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
+import { NameSpacer } from '@/courses';
 import { CardData, DataShapeData, DisplayableData, DocType, QuestionData } from '@/db/types';
-import { remote_db_url, debug_mode } from '@/ENVIRONMENT_VARS';
+import { debug_mode, remote_db_url } from '@/ENVIRONMENT_VARS';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
-import { NameSpacer } from '@/courses';
-import { Question } from '@/base-course/Course';
 
 (window as any).process = process; // required as a fix for pouchdb - see #18
 
