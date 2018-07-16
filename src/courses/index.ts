@@ -1,22 +1,22 @@
-import { SCourse } from '@/base-course/Course';
+import { Course } from '@/base-course/Course';
 import french from './french';
 import math from './math';
 import wordWork from './word-work';
 import Vue, { VueConstructor } from 'vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 
-export class SCourseList {
-    private readonly courseList: SCourse[];
+export class CourseList {
+    private readonly courseList: Course[];
 
-    public get courses(): SCourse[] {
+    public get courses(): Course[] {
         return this.courseList;
     }
 
-    constructor(courses: SCourse[]) {
+    constructor(courses: Course[]) {
         this.courseList = courses;
     }
 
-    public getCourse(name: string): SCourse | undefined {
+    public getCourse(name: string): Course | undefined {
         return this.courseList.find((course) => {
             return course.name === name;
         });
@@ -150,7 +150,7 @@ export interface ViewDescriptor {
     view: string;
 }
 
-const courseList: SCourseList = new SCourseList([
+const courseList: CourseList = new CourseList([
     math,
     wordWork,
     french

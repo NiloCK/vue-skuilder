@@ -1,6 +1,6 @@
-import { SCourse } from '@/base-course/Course';
+import { Course } from '@/base-course/Course';
 // import { SingleDigitMultiplicationQuestion } from '@/courses/math/questions/multiplication';
 
-const french: SCourse = new SCourse('french', []);
+const french: Course = new Course('french', []);
 
 export default french;

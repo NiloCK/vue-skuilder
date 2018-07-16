@@ -1,5 +1,5 @@
-import { SCourse } from '@/base-course/Course';
+import { Course } from '@/base-course/Course';
 
-const wordWork: SCourse = new SCourse('wordWork', []);
+const wordWork: Course = new Course('wordWork', []);
 
 export default wordWork;

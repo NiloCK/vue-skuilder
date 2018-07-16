@@ -37,7 +37,7 @@ export abstract class Question extends Displayable {
 }
 
 // tslint:disable-next-line:max-classes-per-file
-export class SCourse {
+export class Course {
     public readonly name: string;
     private readonly questionList: Array<typeof Question>;
 
