@@ -4,6 +4,7 @@ export enum DocType {
     DISPLAYABLE_DATA = 'DISPLAYABLE_DATA',
     CARD = 'CARD',
     DATASHAPE = 'DATASHAPE',
+    QUESTIONTYPE = 'QUESTION',
     VIEW = 'VIEW',
     PEDAGOGY = 'PEDAGOGY'
 }
@@ -57,6 +58,10 @@ export interface Field {
 export type NoteCtor = string;
 
 export interface DataShapeData extends SkuilderCourseData {
+    _id: PouchDB.Core.DocumentId;
+}
+
+export interface QuestionData extends SkuilderCourseData {
     _id: PouchDB.Core.DocumentId;
     viewList: string[];
 }
