@@ -22,7 +22,7 @@
           v-bind:dataShape="selectedShape"
           v-bind:course="course" />
       </div>
-      <ComponentRegistration v-else />
+      <ComponentRegistration v-else :course="course" />
 
     </div>
   </div>
