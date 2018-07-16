@@ -36,10 +36,6 @@ export abstract class Question extends Displayable {
     public abstract isCorrect(answer: Answer): boolean;
 }
 
-export interface Course {
-    viewableTypes: Array<typeof Question>;
-}
-
 // tslint:disable-next-line:max-classes-per-file
 export class SCourse {
     public readonly name: string;
