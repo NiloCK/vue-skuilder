@@ -5,6 +5,7 @@ import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
 import VerbalMultiplication from './verbal.vue';
 import MultiplicationHorizontal from './blorizontal.vue';
+import { DataShapeName } from '@/enums/DataShapeNames';
 
 const validator = {
     instructions: 'An integer between 0 and 10, inclusive.',
@@ -39,7 +40,7 @@ const fields: FieldDefinition[] = [
 
 export class SingleDigitMultiplicationQuestion extends Question {
     public static dataShapes = [{
-        name: SingleDigitMultiplicationQuestion.name,
+        name: DataShapeName.SingleDigitMultiplication,
         fields
     }];
 

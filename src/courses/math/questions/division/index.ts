@@ -6,6 +6,7 @@ import { Status } from '@/enums/Status';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import HorizontalDivision from './horizontal.vue';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
+import { DataShapeName } from '@/enums/DataShapeNames';
 
 const fields: FieldDefinition[] = [
     {
@@ -42,7 +43,7 @@ const fields: FieldDefinition[] = [
 
 export class SingleDigitDivisionQuestion extends Question {
     public static dataShapes = [{
-        name: SingleDigitDivisionQuestion.name,
+        name: DataShapeName.SingleDigitDivision,
         fields
     }];
 

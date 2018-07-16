@@ -5,6 +5,7 @@ import { Status } from '@/enums/Status';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import TrueFalse from './trueFalse.vue';
+import { DataShapeName } from '@/enums/DataShapeNames';
 
 const fields: FieldDefinition[] = [
     {
@@ -19,7 +20,7 @@ const fields: FieldDefinition[] = [
 
 export class EqualityTest extends Question {
     public static dataShapes = [{
-        name: EqualityTest.name,
+        name: DataShapeName.EqualityTest,
         fields
     }];
 

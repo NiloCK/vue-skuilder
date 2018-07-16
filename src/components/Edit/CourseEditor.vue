@@ -40,6 +40,7 @@ import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
 import { DataShapeData } from '@/db/types';
 import ComponentRegistration from '@/components/Edit/ComponentRegistration/ComponentRegistration.vue';
 import _ from 'lodash';
+import { DataShapeName } from '@/enums/DataShapeNames';
 
 @Component({
   components: {
@@ -52,7 +53,7 @@ export default class CourseEditor extends Vue {
   @Prop() public course: string;
   public registeredDataShapes: DataShape[] = [];
   public dataShapes: DataShape[] = [];
-  public selectedShape: DataShape = { name: '', fields: [] };
+  public selectedShape: DataShape = { name: DataShapeName.BLANK, fields: [] };
   private loading: boolean = true;
   private editingMode: boolean = true;
 

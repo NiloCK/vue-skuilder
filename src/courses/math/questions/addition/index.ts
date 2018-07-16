@@ -4,6 +4,7 @@ import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { FieldType } from '@/enums/FieldType';
 import HorizontalAddition from './horizontal.vue';
 import VerbalAddition from './verbal.vue';
+import { DataShapeName } from '@/enums/DataShapeNames';
 
 const fields: FieldDefinition[] = [
     {
@@ -18,7 +19,7 @@ const fields: FieldDefinition[] = [
 
 export class SingleDigitAdditionQuestion extends Question {
     public static dataShapes = [{
-        name: SingleDigitAdditionQuestion.name,
+        name: DataShapeName.SingleDigitAddition,
         fields
     }];
 
