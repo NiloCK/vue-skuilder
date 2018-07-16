@@ -79,9 +79,6 @@ export function putQuestionView(
         }
     });
 }
-export function getDataShape(id: PouchDB.Core.DocumentId): Promise<DataShapeData> {
-    return remote.get<DataShapeData>(id);
-}
 
 export function addNote(course: string, shape: DataShape, data: any) {
     // todo: make less crappy - test for duplicate insertions
