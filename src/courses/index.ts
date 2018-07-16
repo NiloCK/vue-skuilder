@@ -132,6 +132,23 @@ export class NameSpacer {
             `${viewDescription.questionType}.${viewDescription.view}`;
     }
 
+    public getQuestionDescriptor(questionStr: string): QuestionDescriptor {
+        const splitArray = questionStr.split('.');
+
+        if (splitArray.length !== 3) {
+            throw new Error('questionStr not valid');
+        } else {
+            return {
+                course: splitArray[0],
+                questionType: splitArray[2]
+            };
+        }
+    }
+
+    public getQuestionString(questionDescription: QuestionDescriptor): string {
+        return `${questionDescription.course}.question.${questionDescription.questionType}`;
+    }
+
 }
 
 export interface ShapeDescriptor {
