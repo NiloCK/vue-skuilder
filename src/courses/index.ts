@@ -132,7 +132,7 @@ export class NameSpacer {
             `${viewDescription.questionType}.${viewDescription.view}`;
     }
 
-    public getQuestionDescriptor(questionStr: string): QuestionDescriptor {
+    public static getQuestionDescriptor(questionStr: string): QuestionDescriptor {
         const splitArray = questionStr.split('.');
 
         if (splitArray.length !== 3) {
@@ -145,7 +145,7 @@ export class NameSpacer {
         }
     }
 
-    public getQuestionString(questionDescription: QuestionDescriptor): string {
+    public static getQuestionString(questionDescription: QuestionDescriptor): string {
         return `${questionDescription.course}.question.${questionDescription.questionType}`;
     }
 
