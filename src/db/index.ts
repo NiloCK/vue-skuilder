@@ -47,9 +47,11 @@ export async function putQuestionType(course: string, question: typeof Question)
 
     try {
         await dataShapeList.forEach((id) => {
-            getDoc<DataShapeData>(id).then((doc) => {
-
-            })
+            getDoc<DataShapeData>(id).
+                then((doc) => {
+                    doc.questionTypes.push(questionID);
+                    remote.put(doc);
+                })
                 .catch(() => {
                     throw new Error(
                         `${id} is not registered in the database.
