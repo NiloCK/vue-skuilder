@@ -121,11 +121,16 @@ export function putQuestionView(
 export function addNote(course: string, shape: DataShape, data: any) {
     // todo: make less crappy - test for duplicate insertions - #15
 
+    const dataShapeId = NameSpacer.getDataShapeString({
+        course,
+        dataShape: shape.name
+    });
+
     const payload: DisplayableData = {
         course,
         data: [],
         docType: DocType.DISPLAYABLE_DATA,
-        id_datashape: shape.name
+        id_datashape: dataShapeId
     };
 
     shape.fields.forEach((field) => {
@@ -135,7 +140,47 @@ export function addNote(course: string, shape: DataShape, data: any) {
         });
     });
 
-    return remote.post<DisplayableData>(payload);
+    return remote.post<DisplayableData>(payload).then((result) => {
+        if (result.ok) {
+            createCards(course, dataShapeId, result.id);
+        }
+    });
+}
+
+function getImplementingQuestions(dataShape: PouchDB.Core.DocumentId) {
+    return getDoc<DataShapeData>(dataShape).then((shapeResult) => {
+        return shapeResult.questionTypes;
+    }).then((questions) => {
+        return questions.map((question) => {
+            return getDoc<QuestionData>(question);
+        });
+    });
+}
+
+function createCards(course: string, dataShapeId: PouchDB.Core.DocumentId, noteId: PouchDB.Core.DocumentId) {
+    getImplementingQuestions(dataShapeId)
+        .then((qPromises) => {
+            qPromises.forEach((questionPromise) => {
+                questionPromise.then((question) => {
+                    const qName = NameSpacer.getQuestionDescriptor(
+                        question._id
+                    ).questionType;
+
+                    question.viewList.forEach((view) => {
+                        remote.post<CardData>({
+                            course,
+                            id_displayable_data: noteId,
+                            id_view: NameSpacer.getViewString({
+                                course,
+                                questionType: qName,
+                                view
+                            }),
+                            docType: DocType.CARD
+                        });
+                    });
+                });
+            });
+        });
 }
 
 /**
