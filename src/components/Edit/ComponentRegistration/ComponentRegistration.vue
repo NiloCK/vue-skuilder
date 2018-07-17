@@ -9,6 +9,9 @@
           @click="registerShape(dataShape.name)">
           Register
         </button>
+        <span class="inset" v-else>
+          (Registered)
+        </span>
        <ul>
          <div v-for="view in dataShape.dataShape.views" :key="view.name">
           <li v-if="view">
@@ -28,6 +31,9 @@
           @click="registerQuestion(question.name)">
           Register
         </button>
+        <span class="inset" v-else>
+          (Registered)
+        </span>
       </li>
     </ul>
       
@@ -119,14 +125,22 @@ export default class ComponentRegistration extends Vue {
       return findShape.name === shapeName;
     })!;
 
-    putDataShape(this.course, shape.dataShape);
+    putDataShape(this.course, shape.dataShape).then((res) => {
+      if (res.ok) {
+        shape.registered = true;
+      }
+    });
   }
   private registerQuestion(questionName: string) {
     const question = this.questions.find((q) => {
       return q.name === questionName;
     })!;
 
-    putQuestionType(this.course, question.question);
+    putQuestionType(this.course, question.question).then((res) => {
+      if (res.ok) {
+        question.registered = true;
+      }
+    });
   }
 
 }
@@ -135,5 +149,12 @@ export default class ComponentRegistration extends Vue {
 <style scoped>
 div {
   margin-top: 15px;
+}
+
+.inset {
+  background-color: rgb(240, 240, 243);
+  font-size: smaller;
+  padding: 2px;
+  border-radius: 2px;
 }
 </style>
