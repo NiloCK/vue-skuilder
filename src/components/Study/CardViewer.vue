@@ -5,11 +5,9 @@
 </template>
 
 <script lang="ts">
-import { VueConstructor } from 'vue';
+import Vue, { VueConstructor } from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { DisplayableData } from '@/db/types';
-import Vue from 'vue';
-import CourseEditor from '../components/Edit/CourseEditor.vue';
 import Courses from '@/courses';
 import Viewable from '@/base-course/Viewable';
 
