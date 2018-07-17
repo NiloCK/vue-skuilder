@@ -47,12 +47,15 @@ export async function putQuestionType(course: string, question: typeof Question)
 
     try {
         await dataShapeList.forEach((id) => {
-            getDoc<DataShapeData>(id).catch(() => {
-                throw new Error(
-                    `${id} is not registered in the database.
+            getDoc<DataShapeData>(id).then((doc) => {
+
+            })
+                .catch(() => {
+                    throw new Error(
+                        `${id} is not registered in the database.
                     Register dependant dataShapes before registering a question Type.`
-                );
-            });
+                    );
+                });
         });
     } catch (err) {
         throw err;
@@ -86,7 +89,8 @@ export function putDataShape(course: string, dataShape: DataShape) {
     return remote.put<DataShapeData>({
         course,
         docType: DocType.DATASHAPE,
-        _id: dataShapeId
+        _id: dataShapeId,
+        questionTypes: []
     });
 }
 

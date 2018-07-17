@@ -59,6 +59,7 @@ export type NoteCtor = string;
 
 export interface DataShapeData extends SkuilderCourseData {
     _id: PouchDB.Core.DocumentId;
+    questionTypes: PouchDB.Core.DocumentId[];
 }
 
 export interface QuestionData extends SkuilderCourseData {
