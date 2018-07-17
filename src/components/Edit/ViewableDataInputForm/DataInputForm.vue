@@ -24,7 +24,7 @@
 
       <CardBrowser
         v-if="userInputIsValid"
-        v-bind:views="dataShape.views"
+        v-bind:views="shapeViews"
         v-bind:data="store.convertedInput"
       />
 
@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import Vue, { VueConstructor } from 'vue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
 import FormInput from './FieldInputs/index.vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
@@ -45,10 +45,11 @@ import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
 import { addNote, getNotes, getDoc } from '@/db';
-import { DisplayableData, DataShapeData } from '@/db/types';
+import { DisplayableData, DataShapeData, QuestionData } from '@/db/types';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
 import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
+import Courses, { NameSpacer } from '@/courses';
 
 @Component({
     components: {
@@ -60,83 +61,114 @@ import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/Vi
     }
 })
 export default class DataInputForm extends Vue {
-  @Prop() public dataShape: DataShape;
-  @Prop() public course: string;
-  public existingData: ViewData[] = [];
+    @Prop() public dataShape: DataShape;
+    @Prop() public course: string;
+    public existingData: ViewData[] = [];
 
-  public fields: FormInput[] = [];
-  public store: any = {
-      validation: {},
-      convertedInput: {}
-  }; // todo: see about typing this
+    public shapeViews: Array<VueConstructor<Vue>>;
 
-  private readonly str: string = FieldType.STRING;
-  private readonly int: string = FieldType.INT;
-  private readonly num: string = FieldType.NUMBER;
+    public fields: FormInput[] = [];
+    public store: any = {
+        validation: {},
+        convertedInput: {}
+    }; // todo: see about typing this
 
-  public get userInputIsValid(): boolean {
-      let ret: boolean =
-        Object.getOwnPropertyNames(this.store.validation).length ===
-        this.dataShape.fields.length + 1; // +1 here b/c of the validation key
+    private readonly str: string = FieldType.STRING;
+    private readonly int: string = FieldType.INT;
+    private readonly num: string = FieldType.NUMBER;
 
-      Object.getOwnPropertyNames(this.store.validation).forEach( (fieldName) => {
-          if (this.store.validation[fieldName] === false) {
-              ret = false;
-          }
-      });
+    public get userInputIsValid(): boolean {
+        let ret: boolean =
+            Object.getOwnPropertyNames(this.store.validation).length ===
+            this.dataShape.fields.length + 1; // +1 here b/c of the validation key
 
-      if (ret) {
-          this.convertInput();
-      }
-    //   alert(ret);
-      return ret;
-  }
+        Object.getOwnPropertyNames(this.store.validation).forEach((fieldName) => {
+            if (this.store.validation[fieldName] === false) {
+                ret = false;
+            }
+        });
 
-  @Watch('dataShape')
-  public onDataShapeChange(value?: DataShape, old?: DataShape) {
-      this.existingData = [];
-      getNotes(this.course, this.dataShape).then( (results) => {
-          results.docs.forEach( (doc) => {
-              getDoc<DisplayableData>(doc._id).then( (fullDoc) => {
-                  this.existingData.push(
-                      displayableDataToViewData(fullDoc)
-                  );
-              });
-          });
-      });
-  }
-
-  @Watch('store')
-  public storeChange(v: {}, old?: any) {
-      this.convertInput();
-  }
-
-  public created() {
-      this.onDataShapeChange();
-  }
-
-  public convertInput() {
-      this.dataShape.fields.forEach( (fieldDef) => {
-          this.store.convertedInput[fieldDef.name] =
-            fieldConverters[fieldDef.type](this.store[fieldDef.name]);
-      });
-      if (this.store.convertedInput.toggle) {
-          delete this.store.convertedInput.toggle;
-      } else {
-          this.store.convertedInput.toggle = true;
-      }
-  }
-
-  public get convertedInput() {
-      this.convertInput();
-      return this.store.convertedInput;
-  }
-
-  public submit() {
-    if (this.userInputIsValid) {
-      addNote(this.course, this.dataShape, this.store.convertedInput);
+        if (ret) {
+            this.convertInput();
+        }
+        //   alert(ret);
+        return ret;
     }
-  }
+
+    @Watch('dataShape')
+    public onDataShapeChange(value?: DataShape, old?: DataShape) {
+        this.getExistingNotesFromDB();
+        this.getImplementingViews();
+    }
+
+    @Watch('store')
+    public storeChange(v: {}, old?: any) {
+        this.convertInput();
+    }
+
+    public created() {
+        this.onDataShapeChange();
+    }
+
+    public convertInput() {
+        this.dataShape.fields.forEach((fieldDef) => {
+            this.store.convertedInput[fieldDef.name] =
+                fieldConverters[fieldDef.type](this.store[fieldDef.name]);
+        });
+        if (this.store.convertedInput.toggle) {
+            delete this.store.convertedInput.toggle;
+        } else {
+            this.store.convertedInput.toggle = true;
+        }
+    }
+
+    public get convertedInput() {
+        this.convertInput();
+        return this.store.convertedInput;
+    }
+
+    public submit() {
+        if (this.userInputIsValid) {
+            addNote(this.course, this.dataShape, this.store.convertedInput);
+        }
+    }
+
+    private getExistingNotesFromDB() {
+        this.existingData = [];
+
+        getNotes(this.course, this.dataShape).then((results) => {
+            results.docs.forEach((doc) => {
+                getDoc<DisplayableData>(doc._id).then((fullDoc) => {
+                    this.existingData.push(
+                        displayableDataToViewData(fullDoc)
+                    );
+                });
+            });
+        });
+    }
+
+    private getImplementingViews() {
+        this.shapeViews = [];
+
+        const dataShapeId = NameSpacer.getDataShapeString({
+            course: this.course,
+            dataShape: this.dataShape.name
+        });
+
+        getDoc<DataShapeData>(dataShapeId).then((shape) => {
+            shape.questionTypes.forEach((questionId) => {
+                const questionName = NameSpacer.getQuestionDescriptor(
+                    questionId
+                ).questionType;
+
+                Courses.getCourse(this.course)!.getQuestion(
+                    questionName
+                )!.views.forEach((view) => {
+                    this.shapeViews.push(view);
+                });
+            });
+        });
+    }
 }
 </script>
 
