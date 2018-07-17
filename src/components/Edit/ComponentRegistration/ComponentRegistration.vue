@@ -136,11 +136,15 @@ export default class ComponentRegistration extends Vue {
       return q.name === questionName;
     })!;
 
-    putQuestionType(this.course, question.question).then((res) => {
-      if (res.ok) {
-        question.registered = true;
-      }
-    });
+    try {
+      putQuestionType(this.course, question.question).then((res) => {
+        if (res.ok) {
+          question.registered = true;
+        }
+      });
+    } catch (err) {
+      alert(err);
+    }
   }
 
 }

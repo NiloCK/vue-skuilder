@@ -30,17 +30,40 @@ export function getDoc<T>(id: PouchDB.Core.DocumentId): Promise<T> {
     return remote.get<T>(id);
 }
 
-export function putQuestionType(course: string, question: typeof Question) {
+export async function putQuestionType(course: string, question: typeof Question) {
     const questionID = NameSpacer.getQuestionString({
         course,
         questionType: question.name
     });
 
+    const viewList = question.views.map((view) => view.name);
+
+    const dataShapeList = question.dataShapes.map((shape) =>
+        NameSpacer.getDataShapeString({
+            course,
+            dataShape: shape.name
+        })
+    );
+
+    try {
+        await dataShapeList.forEach((id) => {
+            getDoc<DataShapeData>(id).catch(() => {
+                throw new Error(
+                    `${id} is not registered in the database.
+                    Register dependant dataShapes before registering a question Type.`
+                );
+            });
+        });
+    } catch (err) {
+        throw err;
+    }
+
     return remote.put<QuestionData>({
         _id: questionID,
         course,
         docType: DocType.QUESTIONTYPE,
-        viewList: question.views.map((view) => view.name)
+        viewList,
+        dataShapeList
     });
 }
 

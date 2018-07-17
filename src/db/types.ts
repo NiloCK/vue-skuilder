@@ -64,6 +64,7 @@ export interface DataShapeData extends SkuilderCourseData {
 export interface QuestionData extends SkuilderCourseData {
     _id: PouchDB.Core.DocumentId;
     viewList: string[];
+    dataShapeList: PouchDB.Core.DocumentId[];
 }
 
 export interface QuestionRecord {
