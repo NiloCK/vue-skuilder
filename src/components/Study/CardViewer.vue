@@ -18,8 +18,6 @@ export default class CardViewer extends Vue {
     @Prop() public view: VueConstructor<Viewable>;
     @Prop() public data: DisplayableData;
 }
-// Argument of type '{ components: VueConstructor<Vue>[]; }'
-// is not assignable to parameter of type 'VueClass<Vue>'.
 </script>
 
 <style scoped>
