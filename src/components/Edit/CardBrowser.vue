@@ -13,10 +13,10 @@
 <script lang="ts">
 import { VueConstructor } from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
-import { DisplayableData } from '@/db/types';
 import Vue from 'vue';
 import Viewable from '@/base-course/Viewable';
 import CardViewer from '@/components/Study/CardViewer.vue';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 
 @Component({
     components: {
@@ -24,17 +24,17 @@ import CardViewer from '@/components/Study/CardViewer.vue';
     }
 })
 export default class CardBrowser extends Vue {
-  @Prop() public views: Array<VueConstructor<Viewable>>;
-  @Prop() public data: DisplayableData;
-  public viewIndex: number = 0;
+    @Prop() public views: Array<VueConstructor<Viewable>>;
+    @Prop() public data: ViewData[];
+    public viewIndex: number = 0;
 
-  private incrementView() {
-      this.viewIndex++;
-      this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
-  }
-  private decrementView() {
-      this.viewIndex--;
-      this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
-  }
+    private incrementView() {
+        this.viewIndex++;
+        this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
+    }
+    private decrementView() {
+        this.viewIndex--;
+        this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
+    }
 }
 </script>
