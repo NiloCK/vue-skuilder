@@ -29,16 +29,6 @@ export interface CourseListData extends PouchDB.Core.Response {
 }
 
 /**
- * The name of a Viewable component in a skuilder course
- */
-export type VueComponentName = string;
-export interface ViewData extends SkuilderCourseData {
-    // DocType.VIEW
-    id_datashape: PouchDB.Core.DocumentId;
-    name: VueComponentName;
-}
-
-/**
  * The data used to hydrate viewable components (questions, info, etc)
  */
 export interface DisplayableData extends SkuilderCourseData {
