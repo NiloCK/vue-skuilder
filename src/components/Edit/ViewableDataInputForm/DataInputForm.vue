@@ -25,7 +25,7 @@
       <CardBrowser
         v-if="userInputIsValid"
         v-bind:views="shapeViews"
-        v-bind:data="store.convertedInput"
+        v-bind:data="[store.convertedInput]"
       />
 
       <DataShapeTable
