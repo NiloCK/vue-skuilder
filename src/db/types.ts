@@ -19,7 +19,7 @@ export interface SkuilderCourseData {
 }
 export interface CardData extends SkuilderCourseData {
     // DocType.CARD
-    id_displayable_data: PouchDB.Core.DocumentId;
+    id_displayable_data: PouchDB.Core.DocumentId[];
     id_view: PouchDB.Core.DocumentId;
 }
 

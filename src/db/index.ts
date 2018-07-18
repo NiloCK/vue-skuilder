@@ -167,16 +167,15 @@ function createCards(course: string, dataShapeId: PouchDB.Core.DocumentId, noteI
                     ).questionType;
 
                     question.viewList.forEach((view) => {
-                        remote.post<CardData>({
+                        addCard(
                             course,
-                            id_displayable_data: noteId,
-                            id_view: NameSpacer.getViewString({
+                            [noteId],
+                            NameSpacer.getViewString({
                                 course,
                                 questionType: qName,
                                 view
-                            }),
-                            docType: DocType.CARD
-                        });
+                            })
+                        );
                     });
                 });
             });
@@ -230,7 +229,7 @@ export function getDataShapes(course?: string) {
  */
 function addCard(
     course: string,
-    id_displayable_data: PouchDB.Core.DocumentId,
+    id_displayable_data: PouchDB.Core.DocumentId[],
     id_view: PouchDB.Core.DocumentId) {
     return remote.post<CardData>({
         course,
