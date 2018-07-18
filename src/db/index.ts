@@ -238,7 +238,3 @@ function addCard(
         docType: DocType.CARD
     });
 }
-
-export function getCard(id: PouchDB.Core.DocumentId): Promise<CardData> {
-    return remote.get<CardData>(id);
-}
