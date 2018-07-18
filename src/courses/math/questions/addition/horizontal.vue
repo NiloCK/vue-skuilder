@@ -16,10 +16,7 @@ export default class AdditionHorizontal extends QuestionView<SingleDigitAddition
   public answer: string = '';
 
   public get question() {
-    return new SingleDigitAdditionQuestion([{
-      a: this.data.a,
-      b: this.data.b
-    }]);
+    return new SingleDigitAdditionQuestion(this.data);
   }
 
   public submit() {

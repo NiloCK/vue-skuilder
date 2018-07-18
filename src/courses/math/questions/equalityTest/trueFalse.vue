@@ -31,7 +31,7 @@ export default class TrueFalse extends QuestionView<EqualityTest> {
 
   get question() {
     // alert(`this.Mousetrap == ${Object.keys(this.MouseTrap)}`);
-    return new EqualityTest([this.data]);
+    return new EqualityTest(this.data);
   }
 }
 </script>
