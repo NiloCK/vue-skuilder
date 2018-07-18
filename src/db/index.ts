@@ -219,6 +219,23 @@ export function getDataShapes(course?: string) {
     }
 }
 
+export function getCards(course?: string) {
+    if (course) {
+        return remote.find({
+            selector: {
+                course,
+                docType: DocType.CARD
+            }
+        });
+    } else {
+        return remote.find({
+            selector: {
+                docType: DocType.CARD
+            }
+        });
+    }
+}
+
 /**
  * Adds a card to the DB. This function is called
  * as a side effect of adding either a View or
