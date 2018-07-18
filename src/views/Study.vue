@@ -34,6 +34,10 @@ export default class Study extends Vue {
     public data: ViewData[] = [];
 
     public created() {
+        this.loadRandomCard();
+    }
+
+    private loadRandomCard() {
         getCards().then((results) => {
             return results.docs[
                 randInt(results.docs.length)
@@ -59,3 +63,7 @@ export default class Study extends Vue {
     }
 }
 </script>
+
+<style scoped>
+</style>
+
