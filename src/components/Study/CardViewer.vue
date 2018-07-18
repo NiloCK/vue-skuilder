@@ -7,7 +7,6 @@
 <script lang="ts">
 import Vue, { VueConstructor } from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
-import { DisplayableData } from '@/db/types';
 import Courses from '@/courses';
 import Viewable from '@/base-course/Viewable';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
