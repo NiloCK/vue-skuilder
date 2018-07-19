@@ -1,7 +1,7 @@
 import { Displayable, Question } from '@/base-course/Course';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { QuestionRecord } from '@/db/types';
-import moment from 'moment';
+import moment, { duration } from 'moment';
 import MouseTrap from 'mousetrap';
 import { Prop, Vue } from 'vue-property-decorator';
 
@@ -29,11 +29,11 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
 
     protected grade(): QuestionRecord {
         return {
-            course: '',
-            attempts: this.attempts,
+            priorAttemps: this.attempts,
             cardID: 'thisisanid',
             isCorrect: this.question.isCorrect('hi'),
-            time: this.getTime(),
+            timeSpent: duration(this.startTime.diff(moment())).asMilliseconds(),
+            timeStamp: this.startTime,
             userAnswer: 'hi'
         };
     }
