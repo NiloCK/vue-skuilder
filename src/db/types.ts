@@ -1,4 +1,5 @@
 import { Answer } from '@/base-course/Course';
+import { Moment } from 'moment';
 
 export enum DocType {
     DISPLAYABLE_DATA = 'DISPLAYABLE_DATA',
@@ -59,10 +60,26 @@ export interface QuestionData extends SkuilderCourseData {
 }
 
 export interface QuestionRecord {
-    course: string;
+    /**
+     * The CouchDB id of the card
+     */
     cardID: string;
     userAnswer: Answer;
     isCorrect: boolean;
-    attempts: number;
-    time: number;
+    /**
+     * The number of incorrect user submissions prededing this submisstion.
+     *
+     * eg, if a user is asked 7*6=__, submitting 46, 48, 42 will result in three
+     * records being created having 0, 1, and 2 as their
+     */
+    priorAttemps: number;
+    /**
+     * Number of milliseconds that the user spent before submitting their response
+     */
+    timeSpent: number;
+    /**
+     * The date-time that the card was rendered. timeStamp + timeSpent will give the
+     * time of user submission.
+     */
+    timeStamp: Moment;
 }
