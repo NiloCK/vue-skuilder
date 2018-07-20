@@ -59,11 +59,24 @@ export interface QuestionData extends SkuilderCourseData {
     dataShapeList: PouchDB.Core.DocumentId[];
 }
 
-export interface QuestionRecord {
+export interface CardRecord {
     /**
      * The CouchDB id of the card
      */
     cardID: string;
+    /**
+     * Number of milliseconds that the user spent before dismissing
+     * the card (ie, "I've read this" or "here is my answer")
+     */
+    timeSpent: number;
+    /**
+     * The date-time that the card was rendered. timeStamp + timeSpent will give the
+     * time of user submission.
+     */
+    timeStamp: Moment;
+}
+
+export interface QuestionRecord extends CardRecord {
     userAnswer: Answer;
     isCorrect: boolean;
     /**
@@ -73,13 +86,4 @@ export interface QuestionRecord {
      * records being created having 0, 1, and 2 as their
      */
     priorAttemps: number;
-    /**
-     * Number of milliseconds that the user spent before submitting their response
-     */
-    timeSpent: number;
-    /**
-     * The date-time that the card was rendered. timeStamp + timeSpent will give the
-     * time of user submission.
-     */
-    timeStamp: Moment;
 }
