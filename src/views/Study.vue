@@ -4,6 +4,7 @@
     <CardViewer
         v-bind:view="view"
         v-bind:data="data"
+        v-on:emitResponse="processResponse($event)"
     />
   </div>
 </template>
@@ -11,13 +12,14 @@
 <script lang="ts">
 import { VueConstructor } from 'vue';
 import Vue from 'vue';
-import { DisplayableData, DocType, CardData } from '@/db/types';
+import { DisplayableData, DocType, CardData, CardRecord, QuestionRecord } from '@/db/types';
 import Viewable from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import Courses from '@/courses';
 import { getCards, getDoc } from '@/db';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
+import { log } from 'util';
 
 function randInt(n: number) {
     return Math.floor(Math.random() * n);
@@ -34,6 +36,21 @@ export default class Study extends Vue {
     public data: ViewData[] = [];
 
     public created() {
+        this.loadRandomCard();
+    }
+
+    private isQuestionRecord(r: CardRecord): r is QuestionRecord {
+        return (r as QuestionRecord).userAnswer !== undefined;
+    }
+
+    private processResponse(r: CardRecord) {
+        log(`Study.processResponse is running...`);
+        if (this.isQuestionRecord(r)) {
+            // submit this questionRecord to the db
+        } else {
+            // submit this cardRecord to the db
+        }
+
         this.loadRandomCard();
     }
 
