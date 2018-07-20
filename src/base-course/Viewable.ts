@@ -33,7 +33,7 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
     protected priorAttempts: number = 0; // starts at the 1st attempt
     public abstract get question(): Q;
 
-    protected submitAnswer(answer: Answer) {
+    public submitAnswer(answer: Answer) {
         log('QuestionView.submitAnswer called...');
 
         const record: QuestionRecord = {
