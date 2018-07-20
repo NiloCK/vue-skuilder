@@ -1,7 +1,7 @@
 <template>
   <div>
       {{question.a}} times {{question.b}} is 
-      <input type="text" v-model="answer" @keyup.enter="submit" />
+      <UserInputNumber />
   </div>
 </template>
 
@@ -9,8 +9,13 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { QuestionView } from '@/base-course/Viewable';
 import { SingleDigitMultiplicationQuestion } from './index';
+import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
 
-@Component
+@Component({
+  components: {
+    UserInputNumber
+  }
+})
 export default class VerbalMultiplication extends QuestionView<SingleDigitMultiplicationQuestion> {
   public answer: string = '';
   get question() {

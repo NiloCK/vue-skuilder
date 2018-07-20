@@ -1,7 +1,7 @@
 <template>
   <div>
       {{question.a}} + {{question.b}} = 
-       <input type="text" v-model="answer" @keyup.enter="submit" />
+       <UserInputNumber />
   </div>
 </template>
 
@@ -10,8 +10,13 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { SingleDigitAdditionQuestion } from './index';
 import { QuestionView } from '@/base-course/Viewable';
 import { randomInt } from '@/courses/math/utility';
+import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
 
-@Component
+@Component({
+  components: {
+    UserInputNumber
+  }
+})
 export default class AdditionHorizontal extends QuestionView<SingleDigitAdditionQuestion> {
   public answer: string = '';
 

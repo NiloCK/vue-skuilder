@@ -1,7 +1,7 @@
 <template>
   <div>
       {{question.a * question.b}} &divide; {{question.b}} = 
-       <input type="text" v-model="answer" @keyup.enter="submit" />
+       <UserInputNumber />
   </div>
 </template>
 
@@ -9,8 +9,13 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { QuestionView } from '@/base-course/Viewable';
 import { SingleDigitDivisionQuestion } from './index';
+import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
 
-@Component
+@Component({
+  components: {
+    UserInputNumber
+  }
+})
 export default class DivisionHorizontal extends QuestionView<SingleDigitDivisionQuestion> {
   public answer: string = '';
 
