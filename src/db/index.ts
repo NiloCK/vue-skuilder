@@ -1,7 +1,7 @@
 import { Question } from '@/base-course/Course';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { NameSpacer } from '@/courses';
-import { CardData, DataShapeData, DisplayableData, DocType, QuestionData, SkuilderCourseData } from '@/db/types';
+import { CardData, DataShapeData, DisplayableData, DocType, QuestionData, SkuilderCourseData, CardRecord } from '@/db/types';
 import { debug_mode, remote_db_url } from '@/ENVIRONMENT_VARS';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
@@ -254,4 +254,8 @@ function addCard(
         id_view,
         docType: DocType.CARD
     });
+}
+
+export function putCardRecord<T extends CardRecord>(record: T) {
+    remote.post<CardRecord>(record);
 }

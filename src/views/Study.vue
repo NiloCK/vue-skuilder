@@ -17,7 +17,7 @@ import Viewable from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import Courses from '@/courses';
-import { getCards, getDoc } from '@/db';
+import { getCards, getDoc, putCardRecord } from '@/db';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import { log } from 'util';
 
@@ -45,8 +45,9 @@ export default class Study extends Vue {
 
     private processResponse(r: CardRecord) {
         log(`Study.processResponse is running...`);
+        this.logCardRecordToDB(r);
+
         if (this.isQuestionRecord(r)) {
-            // submit this questionRecord to the db
             log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
             if (r.isCorrect) {
                 this.loadRandomCard();
@@ -55,6 +56,10 @@ export default class Study extends Vue {
             // submit this cardRecord to the db
             this.loadRandomCard();
         }
+    }
+
+    private logCardRecordToDB(r: CardRecord) {
+        putCardRecord(r);
     }
 
     private loadRandomCard() {
