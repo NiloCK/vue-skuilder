@@ -47,11 +47,14 @@ export default class Study extends Vue {
         log(`Study.processResponse is running...`);
         if (this.isQuestionRecord(r)) {
             // submit this questionRecord to the db
+            log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
+            if (r.isCorrect) {
+                this.loadRandomCard();
+            }
         } else {
             // submit this cardRecord to the db
+            this.loadRandomCard();
         }
-
-        this.loadRandomCard();
     }
 
     private loadRandomCard() {
