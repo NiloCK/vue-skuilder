@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class='cardView'>
         <component
             :is="view"
             v-bind:data="data"
@@ -36,7 +36,9 @@ export default class CardViewer extends Vue {
 </script>
 
 <style scoped>
-div {
-  border: solid 2px red;
+.cardView {
+  padding: 15px;
+  border: 2px solid black;
+  border-radius: 8px;
 }
 </style>
