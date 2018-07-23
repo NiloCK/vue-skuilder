@@ -16,18 +16,23 @@
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import MultipleChoiceOption from './MultipleChoiceOption.vue';
+import UserInput from '@/base-course/Components/UserInput/UserInput';
 
 @Component({
     components: {
         MultipleChoiceOption
     }
 })
-export default class RadioSelect extends Vue {
+export default class RadioSelect extends UserInput {
     @Prop() public choiceList: string[];
     @Prop() public MouseTrap: MousetrapInstance;
-    @Prop() public submit: (selection: number) => void;
+    // @Prop() public submit: (selection: number) => void;
 
     public currentSelection: number = -1;
+
+    public mounted() {
+        this.$el.focus();
+    }
 
     public created() {
         this.MouseTrap.bind('left', this.decrementSelection);
@@ -41,7 +46,10 @@ export default class RadioSelect extends Vue {
 
     public forwardSelection(): void {
         if (this.currentSelection !== -1) {
-            this.submit(this.currentSelection);
+            this.submitAnswer({
+                options: this.choiceList,
+                selection: this.currentSelection
+            });
         }
     }
 
