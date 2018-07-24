@@ -1,11 +1,12 @@
 <template>
-    <div class='cardView'>
+    <transition name='component-fade' mode='out-in'>
         <component
+            class='cardView'
             :is="view"
             v-bind:data="data"
             v-on:emitResponse="processResponse($event)"
-        />
-    </div>
+        />    
+    </transition>
 </template>
 
 <script lang="ts">
@@ -40,5 +41,14 @@ export default class CardViewer extends Vue {
   padding: 15px;
   border: 2px solid black;
   border-radius: 8px;
+}
+
+.component-fade-enter-active,
+.component-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.component-fade-enter, .component-fade-leave-to
+/* .component-fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>
