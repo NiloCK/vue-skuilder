@@ -34,6 +34,7 @@ export default class Study extends Vue {
     public view: VueConstructor<Vue>;
 
     public data: ViewData[] = [];
+    private cardID: PouchDB.Core.DocumentId = '';
 
     public created() {
         this.loadRandomCard();
@@ -44,6 +45,7 @@ export default class Study extends Vue {
     }
 
     private processResponse(r: CardRecord) {
+        r.cardID = this.cardID;
         log(`Study.processResponse is running...`);
         this.logCardRecordToDB(r);
 
@@ -68,6 +70,7 @@ export default class Study extends Vue {
                 randInt(results.docs.length)
             ];
         }).then((doc) => {
+            this.cardID = doc._id;
             return getDoc<CardData>(doc._id);
         }).then((cardData) => {
             this.view = Courses.getView(cardData.id_view);
