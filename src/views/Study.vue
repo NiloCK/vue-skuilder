@@ -10,8 +10,7 @@
 </template>
 
 <script lang="ts">
-import { VueConstructor } from 'vue';
-import Vue from 'vue';
+import Vue, { VueConstructor } from 'vue';
 import { DisplayableData, DocType, CardData, CardRecord, QuestionRecord } from '@/db/types';
 import Viewable from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
@@ -61,7 +60,7 @@ export default class Study extends Vue {
     }
 
     private logCardRecordToDB(r: CardRecord) {
-        putCardRecord(r);
+        putCardRecord(r, this.$store.state.user);
     }
 
     private loadRandomCard() {

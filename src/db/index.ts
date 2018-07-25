@@ -5,11 +5,12 @@ import {
     CardData, DataShapeData, DisplayableData,
     DocType, QuestionData, SkuilderCourseData, CardRecord
 } from '@/db/types';
-import { debug_mode, remote_db_url } from '@/ENVIRONMENT_VARS';
+import { debug_mode, remote_db_url, remote_couch_url } from '@/ENVIRONMENT_VARS';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
+import { log } from 'util';
 
 (window as any).process = process; // required as a fix for pouchdb - see #18
 
@@ -28,6 +29,25 @@ const remote: PouchDB.Database = new pouch(
     }
 );
 const local: PouchDB.Database = new pouch('local');
+
+function getUserDB(username: string): PouchDB.Database {
+    function hexEncode(str: string): string {
+        let hex: string;
+        let ret: string = '';
+
+        for (let i = 0; i < str.length; i++) {
+            hex = str.charCodeAt(i).toString(16);
+            ret += ('000' + hex).slice(3);
+        }
+
+        return ret;
+    }
+
+    let hexName = hexEncode(username);
+    let dbName = `userdb-${hexName}`;
+    log(`Fetching user database: ${dbName}`);
+    return new pouch(remote_couch_url + dbName);
+}
 
 export function remoteDBLogin(username: string, password: string) {
     return remote.logIn(username, password);
@@ -267,6 +287,6 @@ function addCard(
     });
 }
 
-export function putCardRecord<T extends CardRecord>(record: T) {
-    remote.post<CardRecord>(record);
+export function putCardRecord<T extends CardRecord>(record: T, user: string) {
+    getUserDB(user).post<CardRecord>(record);
 }
