@@ -3,9 +3,13 @@ import Vuex from 'vuex';
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
-  state: {
+export interface AppState {
+  user: string;
+}
 
+export default new Vuex.Store<AppState>({
+  state: {
+    user: 'NOT_LOGGED_IN'
   },
   mutations: {
 

@@ -5,10 +5,19 @@
       <router-link to="/about">About</router-link> |
       <router-link to="/edit">Edit</router-link> |
       <router-link to="/study">Study</router-link>
+
+      Logged in as: {{ $store.state.user }}
     </div>
     <router-view/>
   </div>
 </template>
+
+<script lang="ts">
+import Vue from 'vue';
+export default Vue.extend({
+});
+</script>
+
 
 <style>
 #app {
