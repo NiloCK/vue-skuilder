@@ -1,7 +1,10 @@
 import { Question } from '@/base-course/Course';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { NameSpacer } from '@/courses';
-import { CardData, DataShapeData, DisplayableData, DocType, QuestionData, SkuilderCourseData, CardRecord } from '@/db/types';
+import {
+    CardData, DataShapeData, DisplayableData,
+    DocType, QuestionData, SkuilderCourseData, CardRecord
+} from '@/db/types';
 import { debug_mode, remote_db_url } from '@/ENVIRONMENT_VARS';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
@@ -25,6 +28,14 @@ const remote: PouchDB.Database = new pouch(
     }
 );
 const local: PouchDB.Database = new pouch('local');
+
+export function remoteDBLogin(username: string, password: string) {
+    return remote.logIn(username, password);
+}
+
+export function remoteDBSignup(username: string, password: string) {
+    return remote.signUp(username, password);
+}
 
 export function getDoc<T extends SkuilderCourseData>(id: PouchDB.Core.DocumentId): Promise<T> {
     return remote.get<T>(id);
