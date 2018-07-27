@@ -36,6 +36,7 @@ export interface DisplayableData extends SkuilderCourseData {
     // DocType.DISPLAYABLE_DATA
     id_datashape: PouchDB.Core.DocumentId;
     data: Field[];
+    _attachments?: { [index: string]: PouchDB.Core.FullAttachment };
 }
 
 export interface Field {
