@@ -1,7 +1,8 @@
 export enum FieldType {
     STRING = 'string',
     NUMBER = 'number',
-    INT = 'int'
+    INT = 'int',
+    IMAGE = 'image'
 }
 
 export const fieldConverters = {
@@ -11,5 +12,6 @@ export const fieldConverters = {
     },
     int: (value: string) => {
         return parseInt(value, 10);
-    }
+    },
+    image: (value: any) => value
 };
