@@ -11,6 +11,7 @@ import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
 import { log } from 'util';
+import { FieldType, fieldConverters } from '@/enums/FieldType';
 
 (window as any).process = process; // required as a fix for pouchdb - see #18
 
@@ -43,8 +44,8 @@ function getUserDB(username: string): PouchDB.Database {
         return ret;
     }
 
-    let hexName = hexEncode(username);
-    let dbName = `userdb-${hexName}`;
+    const hexName = hexEncode(username);
+    const dbName = `userdb-${hexName}`;
     log(`Fetching user database: ${dbName}`);
     return new pouch(remote_couch_url + dbName);
 }
@@ -157,6 +158,10 @@ export function addNote(course: string, shape: DataShape, data: any) {
         dataShape: shape.name
     });
 
+    const attachmentFields = shape.fields.filter((field) => {
+        return field.type === FieldType.IMAGE;
+    });
+    const attachments: { [index: string]: PouchDB.Core.FullAttachment } = {};
     const payload: DisplayableData = {
         course,
         data: [],
@@ -164,7 +169,16 @@ export function addNote(course: string, shape: DataShape, data: any) {
         id_datashape: dataShapeId
     };
 
-    shape.fields.forEach((field) => {
+    if (attachmentFields.length !== 0) {
+        attachmentFields.forEach((attField) => {
+            attachments[attField.name] = data[attField.name];
+        });
+        payload._attachments = attachments;
+    }
+
+    shape.fields.filter((field) => {
+        return field.type !== FieldType.IMAGE;
+    }).forEach((field) => {
         payload.data.push({
             name: field.name,
             data: data[field.name]
