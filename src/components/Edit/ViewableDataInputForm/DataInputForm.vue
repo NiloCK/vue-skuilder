@@ -18,7 +18,13 @@
                 v-bind:store="store"
                 v-bind:field="field"
             />
-        </div>          
+        </div>
+        <div v-else-if="field.type === img">
+            <ImageInput
+                v-bind:store="store"
+                v-bind:field="field"
+            />    
+        </div>
       </div>
       <button v-bind:disabled="!userInputIsValid" v-on:click="submit">Add Data</button>
 
@@ -44,6 +50,7 @@ import { FieldType, fieldConverters } from '@/enums/FieldType';
 import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
+import ImageInput from './FieldInputs/ImageInput.vue';
 import { addNote, getNotes, getDoc } from '@/db';
 import { DisplayableData, DataShapeData, QuestionData } from '@/db/types';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
@@ -56,6 +63,7 @@ import Courses, { NameSpacer } from '@/courses';
         NumberInput,
         StringInput,
         IntegerInput,
+        ImageInput,
         CardBrowser,
         DataShapeTable
     }
@@ -76,6 +84,7 @@ export default class DataInputForm extends Vue {
     private readonly str: string = FieldType.STRING;
     private readonly int: string = FieldType.INT;
     private readonly num: string = FieldType.NUMBER;
+    private readonly img: string = FieldType.IMAGE;
 
     public get userInputIsValid(): boolean {
         let ret: boolean =

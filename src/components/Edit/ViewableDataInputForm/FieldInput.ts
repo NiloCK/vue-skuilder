@@ -15,12 +15,16 @@ export abstract class FieldInput extends Vue {
         status: Status.ok,
         msg: ''
     };
-    @Prop() private store: any;
+    @Prop() protected store: any;
 
     public abstract getValidators(): ValidatingFunction[];
 
     public userInput = () => {
         return this.store[this.field.name];
+    }
+
+    public setData(data: any) {
+        this.store[this.field.name] = data;
     }
 
     public validate = () => {
