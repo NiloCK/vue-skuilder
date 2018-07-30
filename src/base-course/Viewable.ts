@@ -20,6 +20,23 @@ export default abstract class Viewable extends Vue {
     }
 
     /**
+     * Returns a URL for accessing Blob data. Eg: if the Nth dataShape
+     * of a view has an image field named 'wordImage', then this image
+     * can be displayed in a template as:
+     *
+     * <img :src="getURL('wordImage', N)" />
+     * @param item The name of the item
+     * @param dataShapeIndex The index of the viewData that contains the item.
+     */
+    protected getURL(item: string, dataShapeIndex: number = 0): string {
+        if (this.data[dataShapeIndex][item]) {
+            return URL.createObjectURL(this.data[dataShapeIndex][item]);
+        } else {
+            return '';
+        }
+    }
+
+    /**
      * Called when a user is finished with a card, and triggers
      * the display of new content.
      */
