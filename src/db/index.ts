@@ -58,8 +58,9 @@ export function remoteDBSignup(username: string, password: string) {
     return remote.signUp(username, password);
 }
 
-export function getDoc<T extends SkuilderCourseData>(id: PouchDB.Core.DocumentId): Promise<T> {
-    return remote.get<T>(id);
+export function getDoc
+    <T extends SkuilderCourseData>(id: PouchDB.Core.DocumentId, options: PouchDB.Core.GetOptions = {}): Promise<T> {
+    return remote.get<T>(id, options);
 }
 
 export async function putQuestionType(course: string, question: typeof Question) {

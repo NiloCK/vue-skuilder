@@ -76,7 +76,10 @@ export default class Study extends Vue {
             return cardData.id_displayable_data;
         }).then((displayables) => {
             return displayables.map((id) => {
-                return getDoc<DisplayableData>(id);
+                return getDoc<DisplayableData>(id, {
+                    attachments: true,
+                    binary: true
+                });
             });
         }).then((displayDocs) => {
             displayDocs.forEach((promiseDoc) => {
