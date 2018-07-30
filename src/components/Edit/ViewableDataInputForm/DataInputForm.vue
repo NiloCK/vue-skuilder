@@ -31,7 +31,7 @@
       <CardBrowser
         v-if="userInputIsValid"
         v-bind:views="shapeViews"
-        v-bind:data="[store.convertedInput]"
+        v-bind:data="[previewInput]"
       />
 
       <DataShapeTable
@@ -78,7 +78,8 @@ export default class DataInputForm extends Vue {
     public fields: FormInput[] = [];
     public store: any = {
         validation: {},
-        convertedInput: {}
+        convertedInput: {},
+        previewInput: {}
     }; // todo: see about typing this
 
     private readonly str: string = FieldType.STRING;
@@ -122,13 +123,20 @@ export default class DataInputForm extends Vue {
     public convertInput() {
         this.dataShape.fields.forEach((fieldDef) => {
             this.store.convertedInput[fieldDef.name] =
-                fieldConverters[fieldDef.type](this.store[fieldDef.name]);
+                fieldConverters[fieldDef.type].databaseConverter(this.store[fieldDef.name]);
+            this.store.previewInput[fieldDef.name] =
+                fieldConverters[fieldDef.type].previewConverter(this.store[fieldDef.name]);
         });
         if (this.store.convertedInput.toggle) {
             delete this.store.convertedInput.toggle;
         } else {
             this.store.convertedInput.toggle = true;
         }
+    }
+
+    public get previewInput() {
+        this.convertInput();
+        return this.store.previewInput;
     }
 
     public get convertedInput() {

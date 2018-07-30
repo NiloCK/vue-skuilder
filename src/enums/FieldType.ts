@@ -5,22 +5,47 @@ export enum FieldType {
     IMAGE = 'image'
 }
 
-export const fieldConverters = {
-    string: (value: string) => value,
-    number: (value: string) => {
-        return parseFloat(value);
+const stringConverter: Converter = (value: string) => value;
+const numberConverter: Converter = (value: string) => {
+    return parseFloat(value);
+};
+const intConverter: Converter = (value: string) => {
+    return parseInt(value, 10);
+};
+
+export const fieldConverters:
+    { [index: string]: FieldConverter }
+    = {
+    string: {
+        databaseConverter: (value: string) => value,
+        previewConverter: (value: string) => value
     },
-    int: (value: string) => {
-        return parseInt(value, 10);
+    number: {
+        databaseConverter: numberConverter,
+        previewConverter: numberConverter
     },
-    image: (value: {
-        content_type: string,
-        data: Blob
-    }) => {
-        if (value) {
-            return value.data;
-        } else {
-            return new Blob();
+    int: {
+        databaseConverter: intConverter,
+        previewConverter: intConverter
+    },
+    image: {
+        databaseConverter: (value) => value,
+        previewConverter: (value: {
+            content_type: string,
+            data: Blob
+        }) => {
+            if (value) {
+                return value.data;
+            } else {
+                return new Blob();
+            }
         }
     }
 };
+
+interface FieldConverter {
+    databaseConverter: Converter;
+    previewConverter: Converter;
+}
+
+type Converter = (value: any) => string | number | boolean | Blob;
