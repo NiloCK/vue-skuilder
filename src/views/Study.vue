@@ -64,6 +64,7 @@ export default class Study extends Vue {
     }
 
     private loadRandomCard() {
+        this.data = []; // clear data loaded by the previous card
         getCards().then((results) => {
             return results.docs[
                 randInt(results.docs.length)
