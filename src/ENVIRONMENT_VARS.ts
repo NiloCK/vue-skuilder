@@ -4,12 +4,8 @@
  * In development, this is set as a simple string so that an in-browser
  * pouch-db instance is used instead.
  */
-
-export const remote_db_url: string =
-    // 'devRemote';
-    'http://localhost:5984/skuilder/';
-
 export const remote_couch_url: string =
+    // 'devRemote';
     'http://localhost:5984/';
 /**
  * A global flag to enable debug messaging mode for different libraries

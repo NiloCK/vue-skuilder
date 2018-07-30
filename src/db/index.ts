@@ -2,16 +2,16 @@ import { Question } from '@/base-course/Course';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { NameSpacer } from '@/courses';
 import {
-    CardData, DataShapeData, DisplayableData,
-    DocType, QuestionData, SkuilderCourseData, CardRecord
+    CardData, CardRecord, DataShapeData,
+    DisplayableData, DocType, QuestionData, SkuilderCourseData
 } from '@/db/types';
-import { debug_mode, remote_db_url, remote_couch_url } from '@/ENVIRONMENT_VARS';
+import { FieldType } from '@/enums/FieldType';
+import { debug_mode, remote_couch_url } from '@/ENVIRONMENT_VARS';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
 import { log } from 'util';
-import { FieldType, fieldConverters } from '@/enums/FieldType';
 
 (window as any).process = process; // required as a fix for pouchdb - see #18
 
@@ -22,9 +22,8 @@ if (debug_mode) {
     pouch.debug.enable('pouchdb:find');
 }
 
-const databaseName = 'record';
 const remote: PouchDB.Database = new pouch(
-    remote_db_url,
+    remote_couch_url + 'skuilder',
     {
         skip_setup: true
     }
