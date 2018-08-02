@@ -5,5 +5,9 @@ export enum DataShapeName {
     SingleDigitSubtraction = 'SingleDigitSubtraction',
     SingleDigitDivision = 'SingleDigitDivision',
     SingleDigitMultiplication = 'SingleDigitMultiplication',
-    EqualityTest = 'EqualityTest'
+    EqualityTest = 'EqualityTest',
+
+
+    // French
+    AudioParse = 'AudioParse'
 }
