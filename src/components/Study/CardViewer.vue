@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import Vue, { VueConstructor } from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import { Component, Prop, Emit } from 'vue-property-decorator';
 import Courses from '@/courses';
 import Viewable from '@/base-course/Viewable';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
@@ -25,13 +25,12 @@ export default class CardViewer extends Vue {
     @Prop() public view: VueConstructor<Viewable>;
     @Prop() public data: ViewData[];
 
+    @Emit('emitResponse')
     private processResponse(r: CardRecord) {
         log(`
         Card was displayed at ${r.timeStamp}
         User spent ${r.timeSpent} milliseconds with the card.
         `);
-
-        this.$emit('emitResponse', r);
     }
 }
 </script>
