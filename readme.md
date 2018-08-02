@@ -20,6 +20,15 @@ After cloning the repository,
 
 Does an in-memory build of the project and hosts with the webpack dev server. Hot reloading and source maps included for debugging.
 
+## Debugging
+
+The project can be debugged inside of VSCode using the existing settings from the `./vscode` folder. After starting a development server with `yarn serve` / `npm run serve`, hitting F5 will launch VSCode's debugger and attach to the process. (Note: debugging is slightly buggy for the time being. See #2.)
+
+Debugging / virtual DOM exploration is also available in the browser via [vue-devtools](https://github.com/vuejs/vue-devtools).
+
+ - [Firefox Addon](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
+ - [Chrome Extension](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+
 ## Production Build
 
 Check for relevant flags in `/src/ENVIRONMENT_VARS.ts` before building for production.
@@ -27,14 +36,6 @@ Check for relevant flags in `/src/ENVIRONMENT_VARS.ts` before building for produ
 - `npm run build` or `yarn build`
 
 Outputs a static web page in the `/build` folder.
-
-# Debugging
-
-For now, debugging is available only in the browser via [vue-devtools](https://github.com/vuejs/vue-devtools).
-
- - [Firefox Addon](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
- - [Chrome Extension](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-
 
 
 # Licence
