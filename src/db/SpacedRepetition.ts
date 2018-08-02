@@ -11,7 +11,7 @@ function newInterval(cardHistory: QuestionRecord[]): number {
     const currentAttempt = cardHistory[cardHistory.length - 1];
 
     if (currentAttempt.isCorrect) {
-        return
+        return 0;
     }
 
     return 0;
@@ -50,7 +50,7 @@ function demonstratedSkill(response: QuestionRecord) {
 }
 
 function intervalMultiplier(responseSkill: number) {
-
+    return 1;
 }
 
 /**
