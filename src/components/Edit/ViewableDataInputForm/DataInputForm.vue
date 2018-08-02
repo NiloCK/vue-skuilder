@@ -20,7 +20,7 @@
             />
         </div>
         <div v-else-if="field.type === img">
-            <ImageInput
+            <BlobInput
                 v-bind:store="store"
                 v-bind:field="field"
             />    
@@ -50,7 +50,7 @@ import { FieldType, fieldConverters } from '@/enums/FieldType';
 import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
-import ImageInput from './FieldInputs/ImageInput.vue';
+import BlobInput from './FieldInputs/BlobInput.vue';
 import { addNote, getNotes, getDoc } from '@/db';
 import { DisplayableData, DataShapeData, QuestionData } from '@/db/types';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
@@ -63,7 +63,7 @@ import Courses, { NameSpacer } from '@/courses';
         NumberInput,
         StringInput,
         IntegerInput,
-        ImageInput,
+        BlobInput,
         CardBrowser,
         DataShapeTable
     }

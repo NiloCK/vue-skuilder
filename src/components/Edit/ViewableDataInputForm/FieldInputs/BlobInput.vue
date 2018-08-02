@@ -2,7 +2,7 @@
     <div>
         <label v-bind:for="field.name">{{field.name}}: </label>
         <input
-            v-bind:id="imgInputID"
+            v-bind:id="blobInputID"
             v-bind:name="field.name"
             @change="processInput"
             type="file"
@@ -20,7 +20,7 @@ import { FieldInput } from '../FieldInput';
 import { log } from 'util';
 
 @Component
-export default class ImageInput extends FieldInput {
+export default class BlobInput extends FieldInput {
 
     public getValidators(): ValidatingFunction[] {
         if (this.field.validator) {
@@ -30,21 +30,21 @@ export default class ImageInput extends FieldInput {
         }
     }
 
-    private get imgInputID(): string {
-        return 'imgInput' + this.field.name;
+    private get blobInputID(): string {
+        return 'blobInput' + this.field.name;
     }
 
-    private get imageInputElement(): HTMLInputElement {
+    private get blobInputElement(): HTMLInputElement {
         return document.getElementById(
-            this.imgInputID
+            this.blobInputID
         ) as HTMLInputElement;
     }
 
     private async processInput() {
-        if (this.imageInputElement.files) {
-            const file = this.imageInputElement.files[0];
+        if (this.blobInputElement.files) {
+            const file = this.blobInputElement.files[0];
             log(`
-Processing input image:
+Processing input file:
 
 Filename: ${file.name}
 File size: ${file.size}
