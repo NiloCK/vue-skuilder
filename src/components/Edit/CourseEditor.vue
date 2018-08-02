@@ -32,7 +32,6 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
-import Spinner from 'vue-simple-spinner';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import Courses, { NameSpacer } from '@/courses';
 import { getDataShapes, getDoc } from '@/db';
@@ -41,6 +40,10 @@ import { DataShapeData } from '@/db/types';
 import ComponentRegistration from '@/components/Edit/ComponentRegistration/ComponentRegistration.vue';
 import _ from 'lodash';
 import { DataShapeName } from '@/enums/DataShapeNames';
+// import Spinner from 'vue-simple-spinner'; // TS error was preventing builds
+
+// tslint:disable-next-line:no-var-requires
+const Spinner: any = require('vue-simple-spinner');
 
 @Component({
   components: {
