@@ -1,14 +1,31 @@
 <template>
     <div>
-        Username: <input type="text" v-model="username"/>
+        <v-typography class="display-1">
+            Log in:
+        </v-typography>
+        <v-text-field
+            name="name"
+            label="Username:"
+            id=""
+            v-model="username"
+        ></v-text-field>
         <br>
-        Password: <input type="password" name="" id="" v-model="password" />
+        <v-text-field
+            name="name"
+            label="Enter your password"
+            hint=""
+            min="0"
+            :append-icon="passwordVisible ? 'visibility_off' : 'visibility'"
+            :append-icon-cb="() => (passwordVisible = !passwordVisible)"
+            :type="passwordVisible ? 'text' : 'password'"
+            v-model="password"
+        ></v-text-field>
         <br>
         <div v-if='newUserMode'>
             Retype Password: <input type="password" name="" id="" v-model="retypedPassword" />
         </div>
-
-        <button @click="login">Log In / Register</button>
+        <v-btn @click="login" color="success">Log In / Register</v-btn>
+        <!-- <button @click="login">Log In / Register</button> -->
         <br>
         <a @click="newUserMode = !newUserMode">(Sign up)</a>
 
@@ -27,6 +44,7 @@ export default class UserLogin extends Vue {
     private username: string = '';
     private password: string = '';
     private retypedPassword: string = '';
+    private passwordVisible: boolean = false;
 
     private newUserMode: boolean = false;
 
