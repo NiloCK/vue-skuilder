@@ -1,15 +1,14 @@
 <template>
   <div>
-      <h1>Editing Course Data</h1>
-      Select a course to contribute to:
-      <select v-model="selectedCourse">
-        <option v-for="course in courseList" :key="course.id" :value="course">
-          {{course}}
-        </option>
-      </select>
+      <h1 class="headline">Editing Course Data</h1>
+      
+      <v-select
+        :items="courseList"
+        v-model="selectedCourse"
+        label="Select a course to contribute to:"
+      />
+      
       <CourseEditor v-if="selectedCourse" v-bind:course="selectedCourse" />
-
-      <!-- <ComponentRegistration /> -->
   </div>
 </template>
 
