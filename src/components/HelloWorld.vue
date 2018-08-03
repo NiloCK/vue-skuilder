@@ -1,6 +1,17 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
+  <v-container fluid>
+    <v-slide-y-transition mode="out-in">
+      <v-layout column align-center>
+        <img src="@/assets/logo.png" alt="Vuetify.js" class="mb-5">
+        <blockquote>
+          &#8220;First, solve the problem. Then, write the code.&#8221;
+          <footer>
+            <small>
+              <em>&mdash;John Johnson</em>
+            </small>
+          </footer>
+        </blockquote>
+        <h1>Hi</h1>
 
     <UserLogin />
 
@@ -32,27 +43,31 @@
       <li><a href="https://vue-loader.vuejs.org/en" target="_blank">vue-loader</a></li>
       <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
     </ul>
-  </div>
+      </v-layout>
+    </v-slide-y-transition>
+  </v-container>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
 import UserLogin from './UserLogin.vue';
 
-@Component({
+export default {
+  name: "HelloWorld",
+  props: {
+    msg: String
+  },
   components: {
     UserLogin
   }
-})
-export default class HelloWorld extends Vue {
-  @Prop() private msg: string = '';
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
+<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+h1,
+h2 {
+  font-weight: normal;
 }
 ul {
   list-style-type: none;
@@ -66,3 +81,5 @@ a {
   color: #42b983;
 }
 </style>
+
+
