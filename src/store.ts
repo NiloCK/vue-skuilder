@@ -9,7 +9,7 @@ export interface AppState {
 
 export default new Vuex.Store<AppState>({
   state: {
-    user: 'NOT_LOGGED_IN'
+    user: 'Guest'
   },
   mutations: {
 
