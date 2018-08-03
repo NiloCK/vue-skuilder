@@ -1,12 +1,14 @@
 <template>
-    <transition name='component-fade' mode='out-in'>
-        <component
-            class='cardView'
-            :is="view"
-            v-bind:data="data"
-            v-on:emitResponse="processResponse($event)"
-        />    
-    </transition>
+    <v-card class='elevation-12'>
+        <transition name='component-fade' mode='out-in'>
+            <component
+                class='cardView'
+                :is="view"
+                v-bind:data="data"
+                v-on:emitResponse="processResponse($event)"
+            />    
+        </transition>
+    </v-card>
 </template>
 
 <script lang="ts">
@@ -38,7 +40,7 @@ export default class CardViewer extends Vue {
 <style scoped>
 .cardView {
   padding: 15px;
-  border: 2px solid black;
+  /* border: 2px solid black; */
   border-radius: 8px;
 }
 

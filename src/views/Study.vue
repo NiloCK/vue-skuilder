@@ -1,6 +1,7 @@
 <template>
   <div class="Study">
     <h1>Study:</h1>
+    <br>
     <CardViewer
         v-bind:view="view"
         v-bind:data="data"
