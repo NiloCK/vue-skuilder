@@ -11,15 +11,15 @@
           {{`There ${registeredDataShapes.length !== 1 ? 'are' : 'is'} ${registeredDataShapes.length} registered data shape${registeredDataShapes.length === 1 ? '' : 's'} in the course.`}}
         </div>
         Which data type are you adding?
-        <select v-model="selectedShape">
-          <option v-for="shape in registeredDataShapes" :key="shape.name" :value="shape">
-            {{shape.name}}
-          </option>
-        </select>
+        <v-select
+          v-model="selectedShape"
+          label="Select a data type to add"
+          :items="registeredDataShapes.map( (shape) => shape.name )"
+        />
 
         <DataInputForm 
-          v-if="selectedShape.name"
-          v-bind:dataShape="selectedShape"
+          v-if="selectedShape !== ''"
+          v-bind:dataShape="getDataShape(selectedShape)"
           v-bind:course="course" />
       </div>
       <ComponentRegistration v-else :course="course" />
@@ -56,7 +56,7 @@ export default class CourseEditor extends Vue {
   @Prop() public course: string;
   public registeredDataShapes: DataShape[] = [];
   public dataShapes: DataShape[] = [];
-  public selectedShape: DataShape = { name: DataShapeName.BLANK, fields: [] };
+  public selectedShape: string = '';
   private loading: boolean = true;
   private editingMode: boolean = true;
 
@@ -83,6 +83,12 @@ export default class CourseEditor extends Vue {
     }).then(() => {
       this.loading = false;
     });
+  }
+
+  public getDataShape(shapeName: string): DataShape {
+    return this.dataShapes.find((shape) => {
+      return shape.name === shapeName;
+    })!;
   }
 
   private toggleComponent() {
