@@ -1,7 +1,7 @@
 <template>
   <div class="courseEditor" v-if="course">
     <div v-if='loading'>
-      <Spinner /> Loading course information from database...
+      <v-progress-circular indeterminate color="secondary"></v-progress-circular>
     </div>
     <div v-else>
       <button @click='toggleComponent'>Toggle Content Editing / Component Registration</button>
@@ -40,15 +40,10 @@ import { DataShapeData } from '@/db/types';
 import ComponentRegistration from '@/components/Edit/ComponentRegistration/ComponentRegistration.vue';
 import _ from 'lodash';
 import { DataShapeName } from '@/enums/DataShapeNames';
-// import Spinner from 'vue-simple-spinner'; // TS error was preventing builds
-
-// tslint:disable-next-line:no-var-requires
-const Spinner: any = require('vue-simple-spinner');
 
 @Component({
   components: {
     DataInputForm,
-    Spinner,
     ComponentRegistration
   }
 })
