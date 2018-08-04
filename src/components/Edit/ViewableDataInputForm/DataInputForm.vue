@@ -26,7 +26,15 @@
             />    
         </div>
       </div>
-      <button v-bind:disabled="!userInputIsValid" v-on:click="submit">Add Data</button>
+      <v-btn
+          color="primary"
+          :loading="uploading"
+          @click.native="submit"
+          :disabled="!userInputIsValid"
+      >
+          Add data
+          <v-icon right dark>add_circle</v-icon> <!-- Remove if don't want to use icon. -->
+      </v-btn>
 
       <CardBrowser
         v-if="userInputIsValid"
@@ -81,6 +89,8 @@ export default class DataInputForm extends Vue {
         convertedInput: {},
         previewInput: {}
     }; // todo: see about typing this
+
+    private uploading: boolean = false;
 
     private readonly str: string = FieldType.STRING;
     private readonly int: string = FieldType.INT;
@@ -146,7 +156,11 @@ export default class DataInputForm extends Vue {
 
     public submit() {
         if (this.userInputIsValid) {
-            addNote(this.course, this.dataShape, this.store.convertedInput);
+            this.uploading = true;
+            addNote(this.course, this.dataShape, this.store.convertedInput)
+                .then((resp) => {
+                    this.uploading = false;
+                });
         }
     }
 
