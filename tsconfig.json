@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
     "strictPropertyInitialization": false,
-    "target": "es2015",
-    "module": "es2015",
+    "target": "esnext",
+    "module": "esnext",
     "strict": true,
     "jsx": "preserve",
     "moduleResolution": "node",
+    "importHelpers": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
@@ -19,12 +21,20 @@
       "@/*": [
         "src/*"
       ]
-    }
+    },
+    "lib": [
+      "es2015",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ]
   },
   "include": [
     "src/**/*.ts",
+    "src/**/*.tsx",
     "src/**/*.vue",
-    "test/**/*.ts"
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
   ],
   "exclude": [
     "node_modules"

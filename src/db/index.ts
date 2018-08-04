@@ -19,7 +19,7 @@ pouch.plugin(PouchDBAuth);
 pouch.plugin(PouchDBFind);
 
 if (debug_mode) {
-    pouch.debug.enable('pouchdb:find');
+    // pouch.debug.enable('pouchdb:find');
 }
 
 const remote: PouchDB.Database = new pouch(
