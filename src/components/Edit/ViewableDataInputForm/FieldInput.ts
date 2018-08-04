@@ -1,4 +1,4 @@
-import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
+import { ValidatingFunction, validationFunctionToVuetifyRule } from '@/base-course/Interfaces/ValidatingFunction';
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { ValidationResult } from '@/base-course/Interfaces/ValidationResult';
@@ -17,7 +17,14 @@ export abstract class FieldInput extends Vue {
     };
     @Prop() protected store: any;
 
-    public abstract getValidators(): ValidatingFunction[];
+    public getValidators(): ValidatingFunction[] {
+        const ret = [];
+
+        if (this.field.validator) {
+            ret.push(this.field.validator.test);
+        }
+        return ret;
+    }
 
     public userInput = () => {
         return this.store[this.field.name];
@@ -25,6 +32,12 @@ export abstract class FieldInput extends Vue {
 
     public setData(data: any) {
         this.store[this.field.name] = data;
+    }
+
+    public get vuetifyRules() {
+        return this.getValidators().map((f) => {
+            return validationFunctionToVuetifyRule(f);
+        });
     }
 
     public validate = () => {
