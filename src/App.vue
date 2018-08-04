@@ -42,9 +42,9 @@
       </v-btn>
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-chip close v-model="value" >
+      <v-chip v-model="value" >
         <v-avatar class='primary'>
-          <v-icon dark>sentiment_satisfied_alt</v-icon>
+          <v-icon dark>account_circle</v-icon>
         </v-avatar>
         {{ $store.state.user }}
       </v-chip>
