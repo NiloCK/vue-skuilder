@@ -30,7 +30,7 @@ const remote: PouchDB.Database = new pouch(
 );
 const local: PouchDB.Database = new pouch('local');
 
-function getUserDB(username: string): PouchDB.Database {
+export function getUserDB(username: string): PouchDB.Database {
     function hexEncode(str: string): string {
         let hex: string;
         let ret: string = '';
@@ -62,8 +62,11 @@ export function remoteDBLogin(username: string, password: string) {
     return remote.logIn(username, password);
 }
 
-export function remoteDBSignup(username: string, password: string) {
-    return remote.signUp(username, password);
+export function remoteDBSignup(
+    username: string,
+    password: string,
+    options?: PouchDB.Authentication.PutUserOptions) {
+    return remote.signUp(username, password, options);
 }
 
 export function getDoc
@@ -159,6 +162,16 @@ export function putQuestionView(
     });
 }
 
+export function doesUserExist(name: string) {
+    return remote.getUser(name).then((user) => {
+        log(`user: ${user._id}`);
+        return true;
+    }).catch((err) => {
+        log(`User error: ${err}`);
+        return false;
+    });
+}
+
 export function addNote(course: string, shape: DataShape, data: any) {
     // todo: make less crappy - test for duplicate insertions - #15
 
@@ -198,6 +211,7 @@ export function addNote(course: string, shape: DataShape, data: any) {
         if (result.ok) {
             createCards(course, dataShapeId, result.id);
         }
+        return result;
     });
 }
 

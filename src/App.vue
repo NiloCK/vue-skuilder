@@ -42,12 +42,7 @@
       </v-btn>
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-chip>
-        <v-avatar class='primary'>
-          <v-icon dark>account_circle</v-icon>
-        </v-avatar>
-        {{ $store.state.user }}
-      </v-chip>
+      <UserLoginAndRegistrationContainer />
       <v-btn icon @click.stop="rightDrawer = !rightDrawer">
         <v-icon>menu</v-icon>
       </v-btn>
@@ -85,9 +80,13 @@
 </template>
 
 <script lang="ts">
+import UserLoginAndRegistrationContainer from '@/components/UserLoginAndRegistrationContainer.vue';
+
 export default {
   name: 'App',
-  components: {},
+  components: {
+    UserLoginAndRegistrationContainer
+  },
   data() {
     return {
       clipped: false,
