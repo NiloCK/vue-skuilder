@@ -65,12 +65,14 @@ export default class Study extends Vue {
     }
 
     private loadRandomCard() {
-        this.data = []; // clear data loaded by the previous card
         getCards().then((results) => {
             return results.docs[
                 randInt(results.docs.length)
             ];
         }).then((doc) => {
+            log(`
+DocID ${doc._id} has been picked...
+            `);
             this.cardID = doc._id;
             return getDoc<CardData>(doc._id);
         }).then((cardData) => {
@@ -86,9 +88,10 @@ export default class Study extends Vue {
         }).then((displayDocs) => {
             displayDocs.forEach((promiseDoc) => {
                 promiseDoc.then((doc) => {
-                    this.data.push(
+                    this.data.unshift(
                         displayableDataToViewData(doc)
                     );
+                    this.data = this.data.slice(0, displayDocs.length);
                 });
             });
         });

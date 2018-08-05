@@ -14,6 +14,11 @@ export abstract class Displayable {
      *
      */
     constructor(viewData: ViewData[]) {
+        if (viewData.length === 0) {
+            throw new Error(`
+Displayable Constructor was called with no view Data.
+            `);
+        }
         validateData(this.dataShapes(), viewData);
     }
 
