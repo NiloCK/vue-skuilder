@@ -17,7 +17,7 @@ export abstract class FieldInput extends Vue {
     };
     @Prop() protected store: any;
 
-    public getValidators(): ValidatingFunction[] {
+    public get validators(): ValidatingFunction[] {
         const ret = [];
 
         if (this.field.validator) {
@@ -34,10 +34,14 @@ export abstract class FieldInput extends Vue {
         this.store[this.field.name] = data;
     }
 
-    public get vuetifyRules() {
-        return this.getValidators().map((f) => {
-            return validationFunctionToVuetifyRule(f);
-        });
+    public vuetifyRules() {
+        if (this.field.validator) {
+            return this.validators.map((f) => {
+                return validationFunctionToVuetifyRule(f);
+            });
+        } else {
+            return [];
+        }
     }
 
     public validate = () => {
@@ -50,7 +54,7 @@ export abstract class FieldInput extends Vue {
             msg: ''
         };
 
-        const validators = this.getValidators();
+        const validators = this.validators;
         let index = 0;
         while (ret.status === Status.ok && index < validators.length) {
             ret = validators[index](this.userInput());

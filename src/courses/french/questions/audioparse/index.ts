@@ -3,9 +3,11 @@ import { DataShapeName } from '@/enums/DataShapeNames';
 import { FieldType } from '@/enums/FieldType';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import AudioParseView from './view.vue';
+import { DataShape } from '@/base-course/Interfaces/DataShape';
+import { Status } from '@/enums/Status';
 
 export class AudioParsingQuestion extends Question {
-    public static dataShapes = [{
+    public static dataShapes: DataShape[] = [{
         name: DataShapeName.AudioParse,
         fields: [
             {
@@ -14,7 +16,16 @@ export class AudioParsingQuestion extends Question {
             },
             {
                 name: 'text',
-                type: FieldType.STRING
+                type: FieldType.STRING,
+                validator: {
+                    test: (value: string) => {
+                        const good = value.length < 45;
+                        return {
+                            msg: good ? '' : 'It\'s too long!',
+                            status: good ? Status.ok : Status.error
+                        };
+                    }
+                }
             }
         ]
     }];
