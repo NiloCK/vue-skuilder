@@ -42,14 +42,12 @@
       </v-btn>
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-chip v-model="value" >
+      <v-chip>
         <v-avatar class='primary'>
           <v-icon dark>account_circle</v-icon>
         </v-avatar>
         {{ $store.state.user }}
       </v-chip>
-      <!-- Logged in as {{ $store.state.user }} -->
-      <!-- <v-icon>sentiment_satisfied_alt</v-icon> -->
       <v-btn icon @click.stop="rightDrawer = !rightDrawer">
         <v-icon>menu</v-icon>
       </v-btn>
