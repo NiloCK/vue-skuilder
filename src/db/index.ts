@@ -46,7 +46,16 @@ function getUserDB(username: string): PouchDB.Database {
     const hexName = hexEncode(username);
     const dbName = `userdb-${hexName}`;
     log(`Fetching user database: ${dbName}`);
-    return new pouch(remote_couch_url + dbName);
+
+    // odd construction here the result of a bug in the
+    // interaction between pouch, pouch-auth.
+    // see: https://github.com/pouchdb-community/pouchdb-authentication/issues/239
+    return new pouch(remote_couch_url + dbName, {
+        fetch(url: any, opts: any) {
+            opts.credentials = 'include';
+            return (pouch as any).fetch(url, opts);
+        }
+    } as PouchDB.Configuration.RemoteDatabaseConfiguration);
 }
 
 export function remoteDBLogin(username: string, password: string) {
