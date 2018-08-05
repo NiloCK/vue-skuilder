@@ -7,7 +7,7 @@ export default abstract class UserInput extends Vue {
     /**
      * This is the .submitAnswer from the parent
      */
-    @Prop() protected submitAnswer: (answer: Answer) => void = this.submit;
+    protected submitAnswer: (answer: Answer) => void = this.submit;
 
     protected answer: Answer = '';
 
@@ -23,19 +23,6 @@ export default abstract class UserInput extends Vue {
 
     private submit(answer: Answer) {
         return this.getQuestionViewAncestor().submitAnswer(answer);
-
-        // if (this.isQuestionView(this.$parent)) {
-        //     this.$parent.submitAnswer(
-        //         answer
-        //     );
-        // } else {
-        //     const err: string = `
-        //     UserInput.submit() has failed.
-        //     The parent element (${this.$parent}) is not a QuestionView element.
-        //     `;
-        //     log(err);
-        //     throw new Error(err);
-        // }
     }
 
     private getQuestionViewAncestor(): QuestionView<Question> {
