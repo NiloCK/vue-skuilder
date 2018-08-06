@@ -13,7 +13,8 @@
         </blockquote>
         <h1>Hi</h1>
 
-    <UserLogin />
+        <v-btn color="success" @click="newSnack">text</v-btn>
+    <!-- <UserLogin /> -->
 
       </v-layout>
     </v-slide-y-transition>
@@ -22,6 +23,8 @@
 
 <script lang="ts">
 import UserLogin from './UserLogin.vue';
+import SnackbarService from '@/components/SnackbarService.vue';
+import { Status } from '@/enums/Status';
 
 export default {
   name: 'HelloWorld',
@@ -30,6 +33,14 @@ export default {
   },
   components: {
     UserLogin
+  },
+  methods: {
+    newSnack: () => {
+      SnackbarService.addSnack({
+        text: 'test',
+        status: Status.ok
+      });
+    }
   }
 };
 </script>

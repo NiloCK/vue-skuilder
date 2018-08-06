@@ -76,16 +76,19 @@
     <v-footer :fixed="fixed" app>
       <span>&copy; 2017</span>
     </v-footer>
+    <snackbar-service options="{text:'hllo', status: 'ok'}" id="SnackbarService" ref="SnackbarService" />
   </v-app>
 </template>
 
 <script lang="ts">
 import UserLoginAndRegistrationContainer from '@/components/UserLoginAndRegistrationContainer.vue';
+import SnackbarService from '@/components/SnackbarService.vue';
 
 export default {
   name: 'App',
   components: {
-    UserLoginAndRegistrationContainer
+    UserLoginAndRegistrationContainer,
+    SnackbarService
   },
   data() {
     return {
