@@ -1,5 +1,7 @@
 <template>
   <div autocomplete="off">
+      <v-form onsubmit="return false;">
+          
       <div v-for="field in dataShape.fields" :key="dataShape.fields.indexOf(field)">
         <div v-if="field.type === str">
             <StringInput
@@ -36,6 +38,7 @@
           <v-icon right dark>add_circle</v-icon> <!-- Remove if don't want to use icon. -->
       </v-btn>
 
+      </v-form>
       <CardBrowser
         v-if="userInputIsValid"
         v-bind:views="shapeViews"
