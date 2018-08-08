@@ -1,6 +1,5 @@
 <template>
   <div>
-    <span>{{dummy}}</span>
     <v-snackbar
       v-model="show"
       :timeout="currentSnack.timeout"
