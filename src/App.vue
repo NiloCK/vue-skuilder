@@ -42,7 +42,7 @@
       </v-btn>
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
-      <UserLoginAndRegistrationContainer />
+      <user-login-and-registration-container />
       <v-btn icon @click.stop="rightDrawer = !rightDrawer">
         <v-icon>menu</v-icon>
       </v-btn>
@@ -76,7 +76,7 @@
     <v-footer :fixed="fixed" app>
       <span>&copy; 2017</span>
     </v-footer>
-    <SnackbarService id="SnackbarService" />
+    <snackbar-service id="SnackbarService" />
   </v-app>
 </template>
 
