@@ -17,12 +17,12 @@
           :items="registeredDataShapes.map( (shape) => shape.name )"
         />
 
-        <DataInputForm 
+        <data-input-form
           v-if="selectedShape !== ''"
           v-bind:dataShape="getDataShape(selectedShape)"
           v-bind:course="course" />
       </div>
-      <ComponentRegistration v-else :course="course" />
+      <component-registration v-else :course="course" />
 
     </div>
   </div>

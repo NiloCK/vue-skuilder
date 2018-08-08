@@ -4,22 +4,22 @@
           
       <div v-for="field in dataShape.fields" :key="dataShape.fields.indexOf(field)">
         
-            <StringInput
+            <string-input
                 v-if="field.type === str"
                 v-bind:store="store"
                 v-bind:field="field"
             />
-            <NumberInput
+            <number-input
                 v-else-if="field.type === num"
                 v-bind:store="store"
                 v-bind:field="field"
             />
-            <IntegerInput
+            <integer-input
                 v-else-if="field.type === int"
                 v-bind:store="store"
                 v-bind:field="field"
             />
-            <BlobInput
+            <blob-input
                 v-else-if="field.type === img"
                 v-bind:store="store"
                 v-bind:field="field"

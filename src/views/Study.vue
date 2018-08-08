@@ -2,7 +2,7 @@
   <div class="Study">
     <h1>Study:</h1>
     <br>
-    <CardViewer
+    <card-viewer
         v-bind:view="view"
         v-bind:data="data"
         v-on:emitResponse="processResponse($event)"
@@ -101,4 +101,3 @@ DocID ${doc._id} has been picked...
 
 <style scoped>
 </style>
-

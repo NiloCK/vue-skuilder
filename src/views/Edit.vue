@@ -8,7 +8,7 @@
         label="Select a course to contribute to:"
       />
       
-      <CourseEditor v-if="selectedCourse" v-bind:course="selectedCourse" />
+      <course-editor v-if="selectedCourse" v-bind:course="selectedCourse" />
   </div>
 </template>
 
