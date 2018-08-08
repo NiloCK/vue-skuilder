@@ -1,19 +1,21 @@
 <template>
-  <v-snackbar
+  <div>
+    <v-snackbar
       v-model="show"
       :timeout="currentSnack.timeout"
       bottom
       right
-  >
-    {{ currentSnack.text }}
-    <v-btn
-      color="pink"
-      flat
-      @click="show = false"
     >
-      Close
-    </v-btn>
-  </v-snackbar>
+      {{ currentSnack.text }}
+      <v-btn
+          color="pink"
+          flat
+          @click="show = false"
+        >
+          Close
+        </v-btn>
+    </v-snackbar>
+  </div>
 </template>
 
 <script lang="ts">
