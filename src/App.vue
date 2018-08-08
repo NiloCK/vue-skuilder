@@ -76,7 +76,7 @@
     <v-footer :fixed="fixed" app>
       <span>&copy; 2017</span>
     </v-footer>
-    <snackbar-service options="{text:'hllo', status: 'ok'}" id="SnackbarService" ref="SnackbarService" />
+    <SnackbarService id="SnackbarService" />
   </v-app>
 </template>
 
