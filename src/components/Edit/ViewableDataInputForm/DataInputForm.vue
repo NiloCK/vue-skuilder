@@ -3,30 +3,27 @@
       <v-form onsubmit="return false;">
           
       <div v-for="field in dataShape.fields" :key="dataShape.fields.indexOf(field)">
-        <div v-if="field.type === str">
+        
             <StringInput
+                v-if="field.type === str"
                 v-bind:store="store"
                 v-bind:field="field"
             />
-        </div>
-        <div v-else-if="field.type === num">
             <NumberInput
+                v-else-if="field.type === num"
                 v-bind:store="store"
                 v-bind:field="field"
             />
-        </div>
-        <div v-else-if="field.type === int">
             <IntegerInput
+                v-else-if="field.type === int"
                 v-bind:store="store"
                 v-bind:field="field"
             />
-        </div>
-        <div v-else-if="field.type === img">
             <BlobInput
+                v-else-if="field.type === img"
                 v-bind:store="store"
                 v-bind:field="field"
-            />    
-        </div>
+            />
       </div>
       <v-btn
           color="primary"
