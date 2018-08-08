@@ -65,6 +65,8 @@ import CardBrowser from '@/components/Edit/CardBrowser.vue';
 import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import Courses, { NameSpacer } from '@/courses';
+import { alertUser } from '@/components/SnackbarService.vue';
+import { Status } from '@/enums/Status';
 
 @Component({
     components: {
@@ -160,6 +162,10 @@ export default class DataInputForm extends Vue {
             addNote(this.course, this.dataShape, this.store.convertedInput)
                 .then((resp) => {
                     this.uploading = false;
+                    alertUser({
+                        text: 'Data uploaded',
+                        status: Status.ok
+                    });
                 });
         }
     }
