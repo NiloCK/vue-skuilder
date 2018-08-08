@@ -18,13 +18,15 @@ After cloning the repository,
 
  - `npm run serve` or `yarn serve`
 
-Does an in-memory build of the project and hosts with the webpack dev server. Hot reloading and source maps included for debugging.
+Does an in-memory build of the project and hosts with the webpack dev server. Hot reloading and source maps included for in-browser debugging.
 
 ## Debugging
 
-The project can be debugged inside of VSCode using the existing settings from the `./vscode` folder. After starting a development server with `yarn serve` / `npm run serve`, hitting F5 will launch VSCode's debugger and attach to the process. (Note: debugging is slightly buggy for the time being. See #2.)
+The project can be debugged inside of VSCode using the existing settings from `./vscode/launch.json`. After starting a development server with `yarn serve` / `npm run serve`, hitting F5 will launch VSCode's debugger and attach to the process. Launch configurations for Firefox and Chrome are present. They need the VSCode [debugger for firefox](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-firefox-debug) and [debugger for chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) exensions, respectively.
 
-Debugging / virtual DOM exploration is also available in the browser via [vue-devtools](https://github.com/vuejs/vue-devtools).
+As of now, only the firefox debugger is functioning reliably (see #2).
+
+Component state / props / virtual DOM exploration is also available in the browser via [vue-devtools](https://github.com/vuejs/vue-devtools).
 
  - [Firefox Addon](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
  - [Chrome Extension](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
