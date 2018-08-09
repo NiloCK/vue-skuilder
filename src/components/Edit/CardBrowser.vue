@@ -1,13 +1,17 @@
 <template>
-    <div>
-        <button v-on:click='decrementView'>Previous View</button>
-        {{ views[viewIndex].name }}
-        <button v-on:click='incrementView'>Next View</button>
+    <v-layout column wrap align-center justify-center>
+        <div>
+            <v-btn @click="decrementView" icon color="accent" >
+                <v-icon>chevron_left</v-icon>
+            </v-btn>
+            {{ views[viewIndex].name }}
+            <v-btn @click="incrementView" icon color="accent" >
+                <v-icon>chevron_right</v-icon>
+            </v-btn>
+        </div>
         <br><br>
         <CardViewer :view='views[viewIndex]' :data='data' />
-        <br><br>
-        This is a <b>{{views[viewIndex].name}}</b> component, with the following data: {{JSON.stringify(data)}}
-    </div>
+    </v-layout>
 </template>
 
 <script lang="ts">
