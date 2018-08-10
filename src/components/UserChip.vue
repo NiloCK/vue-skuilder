@@ -47,7 +47,7 @@ export default class UserChip extends Vue {
 
   private dismiss(item: string) {
     const index = this.items.indexOf(item);
-    this.items = this.items.splice(index, 1);
+    this.items.splice(index, 1);
   }
 
   public get hasNewItems(): boolean {
