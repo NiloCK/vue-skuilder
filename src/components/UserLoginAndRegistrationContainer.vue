@@ -30,12 +30,7 @@
                 <UserLogin @toggle="toggle" />
             </v-dialog>
         </div>
-        <v-chip v-else>
-            <v-avatar class='primary'>
-            <v-icon dark>school</v-icon>
-            </v-avatar>
-            {{ $store.state.user }}
-        </v-chip>
+        <user-chip v-else/>
     </div>
 </template>
 
@@ -44,11 +39,13 @@ import Vue from 'vue';
 import UserLogin from './UserLogin.vue';
 import UserRegistration from './UserRegistration.vue';
 import Component from 'vue-class-component';
+import UserChip from './UserChip.vue';
 
 @Component({
     components: {
         UserLogin,
-        UserRegistration
+        UserRegistration,
+        UserChip
     }
 })
 export default class UserLoginAndRegistrationContainer extends Vue {
