@@ -31,21 +31,6 @@
                 :type="passwordVisible ? 'text' : 'password'"
                 v-model="password"
             ></v-text-field>
-            <v-snackbar
-                v-model="badLoginAttempt"
-                bottom
-                right
-                :timeout="5000"
-            >
-                Username or password was incorrect.
-                <v-btn
-                    color="pink"
-                    flat
-                    @click="badLoginAttempt = false"
-                >
-                    Close
-                </v-btn>
-            </v-snackbar>
             <v-btn type="submit" :loading="awaitingResponse" @click="login" :color="buttonStatus.color">
                 <v-icon left dark>lock_open</v-icon>
                 Log In
@@ -61,10 +46,12 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
+import { alertUser } from '@/components/SnackbarService.vue';
 import { remoteDBLogin, remoteDBSignup } from '@/db';
 import { log } from 'util';
 import { AppState } from '@/store';
 import { Emit } from 'vue-property-decorator';
+import { Status } from '@/enums/Status';
 
 @Component({})
 export default class UserLogin extends Vue {
@@ -75,6 +62,19 @@ export default class UserLogin extends Vue {
 
     private awaitingResponse: boolean = false;
     private badLoginAttempt: boolean = false;
+    private readonly errorTimeout: number = 5000;
+
+    private initBadLogin() {
+        this.badLoginAttempt = true;
+        alertUser({
+            text: 'Username or password was incorrect.',
+            status: Status.error,
+            timeout: this.errorTimeout
+        });
+        setTimeout(() => {
+            this.badLoginAttempt = false;
+        }, this.errorTimeout);
+    }
 
     private login() {
         this.awaitingResponse = true;
@@ -83,11 +83,11 @@ export default class UserLogin extends Vue {
                 if (resp.ok) {
                     this.$store.state.user = this.username;
                 } else {
-                    this.badLoginAttempt = true;
+                    this.initBadLogin();
                 }
                 log('Logged in: ' + resp.ok);
             }).catch((err) => {
-                this.badLoginAttempt = true;
+                this.initBadLogin();
             });
         this.awaitingResponse = false;
     }
