@@ -1,19 +1,22 @@
 <template>
   <div>
     <v-snackbar
-      v-model="show"
-      :timeout="currentSnack.timeout"
+      v-for="snack in snacks"
+      :key="snacks.indexOf(snack)"
+      v-model="show[snacks.indexOf(snack)]"
+      :timeout="snack.timeout"
       bottom
       right
+      :color="getColor(snack)"
     >
-      {{ currentSnack.text }}
+      {{ snack.text }}
       <v-btn
-          color="pink"
-          flat
-          @click="show = false"
-        >
-          Close
-        </v-btn>
+        icon
+        flat
+        @click="close()"
+      >
+        <v-icon>close</v-icon>
+      </v-btn>
     </v-snackbar>
   </div>
 </template>
@@ -54,16 +57,26 @@ export default class SnackbarService extends Vue {
    * for persistance
    */
   private snacks: SnackbarOptions[] = [];
-  private show: boolean = false;
-  private currentSnack: SnackbarOptions = {
-    text: '',
-    status: Status.ok
-  };
+  private show: boolean[] = [];
 
   public addSnack(snack: SnackbarOptions) {
     this.snacks.push(snack);
-    this.currentSnack = snack;
-    this.show = true;
+    this.show.push(true);
+  }
+
+  private close() {
+    this.show.pop();
+    this.show.push(false);
+  }
+
+  private getColor(snack: SnackbarOptions) {
+    if (snack.status === Status.ok) {
+      return 'success';
+    } else if (snack.status === Status.error) {
+      return 'error';
+    } else if (snack.status === Status.warning) {
+      return 'yellow';
+    }
   }
 }
 </script>
