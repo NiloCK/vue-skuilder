@@ -2,7 +2,10 @@
   <div autocomplete="off">
       <v-form onsubmit="return false;">
           
-      <div v-for="field in dataShape.fields" :key="dataShape.fields.indexOf(field)">
+      <div
+        ref="fieldInputWraps"
+        v-for="field in dataShape.fields"
+        :key="dataShape.fields.indexOf(field)">
         
             <string-input
                 v-if="field.type === str"
@@ -26,6 +29,7 @@
             />
       </div>
       <v-btn
+          type="submit"
           color="primary"
           :loading="uploading"
           @click.native="submit"
@@ -67,6 +71,8 @@ import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/Vi
 import Courses, { NameSpacer } from '@/courses';
 import { alertUser } from '@/components/SnackbarService.vue';
 import { Status } from '@/enums/Status';
+import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
+import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 
 @Component({
     components: {
@@ -79,6 +85,27 @@ import { Status } from '@/enums/Status';
     }
 })
 export default class DataInputForm extends Vue {
+    public $refs: {
+        fieldInputWraps: HTMLDivElement[]
+    };
+    public get fieldInputs(): FieldInput[] {
+        return this.$refs.fieldInputWraps.map<FieldInput>((div) => {
+            // if ((div.children[0] as any).__vue__.clearData !==)
+            //     return (div.children[0] as any).__vue__ as FieldInput;
+            const child: Vue = (div.children[0] as any).__vue__;
+            if (this.isFieldInput(child)) {
+                return child;
+            } else {
+                const parent = child.$parent;
+                if (this.isFieldInput(parent)) {
+                    return parent;
+                }
+            }
+
+            return new IntegerInput({});
+        });
+    }
+
     @Prop() public dataShape: DataShape;
     @Prop() public course: string;
     public existingData: ViewData[] = [];
@@ -161,13 +188,25 @@ export default class DataInputForm extends Vue {
             this.uploading = true;
             addNote(this.course, this.dataShape, this.store.convertedInput)
                 .then((resp) => {
-                    this.uploading = false;
+                    // this.uploading = false;
+                    this.reset();
                     alertUser({
                         text: 'Data uploaded',
                         status: Status.ok
                     });
+                    // this.$refs.fieldInputs[0].focus();
                 });
         }
+    }
+
+    private reset() {
+        this.uploading = false;
+
+        this.fieldInputs.forEach((input) => {
+            input.clearData();
+            // (input as any).value = '';
+        });
+        this.fieldInputs[0].focus();
     }
 
     private getExistingNotesFromDB() {
@@ -205,6 +244,10 @@ export default class DataInputForm extends Vue {
                 });
             });
         });
+    }
+
+    private isFieldInput(component: any): component is FieldInput {
+        return (component as FieldInput).clearData !== undefined;
     }
 }
 </script>

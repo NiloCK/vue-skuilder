@@ -1,11 +1,12 @@
 <template>
     <v-text-field
-            box
-            v-model="store[field.name]"
-            :name="field.name"
-            :label="field.name"
-            @change="validate"
-            :rules="vuetifyRules()"
+        ref="inputField"
+        box
+        v-model="store[field.name]"
+        :name="field.name"
+        :label="field.name"
+        @change="validate"
+        :rules="vuetifyRules()"
     />
 </template>
 

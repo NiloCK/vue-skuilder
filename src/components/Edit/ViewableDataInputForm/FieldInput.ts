@@ -10,6 +10,10 @@ export interface ValidatedInput {
 }
 
 export abstract class FieldInput extends Vue {
+    public $refs: {
+        inputField: HTMLInputElement
+    };
+
     @Prop() public field: FieldDefinition;
     public validationStatus: ValidationResult = {
         status: Status.ok,
@@ -26,12 +30,20 @@ export abstract class FieldInput extends Vue {
         return ret;
     }
 
+    public focus(): void {
+        this.$refs.inputField.focus();
+    }
+
     public userInput = () => {
         return this.store[this.field.name];
     }
 
     public setData(data: any) {
         this.store[this.field.name] = data;
+    }
+
+    public clearData() {
+        this.store[this.field.name] = '';
     }
 
     public vuetifyRules() {

@@ -1,5 +1,6 @@
 <template>
     <v-text-field
+        ref="inputField"
         box
         type="number"
         v-model="store[field.name]"

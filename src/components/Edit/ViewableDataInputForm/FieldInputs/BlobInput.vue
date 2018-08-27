@@ -2,6 +2,7 @@
     <div>
         <label v-bind:for="field.name">{{field.name}}: </label>
         <input
+            ref="inputField"
             v-bind:id="blobInputID"
             v-bind:name="field.name"
             @change="processInput"
