@@ -6,7 +6,7 @@
         v-model="store[field.name]"
         :name="field.name"
         :label="field.name"
-        @change="validate"
+        @input="validate"
         :rules="vuetifyRules()"
     />
 </template>
