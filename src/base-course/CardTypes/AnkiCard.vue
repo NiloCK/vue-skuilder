@@ -16,16 +16,31 @@ interface AnkiField {
   sticky: boolean; // false in examples
 }
 
+interface AnkiTemplate {
+  afmt: string; // answer format? "{{FrontSide}}\n\n<hr id=answer>\n\n{{Back}}\n\n"
+  bafmt: string;
+  bqfmt: string;
+  // tslint:disable-next-line:max-line-length
+  qfmt: string; // question format? "{{Front}}\n\n<br>\n<br>\n\n<div id=\"pips\"></div>\n\n<script>\nvar div = document.getElementById(\"pips\");\nsetTimeout(function(){\n  //div.innerHTML = div.innerHTML + \"*\";\n}, 3000);\n<\/script>"
+  did: any; // null in the example. Not sure about this.
+  name: string; // human readable name of card type ("Card 1" in example)
+  position: number; // ord
+}
+
 interface AnkiNoteModel {
   // __type__ : "NoteModel"
   _id: string; // crowdanki_uuid
   css: string; // css
   fields: AnkiField[]; // flds
-  latexPost: string; // \\end{document}
-  latexPre: string; // long preamble string...
-  name: string; // SiteWord-cef25 // combination of human-assigned name and uuid?
-
-  // to be continued.......
+  latexPost: string; // latexPost: \\end{document}
+  latexPre: string; // latexPre: long preamble string...
+  name: string; // name: SiteWord-cef25 // combination of human-assigned name and uuid?
+  req: any; // req: [ 0, "all", [0] ] // No idea what this refers to
+  shortf: number; // shortf: 0
+  tags: string[]; // tags: []
+  templates: AnkiTemplate[]; // tmpls
+  type: number; // type: 0
+  vers: any[]; // vers: [] // no idea
 }
 
 const template1 = {
