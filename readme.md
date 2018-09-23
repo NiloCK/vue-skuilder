@@ -14,6 +14,11 @@ After cloning the repository,
 
   Note that CORS may need to be enabled in your CouchDB install.
 
+
+# Development
+
+This project is scaffolded with [vue-cli 3](https://cli.vuejs.org/). See the vue-cli docs for more detail on build / deployment / environment configuation.
+
 ## Development Build / Serve
 
  - `npm run serve` or `yarn serve`
