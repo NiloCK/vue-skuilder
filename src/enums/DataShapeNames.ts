@@ -1,5 +1,8 @@
 export enum DataShapeName {
     BLANK = '',
+    // Basic types
+    Basic = 'Basic',
+
     // Math
     SingleDigitAddition = 'SingleDigitAddition',
     SingleDigitSubtraction = 'SingleDigitSubtraction',
