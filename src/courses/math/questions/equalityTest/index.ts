@@ -1,11 +1,9 @@
-import { Question, Answer } from '@/base-course/Course';
-import { DataShapeData } from '@/db/types';
-import { FieldType } from '@/enums/FieldType';
-import { Status } from '@/enums/Status';
+import { Answer, Question } from '@/base-course/Course';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
-import TrueFalse from './trueFalse.vue';
 import { DataShapeName } from '@/enums/DataShapeNames';
+import { FieldType } from '@/enums/FieldType';
+import TrueFalse from './trueFalse.vue';
 
 const fields: FieldDefinition[] = [
     {
