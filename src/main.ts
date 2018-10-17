@@ -1,13 +1,12 @@
 import '@babel/polyfill';
+import 'material-design-icons-iconfont/dist/material-design-icons.css';
+import 'roboto-fontface/css/roboto/roboto-fontface.css';
 import Vue from 'vue';
-import './plugins/vuetify'
-import './plugins/vuetify';
 import App from './App.vue';
+import './plugins/vuetify';
+import './registerServiceWorker';
 import router from './router';
 import store from './store';
-import './registerServiceWorker';
-import 'roboto-fontface/css/roboto/roboto-fontface.css'
-import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
 Vue.config.productionTip = false;
 
