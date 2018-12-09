@@ -1,5 +1,5 @@
 import { Prop, Vue } from 'vue-property-decorator';
-import { Answer, Question } from '@/base-course/Course';
+import { Answer, Question } from '@/base-course/Displayable';
 import { QuestionView } from '@/base-course/Viewable';
 import { log } from 'util';
 

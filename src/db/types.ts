@@ -1,4 +1,4 @@
-import { Answer } from '@/base-course/Course';
+import { Answer } from '@/base-course/Displayable';
 import { Moment } from 'moment';
 
 export enum DocType {

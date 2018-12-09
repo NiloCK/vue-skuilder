@@ -1,4 +1,4 @@
-import { Displayable, Question, Answer } from '@/base-course/Course';
+import { Displayable, Question, Answer } from '@/base-course/Displayable';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { QuestionRecord, CardRecord } from '@/db/types';
 import moment, { duration } from 'moment';
@@ -69,4 +69,5 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
 // tslint:disable-next-line:max-classes-per-file
 export abstract class InformationView<D extends Displayable> extends Viewable {
     // is there anything to do here?
+    public abstract get displayable(): D;
 }

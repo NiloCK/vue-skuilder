@@ -1,52 +1,16 @@
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
+// import BasicCard from '@/base-course/CardTypes/BasicCard';
 import Vue, { VueConstructor } from 'vue';
+import BasicCard, { CardTypes } from '@/base-course/CardTypes/BasicCard';
+import { Displayable } from '@/base-course/Displayable';
 
-export abstract class Answer { }
 
-// tslint:disable-next-line:max-classes-per-file
-export abstract class Displayable {
-    public static dataShapes: DataShape[];
-
-    public static views: Array<VueConstructor<Vue>>;
-
-    /**
-     *
-     */
-    constructor(viewData: ViewData[]) {
-        if (viewData.length === 0) {
-            throw new Error(`
-Displayable Constructor was called with no view Data.
-            `);
-        }
-        validateData(this.dataShapes(), viewData);
-    }
-
-    public abstract dataShapes(): DataShape[];
-    public abstract views(): Array<VueConstructor<Vue>>;
-}
-
-function validateData(shape: DataShape[], data: ViewData[]) {
-    for (let i = 0; i < shape.length; i++) {
-        shape[i].fields.forEach((field) => {
-            if (data[i][field.name] === undefined) {
-                throw new Error(`field validation failed: ${field.name}`);
-            }
-        });
-    }
-}
-
-// tslint:disable-next-line:max-classes-per-file
-export abstract class Question extends Displayable {
-    public abstract isCorrect(answer: Answer): boolean;
-}
 
 // tslint:disable-next-line:max-classes-per-file
 export class Course {
-    public readonly name: string;
-    private readonly questionList: Array<typeof Question>;
 
-    public get questions(): Array<typeof Question> {
+    public get questions(): Array<typeof Displayable> {
         return this.questionList;
     }
 
@@ -75,16 +39,24 @@ export class Course {
 
         return ret;
     }
+    public readonly name: string;
+    private readonly questionList: Array<typeof Displayable>;
 
-    constructor(name: string, questionList: Array<typeof Question>) {
+    constructor(name: string, questionList: Array<typeof Displayable>) {
         this.name = name;
         this.questionList = questionList;
+
+        this.questionList.concat(this.getBaseQTypes());
     }
 
-    public getQuestion(name: string): typeof Question | undefined {
+    public getQuestion(name: string): typeof Displayable | undefined {
         return this.questionList.find((question) => {
             return question.name === name;
         });
+    }
+
+    private getBaseQTypes(): Array<typeof Displayable> {
+        return [BasicCard];
     }
 
 }

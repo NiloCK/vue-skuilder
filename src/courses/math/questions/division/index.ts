@@ -1,4 +1,4 @@
-import { Question, Answer } from '@/base-course/Course';
+import { Question, Answer } from '@/base-course/Displayable';
 import { randomInt } from '@/courses/math/utility';
 import { DataShapeData } from '@/db/types';
 import { FieldType } from '@/enums/FieldType';

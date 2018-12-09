@@ -1,4 +1,4 @@
-import { Question, Answer } from '@/base-course/Course';
+import { Question, Answer } from '@/base-course/Displayable';
 import { DataShapeName } from '@/enums/DataShapeNames';
 import { FieldType } from '@/enums/FieldType';
 import { ViewData } from '@/base-course/Interfaces/ViewData';

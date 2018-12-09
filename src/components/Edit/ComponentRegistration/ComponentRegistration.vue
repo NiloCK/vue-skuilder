@@ -48,7 +48,7 @@ import { DataShape } from '@/base-course/Interfaces/DataShape';
 import Courses, { NameSpacer } from '@/courses';
 import { getDataShapes, getDoc, putDataShape, putQuestionType } from '@/db';
 import * as _ from 'lodash';
-import { Question } from '@/base-course/Course';
+import { Question, Displayable } from '@/base-course/Displayable';
 import { QuestionData, QuestionRecord } from '@/db/types';
 
 interface DataShapeRegistrationStatus {
@@ -59,7 +59,7 @@ interface DataShapeRegistrationStatus {
 
 interface QuestionRegistrationStatus {
   name: string;
-  question: typeof Question;
+  question: typeof Displayable;
   registered: boolean;
 }
 

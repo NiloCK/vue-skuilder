@@ -1,4 +1,4 @@
-import { Question } from '@/base-course/Course';
+import { Displayable } from '@/base-course/Displayable';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { NameSpacer } from '@/courses';
 import {
@@ -74,7 +74,7 @@ export function getDoc
     return remote.get<T>(id, options);
 }
 
-export async function putQuestionType(course: string, question: typeof Question) {
+export async function putQuestionType(course: string, question: typeof Displayable) {
     const questionID = NameSpacer.getQuestionString({
         course,
         questionType: question.name
