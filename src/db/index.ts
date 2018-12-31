@@ -45,7 +45,7 @@ export function getUserDB(username: string): PouchDB.Database {
 
     const hexName = hexEncode(username);
     const dbName = `userdb-${hexName}`;
-    log(`Fetching user database: ${dbName}`);
+    log(`Fetching user database: ${dbName} (${username})`);
 
     // odd construction here the result of a bug in the
     // interaction between pouch, pouch-auth.
@@ -66,7 +66,8 @@ export function remoteDBSignup(
     username: string,
     password: string,
     options?: PouchDB.Authentication.PutUserOptions) {
-    return remote.signUp(username, password, options);
+    // return remote.signUp(username, password, options);
+    return remote.signUp(username, password);
 }
 
 export function getDoc
