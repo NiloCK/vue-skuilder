@@ -26,9 +26,6 @@ import SimpleMDE from 'simplemde';
 
 @Component
 export default class MarkdownInput extends FieldInput {
-    // public $refs: {
-    //     inputField: HTMLTextAreaElement
-    // }
 
     public get validators() {
         const ret = super.validators;
