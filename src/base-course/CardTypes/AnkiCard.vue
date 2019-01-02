@@ -6,6 +6,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
+import Viewable from '@/base-course/Viewable';
 
 interface AnkiField {
   font: string;
@@ -172,7 +173,7 @@ const noteData = {
 };
 
 @Component({})
-export default class AnkiCard extends Vue {
+export default class AnkiCard extends Viewable {
 
 }
 </script>
