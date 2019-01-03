@@ -45,9 +45,9 @@
                 v-model="retypedPassword"
             ></v-text-field>
 
-            <v-checkbox label="Student" v-model="student" ></v-checkbox>
+            <!-- <v-checkbox label="Student" v-model="student" ></v-checkbox>
             <v-checkbox label="Teacher" v-model="teacher" ></v-checkbox>
-            <v-checkbox label="Author" v-model="author" ></v-checkbox>
+            <v-checkbox label="Author" v-model="author" ></v-checkbox> -->
 
             <v-snackbar
                 v-model="badLoginAttempt"
@@ -158,6 +158,8 @@ Author: ${this.author}
 
     if (this.password === this.retypedPassword) {
       const options: PouchDB.Authentication.PutUserOptions = {};
+      // couchdb objects at non-admin creation of 'roles'
+      // will need a different approach here
       options.roles = [];
       if (this.student) { options.roles.push('student'); }
       if (this.author) { options.roles.push('author'); }
