@@ -3,8 +3,11 @@
     <h1>Study:</h1>
     <br>
     <card-viewer
+        id="cardViewer"
         v-bind:view="view"
         v-bind:data="data"
+        v-bind:card_id="cardID"
+        v-bind:sessionOrder="cardCount"
         v-on:emitResponse="processResponse($event)"
     />
   </div>
@@ -22,82 +25,79 @@ import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/Vi
 import { log } from 'util';
 
 function randInt(n: number) {
-    return Math.floor(Math.random() * n);
+  return Math.floor(Math.random() * n);
 }
 
 @Component({
-    components: {
-        CardViewer
-    }
+  components: {
+    CardViewer
+  }
 })
 export default class Study extends Vue {
-    public view: VueConstructor<Vue>;
+  public view: VueConstructor<Vue>;
+  public data: ViewData[] = [];
+  public cardID: PouchDB.Core.DocumentId = '';
+  public cardCount: number = 1;
 
-    public data: ViewData[] = [];
-    private cardID: PouchDB.Core.DocumentId = '';
+  public created() {
+    this.loadRandomCard();
+  }
 
-    public created() {
+  private isQuestionRecord(r: CardRecord): r is QuestionRecord {
+    return (r as QuestionRecord).userAnswer !== undefined;
+  }
+
+  private processResponse(r: CardRecord) {
+    r.cardID = this.cardID;
+    log(`Study.processResponse is running...`);
+    this.logCardRecordToDB(r);
+
+    if (this.isQuestionRecord(r)) {
+      log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
+      if (r.isCorrect) {
         this.loadRandomCard();
+      }
+    } else {
+      this.loadRandomCard();
     }
+  }
 
-    private isQuestionRecord(r: CardRecord): r is QuestionRecord {
-        return (r as QuestionRecord).userAnswer !== undefined;
-    }
+  private logCardRecordToDB(r: CardRecord) {
+    putCardRecord(r, this.$store.state.user);
+  }
 
-    private processResponse(r: CardRecord) {
-        r.cardID = this.cardID;
-        log(`Study.processResponse is running...`);
-        this.logCardRecordToDB(r);
-
-        if (this.isQuestionRecord(r)) {
-            log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
-            if (r.isCorrect) {
-                this.loadRandomCard();
-            }
-        } else {
-            // submit this cardRecord to the db
-            this.loadRandomCard();
-        }
-    }
-
-    private logCardRecordToDB(r: CardRecord) {
-        putCardRecord(r, this.$store.state.user);
-    }
-
-    private loadRandomCard() {
-        getCards().then((results) => {
-            return results.docs[
-                randInt(results.docs.length)
-            ];
-        }).then((doc) => {
-            log(`
+  private loadRandomCard() {
+    getCards().then((results) => {
+      return results.docs[
+        randInt(results.docs.length)
+      ];
+    }).then((doc) => {
+      log(`
 DocID ${doc._id} has been picked...
             `);
-            this.cardID = doc._id;
-            return getDoc<CardData>(doc._id);
-        }).then((cardData) => {
-            this.view = Courses.getView(cardData.id_view);
-            return cardData.id_displayable_data;
-        }).then((displayables) => {
-            return displayables.map((id) => {
-                return getDoc<DisplayableData>(id, {
-                    attachments: true,
-                    binary: true
-                });
-            });
-        }).then((displayDocs) => {
-            displayDocs.forEach((promiseDoc) => {
-                promiseDoc.then((doc) => {
-                    this.data.unshift(
-                        displayableDataToViewData(doc)
-                    );
-                    this.data = this.data.slice(0, displayDocs.length);
-                });
-            });
+      this.cardID = doc._id;
+      this.cardCount++;
+      return getDoc<CardData>(doc._id);
+    }).then((cardData) => {
+      this.view = Courses.getView(cardData.id_view);
+      return cardData.id_displayable_data;
+    }).then((displayableData) => {
+      return displayableData.map((id) => {
+        return getDoc<DisplayableData>(id, {
+          attachments: true,
+          binary: true
         });
-    }
+      });
+    }).then((displayDocs) => {
+      displayDocs.forEach((promiseDoc) => {
+        promiseDoc.then((doc) => {
+          this.data.unshift(
+            displayableDataToViewData(doc)
+          );
+          this.data = this.data.slice(0, displayDocs.length);
+        });
+      });
+    });
+  }
 }
 </script>
-
-<style scoped>
-</style>

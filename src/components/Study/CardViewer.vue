@@ -5,6 +5,7 @@
                 class='cardView'
                 :is="view"
                 v-bind:data="data"
+                v-bind:key="card_id + '-' + sessionOrder"
                 v-on:emitResponse="processResponse($event)"
             />    
         </transition>
@@ -21,26 +22,31 @@ import { CardRecord } from '@/db/types';
 import { log } from 'util';
 
 @Component({
-    components: Courses.allViews()
+  components: Courses.allViews()
 })
 export default class CardViewer extends Vue {
-    @Prop() public view: VueConstructor<Viewable>;
-    @Prop() public data: ViewData[];
+  @Prop({
+    required: false
+  }) public sessionOrder: number = 0;
+  @Prop({
+    required: false
+  }) public card_id: PouchDB.Core.DocumentId = '';
+  @Prop() public view: VueConstructor<Viewable>;
+  @Prop() public data: ViewData[];
 
-    @Emit('emitResponse')
-    private processResponse(r: CardRecord) {
-        log(`
+  @Emit('emitResponse')
+  private processResponse(r: CardRecord) {
+    log(`
         Card was displayed at ${r.timeStamp}
         User spent ${r.timeSpent} milliseconds with the card.
         `);
-    }
+  }
 }
 </script>
 
 <style scoped>
 .cardView {
   padding: 15px;
-  /* border: 2px solid black; */
   border-radius: 8px;
 }
 
