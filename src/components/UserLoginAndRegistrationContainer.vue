@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="$store.state.user === 'Guest'">
+        <div v-if="$store.state.user === GuestUsername">
             <v-dialog
                 v-model="registrationDialog"
                 width="500px"
@@ -40,31 +40,34 @@ import UserLogin from './UserLogin.vue';
 import UserRegistration from './UserRegistration.vue';
 import Component from 'vue-class-component';
 import UserChip from './UserChip.vue';
+import { GuestUsername } from '@/store';
 
 @Component({
-    components: {
-        UserLogin,
-        UserRegistration,
-        UserChip
-    }
+  components: {
+    UserLogin,
+    UserRegistration,
+    UserChip
+  }
 })
 export default class UserLoginAndRegistrationContainer extends Vue {
-    private registrationDialog: boolean = false;
-    private loginDialog: boolean = false;
+  private readonly GuestUsername: string = GuestUsername;
 
-    private toggle() {
-        if (this.registrationDialog && this.loginDialog) {
-            throw new Error(`
+  private registrationDialog: boolean = false;
+  private loginDialog: boolean = false;
+
+  private toggle() {
+    if (this.registrationDialog && this.loginDialog) {
+      throw new Error(`
 Registration / Login dialogs both activated.
 `);
-        } else if (this.registrationDialog === this.loginDialog) {
-            throw new Error(`
+    } else if (this.registrationDialog === this.loginDialog) {
+      throw new Error(`
 Registration / Login dialogs toggled while both were dormant.
 `);
-        } else {
-            this.registrationDialog = !this.registrationDialog;
-            this.loginDialog = !this.loginDialog;
-        }
+    } else {
+      this.registrationDialog = !this.registrationDialog;
+      this.loginDialog = !this.loginDialog;
     }
+  }
 }
 </script>

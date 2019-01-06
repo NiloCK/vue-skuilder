@@ -12,6 +12,7 @@ import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
 import { log } from 'util';
+import { GuestUsername } from '@/store';
 
 (window as any).process = process; // required as a fix for pouchdb - see #18
 
@@ -31,6 +32,10 @@ const remote: PouchDB.Database = new pouch(
 const local: PouchDB.Database = new pouch('local');
 
 export function getUserDB(username: string): PouchDB.Database {
+    if (username === GuestUsername) {
+        username = accomodateGuest(username);
+    }
+
     function hexEncode(str: string): string {
         let hex: string;
         let ret: string = '';
@@ -56,6 +61,38 @@ export function getUserDB(username: string): PouchDB.Database {
             return (pouch as any).fetch(url, opts);
         }
     } as PouchDB.Configuration.RemoteDatabaseConfiguration);
+}
+
+function accomodateGuest(username: string) {
+    const dbUUID = 'dbUUID';
+
+    if (localStorage.getItem(dbUUID) !== null) {
+        username = GuestUsername + localStorage.getItem(dbUUID);
+        remoteDBLogin(username, localStorage.getItem(dbUUID)!);
+    } else {
+        const uuid = generateUUID();
+        localStorage.setItem(dbUUID, uuid);
+        username = GuestUsername + uuid;
+        remoteDBSignup(username, uuid);
+        remoteDBLogin(username, uuid);
+    }
+
+    return username;
+
+    // pilfered from https://stackoverflow.com/a/8809472/1252649
+    function generateUUID() {
+        let d = new Date().getTime();
+        if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+            d += performance.now(); // use high-precision timer if available
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+            // tslint:disable-next-line:no-bitwise
+            const r = (d + Math.random() * 16) % 16 | 0;
+            d = Math.floor(d / 16);
+            // tslint:disable-next-line:no-bitwise
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+    }
 }
 
 export function remoteDBLogin(username: string, password: string) {
