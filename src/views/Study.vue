@@ -2,14 +2,15 @@
   <div class="Study">
     <h1>Study:</h1>
     <br>
-    <card-viewer
-        id="cardViewer"
-        v-bind:view="view"
-        v-bind:data="data"
-        v-bind:card_id="cardID"
-        v-bind:sessionOrder="cardCount"
-        v-on:emitResponse="processResponse($event)"
-    />
+    <div ref="shadowWrapper">
+      <card-viewer
+          v-bind:view="view"
+          v-bind:data="data"
+          v-bind:card_id="cardID"
+          v-bind:sessionOrder="cardCount"
+          v-on:emitResponse="processResponse($event)"
+      />
+    </div>
   </div>
 </template>
 
@@ -39,6 +40,10 @@ export default class Study extends Vue {
   public cardID: PouchDB.Core.DocumentId = '';
   public cardCount: number = 1;
 
+  public $refs: {
+    shadowWrapper: HTMLDivElement
+  };
+
   public created() {
     this.loadRandomCard();
   }
@@ -55,11 +60,19 @@ export default class Study extends Vue {
     if (this.isQuestionRecord(r)) {
       log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
       if (r.isCorrect) {
+        this.$refs.shadowWrapper.classList.add('correct');
         this.loadRandomCard();
+      } else {
+        this.$refs.shadowWrapper.classList.add('incorrect');
+        // clear user input?
       }
     } else {
       this.loadRandomCard();
     }
+
+    setTimeout(() => {
+      this.$refs.shadowWrapper.classList.remove('correct', 'incorrect');
+    }, 1250);
   }
 
   private logCardRecordToDB(r: CardRecord) {
@@ -101,3 +114,34 @@ DocID ${doc._id} has been picked...
   }
 }
 </script>
+
+<style scoped>
+.correct {
+  animation: greenFade 1250ms ease-out;
+}
+
+.incorrect {
+  animation: purpleFade 1250ms ease-out;
+}
+
+@keyframes greenFade {
+  0% {
+    box-shadow: rgba(0, 150, 0, 0.25) 0px 7px 8px -4px,
+      rgba(0, 150, 0, 0.25) 0px 12px 17px 2px,
+      rgba(0, 150, 0, 0.25) 0px 5px 22px 4px;
+  }
+  100% {
+    box-shadow: rgba(0, 150, 0, 0) 0px 0px;
+  }
+}
+@keyframes purpleFade {
+  0% {
+    box-shadow: rgba(115, 0, 75, 0.25) 0px 7px 8px -4px,
+      rgba(115, 0, 75, 0.25) 0px 12px 17px 2px,
+      rgba(115, 0, 75, 0.25) 0px 5px 22px 4px;
+  }
+  100% {
+    box-shadow: rgba(115, 0, 75, 0) 0px 0px;
+  }
+}
+</style>
