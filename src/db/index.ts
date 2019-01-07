@@ -2,17 +2,23 @@ import { Displayable } from '@/base-course/Displayable';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { NameSpacer } from '@/courses';
 import {
-    CardData, CardRecord, DataShapeData,
-    DisplayableData, DocType, QuestionData, SkuilderCourseData
+    CardData,
+    CardRecord,
+    DataShapeData,
+    DisplayableData,
+    DocType,
+    QuestionData,
+    SkuilderCourseData
 } from '@/db/types';
 import { FieldType } from '@/enums/FieldType';
 import { debug_mode, remote_couch_url } from '@/ENVIRONMENT_VARS';
+import { GuestUsername } from '@/store';
+import moment from 'moment';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
 import { log } from 'util';
-import { GuestUsername } from '@/store';
 
 (window as any).process = process; // required as a fix for pouchdb - see #18
 
@@ -32,20 +38,22 @@ const remote: PouchDB.Database = new pouch(
 const local: PouchDB.Database = new pouch('local');
 
 export function getUserDB(username: string): PouchDB.Database {
+    let guestAccount: boolean = false;
     if (username === GuestUsername) {
         username = accomodateGuest(username);
+        guestAccount = true;
     }
 
     function hexEncode(str: string): string {
         let hex: string;
-        let ret: string = '';
+        let returnStr: string = '';
 
         for (let i = 0; i < str.length; i++) {
             hex = str.charCodeAt(i).toString(16);
-            ret += ('000' + hex).slice(3);
+            returnStr += ('000' + hex).slice(3);
         }
 
-        return ret;
+        return returnStr;
     }
 
     const hexName = hexEncode(username);
@@ -55,12 +63,36 @@ export function getUserDB(username: string): PouchDB.Database {
     // odd construction here the result of a bug in the
     // interaction between pouch, pouch-auth.
     // see: https://github.com/pouchdb-community/pouchdb-authentication/issues/239
-    return new pouch(remote_couch_url + dbName, {
+    const ret = new pouch(remote_couch_url + dbName, {
         fetch(url: any, opts: any) {
             opts.credentials = 'include';
             return (pouch as any).fetch(url, opts);
         }
     } as PouchDB.Configuration.RemoteDatabaseConfiguration);
+
+    if (guestAccount) {
+        updateGuestAccountExpirationDate(ret);
+    }
+
+    return ret;
+}
+
+function updateGuestAccountExpirationDate(ret: PouchDB.Database<{}>) {
+    const expiryDocID: string = 'GuestAccountExpirationDate';
+    const currentTime = moment();
+    const expirationDate: string = currentTime.add(6, 'months').toISOString();
+    ret.get(expiryDocID).then((doc) => {
+        ret.put({
+            _id: expiryDocID,
+            _rev: doc._rev,
+            date: expirationDate
+        });
+    }).catch((err: PouchDB.Core.Error) => {
+        ret.put({
+            _id: expiryDocID,
+            date: expirationDate
+        });
+    });
 }
 
 function accomodateGuest(username: string) {
