@@ -35,12 +35,12 @@ const remote: PouchDB.Database = new pouch(
         skip_setup: true
     }
 );
-const local: PouchDB.Database = new pouch('local');
+const localUserDB: PouchDB.Database = new pouch('skuilder');
 
 export function getUserDB(username: string): PouchDB.Database {
     let guestAccount: boolean = false;
     if (username === GuestUsername) {
-        username = accomodateGuest(username);
+        username = accomodateGuest();
         guestAccount = true;
     }
 
@@ -79,26 +79,28 @@ export function getUserDB(username: string): PouchDB.Database {
     return ret;
 }
 
-function updateGuestAccountExpirationDate(ret: PouchDB.Database<{}>) {
+function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) {
     const expiryDocID: string = 'GuestAccountExpirationDate';
     const currentTime = moment();
     const expirationDate: string = currentTime.add(6, 'months').toISOString();
-    ret.get(expiryDocID).then((doc) => {
-        ret.put({
+    guestDB.get(expiryDocID).then((doc) => {
+        guestDB.put({
             _id: expiryDocID,
             _rev: doc._rev,
             date: expirationDate
         });
     }).catch((err: PouchDB.Core.Error) => {
-        ret.put({
+        guestDB.put({
             _id: expiryDocID,
             date: expirationDate
         });
     });
 }
 
-function accomodateGuest(username: string) {
-    const dbUUID = 'dbUUID';
+const dbUUID = 'dbUUID';
+
+function accomodateGuest() {
+    let username: string;
 
     if (localStorage.getItem(dbUUID) !== null) {
         username = GuestUsername + localStorage.getItem(dbUUID);
@@ -137,8 +139,17 @@ export function remoteDBSignup(
     username: string,
     password: string,
     options?: PouchDB.Authentication.PutUserOptions) {
-    // return remote.signUp(username, password, options);
-    return remote.signUp(username, password);
+
+    const newDB = remote.signUp(username, password);
+
+    newDB.then((resp) => {
+        if (resp.ok) {
+            pouch.replicate(localUserDB, getUserDB(username));
+        }
+    });
+
+    return newDB;
+
 }
 
 export function getDoc

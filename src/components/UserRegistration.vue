@@ -79,7 +79,11 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import { remoteDBLogin, remoteDBSignup, doesUserExist, getUserDB } from '@/db';
+import {  remoteDBLogin,
+  remoteDBSignup,
+  doesUserExist,
+  getUserDB
+} from '@/db';
 import { log } from 'util';
 import { AppState } from '@/store';
 import { Emit } from 'vue-property-decorator';
@@ -173,6 +177,8 @@ Author: ${this.author}
             log(`User ${this.username} created`);
             this.$store.state.user = this.username;
           }
+        }).catch((err) => {
+          log(`User ${this.username} NOT created`);
         });
     } else {
       alert('Passwords do not match');
