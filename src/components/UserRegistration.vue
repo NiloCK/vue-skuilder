@@ -122,26 +122,28 @@ export default class UserRegistration extends Vue {
   }
 
   private validateUsername() {
-    this.usernameValidationInProgress = true;
-    this.$refs.userNameTextField.loading = true;
+    // the below does not work. Complaints of admin credentials.
 
-    try {
-      getUserDB(this.username).allDocs();
-    } catch (e) {
-      alert('no userdb!');
-    }
+    // this.usernameValidationInProgress = true;
+    // this.$refs.userNameTextField.loading = true;
 
-    doesUserExist(this.username).then((exists) => {
-      if (exists) {
-        log('name is taken :(');
-        this.$refs.userNameTextField.error = true;
-      } else {
-        log('name is available');
-        this.$refs.userNameTextField.appendIcon = 'done';
-      }
-      this.usernameValidationInProgress = false;
-    });
-    this.$refs.userNameTextField.loading = false;
+    // try {
+    //   getUserDB(this.username).allDocs();
+    // } catch (e) {
+    //   alert('no userdb!');
+    // }
+
+    // doesUserExist(this.username).then((exists) => {
+    //   if (exists) {
+    //     log('name is taken :(');
+    //     this.$refs.userNameTextField.error = true;
+    //   } else {
+    //     log('name is available');
+    //     this.$refs.userNameTextField.appendIcon = 'done';
+    //   }
+    //   this.usernameValidationInProgress = false;
+    // });
+    // this.$refs.userNameTextField.loading = false;
   }
 
   private createUser() {
