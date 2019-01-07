@@ -74,6 +74,8 @@ export function getUserDB(username: string): PouchDB.Database {
         updateGuestAccountExpirationDate(ret);
     }
 
+    pouch.replicate(ret, localUserDB);
+
     return ret;
 }
 
