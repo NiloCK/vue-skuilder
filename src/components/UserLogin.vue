@@ -47,7 +47,7 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import { alertUser } from '@/components/SnackbarService.vue';
-import { remoteDBLogin, remoteDBSignup } from '@/db';
+import { remoteDBLogin } from '@/db';
 import { log } from 'util';
 import { AppState } from '@/store';
 import { Emit } from 'vue-property-decorator';
@@ -55,53 +55,53 @@ import { Status } from '@/enums/Status';
 
 @Component({})
 export default class UserLogin extends Vue {
-    private username: string = '';
-    private password: string = '';
-    private retypedPassword: string = '';
-    private passwordVisible: boolean = false;
+  private username: string = '';
+  private password: string = '';
+  private retypedPassword: string = '';
+  private passwordVisible: boolean = false;
 
-    private awaitingResponse: boolean = false;
-    private badLoginAttempt: boolean = false;
-    private readonly errorTimeout: number = 5000;
+  private awaitingResponse: boolean = false;
+  private badLoginAttempt: boolean = false;
+  private readonly errorTimeout: number = 5000;
 
-    private initBadLogin() {
-        this.badLoginAttempt = true;
-        alertUser({
-            text: 'Username or password was incorrect.',
-            status: Status.error,
-            timeout: this.errorTimeout
-        });
-        setTimeout(() => {
-            this.badLoginAttempt = false;
-        }, this.errorTimeout);
-    }
+  private initBadLogin() {
+    this.badLoginAttempt = true;
+    alertUser({
+      text: 'Username or password was incorrect.',
+      status: Status.error,
+      timeout: this.errorTimeout
+    });
+    setTimeout(() => {
+      this.badLoginAttempt = false;
+    }, this.errorTimeout);
+  }
 
-    private login() {
-        this.awaitingResponse = true;
-        remoteDBLogin(this.username, this.password).
-            then((resp) => {
-                if (resp.ok) {
-                    this.$store.state.user = this.username;
-                } else {
-                    this.initBadLogin();
-                }
-                log('Logged in: ' + resp.ok);
-            }).catch((err) => {
-                this.initBadLogin();
-            });
-        this.awaitingResponse = false;
-    }
+  private login() {
+    this.awaitingResponse = true;
+    remoteDBLogin(this.username, this.password).
+      then((resp) => {
+        if (resp.ok) {
+          this.$store.state.user = this.username;
+        } else {
+          this.initBadLogin();
+        }
+        log('Logged in: ' + resp.ok);
+      }).catch((err) => {
+        this.initBadLogin();
+      });
+    this.awaitingResponse = false;
+  }
 
-    private get buttonStatus() {
-        return {
-            color: this.badLoginAttempt ? 'error' : 'success',
-            text: this.badLoginAttempt ? 'Try again' : 'Log In'
-        };
-    }
+  private get buttonStatus() {
+    return {
+      color: this.badLoginAttempt ? 'error' : 'success',
+      text: this.badLoginAttempt ? 'Try again' : 'Log In'
+    };
+  }
 
-    @Emit() // tslint:disable-next-line:no-empty
-    private toggle() {
-        log('Toggling registration / login forms.');
-    }
+  @Emit() // tslint:disable-next-line:no-empty
+  private toggle() {
+    log('Toggling registration / login forms.');
+  }
 }
 </script>
