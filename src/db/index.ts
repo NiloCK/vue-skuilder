@@ -29,6 +29,9 @@ if (debug_mode) {
     // pouch.debug.enable('pouchdb:find');
 }
 
+const expiryDocID: string = 'GuestAccountExpirationDate';
+const dbUUID = 'dbUUID';
+
 const remote: PouchDB.Database = new pouch(
     remote_couch_url + 'skuilder',
     {
@@ -80,9 +83,9 @@ export function getUserDB(username: string): PouchDB.Database {
 }
 
 function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) {
-    const expiryDocID: string = 'GuestAccountExpirationDate';
     const currentTime = moment();
-    const expirationDate: string = currentTime.add(6, 'months').toISOString();
+    const expirationDate: string = currentTime.add(2, 'months').toISOString();
+
     guestDB.get(expiryDocID).then((doc) => {
         guestDB.put({
             _id: expiryDocID,
@@ -97,7 +100,6 @@ function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) {
     });
 }
 
-const dbUUID = 'dbUUID';
 
 function accomodateGuest() {
     let username: string;
@@ -140,15 +142,21 @@ export function remoteDBSignup(
     password: string,
     options?: PouchDB.Authentication.PutUserOptions) {
 
-    const newDB = remote.signUp(username, password);
+    const newDBRequest = remote.signUp(username, password);
 
-    newDB.then((resp) => {
+    newDBRequest.then((resp) => {
         if (resp.ok) {
-            pouch.replicate(localUserDB, getUserDB(username));
+            localUserDB.get(expiryDocID).then((doc) => {
+                return localUserDB.remove(doc._id, doc._rev);
+            }).then(() => {
+                localUserDB.replicate.to(getUserDB(username));
+            }).catch(() => {
+                localUserDB.replicate.to(getUserDB(username));
+            });
         }
     });
 
-    return newDB;
+    return newDBRequest;
 
 }
 
