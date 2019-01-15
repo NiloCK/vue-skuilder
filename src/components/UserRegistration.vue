@@ -30,7 +30,7 @@
                 hint=""
                 min="4"
                 :append-icon="passwordVisible ? 'visibility_off' : 'visibility'"
-                :append-icon-cb="() => (passwordVisible = !passwordVisible)"
+                @click:append="() => (passwordVisible = !passwordVisible)"
                 :type="passwordVisible ? 'text' : 'password'"
                 v-model="password"
             ></v-text-field>
