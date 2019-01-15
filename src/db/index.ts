@@ -47,16 +47,23 @@ export function getUserDB(username: string): PouchDB.Database {
         guestAccount = true;
     }
 
-    function hexEncode(str: string): string {
-        let hex: string;
-        let returnStr: string = '';
+function hexEncode(str: string): string {
+    let hex: string;
+    let returnStr: string = '';
 
-        for (let i = 0; i < str.length; i++) {
-            hex = str.charCodeAt(i).toString(16);
-            returnStr += ('000' + hex).slice(3);
-        }
+    for (let i = 0; i < str.length; i++) {
+        hex = str.charCodeAt(i).toString(16);
+        returnStr += ('000' + hex).slice(3);
+    }
 
-        return returnStr;
+    return returnStr;
+}
+
+export function getUserDB(username: string): PouchDB.Database {
+    let guestAccount: boolean = false;
+    if (username === GuestUsername) {
+        username = accomodateGuest();
+        guestAccount = true;
     }
 
     const hexName = hexEncode(username);
@@ -80,6 +87,19 @@ export function getUserDB(username: string): PouchDB.Database {
     pouch.replicate(ret, localUserDB);
 
     return ret;
+}
+
+/**
+ * Checks the remote couchdb to see if a given username is available
+ * @param username The username to be checked
+ */
+export async function usernameIsAvailable(username: string): Promise<boolean> {
+    log(`Checking availability of ${username}`);
+    const req = new XMLHttpRequest();
+    const url = remote_couch_url + 'userdb-' + hexEncode(username);
+    req.open('HEAD', url, false);
+    req.send();
+    return req.status === 404;
 }
 
 function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) {
