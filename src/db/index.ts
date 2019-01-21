@@ -40,13 +40,6 @@ const remote: PouchDB.Database = new pouch(
 );
 const localUserDB: PouchDB.Database = new pouch('skuilder');
 
-export function getUserDB(username: string): PouchDB.Database {
-    let guestAccount: boolean = false;
-    if (username === GuestUsername) {
-        username = accomodateGuest();
-        guestAccount = true;
-    }
-
 function hexEncode(str: string): string {
     let hex: string;
     let returnStr: string = '';
@@ -156,6 +149,11 @@ function accomodateGuest() {
 export function remoteDBLogin(username: string, password: string) {
     return remote.logIn(username, password);
 }
+
+function CreateClassroom(className: string) {
+    return new pouch(remote_couch_url + 'className');
+}
+
 
 export function remoteDBSignup(
     username: string,
