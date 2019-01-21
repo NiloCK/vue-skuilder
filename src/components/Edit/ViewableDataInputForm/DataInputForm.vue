@@ -153,7 +153,7 @@ export default class DataInputForm extends Vue {
 
   @Watch('dataShape')
   public onDataShapeChange(value?: DataShape, old?: DataShape) {
-    this.getExistingNotesFromDB();
+    // this.getExistingNotesFromDB();
     this.getImplementingViews();
   }
 

@@ -10,10 +10,9 @@
         <div>
           {{`There ${registeredDataShapes.length !== 1 ? 'are' : 'is'} ${registeredDataShapes.length} registered data shape${registeredDataShapes.length === 1 ? '' : 's'} in the course.`}}
         </div>
-        Which data type are you adding?
         <v-select
           v-model="selectedShape"
-          label="Select a data type to add"
+          label="Which data type are you adding?"
           :items="registeredDataShapes.map( (shape) => shape.name )"
         />
 
@@ -40,6 +39,9 @@ import { DataShapeData } from '@/db/types';
 import ComponentRegistration from '@/components/Edit/ComponentRegistration/ComponentRegistration.vue';
 import _ from 'lodash';
 import { DataShapeName } from '@/enums/DataShapeNames';
+import BasicCard from '@/base-course/CardTypes/BasicCard';
+import { FieldType } from '@/enums/FieldType';
+import BaseCards from '@/base-course/CardTypes';
 
 @Component({
   components: {
@@ -52,10 +54,17 @@ export default class CourseEditor extends Vue {
   public registeredDataShapes: DataShape[] = [];
   public dataShapes: DataShape[] = [];
   public selectedShape: string = '';
-  private loading: boolean = true;
+  private loading: boolean = true; // datashapes are loading on init
   private editingMode: boolean = true;
 
   public created() {
+    // this.dataShapes = BaseCards.dataShapes;
+    // this.registeredDataShapes = BaseCards.dataShapes;
+    BaseCards.dataShapes.forEach((shape) => {
+      this.dataShapes.push(shape);
+      this.registeredDataShapes.push(shape);
+    });
+
     Courses.getCourse(this.course)!.questions.forEach((question) => {
       question.dataShapes.forEach((dataShape) => {
         this.dataShapes.push(dataShape);
