@@ -11,7 +11,7 @@ import {
     SkuilderCourseData
 } from '@/db/types';
 import { FieldType } from '@/enums/FieldType';
-import { debug_mode, remote_couch_url } from '@/ENVIRONMENT_VARS';
+import ENV from '@/ENVIRONMENT_VARS';
 import { GuestUsername } from '@/store';
 import moment from 'moment';
 import PouchDBAuth from 'pouchdb-authentication';
@@ -25,7 +25,7 @@ import { log } from 'util';
 pouch.plugin(PouchDBAuth);
 pouch.plugin(PouchDBFind);
 
-if (debug_mode) {
+if (ENV.DEBUG) {
     // pouch.debug.enable('pouchdb:find');
 }
 
@@ -33,7 +33,7 @@ const expiryDocID: string = 'GuestAccountExpirationDate';
 const dbUUID = 'dbUUID';
 
 const remote: PouchDB.Database = new pouch(
-    remote_couch_url + 'skuilder',
+    ENV.COUCHDB_SERVER_URL + 'skuilder',
     {
         skip_setup: true
     }
@@ -66,7 +66,7 @@ export function getUserDB(username: string): PouchDB.Database {
     // odd construction here the result of a bug in the
     // interaction between pouch, pouch-auth.
     // see: https://github.com/pouchdb-community/pouchdb-authentication/issues/239
-    const ret = new pouch(remote_couch_url + dbName, {
+    const ret = new pouch(ENV.COUCHDB_SERVER_URL + dbName, {
         fetch(url: any, opts: any) {
             opts.credentials = 'include';
             return (pouch as any).fetch(url, opts);
@@ -89,7 +89,7 @@ export function getUserDB(username: string): PouchDB.Database {
 export async function usernameIsAvailable(username: string): Promise<boolean> {
     log(`Checking availability of ${username}`);
     const req = new XMLHttpRequest();
-    const url = remote_couch_url + 'userdb-' + hexEncode(username);
+    const url = ENV.COUCHDB_SERVER_URL + 'userdb-' + hexEncode(username);
     req.open('HEAD', url, false);
     req.send();
     return req.status === 404;
@@ -151,7 +151,7 @@ export function remoteDBLogin(username: string, password: string) {
 }
 
 function CreateClassroom(className: string) {
-    return new pouch(remote_couch_url + 'className');
+    return new pouch(ENV.COUCHDB_SERVER_URL + 'className');
 }
 
 
