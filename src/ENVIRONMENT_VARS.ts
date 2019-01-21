@@ -1,5 +1,15 @@
 interface Environment {
+    /**
+     * URL to the remote couchDB instance that the app connects to.
+     *
+     * In development, this can be set as a simple string so that an in-browser
+     * pouch-db instance is used instead.
+     */
     COUCHDB_SERVER_URL: string;
+    /**
+     * A global flag to enable debug messaging mode for different libraries
+     * in the project.
+     */
     DEBUG: boolean;
 }
 
