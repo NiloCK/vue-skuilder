@@ -36,10 +36,11 @@ function demonstratedSkill(response: QuestionRecord) {
     // experts should answer this question in <= 5 secnods (5000 ms)
     // this value will be dynamic, populated from a service
     const expertSpeed = 5000;
+    const userSpeed = Math.min(response.timeSpent, 10 * expertSpeed);
 
     // if userResponse is > 10 x expertSpeed, discount as probably afk / distracted ?
 
-    const speedPenalty = response.timeSpent / expertSpeed;
+    const speedPenalty = userSpeed / expertSpeed;
     const speedPenaltyMultiplier = Math.pow(0.8, speedPenalty);
 
     let ret = response.isCorrect ? 1 : 0;
