@@ -434,5 +434,20 @@ function addCard(
 }
 
 export function putCardRecord<T extends CardRecord>(record: T, user: string) {
-    getUserDB(user).post<CardRecord>(record);
+    const userDB = getUserDB(user);
+    const cardHistoryID = 'cardH-' + record.cardID;
+
+    userDB.get<CardHistory<T>>(cardHistoryID).then((doc) => {
+        doc.records.push(record)
+        userDB.put(doc);
+    }).catch((reason: PouchDB.Core.Error) => {
+        if (reason.status === 404) {
+            userDB.put<CardHistory<T>>(
+                {
+                    _id: cardHistoryID,
+                    cardID: record.cardID,
+                    records: [record]
+                });
+        }
+    });
 }
