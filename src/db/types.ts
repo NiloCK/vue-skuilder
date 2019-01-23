@@ -7,7 +7,9 @@ export enum DocType {
     DATASHAPE = 'DATASHAPE',
     QUESTIONTYPE = 'QUESTION',
     VIEW = 'VIEW',
-    PEDAGOGY = 'PEDAGOGY'
+    PEDAGOGY = 'PEDAGOGY',
+    CARDRECORD = 'CARDRECORD',
+    SCHEDULED_CARD = 'SCHEDULED_CARD'
 }
 
 /**
@@ -60,6 +62,21 @@ export interface QuestionData extends SkuilderCourseData {
     dataShapeList: PouchDB.Core.DocumentId[];
 }
 
+export interface CardHistory<T extends CardRecord> {
+    _id: PouchDB.Core.DocumentId;
+    /**
+     * The CouchDB id of the card
+     */
+    cardID: PouchDB.Core.DocumentId;
+
+    /**
+     * The ID of the course
+     */
+    // courseID: string; // this will be relevant if/when per-course dbs are implemented
+
+    records: T[];
+}
+
 export interface CardRecord {
     /**
      * The CouchDB id of the card
@@ -87,4 +104,8 @@ export interface QuestionRecord extends CardRecord {
      * records being created having 0, 1, and 2 as their
      */
     priorAttemps: number;
+}
+
+export function isQuestionRecord(c: CardRecord): c is QuestionRecord {
+    return (c as QuestionRecord).userAnswer !== undefined;
 }

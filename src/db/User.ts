@@ -1,6 +1,6 @@
 import { Moment } from "moment";
 
-class User {
+export class User {
   email: string;
   username: string;
 
@@ -9,7 +9,9 @@ class User {
   scheduledCards: ScheduledCard[];
 }
 
-class ScheduledCard {
+export interface ScheduledCard {
+  _id: PouchDB.Core.DocumentId;
+
   /**
    * The docID of the card to be reviewed
    */

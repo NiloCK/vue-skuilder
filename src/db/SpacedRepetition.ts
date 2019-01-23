@@ -1,4 +1,4 @@
-import { QuestionRecord } from '@/db/types';
+import { QuestionRecord, CardRecord, isQuestionRecord } from '@/db/types';
 import { duration, Moment } from 'moment';
 
 /**
@@ -7,14 +7,44 @@ import { duration, Moment } from 'moment';
  *
  * @param cardHistory The user's history working with the given card
  */
-function newInterval(cardHistory: QuestionRecord[]): number {
+export function newInterval<T extends CardRecord>(cardHistory: T[]): number {
+    if (isQuestionRecord(cardHistory[0])) {
+        return newQuestionInterval(cardHistory as unknown as QuestionRecord[]);
+    } else {
+        return 10000; // random - replace
+    }
+}
+
+function newQuestionInterval(cardHistory: QuestionRecord[]) {
     const currentAttempt = cardHistory[cardHistory.length - 1];
+    const lastInterval: number = lastSuccessfulInterval(cardHistory);
 
     if (currentAttempt.isCorrect) {
+        const skill = demonstratedSkill(currentAttempt);
+        return lastInterval * (0.5 + skill);
+    } else {
         return 0;
     }
+}
 
-    return 0;
+/**
+ * Returns the amount of time, in seconds, of the most recent successful
+ * interval for this card. An interval is successful if the user answers
+ * a question correctly on the first attempt.
+ * 
+ * @param cardHistory The record of user attempts with the question
+ */
+function lastSuccessfulInterval(cardHistory: QuestionRecord[]): number {
+    for (let i = cardHistory.length - 1; i >= 1; i++) {
+        if (
+            cardHistory[i].priorAttemps === 0
+            && cardHistory[i].isCorrect
+        ) {
+            return secondsBetween(cardHistory[i - 1].timeStamp, cardHistory[i].timeStamp);
+        }
+    }
+
+    return 0; // used as a magic number here - indicates no prior intervals
 }
 
 /**

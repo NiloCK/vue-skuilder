@@ -8,7 +8,8 @@ import {
     DisplayableData,
     DocType,
     QuestionData,
-    SkuilderCourseData
+    SkuilderCourseData,
+    CardHistory
 } from '@/db/types';
 import { FieldType } from '@/enums/FieldType';
 import ENV from '@/ENVIRONMENT_VARS';
@@ -19,6 +20,7 @@ import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
 import { log } from 'util';
+import { ScheduledCard } from './User';
 
 (window as any).process = process; // required as a fix for pouchdb - see #18
 
@@ -445,11 +447,10 @@ export async function putCardRecord<T extends CardRecord>(record: T, user: strin
     }
     catch (reason) {
         if (reason.status === 404) {
-            userDB.put<CardHistory<T>>(
-                {
-                    _id: cardHistoryID,
-                    cardID: record.cardID,
-                    records: [record]
+            const initCardHistory: CardHistory<T> = {
+                _id: cardHistoryID,
+                cardID: record.cardID,
+                records: [record]
             };
             userDB.put<CardHistory<T>>(initCardHistory);
             return initCardHistory;
@@ -458,5 +459,4 @@ export async function putCardRecord<T extends CardRecord>(record: T, user: strin
             throw (`putCardRecord failed because of:\n            name:${reason.name}\n            error: ${reason.error}\n            id: ${reason.id}\n            message: ${reason.message}`);
         }
     }
-    });
 }

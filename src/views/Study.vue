@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import Vue, { VueConstructor } from 'vue';
-import { DisplayableData, DocType, CardData, CardRecord, QuestionRecord } from '@/db/types';
+import { DisplayableData, DocType, CardData, CardRecord, QuestionRecord, isQuestionRecord } from '@/db/types';
 import Viewable from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
@@ -24,6 +24,7 @@ import Courses from '@/courses';
 import { getCards, getDoc, putCardRecord } from '@/db';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import { log } from 'util';
+import { newInterval } from '@/db/SpacedRepetition';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
@@ -48,16 +49,12 @@ export default class Study extends Vue {
     this.loadRandomCard();
   }
 
-  private isQuestionRecord(r: CardRecord): r is QuestionRecord {
-    return (r as QuestionRecord).userAnswer !== undefined;
-  }
-
   private processResponse(r: CardRecord) {
     r.cardID = this.cardID;
     log(`Study.processResponse is running...`);
-    this.logCardRecordToDB(r);
+    this.logCardRecordAndScheduleReview(r);
 
-    if (this.isQuestionRecord(r)) {
+    if (isQuestionRecord(r)) {
       log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
       if (r.isCorrect) {
         this.$refs.shadowWrapper.classList.add('correct');
@@ -77,6 +74,8 @@ export default class Study extends Vue {
 
   private async logCardRecordAndScheduleReview(r: CardRecord) {
     const history = await putCardRecord(r, this.$store.state.user);
+    const nextInterval = newInterval(history.records);
+    log(`The next interval here will be... ${nextInterval}s`);
   }
 
   private loadRandomCard() {
