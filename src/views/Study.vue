@@ -75,8 +75,8 @@ export default class Study extends Vue {
     }, 1250);
   }
 
-  private logCardRecordToDB(r: CardRecord) {
-    putCardRecord(r, this.$store.state.user);
+  private async logCardRecordAndScheduleReview(r: CardRecord) {
+    const history = await putCardRecord(r, this.$store.state.user);
   }
 
   private loadRandomCard() {

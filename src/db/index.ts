@@ -433,21 +433,30 @@ function addCard(
     });
 }
 
-export function putCardRecord<T extends CardRecord>(record: T, user: string) {
+export async function putCardRecord<T extends CardRecord>(record: T, user: string) {
     const userDB = getUserDB(user);
     const cardHistoryID = 'cardH-' + record.cardID;
 
-    userDB.get<CardHistory<T>>(cardHistoryID).then((doc) => {
-        doc.records.push(record)
-        userDB.put(doc);
-    }).catch((reason: PouchDB.Core.Error) => {
+    try {
+        const cardHistory = await userDB.get<CardHistory<T>>(cardHistoryID);
+        cardHistory.records.push(record);
+        userDB.put(cardHistory);
+        return cardHistory;
+    }
+    catch (reason) {
         if (reason.status === 404) {
             userDB.put<CardHistory<T>>(
                 {
                     _id: cardHistoryID,
                     cardID: record.cardID,
                     records: [record]
-                });
+            };
+            userDB.put<CardHistory<T>>(initCardHistory);
+            return initCardHistory;
         }
+        else {
+            throw (`putCardRecord failed because of:\n            name:${reason.name}\n            error: ${reason.error}\n            id: ${reason.id}\n            message: ${reason.message}`);
+        }
+    }
     });
 }
