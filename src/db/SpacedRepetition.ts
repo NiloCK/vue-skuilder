@@ -22,6 +22,7 @@ function newQuestionInterval(cardHistory: QuestionRecord[]) {
 
     if (currentAttempt.isCorrect) {
         const skill = demonstratedSkill(currentAttempt);
+        log(`Demontrated skill: \t${skill}`)
         return lastInterval * (0.5 + skill);
     } else {
         return 0;
@@ -65,14 +66,15 @@ function demonstratedSkill(response: QuestionRecord) {
     //   chain of questions 2*4, 3*4, 4*4, 5*4, 6*4, ...
 
     // experts should answer this question in <= 5 secnods (5000 ms)
-    // this value will be dynamic, populated from a service
+    // this value will be dynamic, populated from a service and based on
+    // observed interations with the card
     const expertSpeed = 5000;
     const userSpeed = Math.min(response.timeSpent, 10 * expertSpeed);
 
     // if userResponse is > 10 x expertSpeed, discount as probably afk / distracted ?
 
     const speedPenalty = userSpeed / expertSpeed;
-    const speedPenaltyMultiplier = Math.pow(0.8, speedPenalty);
+    const speedPenaltyMultiplier = userSpeed > expertSpeed ? Math.pow(0.8, speedPenalty) : 1;
 
     let ret = response.isCorrect ? 1 : 0;
 
