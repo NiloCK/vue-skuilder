@@ -1,5 +1,6 @@
 import { QuestionRecord, CardRecord, isQuestionRecord } from '@/db/types';
 import { duration, Moment } from 'moment';
+import { log } from 'util';
 
 /**
  * Returns the number of seconds that should pass before a
@@ -111,5 +112,7 @@ function getPreviousIntervals(cardHistory: QuestionRecord[]): number[] {
  * @param end The second time
  */
 function secondsBetween(start: Moment, end: Moment): number {
-    return duration(start.diff(end)).asSeconds();
+    const ret = duration(end.diff(start)).asSeconds();
+    // log(`From start: ${start} to finish: ${end} is ${ret} seconds`);
+    return ret;
 }
