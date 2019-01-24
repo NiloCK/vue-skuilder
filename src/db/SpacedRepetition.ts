@@ -51,6 +51,11 @@ function lastSuccessfulInterval(cardHistory: QuestionRecord[]): number {
 }
 
 function getInitialInterval(cardHistory: QuestionRecord[]): number {
+    // todo make this a data-driven service, relying on:
+    //  - global experience w/ the card (ie, what interval
+    //      seems to be working well across the population)
+    //  - the individual user (how do they respond in general
+    //      when compared to the population)
     return 60 * 60 * 24 * 3; // 3 days
 }
 
