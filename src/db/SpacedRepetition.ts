@@ -81,10 +81,6 @@ function demonstratedSkill(response: QuestionRecord) {
     return Math.min(ret, 1);
 }
 
-function intervalMultiplier(responseSkill: number) {
-    return 1;
-}
-
 /**
  * Returns a list of prior viewing intervals in seconds.
  * @param cardHistory
