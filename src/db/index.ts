@@ -443,6 +443,7 @@ export async function putCardRecord<T extends CardRecord>(record: T, user: strin
         const cardHistory = await userDB.get<CardHistory<T>>(cardHistoryID);
         cardHistory.records.push(record);
         userDB.put(cardHistory);
+        momentifyCardHistory<T>(cardHistory);
         return cardHistory;
     }
     catch (reason) {
@@ -452,6 +453,7 @@ export async function putCardRecord<T extends CardRecord>(record: T, user: strin
                 cardID: record.cardID,
                 records: [record]
             };
+            momentifyCardHistory<T>(initCardHistory);
             userDB.put<CardHistory<T>>(initCardHistory);
             return initCardHistory;
         }
@@ -459,4 +461,14 @@ export async function putCardRecord<T extends CardRecord>(record: T, user: strin
             throw (`putCardRecord failed because of:\n            name:${reason.name}\n            error: ${reason.error}\n            id: ${reason.id}\n            message: ${reason.message}`);
         }
     }
+}
+
+function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>) {
+    cardHistory.records = cardHistory.records.map<T>((record) => {
+        const ret: T = {
+            ...record
+        };
+        ret.timeStamp = moment(record.timeStamp);
+        return ret;
+    });
 }
