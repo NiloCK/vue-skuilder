@@ -1,6 +1,7 @@
 import { QuestionRecord, CardRecord, isQuestionRecord } from '@/db/types';
 import { duration, Moment } from 'moment';
 import { log } from 'util';
+import Store from '@/store';
 
 /**
  * Returns the number of seconds that should pass before a
@@ -46,7 +47,11 @@ function lastSuccessfulInterval(cardHistory: QuestionRecord[]): number {
         }
     }
 
-    return 0; // used as a magic number here - indicates no prior intervals
+    return getInitialInterval(cardHistory); // used as a magic number here - indicates no prior intervals
+}
+
+function getInitialInterval(cardHistory: QuestionRecord[]): number {
+    return 60 * 60 * 24 * 3; // 3 days
 }
 
 /**
