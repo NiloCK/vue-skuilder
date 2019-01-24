@@ -3,18 +3,18 @@ import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { NameSpacer } from '@/courses';
 import {
     CardData,
+    CardHistory,
     CardRecord,
     DataShapeData,
     DisplayableData,
     DocType,
     QuestionData,
-    SkuilderCourseData,
-    CardHistory
+    SkuilderCourseData
 } from '@/db/types';
 import { FieldType } from '@/enums/FieldType';
 import ENV from '@/ENVIRONMENT_VARS';
 import { GuestUsername } from '@/store';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
@@ -470,5 +470,15 @@ function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>)
         };
         ret.timeStamp = moment(record.timeStamp);
         return ret;
+    });
+}
+
+export function scheduleCardReview(user: string, card_id: PouchDB.Core.DocumentId, time: Moment) {
+    const now = moment();
+    getUserDB(user).put<ScheduledCard>({
+        _id: 'card_review_' + time.format('YYYY-MM-DD-kk:mm:ss-SSS'),
+        cardId: card_id,
+        reviewTime: time,
+        scheduledAt: now
     });
 }

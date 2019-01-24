@@ -21,10 +21,11 @@ import Viewable from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import Courses from '@/courses';
-import { getCards, getDoc, putCardRecord } from '@/db';
+import { getCards, getDoc, putCardRecord, scheduleCardReview } from '@/db';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
+import moment from 'moment';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
@@ -75,7 +76,9 @@ export default class Study extends Vue {
   private async logCardRecordAndScheduleReview(r: CardRecord) {
     const history = await putCardRecord(r, this.$store.state.user);
     const nextInterval = newInterval(history.records);
-    log(`The next interval here will be... ${nextInterval}s`);
+    const nextReviewTime = moment().add(nextInterval, 'seconds');
+
+    scheduleCardReview(this.$store.state.user, r.cardID, nextReviewTime);
   }
 
   private loadRandomCard() {
