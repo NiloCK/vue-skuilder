@@ -11,6 +11,15 @@
           v-on:emitResponse="processResponse($event)"
       />
     </div>
+    <v-btn
+      fab
+      fixed
+      bottom
+      right
+      title="Discuss this card"
+    >
+      <v-icon>chat_bubble_outline</v-icon>
+    </v-btn>
   </div>
 </template>
 
