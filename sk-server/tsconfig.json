@@ -1,0 +1,9 @@
+{
+    "compileOnSave": true,
+    "files": [
+        "src/app.ts"
+    ],
+    "compilerOptions": {
+        "outDir": "dist",
+    }
+}

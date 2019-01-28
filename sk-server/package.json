@@ -1,0 +1,21 @@
+{
+  "name": "sk-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Colin Kennedy",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "express": "^4.16.4",
+    "nano": "^8.0.0",
+    "pouchdb": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.16.0",
+    "@types/node": "^10.12.18",
+    "@types/pouchdb": "^6.3.2"
+  }
+}
