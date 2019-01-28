@@ -54,6 +54,11 @@ function hexEncode(str: string): string {
     return returnStr;
 }
 
+export function createClassroom(teacher: string) {
+    log('Creating a classroom... ?');
+    return fetch(ENV.EXPRESS_SERVER_URL);
+}
+
 export function getUserDB(username: string): PouchDB.Database {
     let guestAccount: boolean = false;
     if (username === GuestUsername) {
@@ -476,6 +481,8 @@ function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>)
 }
 
 export function scheduleCardReview(user: string, card_id: PouchDB.Core.DocumentId, time: Moment) {
+    // createClassroom("testClass"); // testing this function...
+
     const now = moment();
     getUserDB(user).put<ScheduledCard>({
         _id: 'card_review_' + time.format('YYYY-MM-DD-kk:mm:ss-SSS'),
