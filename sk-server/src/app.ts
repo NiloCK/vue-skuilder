@@ -33,7 +33,7 @@ app.get('/', (req, res) => {
     //     });
     // });
     try {
-        count--;
+        count++;
 
         var db = new pouch('http://nilock:password@localhost:5984/testdb' + count,
             {
