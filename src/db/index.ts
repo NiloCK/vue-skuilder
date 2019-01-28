@@ -445,8 +445,7 @@ export async function putCardRecord<T extends CardRecord>(record: T, user: strin
         userDB.put(cardHistory);
         momentifyCardHistory<T>(cardHistory);
         return cardHistory;
-    }
-    catch (reason) {
+    } catch (reason) {
         if (reason.status === 404) {
             const initCardHistory: CardHistory<T> = {
                 _id: cardHistoryID,
@@ -456,9 +455,12 @@ export async function putCardRecord<T extends CardRecord>(record: T, user: strin
             momentifyCardHistory<T>(initCardHistory);
             userDB.put<CardHistory<T>>(initCardHistory);
             return initCardHistory;
-        }
-        else {
-            throw (`putCardRecord failed because of:\n            name:${reason.name}\n            error: ${reason.error}\n            id: ${reason.id}\n            message: ${reason.message}`);
+        } else {
+            throw new Error(`putCardRecord failed because of:
+name:${reason.name}
+error: ${reason.error}
+id: ${reason.id}
+message: ${reason.message}`);
         }
     }
 }
@@ -466,8 +468,8 @@ export async function putCardRecord<T extends CardRecord>(record: T, user: strin
 function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>) {
     cardHistory.records = cardHistory.records.map<T>((record) => {
         const ret: T = {
-            ...record
-        };
+            ...(record as object)
+        } as T;
         ret.timeStamp = moment(record.timeStamp);
         return ret;
     });
