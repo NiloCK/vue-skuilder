@@ -4,22 +4,36 @@ const app = express()
 const port = 3000
 import pouch = require('pouchdb');
 import * as Nano from 'nano';
+const dotenv = require('dotenv');
 
-const url = 'http://nilock:password@localhost:5984'
+dotenv.config({
+    path: './.env.development'
+});
 
-let Couch = Nano(url);
 
-const options = {
-    host: 'localhost',
-    port: 5984,
-    path: '/testdb',
-    method: 'PUT',
-    username: 'nilock',
-    password: 'password',
-    headers: {
-        asof: 'awef'
-    }
+const couchURL = process.env.VUE_APP_COUCHDB;
+const debug = process.env.VUE_APP_DEBUG;
+
+dotenv.config({
+    path: './.env.development.local'
+});
+
+const admin = {
+    username: process.env.VUE_APP_COUCH_ADMIN,
+    password: process.env.VUE_APP_COUCH_PASSWORD
 }
+const credentialCouchURL = 
+ `http://${admin.username}:${admin.password}@${couchURL}`;
+
+console.log(
+    `url: ${couchURL}
+    credentials:
+    \tusername: ${admin.username}
+    \tpassword: ${admin.password}
+    credUrl: ${credentialCouchURL}
+    `);
+
+let Couch = Nano(credentialCouchURL);
 
 let count = 5;
 
