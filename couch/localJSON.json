@@ -1,0 +1,130 @@
+{
+    "//": "This is a copy, for reference only, of a local devEnv's couchDB config",
+    "uuids": {
+        "algorithm": "sequential",
+        "max_count": "1000"
+    },
+    "cluster": {
+        "n": "1",
+        "q": "8"
+    },
+    "cors": {
+        "credentials": "true",
+        "headers": "accept, authorization, content-type, origin, referer",
+        "methods": "GET, PUT, POST, HEAD, DELETE",
+        "origins": "*"
+    },
+    "chttpd": {
+        "backlog": "512",
+        "bind_address": "0.0.0.0",
+        "docroot": "./share/www",
+        "max_db_number_for_dbs_info_req": "100",
+        "port": "5984",
+        "prefer_minimal": "Cache-Control, Content-Length, Content-Range, Content-Type, ETag, Server, Transfer-Encoding, Vary",
+        "require_valid_user": "false",
+        "server_options": "[{recbuf, undefined}]",
+        "socket_options": "[{sndbuf, 262144}, {nodelay, true}]"
+    },
+    "attachments": {
+        "compressible_types": "text/*, application/javascript, application/json, application/xml",
+        "compression_level": "8"
+    },
+    "admins": {
+        "admin": "hashedKey (what are the odds?)"
+    },
+    "query_server_config": {
+        "os_process_limit": "100",
+        "reduce_limit": "true"
+    },
+    "vendor": {
+        "name": "The Apache Software Foundation"
+    },
+    "replicator": {
+        "connection_timeout": "30000",
+        "http_connections": "20",
+        "interval": "60000",
+        "max_churn": "20",
+        "max_jobs": "500",
+        "retries_per_request": "5",
+        "socket_options": "[{keepalive, true}, {nodelay, false}]",
+        "ssl_certificate_max_depth": "3",
+        "startup_jitter": "5000",
+        "verify_ssl_certificates": "false",
+        "worker_batch_size": "500",
+        "worker_processes": "4"
+    },
+    "ssl": {
+        "port": "6984"
+    },
+    "log": {
+        "file": "/var/log/couchdb/couchdb.log",
+        "level": "info",
+        "writer": "file"
+    },
+    "indexers": {
+        "couch_mrview": "true"
+    },
+    "view_compaction": {
+        "keyvalue_buffer_size": "2097152"
+    },
+    "features": {
+        "pluggable-storage-engines": "true",
+        "scheduler": "true"
+    },
+    "couch_peruser": {
+        "database_prefix": "userdb-",
+        "delete_dbs": "false",
+        "enable": "true"
+    },
+    "httpd": {
+        "allow_jsonp": "false",
+        "authentication_handlers": "{couch_httpd_auth, cookie_authentication_handler}, {couch_httpd_auth, default_authentication_handler}",
+        "bind_address": "127.0.0.1",
+        "enable_cors": "true",
+        "enable_xframe_options": "false",
+        "max_http_request_size": "4294967296",
+        "port": "5986",
+        "secure_rewrites": "true",
+        "socket_options": "[{sndbuf, 262144}]"
+    },
+    "database_compaction": {
+        "checkpoint_after": "5242880",
+        "doc_buffer_size": "524288"
+    },
+    "csp": {
+        "enable": "true"
+    },
+    "couch_httpd_auth": {
+        "allow_persistent_cookies": "true",
+        "auth_cache_size": "50",
+        "authentication_db": "_users",
+        "authentication_redirect": "/_utils/session.html",
+        "iterations": "10",
+        "require_valid_user": "false",
+        "secret": "c18f74bf32bb5294cc75c547c008993a",
+        "timeout": "600"
+    },
+    "couchdb_engines": {
+        "couch": "couch_bt_engine"
+    },
+    "couchdb": {
+        "attachment_stream_buffer_size": "4096",
+        "changes_doc_ids_optimization_threshold": "100",
+        "database_dir": "./data",
+        "default_engine": "couch",
+        "default_security": "admin_local",
+        "delayed_commits": "false",
+        "file_compression": "snappy",
+        "max_dbs_open": "500",
+        "os_process_timeout": "5000",
+        "uuid": "011255b873725aea48a17c81d0cdf7b7",
+        "view_index_dir": "./data"
+    },
+    "compactions": {
+        "_default": "[{db_fragmentation, \"70%\"}, {view_fragmentation, \"60%\"}]"
+    },
+    "compaction_daemon": {
+        "check_interval": "3600",
+        "min_file_size": "131072"
+    }
+}
