@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import ENV from './ENVIRONMENT_VARS';
 
 Vue.use(Vuex);
 
@@ -9,7 +10,7 @@ export interface AppState {
   user: string;
 }
 
-export default new Vuex.Store<AppState>({
+const Store = new Vuex.Store<AppState>({
   state: {
     user: GuestUsername
   },
@@ -20,3 +21,29 @@ export default new Vuex.Store<AppState>({
 
   }
 });
+
+export default Store;
+
+checkAuthCookie();
+
+function checkAuthCookie() {
+  const authXML = new XMLHttpRequest();
+  authXML.withCredentials = true;
+  authXML.addEventListener('load', function () {
+    let resp: {
+      info: {};
+      ok: boolean;
+      userCtx: {
+        name: string;
+        roles: string[];
+      };
+    } = JSON.parse(this.responseText);
+    if (resp.userCtx.name !== undefined &&
+      resp.userCtx.name !== '' &&
+      resp.userCtx.name !== null) {
+      Store.state.user = resp.userCtx.name;
+    }
+  });
+  authXML.open('GET', ENV.COUCHDB_SERVER_URL + '_session');
+  authXML.send();
+}
