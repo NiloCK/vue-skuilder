@@ -107,6 +107,10 @@ export default {
         {
           icon: 'add_to_queue',
           title: 'Edit'
+        },
+        {
+          icon: 'group',
+          title: 'Classrooms'
         }
       ],
       miniVariant: false,
