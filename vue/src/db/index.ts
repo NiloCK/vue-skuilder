@@ -158,6 +158,10 @@ export function remoteDBLogin(username: string, password: string) {
     return remote.logIn(username, password);
 }
 
+export function remoteDBLogout() {
+    return remote.logOut();
+}
+
 function CreateClassroom(className: string) {
     return new pouch(ENV.COUCHDB_SERVER_URL + 'className');
 }

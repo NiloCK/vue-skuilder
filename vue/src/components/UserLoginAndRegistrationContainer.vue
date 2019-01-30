@@ -3,7 +3,7 @@
     <div v-if="$store.state.user !== ''">
         <div v-if="$store.state.user === GuestUsername">
             <v-dialog
-                v-model="registrationDialog"
+                v-model="regDialog"
                 width="500px"
                 lazy
             >
@@ -19,7 +19,7 @@
             <v-dialog
             lazy
             v-model="loginDialog"
-            width="500"
+            width="500px"
             >
                 <v-btn
                     small
@@ -44,6 +44,12 @@ import Component from 'vue-class-component';
 import UserChip from './UserChip.vue';
 import { GuestUsername } from '@/store';
 
+export interface IUserLoginAndRegistrationContainer {
+  loggedIn: boolean;
+  regDialogOpen: boolean;
+  loginDialogOpen: boolean;
+}
+
 @Component({
   components: {
     UserLogin,
@@ -54,20 +60,37 @@ import { GuestUsername } from '@/store';
 export default class UserLoginAndRegistrationContainer extends Vue {
   private readonly GuestUsername: string = GuestUsername;
 
-  private registrationDialog: boolean = false;
-  private loginDialog: boolean = false;
+  private get regDialog(): boolean {
+    return this.$store.state.
+      userLoginAndRegistrationContainer.regDialogOpen;
+  }
+  private set regDialog(value: boolean) {
+    this.$store.state.
+      userLoginAndRegistrationContainer.
+      regDialogOpen = value;
+  }
+
+  private get loginDialog(): boolean {
+    return this.$store.state.
+      userLoginAndRegistrationContainer.loginDialogOpen;
+  }
+  private set loginDialog(value: boolean) {
+    this.$store.state.
+      userLoginAndRegistrationContainer.
+      loginDialogOpen = value;
+  }
 
   private toggle() {
-    if (this.registrationDialog && this.loginDialog) {
+    if (this.regDialog && this.loginDialog) {
       throw new Error(`
 Registration / Login dialogs both activated.
 `);
-    } else if (this.registrationDialog === this.loginDialog) {
+    } else if (this.regDialog === this.loginDialog) {
       throw new Error(`
 Registration / Login dialogs toggled while both were dormant.
 `);
     } else {
-      this.registrationDialog = !this.registrationDialog;
+      this.regDialog = !this.regDialog;
       this.loginDialog = !this.loginDialog;
     }
   }
