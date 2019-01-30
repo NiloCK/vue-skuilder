@@ -84,4 +84,3 @@ Registration / Login dialogs toggled while both were dormant.
   opacity: 0;
 }
 </style>
-``

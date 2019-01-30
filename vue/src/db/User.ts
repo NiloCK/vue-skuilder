@@ -1,12 +1,12 @@
-import { Moment } from "moment";
+import { Moment } from 'moment';
 
 export class User {
-  email: string;
-  username: string;
+  public email: string;
+  public username: string;
 
-  courseRegistrations: string[];
+  public courseRegistrations: string[];
 
-  scheduledCards: ScheduledCard[];
+  public scheduledCards: ScheduledCard[];
 }
 
 export interface ScheduledCard {
@@ -23,7 +23,7 @@ export interface ScheduledCard {
 
   /**
    * The time at which the card becomes eligible for review.
-   * 
+   *
    * (Should probably be UTC adjusted so that performance is
    * not wonky across time zones)
    */

@@ -31,7 +31,7 @@ function checkAuthCookie() {
   authXML.withCredentials = true;
   authXML.addEventListener('load', function () {
     // todo add link to couchdb doc of this json shape
-    let resp: {
+    const resp: {
       info: {};
       ok: boolean;
       userCtx: {

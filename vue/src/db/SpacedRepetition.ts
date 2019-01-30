@@ -23,7 +23,7 @@ function newQuestionInterval(cardHistory: QuestionRecord[]) {
 
     if (currentAttempt.isCorrect) {
         const skill = demonstratedSkill(currentAttempt);
-        log(`Demontrated skill: \t${skill}`)
+        log(`Demontrated skill: \t${skill}`);
         return lastInterval * (0.5 + skill);
     } else {
         return 0;
@@ -34,7 +34,7 @@ function newQuestionInterval(cardHistory: QuestionRecord[]) {
  * Returns the amount of time, in seconds, of the most recent successful
  * interval for this card. An interval is successful if the user answers
  * a question correctly on the first attempt.
- * 
+ *
  * @param cardHistory The record of user attempts with the question
  */
 function lastSuccessfulInterval(cardHistory: QuestionRecord[]): number {
