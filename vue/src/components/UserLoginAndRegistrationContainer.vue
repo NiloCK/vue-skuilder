@@ -1,5 +1,6 @@
 <template>
-    <div>
+<transition name="component-fade" mode="out-in">
+    <div v-if="$store.state.user !== ''">
         <div v-if="$store.state.user === GuestUsername">
             <v-dialog
                 v-model="registrationDialog"
@@ -32,6 +33,7 @@
         </div>
         <user-chip v-else/>
     </div>
+</transition>
 </template>
 
 <script lang="ts">
@@ -71,3 +73,15 @@ Registration / Login dialogs toggled while both were dormant.
   }
 }
 </script>
+
+<style scoped>
+.component-fade-enter-active,
+.component-fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+.component-fade-enter, .component-fade-leave-to
+/* .component-fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+</style>
+``

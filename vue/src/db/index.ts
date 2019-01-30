@@ -61,7 +61,8 @@ export function createClassroom(teacher: string) {
 
 export function getUserDB(username: string): PouchDB.Database {
     let guestAccount: boolean = false;
-    if (username === GuestUsername) {
+    if (username === GuestUsername ||
+        username === '') {
         username = accomodateGuest();
         guestAccount = true;
     }
