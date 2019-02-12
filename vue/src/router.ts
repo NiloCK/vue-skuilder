@@ -4,6 +4,7 @@ import Home from './views/Home.vue';
 import About from './views/About.vue';
 import Edit from './views/Edit.vue';
 import Study from './views/Study.vue';
+import Classrooms from './views/Classrooms.vue';
 
 Vue.use(Router);
 
@@ -31,6 +32,11 @@ export default new Router({
       path: '/study',
       name: 'study',
       component: Study
+    },
+    {
+      path: '/classrooms',
+      name: 'classrooms',
+      component: Classrooms
     }
   ]
 });

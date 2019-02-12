@@ -1,6 +1,5 @@
 <template>
   <div>
-    Hi
     <v-btn>Create a classroom</v-btn>
   </div>
 </template>
