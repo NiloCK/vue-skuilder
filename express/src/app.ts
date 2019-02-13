@@ -1,4 +1,3 @@
-// import * as Nano from 'nano';
 import Nano = require('nano');
 import * as express from 'express';
 import * as http from 'http';
