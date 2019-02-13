@@ -1,18 +1,23 @@
 <template>
   <div>
-    <v-btn>Create a classroom</v-btn>
+    <v-btn @click="createClass">Create a classroom</v-btn>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
+import { createClass } from '@/server/index';
 
 @Component({
   components: {
   }
 })
 export default class Classroom extends Vue {
-  public test: string = 'hello';
+  private async createClass() {
+    const status = await createClass();
+
+    // alert(status);
+  }
 }
 </script>
