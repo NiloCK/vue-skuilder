@@ -2,11 +2,18 @@ import Nano = require('nano');
 import * as express from 'express';
 import * as http from 'http';
 import * as pouch from 'pouchdb';
-const dotenv = require('dotenv');
-
+import dotenv = require('dotenv');
+import bodyParser = require('body-parser');
+import cors = require('cors');
 
 const port = 3000
 const app = express()
+
+app.use(bodyParser.json());
+app.use(cors({
+    credentials: true,
+    origin: true
+}));
 
 dotenv.config({
     path: './.env.development'
@@ -62,9 +69,17 @@ function createClassroom(name: string, teacher: string) {
 
 app.get('/', (req, res) => {
 
-    console.log("Creating a classroom.........");
-    createClassroom('testclass' + Math.random().toPrecision(10), 'Colin');
+    console.log(new Date() + '\t' + JSON.stringify(req.body));
 
+    console.log("Creating a classroom.........");
+    // createClassroom('testclass' + Math.random().toPrecision(10), 'Colin');
+    // res.setHeader('Access-Control-Allow-Origin', '*');
+    res.send();
 });
+
+function checkLoginStatus(req: Request): boolean {
+
+    return false;
+}
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
