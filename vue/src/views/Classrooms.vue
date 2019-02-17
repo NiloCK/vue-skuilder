@@ -7,7 +7,9 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
-import { createClass } from '@/server/index';
+import serverRequest from '@/server/index';
+import { ServerRequestType } from '@/server/types';
+
 
 @Component({
   components: {
@@ -15,9 +17,11 @@ import { createClass } from '@/server/index';
 })
 export default class Classroom extends Vue {
   private async createClass() {
-    const status = await createClass();
-
-    // alert(status);
+    const status = await serverRequest({
+      type: ServerRequestType.CREATE_CLASSROOM,
+      className: 'hi',
+      user: 'test'
+    });
   }
 }
 </script>

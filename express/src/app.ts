@@ -8,7 +8,7 @@ import cors = require('cors');
 import {
     ServerRequest,
     ServerRequestType as RequestEnum,
-} from '../../vue/src/server';
+} from '../../vue/src/server/types';
 
 const port = 3000
 const app = express()
@@ -69,7 +69,7 @@ function createClassroom(name: string, teacher: string) {
     });
 }
 
-app.get('/', (req, res) => {
+app.post('/', (req, res) => {
 
     console.log(new Date() + '\t' + JSON.stringify(req.body));
 
