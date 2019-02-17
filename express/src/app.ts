@@ -5,6 +5,10 @@ import * as pouch from 'pouchdb';
 import dotenv = require('dotenv');
 import bodyParser = require('body-parser');
 import cors = require('cors');
+import {
+    ServerRequest,
+    ServerRequestType as RequestEnum,
+} from '../../vue/src/server';
 
 const port = 3000
 const app = express()
@@ -63,17 +67,21 @@ function createClassroom(name: string, teacher: string) {
             });
         }
     });
-
-
 }
 
 app.get('/', (req, res) => {
 
     console.log(new Date() + '\t' + JSON.stringify(req.body));
 
-    console.log("Creating a classroom.........");
-    // createClassroom('testclass' + Math.random().toPrecision(10), 'Colin');
-    // res.setHeader('Access-Control-Allow-Origin', '*');
+    const data = req.body as ServerRequest;
+
+    if (data.type === RequestEnum.CREATE_CLASSROOM) {
+        console.log("Creating a classroom.........");
+        // createClassroom('testclass' + Math.random().toPrecision(10), 'Colin');
+    } else {
+        console.log("Doing something other than creating a classroom.........");
+    }
+
     res.send();
 });
 
