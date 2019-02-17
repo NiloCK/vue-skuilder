@@ -5,6 +5,7 @@ import * as pouch from 'pouchdb';
 import dotenv = require('dotenv');
 import bodyParser = require('body-parser');
 import cors = require('cors');
+import cookieParser = require('cookie-parser');
 import {
     ServerRequest,
     ServerRequestType as RequestEnum,
@@ -13,6 +14,7 @@ import {
 const port = 3000
 const app = express()
 
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(cors({
     credentials: true,
@@ -69,7 +71,18 @@ function createClassroom(name: string, teacher: string) {
     });
 }
 
+function getAuthConnection(req: Request) {
+    if (req.headers.has('cookie')) {
+        const cookie = req.headers.get('cookie');
+        
+    }
+}
+
 app.post('/', (req, res) => {
+
+    if (req.cookies.AuthSession) {
+        console.log('Authcookie present: ' + req.cookies.AuthSession);
+    }
 
     console.log(new Date() + '\t' + JSON.stringify(req.body));
 
