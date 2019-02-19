@@ -70,23 +70,46 @@ function createClassroom(name: string, teacher: string) {
         }
     });
 }
+interface couchSession {
+    info: {};
+    ok: boolean;
+    userCtx: {
+        name: string;
+        roles: string[];
+    };
+}
 
-function getAuthConnection(req: Request) {
-    if (req.headers.has('cookie')) {
-        const cookie = req.headers.get('cookie');
-        
-    }
+async function userIsAuthenticated(authCookie: string, username: string) {
+
+    let ret = await Nano({
+        cookie: "AuthSession=" + authCookie,
+        url: 'http://' + couchURL
+    }).session().then((s) => {
+        console.log(`AuthUser: ${JSON.stringify(s)}`);
+        return s.userCtx.name === username;
+    }).catch((err) => {
+        return false;
+    });
+
+    return ret;
 }
 
 app.post('/', (req, res) => {
 
-    if (req.cookies.AuthSession) {
-        console.log('Authcookie present: ' + req.cookies.AuthSession);
-    }
-
-    console.log(new Date() + '\t' + JSON.stringify(req.body));
-
     const data = req.body as ServerRequest;
+
+    if (req.cookies.AuthSession) {
+
+        console.log('Authcookie present: ' + req.cookies.AuthSession);
+        userIsAuthenticated(req.cookies.AuthSession, data.user).then((auth) => {
+            if (auth) {
+                res.json({
+                    loggedIn: true
+                });
+                res.send();
+            }
+        });
+    }
 
     if (data.type === RequestEnum.CREATE_CLASSROOM) {
         console.log("Creating a classroom.........");
@@ -95,12 +118,6 @@ app.post('/', (req, res) => {
         console.log("Doing something other than creating a classroom.........");
     }
 
-    res.send();
 });
-
-function checkLoginStatus(req: Request): boolean {
-
-    return false;
-}
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
