@@ -12,6 +12,7 @@ import {
 } from '../../vue/src/server/types';
 
 const port = 3000
+const classroomDbDesignDoc = fileSystem.readFileSync('./assets/classroomDesignDoc.js', 'utf-8');
 const app = express()
 
 app.use(cookieParser());
