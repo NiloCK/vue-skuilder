@@ -6,6 +6,8 @@ import dotenv = require('dotenv');
 import bodyParser = require('body-parser');
 import cors = require('cors');
 import cookieParser = require('cookie-parser');
+import fileSystem = require('fs');
+import hashids, * as HashidsConstructor from 'hashids';
 import {
     ServerRequest,
     ServerRequestType as RequestEnum,
@@ -49,28 +51,88 @@ console.log(
     `);
 
 let Couch = Nano(credentialCouchURL);
+useOrCreateDB('classdb-lookup');
 
-let count = 5;
+async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<{}>> {
 
-function createClassroom(name: string, teacher: string) {
-    const studentDbName: string = `classdb-student-${name}`;
-    const teacherDbName: string = `classdb-teacher-${name}`;
+    let ret = Couch.use(dbName);
 
-    Couch.db.create(studentDbName).then((resp) => {
-        if (resp.ok) {
-            return Couch.db.create(teacherDbName);
-        }
-    }).then((resp) => {
-        if (resp.ok) {
-            let stuDb = Couch.use(studentDbName);
-            stuDb.get('_security').then((secDoc) => {
-                (secDoc as any).admins = [teacher];
-                (secDoc as any).members = [];
-                stuDb.insert(secDoc);
-            });
-        }
-    });
+    try {
+        await ret.info();
+        return ret;
+    }
+    catch (err) {
+        await Couch.db.create(dbName);
+        return Couch.use(dbName);
+    }
 }
+
+async function docCount(dbName: string): Promise<number> {
+    const db = await useOrCreateDB(dbName);
+    const info = await db.info();
+    return info.doc_count;
+}
+
+interface SecurityObject extends Nano.MaybeDocument {
+    admins: {
+        names: string[],
+        roles: string[]
+    },
+    members: {
+        names: string[],
+        roles: string[]
+    }
+}
+
+async function createClassroom(name: string, teacher: string) {
+    const num = await docCount('classdb-lookup') + 1; //
+    const uuid = await Couch.uuids(1)[0];
+
+    const hasher = new hashids('', 6, 'abcdefghijklmnopqrstuvwxyz123456789');
+    const joinCode: string = hasher.encode(num);
+
+    const studentDbName: string = `classdb-student-${uuid}`;
+    const teacherDbName: string = `classdb-teacher-${uuid}`;
+
+    const security: SecurityObject = {
+        // _id: '_security',
+        admins: {
+            names: [teacher],
+            roles: []
+        },
+        members: {
+            names: [],
+            roles: []
+        }
+    }
+
+    let [
+        studentdb,
+        teacherdb,
+        lookup
+    ] = await Promise.all([
+        useOrCreateDB(studentDbName),
+        useOrCreateDB(teacherDbName),
+        useOrCreateDB('classdb-lookup')
+    ])
+
+    await Promise.all([
+        studentdb.insert({
+            validate_doc_update: classroomDbDesignDoc,
+        } as any, '_design/_auth'),
+        studentdb.insert(security, '_security'),
+        teacherdb.insert(security, '_security'),
+        lookup.insert({
+            num,
+            uuid
+        } as any, joinCode)
+    ]);
+
+    return {
+        joinCode
+    };
+}
+
 interface couchSession {
     info: {};
     ok: boolean;
@@ -80,45 +142,47 @@ interface couchSession {
     };
 }
 
-async function userIsAuthenticated(authCookie: string, username: string) {
+async function requestIsAuthenticated(req: express.Request) {
 
-    let ret = await Nano({
-        cookie: "AuthSession=" + authCookie,
-        url: 'http://' + couchURL
-    }).session().then((s) => {
-        console.log(`AuthUser: ${JSON.stringify(s)}`);
-        return s.userCtx.name === username;
-    }).catch((err) => {
+    const username = (req.body as ServerRequest).user;
+    const authCookie: string = req.cookies.AuthSession ? req.cookies.AuthSession : 'null';
+
+    if (authCookie === 'null') {
         return false;
-    });
+    } else {
 
-    return ret;
+        return await Nano({
+            cookie: "AuthSession=" + authCookie,
+            url: 'http://' + couchURL
+        }).session().then((s) => {
+            console.log(`AuthUser: ${JSON.stringify(s)}`);
+            return s.userCtx.name === username;
+        }).catch((err) => {
+            return false;
+        });
+    }
+}
+
+async function postHandler(req: express.Request, res: express.Response) {
+    if (await requestIsAuthenticated(req)) {
+        const data = req.body as ServerRequest;
+
+        if (data.type === RequestEnum.CREATE_CLASSROOM) {
+            res.json(
+                await createClassroom(data.className, data.user)
+            );
+        } else if (data.type === RequestEnum.DELETE_CLASSROOM) {
+
+        }
+    } else {
+        res.status(401);
+        res.statusMessage = 'Unauthorized';
+        res.send();
+    }
 }
 
 app.post('/', (req, res) => {
-
-    const data = req.body as ServerRequest;
-
-    if (req.cookies.AuthSession) {
-
-        console.log('Authcookie present: ' + req.cookies.AuthSession);
-        userIsAuthenticated(req.cookies.AuthSession, data.user).then((auth) => {
-            if (auth) {
-                res.json({
-                    loggedIn: true
-                });
-                res.send();
-            }
-        });
-    }
-
-    if (data.type === RequestEnum.CREATE_CLASSROOM) {
-        console.log("Creating a classroom.........");
-        // createClassroom('testclass' + Math.random().toPrecision(10), 'Colin');
-    } else {
-        console.log("Doing something other than creating a classroom.........");
-    }
-
+    postHandler(req, res);
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
