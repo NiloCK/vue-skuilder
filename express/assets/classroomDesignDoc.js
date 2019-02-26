@@ -1,6 +1,6 @@
-// from https://github.com/iriscouch/manage_couchdb/blob/master/js/validate_doc_update.js
+function (newDoc, oldDoc, userCtx, secObj) {
+    // from https://github.com/iriscouch/manage_couchdb/blob/master/js/validate_doc_update.js
 
-function validate_doc_update(newDoc, oldDoc, userCtx, secObj) {
     var ddoc = this;
 
     secObj.admins = secObj.admins || {};
