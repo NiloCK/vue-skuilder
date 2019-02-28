@@ -1,17 +1,15 @@
 import Nano = require('nano');
 import * as express from 'express';
-import * as http from 'http';
-import * as pouch from 'pouchdb';
-import dotenv = require('dotenv');
+import hashids from 'hashids';
+import {
+    ServerRequest,
+    ServerRequestType as RequestEnum
+} from '../../vue/src/server/types';
 import bodyParser = require('body-parser');
 import cors = require('cors');
 import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
-import hashids, * as HashidsConstructor from 'hashids';
-import {
-    ServerRequest,
-    ServerRequestType as RequestEnum,
-} from '../../vue/src/server/types';
+import CouchDB, { couchURL } from './couchdb';
 
 const port = 3000
 const classroomDbDesignDoc = fileSystem.readFileSync('./assets/classroomDesignDoc.js', 'utf-8');
@@ -24,46 +22,19 @@ app.use(cors({
     origin: true
 }));
 
-dotenv.config({
-    path: './.env.development'
-});
-
-const couchURL = process.env.VUE_APP_COUCHDB;
-const debug = process.env.VUE_APP_DEBUG;
-
-dotenv.config({
-    path: './.env.development.local'
-});
-
-const admin = {
-    username: process.env.VUE_APP_COUCH_ADMIN,
-    password: process.env.VUE_APP_COUCH_PASSWORD
-}
-const credentialCouchURL =
-    `http://${admin.username}:${admin.password}@${couchURL}`;
-
-console.log(
-    `url: ${couchURL}
-    credentials:
-    \tusername: ${admin.username}
-    \tpassword: ${admin.password}
-    credUrl: ${credentialCouchURL}
-    `);
-
-let Couch = Nano(credentialCouchURL);
 useOrCreateDB('classdb-lookup');
 
 async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<{}>> {
 
-    let ret = Couch.use(dbName);
+    let ret = CouchDB.use(dbName);
 
     try {
         await ret.info();
         return ret;
     }
     catch (err) {
-        await Couch.db.create(dbName);
-        return Couch.use(dbName);
+        await CouchDB.db.create(dbName);
+        return CouchDB.use(dbName);
     }
 }
 
@@ -86,7 +57,7 @@ interface SecurityObject extends Nano.MaybeDocument {
 
 async function createClassroom(name: string, teacher: string) {
     const num = await docCount('classdb-lookup') + 1; //
-    const uuid = await Couch.uuids(1)[0];
+    const uuid = (await CouchDB.uuids(1)).uuids[0];
 
     const hasher = new hashids('', 6, 'abcdefghijklmnopqrstuvwxyz123456789');
     const joinCode: string = hasher.encode(num);
