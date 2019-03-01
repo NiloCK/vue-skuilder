@@ -273,17 +273,19 @@ export function putQuestionView(
     });
 }
 
-export function doesUserExist(name: string) {
-    return remote.getUser(name).then((user) => {
+export async function doesUserExist(name: string) {
+    try {
+        const user = await remote.getUser(name);
         log(`user: ${user._id}`);
         return true;
-    }).catch((err) => {
+    }
+    catch (err) {
         log(`User error: ${err}`);
         return false;
-    });
+    }
 }
 
-export function addNote(course: string, shape: DataShape, data: any) {
+export async function addNote(course: string, shape: DataShape, data: any) {
     // todo: make less crappy - test for duplicate insertions - #15
 
     const dataShapeId = NameSpacer.getDataShapeString({
@@ -318,21 +320,18 @@ export function addNote(course: string, shape: DataShape, data: any) {
         });
     });
 
-    return remote.post<DisplayableData>(payload).then((result) => {
-        if (result.ok) {
-            createCards(course, dataShapeId, result.id);
-        }
-        return result;
-    });
+    const result = await remote.post<DisplayableData>(payload);
+    if (result.ok) {
+        createCards(course, dataShapeId, result.id);
+    }
+    return result;
 }
 
-function getImplementingQuestions(dataShape: PouchDB.Core.DocumentId) {
-    return getDoc<DataShapeData>(dataShape).then((shapeResult) => {
-        return shapeResult.questionTypes;
-    }).then((questions) => {
-        return questions.map((question) => {
-            return getDoc<QuestionData>(question);
-        });
+async function getImplementingQuestions(dataShape: PouchDB.Core.DocumentId) {
+    const shapeResult = await getDoc<DataShapeData>(dataShape);
+    const questions = shapeResult.questionTypes;
+    return questions.map((question) => {
+        return getDoc<QuestionData>(question);
     });
 }
 
