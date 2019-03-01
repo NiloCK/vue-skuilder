@@ -54,11 +54,6 @@ function hexEncode(str: string): string {
     return returnStr;
 }
 
-export function createClassroom(teacher: string) {
-    log('Creating a classroom... ?');
-    return fetch(ENV.EXPRESS_SERVER_URL);
-}
-
 export function getUserDB(username: string): PouchDB.Database {
     let guestAccount: boolean = false;
     if (username === GuestUsername ||
@@ -161,11 +156,6 @@ export function remoteDBLogin(username: string, password: string) {
 export function remoteDBLogout() {
     return remote.logOut();
 }
-
-function CreateClassroom(className: string) {
-    return new pouch(ENV.COUCHDB_SERVER_URL + 'className');
-}
-
 
 export function remoteDBSignup(
     username: string,
