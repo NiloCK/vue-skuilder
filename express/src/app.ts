@@ -169,9 +169,8 @@ async function postHandler(req: express.Request, res: express.Response) {
         if (data.type === RequestEnum.CREATE_CLASSROOM) {
             res.json(
                 await createClassroom(data.className, data.user)
-            );
-        } else if (data.type === RequestEnum.DELETE_CLASSROOM) {
-
+            data.response = await createClassroom(data.className, data.user);
+            res.json(data.response);
         }
     } else {
         res.status(401);
