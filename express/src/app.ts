@@ -104,8 +104,12 @@ async function createClassroom(name: string, teacher: string) {
     };
 }
 
-interface couchSession {
-    info: {};
+interface CouchSession {
+    info: {
+        authenticated: string;
+        authentication_db: string;
+        authentication_handlers: string[];
+    };
     ok: boolean;
     userCtx: {
         name: string;
@@ -149,7 +153,7 @@ async function requestIsAuthenticated(req: express.Request) {
         return await Nano({
             cookie: "AuthSession=" + authCookie,
             url: 'http://' + couchURL
-        }).session().then((s) => {
+        }).session().then((s: CouchSession) => {
             console.log(`AuthUser: ${JSON.stringify(s)}`);
             return s.userCtx.name === username;
         }).catch((err) => {
