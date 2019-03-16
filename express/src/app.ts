@@ -113,6 +113,30 @@ interface couchSession {
     };
 }
 
+async function requestIsAdminAuthenticated(req: express.Request) {
+
+    const username = (req.body as ServerRequest).user;
+    const authCookie: string = req.cookies.AuthSession ? req.cookies.AuthSession : 'null';
+
+    if (authCookie === 'null') {
+        return false;
+    } else {
+
+        return await Nano({
+            cookie: "AuthSession=" + authCookie,
+            url: 'http://' + couchURL
+        }).session().then((s: CouchSession) => {
+            console.log(`AuthUser: ${JSON.stringify(s)}`);
+            const isAdmin = s.userCtx.roles.indexOf('_admin') !== -1;
+            const isLoggedInUser = s.userCtx.name === username;
+
+            return isAdmin && isLoggedInUser;
+        }).catch((err) => {
+            return false;
+        });
+    }
+}
+
 async function requestIsAuthenticated(req: express.Request) {
 
     const username = (req.body as ServerRequest).user;
