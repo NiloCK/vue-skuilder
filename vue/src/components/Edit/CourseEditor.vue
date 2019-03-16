@@ -4,7 +4,7 @@
       <v-progress-circular indeterminate color="secondary"></v-progress-circular>
     </div>
     <div v-else>
-      <button @click='toggleComponent'>Toggle Content Editing / Component Registration</button>
+      <v-btn @click='toggleComponent' color="success">Content Editing / Component Registration</v-btn>
       <div v-if='editingMode'>
 
         <div>
