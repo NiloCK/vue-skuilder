@@ -1,9 +1,10 @@
 import { Course } from '@/base-course/Course';
-// import { SingleDigitMultiplicationQuestion } from '@/courses/math/questions/multiplication';
 import { AudioParsingQuestion } from './questions/audioparse';
+import { VocabQuestion } from './questions/vocab';
 
 const french: Course = new Course('french', [
-    AudioParsingQuestion
+    AudioParsingQuestion,
+    VocabQuestion
 ]);
 
 export default french;
