@@ -55,6 +55,10 @@ interface SecurityObject extends Nano.MaybeDocument {
     }
 }
 
+async function deleteClassroom(classroom_id: string) {
+
+}
+
 async function createClassroom(name: string, teacher: string) {
     const num = await docCount('classdb-lookup') + 1; //
     const uuid = (await CouchDB.uuids(1)).uuids[0];
@@ -100,8 +104,10 @@ async function createClassroom(name: string, teacher: string) {
     ]);
 
     return {
-        joinCode
-    };
+        joincode: joinCode,
+        status: 'ok',
+        uuid: uuid
+    }
 }
 
 interface CouchSession {
@@ -167,10 +173,10 @@ async function postHandler(req: express.Request, res: express.Response) {
         const data = req.body as ServerRequest;
 
         if (data.type === RequestEnum.CREATE_CLASSROOM) {
-            res.json(
-                await createClassroom(data.className, data.user)
             data.response = await createClassroom(data.className, data.user);
             res.json(data.response);
+        } else if (data.type === RequestEnum.DELETE_CLASSROOM) {
+
         }
     } else {
         res.status(401);
