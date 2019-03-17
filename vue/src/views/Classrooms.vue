@@ -19,17 +19,34 @@ import { log } from 'util';
   }
 })
 export default class Classroom extends SkldrVue {
+  public classes: string[] = [];
+
+  public beforeRouteEnter(to: any, from: any, next: () => {}) {
+    // todo ?
+    // See https://router.vuejs.org/guide/advanced/data-fetching.html#fetching-before-navigation
+  }
+
+  private async deleteClass(classId: string) {
+    const result = await serverRequest({
+      type: ServerRequestType.DELETE_CLASSROOM,
+      user: this.$store.state.user,
+      classID: classId,
+      response: null
+    });
+
+
+  }
+
   private async createClass() {
     const status = await serverRequest({
       type: ServerRequestType.CREATE_CLASSROOM,
       className: 'hi',
-      user: this.$store.state.user
+      user: this.$store.state.user,
+      response: null
     });
 
-    log(status.responseText);
-
     alertUser({
-      text: 'Class Created',
+      text: `Class ${JSON.stringify(status)} Created`,
       status: Status.ok
     });
   }
