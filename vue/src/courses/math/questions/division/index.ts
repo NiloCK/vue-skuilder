@@ -43,7 +43,7 @@ const fields: FieldDefinition[] = [
 
 export class SingleDigitDivisionQuestion extends Question {
     public static dataShapes = [{
-        name: DataShapeName.SingleDigitDivision,
+        name: DataShapeName.MATH_SingleDigitDivision,
         fields
     }];
 

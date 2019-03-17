@@ -4,13 +4,14 @@ export enum DataShapeName {
     Basic = 'Basic',
 
     // Math
-    SingleDigitAddition = 'SingleDigitAddition',
-    SingleDigitSubtraction = 'SingleDigitSubtraction',
-    SingleDigitDivision = 'SingleDigitDivision',
-    SingleDigitMultiplication = 'SingleDigitMultiplication',
-    EqualityTest = 'EqualityTest',
+    MATH_SingleDigitAddition = 'SingleDigitAddition',
+    MATH_SingleDigitSubtraction = 'SingleDigitSubtraction',
+    MATH_SingleDigitDivision = 'SingleDigitDivision',
+    MATH_SingleDigitMultiplication = 'SingleDigitMultiplication',
+    MATH_EqualityTest = 'EqualityTest',
 
 
     // French
-    AudioParse = 'AudioParse'
+    FRENCH_AudioParse = 'AudioParse',
+    FRENCH_Vocab = 'Vocab'
 }

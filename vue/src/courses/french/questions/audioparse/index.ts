@@ -8,7 +8,7 @@ import { Status } from '@/enums/Status';
 
 export class AudioParsingQuestion extends Question {
     public static dataShapes: DataShape[] = [{
-        name: DataShapeName.AudioParse,
+        name: DataShapeName.FRENCH_AudioParse,
         fields: [
             {
                 name: 'audio',

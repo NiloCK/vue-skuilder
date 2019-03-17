@@ -18,7 +18,7 @@ const fields: FieldDefinition[] = [
 
 export class EqualityTest extends Question {
     public static dataShapes = [{
-        name: DataShapeName.EqualityTest,
+        name: DataShapeName.MATH_EqualityTest,
         fields
     }];
 

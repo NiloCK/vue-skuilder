@@ -19,7 +19,7 @@ const fields: FieldDefinition[] = [
 
 export class SingleDigitAdditionQuestion extends Question {
     public static dataShapes = [{
-        name: DataShapeName.SingleDigitAddition,
+        name: DataShapeName.MATH_SingleDigitAddition,
         fields
     }];
 

@@ -40,7 +40,7 @@ const fields: FieldDefinition[] = [
 
 export class SingleDigitMultiplicationQuestion extends Question {
     public static dataShapes = [{
-        name: DataShapeName.SingleDigitMultiplication,
+        name: DataShapeName.MATH_SingleDigitMultiplication,
         fields
     }];
 
