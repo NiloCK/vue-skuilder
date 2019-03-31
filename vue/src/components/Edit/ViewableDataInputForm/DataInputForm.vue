@@ -21,7 +21,7 @@
                 v-bind:store="store"
                 v-bind:field="field"
             />
-            <blob-input
+            <image-input
                 v-else-if="field.type === img"
                 v-bind:store="store"
                 v-bind:field="field"
@@ -66,7 +66,7 @@ import { FieldType, fieldConverters } from '@/enums/FieldType';
 import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
-import BlobInput from './FieldInputs/BlobInput.vue';
+import ImageInput from './FieldInputs/ImageInput.vue';
 import MarkdownInput from './FieldInputs/MarkdownInput.vue';
 import { addNote, getNotes, getDoc } from '@/db';
 import { DisplayableData, DataShapeData, QuestionData } from '@/db/types';
@@ -84,7 +84,7 @@ import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
     NumberInput,
     StringInput,
     IntegerInput,
-    BlobInput,
+    ImageInput,
     MarkdownInput,
     CardBrowser,
     DataShapeTable
