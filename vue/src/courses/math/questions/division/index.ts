@@ -1,12 +1,10 @@
-import { Question, Answer } from '@/base-course/Displayable';
-import { randomInt } from '@/courses/math/utility';
-import { DataShapeData } from '@/db/types';
-import { FieldType } from '@/enums/FieldType';
-import { Status } from '@/enums/Status';
+import { Answer, Question } from '@/base-course/Displayable';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
-import HorizontalDivision from './horizontal.vue';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { DataShapeName } from '@/enums/DataShapeNames';
+import { FieldType } from '@/enums/FieldType';
+import { Status } from '@/enums/Status';
+import HorizontalDivision from './horizontal.vue';
 
 const fields: FieldDefinition[] = [
     {
