@@ -15,14 +15,12 @@
 <script lang="ts">
 import Vue from 'vue';
 import CourseEditor from '../components/Edit/CourseEditor.vue';
-import ComponentRegistration from '../components/Edit/ComponentRegistration/ComponentRegistration.vue';
 import { Component } from 'vue-property-decorator';
 import Courses from '../courses';
 
 @Component({
   components: {
-    CourseEditor,
-    ComponentRegistration
+    CourseEditor
   }
 })
 export default class Edit extends Vue {

@@ -4,7 +4,6 @@ import math from './math';
 import wordWork from './word-work';
 import Vue, { VueConstructor } from 'vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
-import { DataShapeName } from '@/enums/DataShapeNames';
 
 export class CourseList {
     private readonly courseList: Course[];
