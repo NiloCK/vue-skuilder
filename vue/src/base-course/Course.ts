@@ -1,11 +1,6 @@
-import { DataShape } from '@/base-course/Interfaces/DataShape';
-import { ViewData } from '@/base-course/Interfaces/ViewData';
-// import BasicCard from '@/base-course/CardTypes/BasicCard';
-import Vue, { VueConstructor } from 'vue';
-import BasicCard, { CardTypes } from '@/base-course/CardTypes/BasicCard';
+import BasicCard from '@/base-course/CardTypes/BasicCard';
 import { Displayable } from '@/base-course/Displayable';
-
-
+import Vue, { VueConstructor } from 'vue';
 
 // tslint:disable-next-line:max-classes-per-file
 export class Course {
