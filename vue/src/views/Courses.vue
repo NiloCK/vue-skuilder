@@ -20,6 +20,15 @@
               <v-list-tile-content>
                 <v-list-tile-title v-html="course"></v-list-tile-title>
               </v-list-tile-content>
+              <v-list-tile-action>
+                <v-btn 
+                 small
+                 color="secondary"
+                 @click="dropCourse(course)"
+                >
+                  Drop
+                </v-btn>
+              </v-list-tile-action>
             </v-list-tile>
           </template>
         </v-list>
@@ -79,7 +88,7 @@ import { log } from 'util';
 })
 export default class Courses extends Vue {
   public existingCourses: string[] = [];
-  public registeredCourses: string[] = ['sample', 'course', 'data'];
+  public registeredCourses: string[] = ['sample', 'course', 'data', 'math'];
   public get availableCourses() {
     return _.without(this.existingCourses, ...this.registeredCourses);
   }
@@ -90,7 +99,10 @@ export default class Courses extends Vue {
     });
   }
   private addCourse(course: string) {
-    log(`Attempting to register for ${course}`);
+    log(`Attempting to register for ${course}.`);
+  }
+  private dropCourse(course: string) {
+    log(`Attempting to drop ${course}.`);
   }
 }
 </script>
