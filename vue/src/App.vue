@@ -111,6 +111,10 @@ export default {
         {
           icon: 'group',
           title: 'Classrooms'
+        },
+        {
+          icon: 'book',
+          title: 'Courses'
         }
       ],
       miniVariant: false,
