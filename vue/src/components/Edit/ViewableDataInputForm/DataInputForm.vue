@@ -31,6 +31,11 @@
                 v-bind:store="store"
                 v-bind:field="field"
             />
+            <audio-input
+                v-else-if="field.type === audio"
+                v-bind:store="store"
+                v-bind:field="field" 
+            />
       </div>
       <v-btn
           type="submit"
@@ -67,6 +72,7 @@ import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
 import ImageInput from './FieldInputs/ImageInput.vue';
+import AudioInput from './FieldInputs/AudioInput.vue';
 import MarkdownInput from './FieldInputs/MarkdownInput.vue';
 import { addNote, getNotes, getDoc } from '@/db';
 import { DisplayableData, DataShapeData, QuestionData } from '@/db/types';
@@ -81,6 +87,7 @@ import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 
 @Component({
   components: {
+    AudioInput,
     NumberInput,
     StringInput,
     IntegerInput,
@@ -132,6 +139,7 @@ export default class DataInputForm extends Vue {
   private readonly num: string = FieldType.NUMBER;
   private readonly img: string = FieldType.IMAGE;
   private readonly mkd: string = FieldType.MARKDOWN;
+  private readonly audio: string = FieldType.AUDIO;
 
   public get userInputIsValid(): boolean {
     let ret: boolean =

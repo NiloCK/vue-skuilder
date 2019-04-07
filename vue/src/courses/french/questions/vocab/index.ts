@@ -18,7 +18,7 @@ const fields: FieldDefinition[] = [
   },
   {
     name: 'audio',
-    type: FieldType.IMAGE
+    type: FieldType.AUDIO
   }
 ];
 

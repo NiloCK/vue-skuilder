@@ -3,7 +3,8 @@ export enum FieldType {
     NUMBER = 'number',
     INT = 'int',
     IMAGE = 'image',
-    MARKDOWN = 'markdown'
+    MARKDOWN = 'markdown',
+    AUDIO = 'audio'
 }
 
 const stringConverter: Converter = (value: string) => value;
