@@ -1,8 +1,8 @@
 <template>
   <v-container fluid>
 
-  <v-layout row justify-space-around="">
-    <v-flex >
+  <v-layout row wrap justify-space-around>
+    <v-flex md4 sm12 xs12>
       <v-card>
         <v-toolbar >
           <v-toolbar-title>My Registered Courses</v-toolbar-title>
@@ -36,8 +36,8 @@
 
       
     </v-flex>
-    <v-spacer></v-spacer>
-    <v-flex>
+    <!-- <v-spacer></v-spacer> -->
+    <v-flex md4 sm12 xs12>
       <v-card>
         <v-toolbar >
           <v-toolbar-title>Available Courses</v-toolbar-title>
