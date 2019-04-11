@@ -40,7 +40,10 @@
       <v-btn icon @click.stop="fixed = !fixed">
         <v-icon>remove</v-icon>
       </v-btn>
-      <v-toolbar-title v-text="title"></v-toolbar-title>
+      <v-toolbar-title class="text-uppercase">
+        <span class="font-weight-thin grey--text text--darken-1">edu</span>
+        <span class="grey--text text--darken-2">Quilted</span>
+      </v-toolbar-title>
       <v-spacer></v-spacer>
       <user-login-and-registration-container />
       <v-btn icon @click.stop="rightDrawer = !rightDrawer">
