@@ -278,8 +278,7 @@ export async function doesUserExist(name: string) {
         const user = await remote.getUser(name);
         log(`user: ${user._id}`);
         return true;
-    }
-    catch (err) {
+    } catch (err) {
         log(`User error: ${err}`);
         return false;
     }
@@ -294,7 +293,10 @@ export async function addNote(course: string, shape: DataShape, data: any) {
     });
 
     const attachmentFields = shape.fields.filter((field) => {
-        return field.type === FieldType.IMAGE;
+        return (
+            field.type === FieldType.IMAGE ||
+            field.type === FieldType.AUDIO
+        );
     });
     const attachments: { [index: string]: PouchDB.Core.FullAttachment } = {};
     const payload: DisplayableData = {

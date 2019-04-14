@@ -13,5 +13,8 @@ export enum DataShapeName {
 
     // French
     FRENCH_AudioParse = 'AudioParse',
-    FRENCH_Vocab = 'Vocab'
+    FRENCH_Vocab = 'Vocab',
+
+    // WordWork
+    WORDWORK_Spelling = 'WordWork_Spelling'
 }
