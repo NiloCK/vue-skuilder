@@ -30,6 +30,11 @@ export default class AudioAutoPlayer extends Vue {
     mousetrap.bind('up', () => {
       this.play();
     });
+
+    // setTimeout here because calling this.play() directly
+    // plays the entire array of audioElems simultaneously.
+    // No idea why ... ?
+    setTimeout(this.play, 100);
   }
 
   private play() {
