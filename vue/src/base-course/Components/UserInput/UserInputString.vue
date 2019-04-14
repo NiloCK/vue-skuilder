@@ -7,6 +7,7 @@
         row-height="24"
         toggle-keys="[13,32]"
         type="text"
+        class='headline'
     ></v-text-field>
 </template>
 
@@ -23,9 +24,4 @@ export default class UserInputString extends UserInput {
 </script>
 
 <style scoped>
-.userInput {
-  border: none;
-  text-align: center;
-  border-bottom: 1px black;
-}
 </style>
