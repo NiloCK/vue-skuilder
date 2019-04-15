@@ -202,7 +202,7 @@ export default class Study extends Vue {
     });
   }
 
-  //todo: delete this
+  // todo: delete this
   private loadRandomCard() {
     getCards().then((results) => {
       return results.docs[
