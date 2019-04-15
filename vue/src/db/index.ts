@@ -99,7 +99,7 @@ export async function usernameIsAvailable(username: string): Promise<boolean> {
 }
 
 function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) {
-    const currentTime = moment();
+    const currentTime = moment.utc();
     const expirationDate: string = currentTime.add(2, 'months').toISOString();
 
     guestDB.get(expiryDocID).then((doc) => {
@@ -471,19 +471,44 @@ function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>)
         const ret: T = {
             ...(record as object)
         } as T;
-        ret.timeStamp = moment(record.timeStamp);
+        ret.timeStamp = moment.utc(record.timeStamp);
         return ret;
     });
 }
 
+const REVIEW_PREFIX: string = 'card_review_';
+
 export function scheduleCardReview(user: string, card_id: PouchDB.Core.DocumentId, time: Moment) {
     // createClassroom("testClass"); // testing this function...
 
-    const now = moment();
+    const now = moment.utc();
     getUserDB(user).put<ScheduledCard>({
-        _id: 'card_review_' + time.format('YYYY-MM-DD-kk:mm:ss-SSS'),
+        _id: REVIEW_PREFIX + time.format('YYYY-MM-DD--kk:mm:ss-SSS'),
         cardId: card_id,
         reviewTime: time,
         scheduledAt: now
     });
+}
+
+/**
+ * Returns a promise of all card IDs which are due for review.
+ * 
+ * @param user The username whose scheduled cards are of interest
+ */
+export async function getScheduledCards(user: string) {
+    const now = moment.utc();
+    const docs = await getUserDB(user).allDocs({});
+    const ret: PouchDB.Core.DocumentId[] = [];
+    docs.rows.forEach((row) => {
+        if (row.id.startsWith(REVIEW_PREFIX)) {
+            const date = moment.utc(
+                row.id.substr(REVIEW_PREFIX.length),
+                'YYYY-MM-DD--kk:mm:ss-SSS'
+            );
+            if (now.isAfter(date)) {
+                ret.push(row.id);
+            }
+        }
+    });
+    return ret;
 }
