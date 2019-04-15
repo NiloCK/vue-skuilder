@@ -16,7 +16,7 @@ export default abstract class Viewable extends Vue {
      * Returns the time in milliseconds since the element was created
      */
     public get timeSpent(): number {
-        return Math.abs(moment().diff(this.startTime, 'milliseconds'));
+        return Math.abs(moment.utc().diff(this.startTime, 'milliseconds'));
     }
 
     /**

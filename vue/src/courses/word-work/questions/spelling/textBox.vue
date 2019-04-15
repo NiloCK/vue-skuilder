@@ -1,12 +1,19 @@
 <template>
   <div>
-    <audio-auto-player 
-      :src="[getURL('WordAudio'), getURL('SentenceAudio'), getURL('WordAudio')]" />
-    <br>
-    <span class="body-2">
+    <span class="headline">
       Spell the word:
     </span>
     <UserInputString />
+    <center>
+      <span v-if='priorAttempts !== 0' class="title">
+      {{ question.word }}
+      </span>
+    </center>
+    <center>
+      <audio-auto-player
+        :src="[getURL('WordAudio'), getURL('SentenceAudio'), getURL('WordAudio')]"
+      />
+    </center>
   </div>
 </template>
 
