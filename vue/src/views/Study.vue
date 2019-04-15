@@ -1,8 +1,11 @@
 <template>
   <div class="Study">
-    <h1>Study:</h1>
+    <h1 class='display-1'>Study:</h1>
     <br>
-    <div ref="shadowWrapper">
+    <div v-if='sessionFinished' class='display-1'>
+      Session is finished!
+    </div>
+    <div v-else ref="shadowWrapper">
       <card-viewer
           v-bind:view="view"
           v-bind:data="data"
@@ -30,7 +33,7 @@ import Viewable from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import Courses from '@/courses';
-import { getCards, getDoc, putCardRecord, scheduleCardReview } from '@/db';
+import { getActiveCards, getScheduledCards, getCards, getDoc, putCardRecord, scheduleCardReview } from '@/db';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
@@ -51,12 +54,80 @@ export default class Study extends Vue {
   public cardID: PouchDB.Core.DocumentId = '';
   public cardCount: number = 1;
 
+  public readonly SessionCount: number = 10;
+
+  public sessionFinished: boolean = false;
+  public session: string[] = [];
+  public activeCards: string[] = [];
+
   public $refs: {
     shadowWrapper: HTMLDivElement
   };
 
-  public created() {
-    this.loadRandomCard();
+  public async created() {
+    this.activeCards = await getActiveCards(this.$store.state.user);
+    await this.getSessionCards();
+
+    this.nextCard();
+    // this.loadRandomCard();
+  }
+
+  /**
+   * Loads the next card in the session, and removes the 
+   */
+  public nextCard(_id?: string) {
+    if (_id) {
+      this.session.splice(
+        this.session.indexOf(_id),
+        1
+      );
+    }
+
+    if (this.session.length === 0) {
+      this.sessionFinished = true;
+    } else {
+      this.loadCard(this.session[
+        randInt(this.session.length)
+      ]);
+    }
+  }
+
+  private async getSessionCards() {
+    // start with the review cards that are 'due'
+    const dueCards = await getScheduledCards(this.$store.state.user);
+
+    // but cut them off if they are too many for the session
+    if (dueCards.length <= this.SessionCount) {
+      this.session.concat(dueCards);
+    } else {
+      for (let index = 0; index < this.SessionCount; index++) {
+        this.session.push(dueCards[index]);
+      }
+    }
+
+    // # of new cards is at least one, otherwise fills half
+    // of the remaining session space
+    let newCardCount: number = Math.max(
+      1,
+      Math.ceil(
+        (this.SessionCount - this.session.length) / 2
+      )
+    );
+
+    const cards = await getCards();
+    const cardIDs = cards.docs.map((doc) => {
+      return doc._id;
+    });
+
+    const newCards = cardIDs.filter((cardID) => {
+      return this.activeCards.indexOf(cardID) === -1;
+    });
+
+    while (newCardCount > 0 && newCards.length > 0) {
+      const index = randInt(newCards.length);
+      this.session.push(newCards.splice(index, 1)[0]);
+      newCardCount--;
+    }
   }
 
   private processResponse(r: CardRecord) {
@@ -68,28 +139,70 @@ export default class Study extends Vue {
       log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
       if (r.isCorrect) {
         this.$refs.shadowWrapper.classList.add('correct');
-        this.loadRandomCard();
+        if (r.priorAttemps === 0) {
+          this.nextCard(r.cardID);
+        } else {
+          this.nextCard();
+        }
+        // this.loadRandomCard();
       } else {
         this.$refs.shadowWrapper.classList.add('incorrect');
         // clear user input?
       }
     } else {
-      this.loadRandomCard();
+      this.nextCard(r.cardID);
+      // this.loadRandomCard();
     }
 
     setTimeout(() => {
       this.$refs.shadowWrapper.classList.remove('correct', 'incorrect');
+
     }, 1250);
   }
 
   private async logCardRecordAndScheduleReview(r: CardRecord) {
     const history = await putCardRecord(r, this.$store.state.user);
     const nextInterval = newInterval(history.records);
-    const nextReviewTime = moment().add(nextInterval, 'seconds');
+    const nextReviewTime = moment.utc().add(nextInterval, 'seconds');
 
-    scheduleCardReview(this.$store.state.user, r.cardID, nextReviewTime);
+    // todo: need to retain some state here wrt a card's being displayed
+    // multiple times in a session.
+    if (isQuestionRecord(r)) {
+      if (r.isCorrect && r.priorAttemps === 0) {
+        scheduleCardReview(this.$store.state.user, r.cardID, nextReviewTime);
+      }
+    } else {
+      scheduleCardReview(this.$store.state.user, r.cardID, nextReviewTime);
+    }
   }
 
+  private loadCard(_id: string) {
+    this.cardID = _id;
+    this.cardCount++;
+
+    getDoc<CardData>(_id).then((cardData) => {
+      this.view = Courses.getView(cardData.id_view);
+      return cardData.id_displayable_data;
+    }).then((displayableData) => {
+      return displayableData.map((id) => {
+        return getDoc<DisplayableData>(id, {
+          attachments: true,
+          binary: true
+        });
+      });
+    }).then((displayDocs) => {
+      displayDocs.forEach((promiseDoc) => {
+        promiseDoc.then((doc) => {
+          this.data.unshift(
+            displayableDataToViewData(doc)
+          );
+          this.data = this.data.slice(0, displayDocs.length);
+        });
+      });
+    });
+  }
+
+  //todo: delete this
   private loadRandomCard() {
     getCards().then((results) => {
       return results.docs[

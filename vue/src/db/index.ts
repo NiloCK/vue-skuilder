@@ -491,15 +491,16 @@ export function scheduleCardReview(user: string, card_id: PouchDB.Core.DocumentI
 }
 
 /**
- * Returns a promise of all card IDs which are due for review.
+ * Returns a promise of all cardReview IDs which are due for review.
  * 
  * @param user The username whose scheduled cards are of interest
  */
 export async function getScheduledCards(user: string) {
     const now = moment.utc();
-    const docs = await getUserDB(user).allDocs({});
+    const userDB = getUserDB(user);
+    const allDocs = await userDB.allDocs({});
     const ret: PouchDB.Core.DocumentId[] = [];
-    docs.rows.forEach((row) => {
+    allDocs.rows.forEach((row) => {
         if (row.id.startsWith(REVIEW_PREFIX)) {
             const date = moment.utc(
                 row.id.substr(REVIEW_PREFIX.length),
@@ -508,6 +509,44 @@ export async function getScheduledCards(user: string) {
             if (now.isAfter(date)) {
                 ret.push(row.id);
             }
+        }
+    });
+    const reviewDocs = await userDB.allDocs<ScheduledCard>({
+        include_docs: true,
+        keys: ret
+    });
+
+    return reviewDocs.rows.map((row) => {
+        return row.doc!.cardId;
+    });
+    // const req = ret.map((id) => {
+    //     return {
+    //         id,
+    //         rev: ''
+    //     };
+    // });
+    // const reviewDocs = await userDB.bulkGet<ScheduledCard>({
+    //     docs: req
+    // });
+    // return reviewDocs.results.map((val) => {
+    //     return (val as unknown as ScheduledCard).cardId;
+    // });
+    // // return ret;
+}
+
+/**
+ * Returns a promise of the card IDs that the user has
+ * previously studied
+ *
+ * @param user The username of the corcerned user
+ */
+export async function getActiveCards(user: string) {
+    const now = moment.utc();
+    const docs = await getUserDB(user).allDocs({});
+    const ret: PouchDB.Core.DocumentId[] = [];
+    docs.rows.forEach((row) => {
+        if (row.id.startsWith('cardH-')) {
+            ret.push(row.id.substr('cardH-'.length));
         }
     });
     return ret;
