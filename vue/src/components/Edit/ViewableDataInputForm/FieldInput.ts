@@ -44,7 +44,6 @@ export abstract class FieldInput extends Vue {
 
     public clearData() {
         if (this.$refs.inputField.type === 'file') {
-            log(`Clearing the file inputs...`);
             this.$refs.inputField.value = '';
         }
         this.store[this.field.name] = '';
