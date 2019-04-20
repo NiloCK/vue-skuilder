@@ -284,7 +284,7 @@ export async function doesUserExist(name: string) {
     }
 }
 
-export async function addNote(course: string, shape: DataShape, data: any) {
+export async function addNote(course: string, shape: DataShape, data: any, author?: string) {
     // todo: make less crappy - test for duplicate insertions - #15
 
     const dataShapeId = NameSpacer.getDataShapeString({
@@ -305,6 +305,10 @@ export async function addNote(course: string, shape: DataShape, data: any) {
         docType: DocType.DISPLAYABLE_DATA,
         id_datashape: dataShapeId
     };
+
+    if (author) {
+        payload.author = author;
+    }
 
     if (attachmentFields.length !== 0) {
         attachmentFields.forEach((attField) => {
