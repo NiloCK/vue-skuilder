@@ -201,7 +201,7 @@ export default class DataInputForm extends Vue {
   public submit() {
     if (this.userInputIsValid) {
       this.uploading = true;
-      addNote(this.course, this.dataShape, this.store.convertedInput)
+      addNote(this.course, this.dataShape, this.convertedInput)
         .then((resp) => {
           // this.uploading = false;
           this.reset();
