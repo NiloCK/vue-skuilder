@@ -69,11 +69,11 @@ export default class Study extends Vue {
     await this.getSessionCards();
 
     this.nextCard();
-    // this.loadRandomCard();
   }
 
   /**
-   * Loads the next card in the session, and removes the 
+   * Loads the next card in the session, and removes the
+   * passed _id from session rotation (marks as complete)
    */
   public nextCard(_id?: string) {
     if (_id) {
@@ -144,19 +144,16 @@ export default class Study extends Vue {
         } else {
           this.nextCard();
         }
-        // this.loadRandomCard();
       } else {
         this.$refs.shadowWrapper.classList.add('incorrect');
         // clear user input?
       }
     } else {
       this.nextCard(r.cardID);
-      // this.loadRandomCard();
     }
 
     setTimeout(() => {
       this.$refs.shadowWrapper.classList.remove('correct', 'incorrect');
-
     }, 1250);
   }
 
@@ -176,65 +173,33 @@ export default class Study extends Vue {
     }
   }
 
-  private loadCard(_id: string) {
-    this.cardID = _id;
+  /**
+   * async fetch card data and view from the db
+   * for the given card_id, and then display the card
+   * to the user.
+   */
+  private async loadCard(_id: string) {
+
+    const tmpCardData = await getDoc<CardData>(_id);
+    const tmpView = Courses.getView(tmpCardData.id_view);
+    const tmpDataDocs = await tmpCardData.id_displayable_data.map((id) => {
+      return getDoc<DisplayableData>(id, {
+        attachments: true,
+        binary: true
+      });
+    });
+
+    const tmpData = [];
+    for await (const doc of tmpDataDocs) {
+      tmpData.unshift(
+        displayableDataToViewData(doc)
+      );
+    }
+
     this.cardCount++;
-
-    getDoc<CardData>(_id).then((cardData) => {
-      this.view = Courses.getView(cardData.id_view);
-      return cardData.id_displayable_data;
-    }).then((displayableData) => {
-      return displayableData.map((id) => {
-        return getDoc<DisplayableData>(id, {
-          attachments: true,
-          binary: true
-        });
-      });
-    }).then((displayDocs) => {
-      displayDocs.forEach((promiseDoc) => {
-        promiseDoc.then((doc) => {
-          this.data.unshift(
-            displayableDataToViewData(doc)
-          );
-          this.data = this.data.slice(0, displayDocs.length);
-        });
-      });
-    });
-  }
-
-  // todo: delete this
-  private loadRandomCard() {
-    getCards().then((results) => {
-      return results.docs[
-        randInt(results.docs.length)
-      ];
-    }).then((doc) => {
-      log(`
-DocID ${doc._id} has been picked...
-            `);
-      this.cardID = doc._id;
-      this.cardCount++;
-      return getDoc<CardData>(doc._id);
-    }).then((cardData) => {
-      this.view = Courses.getView(cardData.id_view);
-      return cardData.id_displayable_data;
-    }).then((displayableData) => {
-      return displayableData.map((id) => {
-        return getDoc<DisplayableData>(id, {
-          attachments: true,
-          binary: true
-        });
-      });
-    }).then((displayDocs) => {
-      displayDocs.forEach((promiseDoc) => {
-        promiseDoc.then((doc) => {
-          this.data.unshift(
-            displayableDataToViewData(doc)
-          );
-          this.data = this.data.slice(0, displayDocs.length);
-        });
-      });
-    });
+    this.data = tmpData;
+    this.view = tmpView;
+    this.cardID = _id;
   }
 }
 </script>
