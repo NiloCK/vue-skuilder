@@ -190,7 +190,10 @@ export default class Study extends Vue {
     });
 
     const tmpData = [];
-    for await (const doc of tmpDataDocs) {
+
+    for (const docPromise of tmpDataDocs) {
+      const doc = await docPromise;
+
       tmpData.unshift(
         displayableDataToViewData(doc)
       );
