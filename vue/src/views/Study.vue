@@ -5,6 +5,16 @@
     <div v-if='sessionFinished' class='display-1'>
       Session is finished!
     </div>
+    <div v-else-if="loading">
+      <v-progress-circular
+        color="primary"
+        indeterminate
+        rotate="0"
+        size="32"
+        value="0"
+        width="4"
+      ></v-progress-circular>
+    </div>
     <div v-else ref="shadowWrapper">
       <card-viewer
           v-bind:view="view"
@@ -59,6 +69,8 @@ export default class Study extends Vue {
   public sessionFinished: boolean = false;
   public session: string[] = [];
   public activeCards: string[] = [];
+
+  public loading: boolean = false;
 
   public $refs: {
     shadowWrapper: HTMLDivElement
@@ -179,6 +191,7 @@ export default class Study extends Vue {
    * to the user.
    */
   private async loadCard(_id: string) {
+    this.loading = true;
 
     const tmpCardData = await getDoc<CardData>(_id);
     const tmpView = Courses.getView(tmpCardData.id_view);
@@ -203,6 +216,8 @@ export default class Study extends Vue {
     this.data = tmpData;
     this.view = tmpView;
     this.cardID = _id;
+
+    this.loading = false;
   }
 }
 </script>
