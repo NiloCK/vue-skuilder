@@ -1,6 +1,6 @@
 <template>
     <v-btn @click="play" large raised icon color="primary">
-        <v-icon>play_arrow</v-icon>
+        <v-icon>volume_up</v-icon>
     </v-btn>
 </template>
 
