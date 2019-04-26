@@ -110,7 +110,7 @@ export default class Study extends Vue {
 
     // but cut them off if they are too many for the session
     if (dueCards.length <= this.SessionCount) {
-      this.session.concat(dueCards);
+      this.session = this.session.concat(dueCards);
     } else {
       for (let index = 0; index < this.SessionCount; index++) {
         this.session.push(dueCards[index]);
