@@ -17,6 +17,7 @@ export default class AudioAutoPlayer extends Vue {
     required: true
   }) public src: string | string[];
   public audioElems: HTMLAudioElement[] = [];
+  private playTimeout: NodeJS.Timer;
 
   public created() {
     if (typeof this.src === 'string') {
@@ -37,18 +38,34 @@ export default class AudioAutoPlayer extends Vue {
     setTimeout(this.play, 100);
   }
 
+  public stop() {
+    clearTimeout(this.playTimeout);
+    this.audioElems.forEach((audio) => {
+      audio.pause();
+      audio.currentTime = 0;
+    });
+  }
+
   private play() {
     this.playByIndex(0);
   }
+
   private playByIndex(n: number) {
     this.audioElems[n].play();
 
     if (n + 1 < this.audioElems.length) {
       const delay = (this.audioElems[n].duration + 0.7) * 1000;
-      setTimeout(() => {
+      this.playTimeout = setTimeout(() => {
         this.playByIndex(n + 1);
       }, delay);
     }
   }
+
+  private beforeDestroy() {
+    this.stop();
+  }
+
+
+
 }
 </script>
