@@ -14,7 +14,7 @@
         <!-- <h1>Hi</h1> -->
         <h1 class='display-4'>
           <span class="font-weight-thin">edu</span>
-          <span class="font-weight-bold">Quilted</span>          
+          <span class="font-weight-bold">Quilt</span>          
         </h1>
       </v-layout>
     </v-slide-y-transition>

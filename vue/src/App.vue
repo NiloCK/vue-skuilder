@@ -42,7 +42,7 @@
       </v-btn> -->
       <v-toolbar-title class="text-uppercase">
         <span class="font-weight-thin grey--text text--darken-1">edu</span>
-        <span class="grey--text text--darken-2">Quilted</span>
+        <span class="grey--text text--darken-2">Quilt</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <user-login-and-registration-container />
