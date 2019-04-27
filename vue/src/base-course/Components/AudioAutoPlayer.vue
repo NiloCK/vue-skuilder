@@ -17,7 +17,8 @@ export default class AudioAutoPlayer extends Vue {
     required: true
   }) public src: string | string[];
   public audioElems: HTMLAudioElement[] = [];
-  private playTimeout: NodeJS.Timer;
+  private playTimeouts: NodeJS.Timer[] = [];
+  private playing: boolean = false;
 
   public created() {
     if (typeof this.src === 'string') {
@@ -39,14 +40,23 @@ export default class AudioAutoPlayer extends Vue {
   }
 
   public stop() {
-    clearTimeout(this.playTimeout);
+    this.playing = false;
+
+    this.playTimeouts.forEach((timeOut) => {
+      clearTimeout(timeOut);
+    });
+
+    log(`Audio stopping...`);
     this.audioElems.forEach((audio) => {
-      audio.pause();
-      audio.currentTime = 0;
+      if (!audio.paused) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
     });
   }
 
   private play() {
+    this.playing = true;
     this.playByIndex(0);
   }
 
@@ -55,9 +65,11 @@ export default class AudioAutoPlayer extends Vue {
 
     if (n + 1 < this.audioElems.length) {
       const delay = (this.audioElems[n].duration + 0.7) * 1000;
-      this.playTimeout = setTimeout(() => {
-        this.playByIndex(n + 1);
-      }, delay);
+      this.playTimeouts.push(setTimeout(() => {
+        if (this.playing) {
+          this.playByIndex(n + 1);
+        }
+      }, delay));
     }
   }
 
