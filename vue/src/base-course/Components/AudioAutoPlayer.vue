@@ -33,13 +33,10 @@ export default class AudioAutoPlayer extends Vue {
       this.play();
     });
 
-    // setTimeout here because calling this.play() directly
-    // plays the entire array of audioElems simultaneously.
-    // No idea why ... ?
-    setTimeout(this.play, 100);
+    this.play();
   }
 
-  public stop() {
+  private stop() {
     this.playing = false;
 
     this.playTimeouts.forEach((timeOut) => {
@@ -55,29 +52,40 @@ export default class AudioAutoPlayer extends Vue {
     });
   }
 
+  private downloadFinished(i: number): boolean {
+    try {
+      return !isNaN(this.audioElems[i].duration);
+    } catch (e) {
+      throw new Error('AudioPlayer does not have an element at this index');
+    }
+  }
+
   private play() {
     this.playing = true;
     this.playByIndex(0);
   }
 
   private playByIndex(n: number) {
-    this.audioElems[n].play();
+    if (this.downloadFinished(n)) {
 
-    if (n + 1 < this.audioElems.length) {
-      const delay = (this.audioElems[n].duration + 0.7) * 1000;
-      this.playTimeouts.push(setTimeout(() => {
-        if (this.playing) {
-          this.playByIndex(n + 1);
-        }
-      }, delay));
+      this.audioElems[n].play();
+
+      if (n + 1 < this.audioElems.length) {
+        const delay = (this.audioElems[n].duration + 0.7) * 1000;
+        this.playTimeouts.push(setTimeout(() => {
+          if (this.playing) {
+            this.playByIndex(n + 1);
+          }
+        }, delay));
+      }
+    } else {
+      setTimeout(this.playByIndex, 100, n);
     }
   }
 
   private beforeDestroy() {
     this.stop();
   }
-
-
 
 }
 </script>
