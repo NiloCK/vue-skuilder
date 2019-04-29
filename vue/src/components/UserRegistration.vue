@@ -79,7 +79,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import {  remoteDBLogin,
+import {
+  remoteDBLogin,
   remoteDBSignup,
   doesUserExist,
   getUserDB
@@ -160,6 +161,7 @@ Author: ${this.author}
         then((resp) => {
           if (resp.ok) {
             log(`User ${this.username} created`);
+            remoteDBLogin(this.username, this.password);
             this.$store.state.user = this.username;
           }
         }).catch((err) => {
