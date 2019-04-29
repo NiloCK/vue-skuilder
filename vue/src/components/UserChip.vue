@@ -48,7 +48,7 @@ import { setTimeout } from 'timers';
 @Component({})
 export default class UserChip extends Vue {
   private items: string[] = [
-    'sample1', 'sample2', 'sample3', 'sample4'
+    // 'sample1', 'sample2', 'sample3', 'sample4'
   ];
 
   private checked: boolean = false;
