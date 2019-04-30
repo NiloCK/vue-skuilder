@@ -1,21 +1,20 @@
 <template>
   <div class="Study">
-    <h1 class='display-1'>Study:</h1>
-    <br>
-    <div v-if='sessionFinished' class='display-1'>
-      Session is finished!
-    </div>
-    <div v-else-if="loading">
-      <v-progress-circular
+    <h1 class='display-1'>Study:
+    <v-progress-circular v-if="loading"
         color="primary"
         indeterminate
         rotate="0"
         size="32"
         value="0"
         width="4"
-      ></v-progress-circular>
+    ></v-progress-circular>
+    </h1>
+    <br>
+    <div v-if='sessionFinished' class='display-1'>
+      All done! Great job!
     </div>
-    <div v-else ref="shadowWrapper">
+    <div v-else ref="shadowWrapper">    
       <card-viewer
           v-bind:view="view"
           v-bind:data="data"
