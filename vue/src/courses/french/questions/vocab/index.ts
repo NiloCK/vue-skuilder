@@ -4,6 +4,7 @@ import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import { NonEmptyString } from '@/base-course/Validators';
 import { DataShapeName } from '@/enums/DataShapeNames';
 import { FieldType } from '@/enums/FieldType';
+import { Answer } from '../../../../base-course/Displayable';
 import IdentifyVocab from './identify.vue';
 
 const fields: FieldDefinition[] = [
@@ -34,7 +35,7 @@ export class VocabQuestion extends Question {
     IdentifyVocab
   ];
 
-  public isCorrect(answer: import('../../../../base-course/Displayable').Answer): boolean {
+  public isCorrect(answer: Answer): boolean {
     throw new Error('Method not implemented.');
   }
   public dataShapes(): DataShape[] {

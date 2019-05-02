@@ -8,26 +8,47 @@
 import Vue from 'vue';
 import { Prop, Component } from 'vue-property-decorator';
 import * as mousetrap from 'mousetrap';
+import { log } from 'util';
+import { setTimeout } from 'timers';
 
 @Component({})
 export default class AudioAutoPlayer extends Vue {
-    @Prop({
-        required: true
-    }) public src: string;
-    public audioPlayer: HTMLAudioElement;
+  @Prop({
+    required: true
+  }) public src: string | string[];
+  public audioElems: HTMLAudioElement[] = [];
 
-    public created() {
-        this.audioPlayer = new Audio(this.src);
-        this.audioPlayer.autoplay = true;
-
-        mousetrap.bind('up', () => {
-            this.play();
-        });
+  public created() {
+    if (typeof this.src === 'string') {
+      this.audioElems.push(new Audio(this.src));
+    } else {
+      this.src.forEach((url) => {
+        this.audioElems.push(new Audio(url));
+      });
     }
 
-    private play() {
-        this.audioPlayer.play();
+    mousetrap.bind('up', () => {
+      this.play();
+    });
+
+    // setTimeout here because calling this.play() directly
+    // plays the entire array of audioElems simultaneously.
+    // No idea why ... ?
+    setTimeout(this.play, 100);
+  }
+
+  private play() {
+    this.playByIndex(0);
+  }
+  private playByIndex(n: number) {
+    this.audioElems[n].play();
+
+    if (n + 1 < this.audioElems.length) {
+      const delay = (this.audioElems[n].duration + 0.7) * 1000;
+      setTimeout(() => {
+        this.playByIndex(n + 1);
+      }, delay);
     }
+  }
 }
 </script>
-

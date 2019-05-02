@@ -38,12 +38,14 @@ function newQuestionInterval(cardHistory: QuestionRecord[]) {
  * @param cardHistory The record of user attempts with the question
  */
 function lastSuccessfulInterval(cardHistory: QuestionRecord[]): number {
-    for (let i = cardHistory.length - 1; i >= 1; i++) {
+    for (let i = cardHistory.length - 1; i >= 1; i--) {
         if (
             cardHistory[i].priorAttemps === 0
             && cardHistory[i].isCorrect
         ) {
-            return secondsBetween(cardHistory[i - 1].timeStamp, cardHistory[i].timeStamp);
+            const lastInterval = secondsBetween(cardHistory[i - 1].timeStamp, cardHistory[i].timeStamp)
+            log(`Last interval w/ this card was: ${lastInterval}`);
+            return lastInterval;
         }
     }
 

@@ -42,6 +42,20 @@ export const fieldConverters:
                 return new Blob();
             }
         }
+    },
+    audio: {
+        databaseConverter: (value) => value,
+        previewConverter: (value: {
+            content_type: string,
+            data: Blob
+        }) => {
+            if (value) {
+                return value.data;
+            } else {
+                return new Blob();
+            }
+            // return '(audio)';
+        }
     }
 };
 

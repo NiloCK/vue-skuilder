@@ -84,6 +84,7 @@ import { alertUser } from '@/components/SnackbarService.vue';
 import { Status } from '@/enums/Status';
 import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
+import SkldrVue from '../../../SkldrVue';
 
 @Component({
   components: {
@@ -97,7 +98,7 @@ import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
     DataShapeTable
   }
 })
-export default class DataInputForm extends Vue {
+export default class DataInputForm extends SkldrVue {
   public $refs: {
     fieldInputWraps: HTMLDivElement[]
   };
@@ -201,7 +202,7 @@ export default class DataInputForm extends Vue {
   public submit() {
     if (this.userInputIsValid) {
       this.uploading = true;
-      addNote(this.course, this.dataShape, this.store.convertedInput)
+      addNote(this.course, this.dataShape, this.convertedInput, this.$store.state.user)
         .then((resp) => {
           // this.uploading = false;
           this.reset();

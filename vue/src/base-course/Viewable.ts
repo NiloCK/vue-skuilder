@@ -9,14 +9,14 @@ import { log } from 'util';
 // @Component
 export default abstract class Viewable extends Vue {
     @Prop() public data: ViewData[];
-    protected startTime: moment.Moment = moment();
+    protected startTime: moment.Moment = moment.utc();
     protected MouseTrap: MousetrapInstance = new MouseTrap(this.$el);
 
     /**
      * Returns the time in milliseconds since the element was created
      */
     public get timeSpent(): number {
-        return Math.abs(moment().diff(this.startTime, 'milliseconds'));
+        return Math.abs(moment.utc().diff(this.startTime, 'milliseconds'));
     }
 
     /**
@@ -52,16 +52,20 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
 
     public submitAnswer(answer: Answer) {
         log('QuestionView.submitAnswer called...');
+        const isCorrect = this.question.isCorrect(answer);
 
         const record: QuestionRecord = {
             priorAttemps: this.priorAttempts,
             cardID: '',
-            isCorrect: this.question.isCorrect(answer),
+            isCorrect,
             timeSpent: this.timeSpent,
             timeStamp: this.startTime,
             userAnswer: answer
         };
 
+        if (!isCorrect) {
+            this.priorAttempts++;
+        }
         this.emitResponse(record);
     }
 }

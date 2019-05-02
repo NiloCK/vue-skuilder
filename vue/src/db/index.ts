@@ -99,7 +99,7 @@ export async function usernameIsAvailable(username: string): Promise<boolean> {
 }
 
 function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) {
-    const currentTime = moment();
+    const currentTime = moment.utc();
     const expirationDate: string = currentTime.add(2, 'months').toISOString();
 
     guestDB.get(expiryDocID).then((doc) => {
@@ -278,14 +278,13 @@ export async function doesUserExist(name: string) {
         const user = await remote.getUser(name);
         log(`user: ${user._id}`);
         return true;
-    }
-    catch (err) {
+    } catch (err) {
         log(`User error: ${err}`);
         return false;
     }
 }
 
-export async function addNote(course: string, shape: DataShape, data: any) {
+export async function addNote(course: string, shape: DataShape, data: any, author?: string) {
     // todo: make less crappy - test for duplicate insertions - #15
 
     const dataShapeId = NameSpacer.getDataShapeString({
@@ -294,7 +293,10 @@ export async function addNote(course: string, shape: DataShape, data: any) {
     });
 
     const attachmentFields = shape.fields.filter((field) => {
-        return field.type === FieldType.IMAGE;
+        return (
+            field.type === FieldType.IMAGE ||
+            field.type === FieldType.AUDIO
+        );
     });
     const attachments: { [index: string]: PouchDB.Core.FullAttachment } = {};
     const payload: DisplayableData = {
@@ -303,6 +305,10 @@ export async function addNote(course: string, shape: DataShape, data: any) {
         docType: DocType.DISPLAYABLE_DATA,
         id_datashape: dataShapeId
     };
+
+    if (author) {
+        payload.author = author;
+    }
 
     if (attachmentFields.length !== 0) {
         attachmentFields.forEach((attField) => {
@@ -469,19 +475,83 @@ function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>)
         const ret: T = {
             ...(record as object)
         } as T;
-        ret.timeStamp = moment(record.timeStamp);
+        ret.timeStamp = moment.utc(record.timeStamp);
         return ret;
     });
 }
 
+const REVIEW_PREFIX: string = 'card_review_';
+
 export function scheduleCardReview(user: string, card_id: PouchDB.Core.DocumentId, time: Moment) {
     // createClassroom("testClass"); // testing this function...
 
-    const now = moment();
+    const now = moment.utc();
     getUserDB(user).put<ScheduledCard>({
-        _id: 'card_review_' + time.format('YYYY-MM-DD-kk:mm:ss-SSS'),
+        _id: REVIEW_PREFIX + time.format('YYYY-MM-DD--kk:mm:ss-SSS'),
         cardId: card_id,
         reviewTime: time,
         scheduledAt: now
     });
+}
+
+/**
+ * Returns a promise of all cardReview IDs which are due for review.
+ * 
+ * @param user The username whose scheduled cards are of interest
+ */
+export async function getScheduledCards(user: string) {
+    const now = moment.utc();
+    const userDB = getUserDB(user);
+    const allDocs = await userDB.allDocs({});
+    const ret: PouchDB.Core.DocumentId[] = [];
+    allDocs.rows.forEach((row) => {
+        if (row.id.startsWith(REVIEW_PREFIX)) {
+            const date = moment.utc(
+                row.id.substr(REVIEW_PREFIX.length),
+                'YYYY-MM-DD--kk:mm:ss-SSS'
+            );
+            if (now.isAfter(date)) {
+                ret.push(row.id);
+            }
+        }
+    });
+    const reviewDocs = await userDB.allDocs<ScheduledCard>({
+        include_docs: true,
+        keys: ret
+    });
+
+    return reviewDocs.rows.map((row) => {
+        return row.doc!.cardId;
+    });
+    // const req = ret.map((id) => {
+    //     return {
+    //         id,
+    //         rev: ''
+    //     };
+    // });
+    // const reviewDocs = await userDB.bulkGet<ScheduledCard>({
+    //     docs: req
+    // });
+    // return reviewDocs.results.map((val) => {
+    //     return (val as unknown as ScheduledCard).cardId;
+    // });
+    // // return ret;
+}
+
+/**
+ * Returns a promise of the card IDs that the user has
+ * previously studied
+ *
+ * @param user The username of the corcerned user
+ */
+export async function getActiveCards(user: string) {
+    const now = moment.utc();
+    const docs = await getUserDB(user).allDocs({});
+    const ret: PouchDB.Core.DocumentId[] = [];
+    docs.rows.forEach((row) => {
+        if (row.id.startsWith('cardH-')) {
+            ret.push(row.id.substr('cardH-'.length));
+        }
+    });
+    return ret;
 }
