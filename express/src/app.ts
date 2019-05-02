@@ -10,6 +10,9 @@ import cors = require('cors');
 import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
 import CouchDB, { couchURL } from './couchdb';
+import { normalize } from './attachment-preprocessing';
+
+normalize('hello');
 
 const port = 3000
 const classroomDbDesignDoc = fileSystem.readFileSync('./assets/classroomDesignDoc.js', 'utf-8');
