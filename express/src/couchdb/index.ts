@@ -23,7 +23,7 @@ console.log(
     `url: ${couchURL}
     credentials:
     \tusername: ${admin.username}
-    \tpassword: ${admin.password}
+    \tpassword: ${''}
     credUrl: ${credentialCouchURL}
     `);
 
