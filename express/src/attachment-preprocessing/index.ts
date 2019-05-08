@@ -23,7 +23,7 @@ export default async function postProcess() {
     console.log(`Following db for changes...`);
     CouchDB.db.follow('skuilder', {
         feed: "continuous",
-        since: "now",
+        // since: "now",
         db: "skuilder",
         include_docs: true
     }, filterChanges);
@@ -67,9 +67,41 @@ async function filterChanges(error, response: DatabaseChangesResultItemWithDoc, 
                 });
             }
         }
-        processDocAttachments(processingRequest);
+        // processDocAttachments(processingRequest);
+        q.addRequest(processingRequest);
     }
 }
+
+class docQueue {
+    private queue: ProcessingRequest[] = [];
+    private problemQueue: ProcessingRequest[] = [];
+
+    public addRequest(req: ProcessingRequest) {
+        this.queue.push(req);
+        if (!this.processing) {
+            this.process();
+        }
+    }
+
+    private processing: boolean = false;
+    private async process() {
+        this.processing = true;
+
+        while (this.queue.length > 0) {
+            const result = await processDocAttachments(this.queue[0]);
+            if (result.ok) {
+                this.queue.shift();
+            } else {
+                this.problemQueue.push(this.queue[0]);
+                this.queue.shift();
+            }
+        }
+
+        this.processing = false;
+    }
+}
+
+const q = new docQueue();
 
 async function processDocAttachments(request: ProcessingRequest) {
     const skuilder = CouchDB.use(`skuilder`);
@@ -82,10 +114,16 @@ async function processDocAttachments(request: ProcessingRequest) {
         console.log(`Converting ${field.name}`);
         const attachment = doc._attachments[field.name].data;
         if (field.mimetype.includes('audio')) {
-            const converted = await normalize(attachment);
-            // console.log(`Original  data: ${attachment}`);
-            // console.log(`Converted data: ${converted}`);
-            field.returnData = converted;
+            try {
+
+                const converted = await normalize(attachment);
+                // console.log(`Original  data: ${attachment}`);
+                // console.log(`Converted data: ${converted}`);
+                field.returnData = converted;
+            } catch (e) {
+                console.log(`Exception caught: ${e}`);
+                throw (e);
+            }
         }
     }
 
@@ -103,6 +141,7 @@ async function processDocAttachments(request: ProcessingRequest) {
 
     const resp = await skuilder.insert(doc);
     console.log(`Processing request reinsert result: ${JSON.stringify(resp)}`);
+    return resp;
 }
 
 
