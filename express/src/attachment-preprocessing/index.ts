@@ -44,7 +44,7 @@ interface ProcessingField {
 }
 
 async function filterChanges(error, response: DatabaseChangesResultItemWithDoc, headers?) {
-    console.log(`Change detected: ${JSON.stringify(response)}`);
+    // console.log(`Change detected: ${JSON.stringify(response['seq'])}`);
     if (
         response.doc._attachments &&
         (
@@ -59,8 +59,8 @@ async function filterChanges(error, response: DatabaseChangesResultItemWithDoc, 
         const atts = response.doc._attachments;
         for (let attachment in atts) {
             const content_type: string = atts[attachment]['content_type'];
+            console.log(`Attachment ${attachment} in doc ${response.doc._id} should be processed`);
             if (content_type.includes('audio')) {
-                console.log(`Attachment ${attachment} in doc ${response.doc._id} should be processed`);
                 processingRequest.fields.push({
                     name: attachment,
                     mimetype: content_type
@@ -72,11 +72,12 @@ async function filterChanges(error, response: DatabaseChangesResultItemWithDoc, 
     }
 }
 
-class docQueue {
+class ProcessingQueue {
     private queue: ProcessingRequest[] = [];
     private problemQueue: ProcessingRequest[] = [];
 
     public addRequest(req: ProcessingRequest) {
+
         this.queue.push(req);
         if (!this.processing) {
             this.process();
@@ -88,12 +89,19 @@ class docQueue {
         this.processing = true;
 
         while (this.queue.length > 0) {
-            const result = await processDocAttachments(this.queue[0]);
-            if (result.ok) {
-                this.queue.shift();
-            } else {
+            console.log(`Processing: ${this.queue[0].docID}`)
+            try {
+                const result = await processDocAttachments(this.queue[0]);
+                if (result.ok) {
+                    this.queue.shift();
+                } else {
+                    this.problemQueue.push(this.queue[0]);
+                    this.queue.shift();
+                }
+            } catch (e) {
                 this.problemQueue.push(this.queue[0]);
                 this.queue.shift();
+                console.log(`Caught Exception in DocQueue: ${e}`);
             }
         }
 
@@ -101,7 +109,7 @@ class docQueue {
     }
 }
 
-const q = new docQueue();
+const q = new ProcessingQueue();
 
 async function processDocAttachments(request: ProcessingRequest) {
     const skuilder = CouchDB.use(`skuilder`);
@@ -147,19 +155,6 @@ async function processDocAttachments(request: ProcessingRequest) {
 
 export async function normalize(fileData) {
     const encoding = 'base64';
-    const encodings = [
-        // "ascii",
-        // "base64",
-        // "binary",
-        // "hex",
-        // "ucs2",
-        // "ucs-2",
-        // "utf16le",
-        // "utf-16le",
-        // "utf8",
-        // "utf-8",
-        // "latin1"
-    ];
 
     const tmpDir = fs.mkdtempSync(`audioNormalize-${encoding}-`);
     const fileName = tmpDir + '/file.mp3';
@@ -174,40 +169,47 @@ export async function normalize(fileData) {
     const PADDED_NORMALIZED = tmpDir + '/paddedNormalized' + ext;
     const NORMALIZED = tmpDir + '/normalized' + ext;
 
-    let elongated = await childProcess.exec(
-        FFMPEG + ` -i ${fileName} -af "adelay=10000|10000" ${PADDED}`
-    );
-    let info = await childProcess.exec(
-        FFMPEG + ` -i ${PADDED} -af loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json -f null -`
-    );
-    // console.log(`stderr output: ${info.stderr}`);
-    // console.log(`stdout output: ${info.stdout}`);
-    let data: LoudnessData = JSON.parse(
-        info.stderr.substring(
-            info.stderr.indexOf('{')
-        )
-    );
-    let paddedNormalized = await childProcess.exec(
-        FFMPEG + ` -i ${PADDED} -af ` +
-        `loudnorm=I=-16:TP=-1.5:LRA=11:measured_I=${data.input_i}:` +
-        `measured_LRA=${data.input_lra}:measured_TP=${data.input_tp}:` +
-        `measured_thresh=${data.input_thresh}:offset=${data.target_offset}:linear=true:` +
-        `print_format=summary -ar 48k ${PADDED_NORMALIZED}`
-    );
-    let normalized = await childProcess.exec(
-        FFMPEG + ` -i ${PADDED_NORMALIZED} -ss 00:00:10.000 -acodec copy ${NORMALIZED}`
-    );
+    try {
 
-    const ret = fs.readFileSync(NORMALIZED, {
-        encoding
-    });
+        let elongated = await childProcess.exec(
+            FFMPEG + ` -i ${fileName} -af "adelay=10000|10000" ${PADDED}`
+        );
+        let info = await childProcess.exec(
+            FFMPEG + ` -i ${PADDED} -af loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json -f null -`
+        );
+        // console.log(`stderr output: ${info.stderr}`);
+        // console.log(`stdout output: ${info.stdout}`);
+        let data: LoudnessData = JSON.parse(
+            info.stderr.substring(
+                info.stderr.indexOf('{')
+            )
+        );
+        let paddedNormalized = await childProcess.exec(
+            FFMPEG + ` -i ${PADDED} -af ` +
+            `loudnorm=I=-16:TP=-1.5:LRA=11:measured_I=${data.input_i}:` +
+            `measured_LRA=${data.input_lra}:measured_TP=${data.input_tp}:` +
+            `measured_thresh=${data.input_thresh}:offset=${data.target_offset}:linear=true:` +
+            `print_format=summary -ar 48k ${PADDED_NORMALIZED}`
+        );
+        let normalized = await childProcess.exec(
+            FFMPEG + ` -i ${PADDED_NORMALIZED} -ss 00:00:10.000 -acodec copy ${NORMALIZED}`
+        );
 
-    let files = fs.readdirSync(tmpDir);
-    files.forEach((file) => {
-        fs.unlinkSync(tmpDir + '/' + file);
-    });
+        const ret = fs.readFileSync(NORMALIZED, {
+            encoding
+        });
 
-    fs.rmdirSync(tmpDir);
+        return ret;
+    } catch (e) {
 
-    return ret;
+    } finally {
+
+        let files = fs.readdirSync(tmpDir);
+        files.forEach((file) => {
+            fs.unlinkSync(tmpDir + '/' + file);
+        });
+        fs.rmdirSync(tmpDir);
+    }
+
+
 }
