@@ -496,7 +496,7 @@ export function scheduleCardReview(user: string, card_id: PouchDB.Core.DocumentI
 
 /**
  * Returns a promise of all cardReview IDs which are due for review.
- * 
+ *
  * @param user The username whose scheduled cards are of interest
  */
 export async function getScheduledCards(user: string) {
