@@ -37,7 +37,6 @@ import { getDataShapes, getDoc } from '@/db';
 import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
 import { DataShapeData } from '@/db/types';
 import ComponentRegistration from '@/components/Edit/ComponentRegistration/ComponentRegistration.vue';
-import _ from 'lodash';
 import { DataShapeName } from '@/enums/DataShapeNames';
 import BasicCard from '@/base-course/CardTypes/BasicCard';
 import { FieldType } from '@/enums/FieldType';
@@ -81,7 +80,6 @@ export default class CourseEditor extends Vue {
             })!
           );
 
-          // alert(_.difference(this.dataShapes, this.registeredDataShapes));
         });
       });
     }).then(() => {
