@@ -34,7 +34,7 @@ if (ENV.DEBUG) {
 const expiryDocID: string = 'GuestAccountExpirationDate';
 const dbUUID = 'dbUUID';
 
-const remote: PouchDB.Database = new pouch(
+export const remote: PouchDB.Database = new pouch(
     ENV.COUCHDB_SERVER_URL + 'skuilder',
     {
         skip_setup: true
@@ -520,22 +520,20 @@ export async function getScheduledCards(user: string) {
         keys: ret
     });
 
+    // todo: remove this! this deletion should occur
+    //       AFTER the card is successfully dealt with
+    //       in the session
+    reviewDocs.rows.forEach((row) => {
+        userDB.remove(row.doc!);
+    });
+
     return reviewDocs.rows.map((row) => {
         return row.doc!.cardId;
     });
-    // const req = ret.map((id) => {
-    //     return {
-    //         id,
-    //         rev: ''
-    //     };
-    // });
-    // const reviewDocs = await userDB.bulkGet<ScheduledCard>({
-    //     docs: req
-    // });
-    // return reviewDocs.results.map((val) => {
-    //     return (val as unknown as ScheduledCard).cardId;
-    // });
-    // // return ret;
+}
+
+export async function removeScheduledCardReview(user: string, doc: ScheduledCard & PouchDB.Core.GetMeta) {
+    getUserDB(user).remove(doc);
 }
 
 /**
