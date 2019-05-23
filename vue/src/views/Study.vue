@@ -16,6 +16,7 @@
     </div>
     <div v-else ref="shadowWrapper">    
       <card-viewer
+          v-bind:class="loading ? 'muted' : ''"
           v-bind:view="view"
           v-bind:data="data"
           v-bind:card_id="cardID"
@@ -47,6 +48,7 @@ import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/Vi
 import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
 import moment from 'moment';
+// import CardCache from '@/db/cardCache';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
@@ -192,36 +194,47 @@ export default class Study extends Vue {
   private async loadCard(_id: string) {
     this.loading = true;
 
-    const tmpCardData = await getDoc<CardData>(_id);
-    const tmpView = Courses.getView(tmpCardData.id_view);
-    const tmpDataDocs = await tmpCardData.id_displayable_data.map((id) => {
-      return getDoc<DisplayableData>(id, {
-        attachments: true,
-        binary: true
+    try {
+      // const tmpCardData = await CardCache.getDoc<CardData>(_id);
+      const tmpCardData = await getDoc<CardData>(_id);
+      const tmpView = Courses.getView(tmpCardData.id_view);
+      const tmpDataDocs = await tmpCardData.id_displayable_data.map((id) => {
+        return getDoc<DisplayableData>(id, {
+          attachments: true,
+          binary: true
+        });
       });
-    });
 
-    const tmpData = [];
+      const tmpData = [];
 
-    for (const docPromise of tmpDataDocs) {
-      const doc = await docPromise;
+      for (const docPromise of tmpDataDocs) {
+        const doc = await docPromise;
 
-      tmpData.unshift(
-        displayableDataToViewData(doc)
-      );
+        tmpData.unshift(
+          displayableDataToViewData(doc)
+        );
+      }
+
+      this.cardCount++;
+      this.data = tmpData;
+      this.view = tmpView;
+      this.cardID = _id;
+
+    } catch (e) {
+      log(`Error loading card: ${JSON.stringify(e)}`);
+      this.nextCard(_id);
+    } finally {
+      this.loading = false;
     }
-
-    this.cardCount++;
-    this.data = tmpData;
-    this.view = tmpView;
-    this.cardID = _id;
-
-    this.loading = false;
   }
 }
 </script>
 
 <style scoped>
+.muted {
+  /* opacity: 0; */
+}
+
 .correct {
   animation: greenFade 1250ms ease-out;
 }
