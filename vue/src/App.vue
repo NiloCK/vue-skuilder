@@ -110,15 +110,16 @@ export default {
         {
           icon: 'add_to_queue',
           title: 'Edit'
-        },
-        {
-          icon: 'group',
-          title: 'Classrooms'
-        },
-        {
-          icon: 'book',
-          title: 'Courses'
         }
+        // ,
+        // {
+        //   icon: 'group',
+        //   title: 'Classrooms'
+        // },
+        // {
+        //   icon: 'book',
+        //   title: 'Courses'
+        // }
       ],
       miniVariant: false,
       right: true,
