@@ -7,10 +7,11 @@ import './plugins/vuetify';
 import './registerServiceWorker';
 import router from './router';
 import store from './store';
+import SkldrVue from './SkldrVue';
 
 Vue.config.productionTip = false;
 
-new Vue({
+new SkldrVue({
   router,
   store,
   render: (h) => h(App)
