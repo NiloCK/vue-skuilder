@@ -11,16 +11,43 @@
     >
       <v-list>
         <v-list-tile
-          value="true"
-          v-for="(item, i) in items"
-          :key="i"
-          :to="{path: '/' + item.title.toLowerCase()}"
+          value="true"          
+          :to="{path: '/home'}"
         >
           <v-list-tile-action>
-            <v-icon v-html="item.icon"></v-icon>
+            <v-icon>home</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title v-text="item.title">
+            <v-list-tile-title> 
+              Home
+            </v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile
+          v-if='true'
+          value="true"          
+          :to="{path: '/study'}"
+        >
+          <v-list-tile-action>
+            <v-icon>school</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title> 
+              Study
+            </v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile
+          v-if='true'
+          value="true"          
+          :to="{path: '/edit'}"
+        >
+          <v-list-tile-action>
+            <v-icon>add_to_queue</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title> 
+              Edit
             </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
@@ -86,6 +113,7 @@
 <script lang="ts">
 import UserLoginAndRegistrationContainer from '@/components/UserLoginAndRegistrationContainer.vue';
 import SnackbarService from '@/components/SnackbarService.vue';
+import { GuestUsername } from './store';
 
 export default {
   name: 'App',
@@ -98,29 +126,6 @@ export default {
       clipped: false,
       drawer: true,
       fixed: false,
-      items: [
-        {
-          icon: 'home',
-          title: 'Home'
-        },
-        {
-          icon: 'school',
-          title: 'Study'
-        },
-        {
-          icon: 'add_to_queue',
-          title: 'Edit'
-        }
-        // ,
-        // {
-        //   icon: 'group',
-        //   title: 'Classrooms'
-        // },
-        // {
-        //   icon: 'book',
-        //   title: 'Courses'
-        // }
-      ],
       miniVariant: false,
       right: true,
       rightDrawer: false,
