@@ -44,12 +44,6 @@ import Component from 'vue-class-component';
 import UserChip from './UserChip.vue';
 import { GuestUsername } from '@/store';
 
-export interface IUserLoginAndRegistrationContainer {
-  loggedIn: boolean;
-  regDialogOpen: boolean;
-  loginDialogOpen: boolean;
-}
-
 @Component({
   components: {
     UserLogin,

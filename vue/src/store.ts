@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import ENV from './ENVIRONMENT_VARS';
-import { IUserLoginAndRegistrationContainer } from '@/components/UserLoginAndRegistrationContainer.vue';
 
 Vue.use(Vuex);
 
@@ -9,7 +8,11 @@ export const GuestUsername: string = 'Guest';
 
 export interface AppState {
   user: string;
-  userLoginAndRegistrationContainer: IUserLoginAndRegistrationContainer
+  userLoginAndRegistrationContainer: {
+    loggedIn: boolean;
+    regDialogOpen: boolean;
+    loginDialogOpen: boolean;
+  };
 }
 
 const Store = new Vuex.Store<AppState>({
