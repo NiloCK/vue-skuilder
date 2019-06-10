@@ -26,7 +26,14 @@ app.use(cors({
     origin: true
 }));
 
-useOrCreateDB('classdb-lookup');
+init();
+
+async function init() {
+    useOrCreateDB('classdb-lookup');
+    (await useOrCreateDB('coursedb')).insert({
+        validate_doc_update: classroomDbDesignDoc
+    } as any, '_design/_auth');
+}
 
 async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<{}>> {
 
@@ -162,7 +169,7 @@ async function requestIsAuthenticated(req: express.Request) {
 
         return await Nano({
             cookie: "AuthSession=" + authCookie,
-            url: 'http://' + couchURL
+            url: 'https://' + couchURL
         }).session().then((s: CouchSession) => {
             console.log(`AuthUser: ${JSON.stringify(s)}`);
             return s.userCtx.name === username;
