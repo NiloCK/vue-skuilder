@@ -138,7 +138,7 @@ interface ProcessingField {
     returnData?: any;
 }
 
-interface LoudnessData {  // these are numbers, but will be parsed as strings
+export interface LoudnessData {  // these are numbers, but will be parsed as strings
     input_i: string; //number;
     input_tp: string; //number;
     input_lra: string; //number;
