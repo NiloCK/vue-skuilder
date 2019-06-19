@@ -22,9 +22,34 @@ interface DeleteClassroom extends IServerRequest {
   classID: string;
 }
 
-export type ServerRequest = CreateClassroom | DeleteClassroom;
+interface CreateCourse extends IServerRequest {
+  type: ServerRequestType.CREATE_COURSE;
+  data: {
+    courseName: string;
+    courseDescription: string;
+    private: boolean;
+    administrators: string[];
+    moderators: string[];
+  };
+  response: {
+    status: Status;
+    id: string;
+  };
+}
+interface DeleteCourse extends IServerRequest {
+  type: ServerRequestType.DELETE_COURSE;
+  courseID: string;
+}
+
+export type ServerRequest =
+  CreateClassroom |
+  DeleteClassroom |
+  CreateCourse |
+  DeleteCourse;
 
 export enum ServerRequestType {
   CREATE_CLASSROOM = 'CREATE_CLASSROOM',
-  DELETE_CLASSROOM = 'DELETE_CLASSROOM'
+  DELETE_CLASSROOM = 'DELETE_CLASSROOM',
+  CREATE_COURSE = 'CREATE_COURSE',
+  DELETE_COURSE = 'DELETE_COURSE'
 }
