@@ -3,9 +3,9 @@ import childProcess = require('child-process-promise');
 import { FFMPEG, LoudnessData } from './index';
 
 /**
- * Returns normalized, base-64 encoded audio(/video)
+ * Returns normalized, base-64 encoded mp3
  * 
- * @param fileData the base-64 encoded audio(/video) data from couchdb
+ * @param fileData the base-64 encoded mp3 data from couchdb
  */
 export async function normalize(fileData) {
     const encoding = 'base64';
