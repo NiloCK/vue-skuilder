@@ -1,9 +1,6 @@
-import ffmpeg = require('ffmpeg-static');
 import CouchDB from '../couchdb';
 import nano = require('nano');
 import { normalize } from './normalize';
-
-export const FFMPEG = ffmpeg.path;
 
 /**
  * Connect to CouchDB, monitor changes to uploaded card data,
@@ -136,17 +133,4 @@ interface ProcessingField {
     name: string;
     mimetype: string;
     returnData?: any;
-}
-
-export interface LoudnessData {  // these are numbers, but will be parsed as strings
-    input_i: string; //number;
-    input_tp: string; //number;
-    input_lra: string; //number;
-    input_thresh: string; //number;
-    output_i: string; //number;
-    output_tp: string; //number;
-    output_lra: string; //number;
-    output_thresh: string; //number;
-    normalization_type: string; // this one is actually a string
-    target_offset: string; //number;
 }

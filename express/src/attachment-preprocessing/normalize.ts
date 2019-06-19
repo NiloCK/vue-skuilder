@@ -1,6 +1,24 @@
+import ffmpeg = require('ffmpeg-static');
 import fs = require('fs');
 import childProcess = require('child-process-promise');
-import { FFMPEG, LoudnessData } from './index';
+
+const FFMPEG = ffmpeg.path;
+
+/**
+ * From FFMPEG's loudnorm output - loudness data on a media file
+ */
+interface LoudnessData {  // these are numbers, but will be parsed as strings
+    input_i: string; //number;
+    input_tp: string; //number;
+    input_lra: string; //number;
+    input_thresh: string; //number;
+    output_i: string; //number;
+    output_tp: string; //number;
+    output_lra: string; //number;
+    output_thresh: string; //number;
+    normalization_type: string; // this one is actually a string
+    target_offset: string; //number;
+}
 
 /**
  * Returns normalized, base-64 encoded mp3
