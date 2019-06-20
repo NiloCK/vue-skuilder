@@ -1,6 +1,5 @@
 import Nano = require('nano');
 import * as express from 'express';
-import hashids from 'hashids';
 import {
     ServerRequest,
     ServerRequestType as RequestEnum
@@ -11,12 +10,12 @@ import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
 import CouchDB, { couchURL } from './couchdb';
 import PostProcess from './attachment-preprocessing';
+import { createClassroom } from './client-requests/classroom-requests';
 
 // normalize('blue-s.mp3');
-PostProcess();
 
 const port = 3000
-const classroomDbDesignDoc = fileSystem.readFileSync('./assets/classroomDesignDoc.js', 'utf-8');
+export const classroomDbDesignDoc = fileSystem.readFileSync('./assets/classroomDesignDoc.js', 'utf-8');
 const app = express()
 
 app.use(cookieParser());
@@ -29,13 +28,17 @@ app.use(cors({
 init();
 
 async function init() {
+    // start the change-listner that does post-prodessing on user
+    // media uploads
+    PostProcess();
+
     useOrCreateDB('classdb-lookup');
     (await useOrCreateDB('coursedb')).insert({
         validate_doc_update: classroomDbDesignDoc
     } as any, '_design/_auth');
 }
 
-async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<{}>> {
+export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<{}>> {
 
     let ret = CouchDB.use(dbName);
 
@@ -49,13 +52,13 @@ async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<{}>> {
     }
 }
 
-async function docCount(dbName: string): Promise<number> {
+export async function docCount(dbName: string): Promise<number> {
     const db = await useOrCreateDB(dbName);
     const info = await db.info();
     return info.doc_count;
 }
 
-interface SecurityObject extends Nano.MaybeDocument {
+export interface SecurityObject extends Nano.MaybeDocument {
     admins: {
         names: string[],
         roles: string[]
@@ -63,61 +66,6 @@ interface SecurityObject extends Nano.MaybeDocument {
     members: {
         names: string[],
         roles: string[]
-    }
-}
-
-async function deleteClassroom(classroom_id: string) {
-
-}
-
-async function createClassroom(name: string, teacher: string) {
-    const num = await docCount('classdb-lookup') + 1; //
-    const uuid = (await CouchDB.uuids(1)).uuids[0];
-
-    const hasher = new hashids('', 6, 'abcdefghijklmnopqrstuvwxyz123456789');
-    const joinCode: string = hasher.encode(num);
-
-    const studentDbName: string = `classdb-student-${uuid}`;
-    const teacherDbName: string = `classdb-teacher-${uuid}`;
-
-    const security: SecurityObject = {
-        // _id: '_security',
-        admins: {
-            names: [teacher],
-            roles: []
-        },
-        members: {
-            names: [],
-            roles: []
-        }
-    }
-
-    let [
-        studentdb,
-        teacherdb,
-        lookup
-    ] = await Promise.all([
-        useOrCreateDB(studentDbName),
-        useOrCreateDB(teacherDbName),
-        useOrCreateDB('classdb-lookup')
-    ])
-
-    await Promise.all([
-        studentdb.insert({
-            validate_doc_update: classroomDbDesignDoc,
-        } as any, '_design/_auth'),
-        studentdb.insert(security, '_security'),
-        teacherdb.insert(security, '_security'),
-        lookup.insert({
-            num,
-            uuid
-        } as any, joinCode)
-    ]);
-
-    return {
-        joincode: joinCode,
-        status: 'ok',
-        uuid: uuid
     }
 }
 
@@ -137,6 +85,7 @@ interface CouchSession {
 async function requestIsAdminAuthenticated(req: express.Request) {
 
     const username = (req.body as ServerRequest).user;
+    console.log(`Request from ${username}...`);
     const authCookie: string = req.cookies.AuthSession ? req.cookies.AuthSession : 'null';
 
     if (authCookie === 'null') {
@@ -161,6 +110,7 @@ async function requestIsAdminAuthenticated(req: express.Request) {
 async function requestIsAuthenticated(req: express.Request) {
 
     const username = (req.body as ServerRequest).user;
+    console.log(`Request from ${username}...`);
     const authCookie: string = req.cookies.AuthSession ? req.cookies.AuthSession : 'null';
 
     if (authCookie === 'null') {
@@ -180,10 +130,14 @@ async function requestIsAuthenticated(req: express.Request) {
 }
 
 async function postHandler(req: express.Request, res: express.Response) {
-    if (await requestIsAuthenticated(req)) {
+    console.log(`Request made...`);
+    const auth = await requestIsAuthenticated(req);
+    if (auth) {
+        console.log(`\tAuthenticated request made...`);
         const data = req.body as ServerRequest;
 
         if (data.type === RequestEnum.CREATE_CLASSROOM) {
+            console.log(`\t\tCREATE_CLASSROOM request made...`);
             data.response = await createClassroom(data.className, data.user);
             res.json(data.response);
         } else if (data.type === RequestEnum.DELETE_CLASSROOM) {
