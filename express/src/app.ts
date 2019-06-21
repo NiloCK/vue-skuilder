@@ -8,7 +8,7 @@ import bodyParser = require('body-parser');
 import cors = require('cors');
 import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
-import CouchDB, { couchURL } from './couchdb';
+import CouchDB, { COUCH_URL_WITH_PROTOCOL } from './couchdb';
 import PostProcess from './attachment-preprocessing';
 import { createClassroom } from './client-requests/classroom-requests';
 
@@ -94,7 +94,7 @@ async function requestIsAdminAuthenticated(req: express.Request) {
 
         return await Nano({
             cookie: "AuthSession=" + authCookie,
-            url: 'http://' + couchURL
+            url: COUCH_URL_WITH_PROTOCOL
         }).session().then((s: CouchSession) => {
             console.log(`AuthUser: ${JSON.stringify(s)}`);
             const isAdmin = s.userCtx.roles.indexOf('_admin') !== -1;
@@ -119,7 +119,7 @@ async function requestIsAuthenticated(req: express.Request) {
 
         return await Nano({
             cookie: "AuthSession=" + authCookie,
-            url: 'https://' + couchURL
+            url: COUCH_URL_WITH_PROTOCOL
         }).session().then((s: CouchSession) => {
             console.log(`AuthUser: ${JSON.stringify(s)}`);
             return s.userCtx.name === username;

@@ -2,31 +2,34 @@ import dotenv = require('dotenv');
 import Nano = require('nano');
 
 dotenv.config({
-    path: './.env.development'
+    path: '../vue/.env.development.local'
 });
 
-export const couchURL = process.env.VUE_APP_COUCHDB;
+const url = process.env.VUE_APP_COUCHDB_SERVER;
+const protocol: string = process.env.VUE_APP_COUCHDB_PROTOCOL;
+
 const debug = process.env.VUE_APP_DEBUG;
 
-dotenv.config({
-    path: './.env.development.local'
-});
-
 const admin = {
-    username: process.env.VUE_APP_COUCH_ADMIN,
-    password: process.env.VUE_APP_COUCH_PASSWORD
+    username: process.env.VUE_APP_COUCHDB_ADMIN,
+    password: process.env.VUE_APP_COUCHDB_PASSWORD
 }
 const credentialCouchURL =
-    `http://${admin.username}:${admin.password}@${couchURL}`;
+    `${protocol}://${admin.username}:${admin.password}@${url}`;
 
 console.log(
-    `url: ${couchURL}
-    credentials:
+    `CouchDB url: ${url}
+    protocol: ${protocol}
+    credentials: 
     \tusername: ${admin.username}
-    \tpassword: ${''}
-    credUrl: ${credentialCouchURL}
+    \tpassword: *****
+    credUrl: ${protocol}://${admin.username}:*****@${url}
     `);
 
 let CouchDB = Nano(credentialCouchURL);
+
+export const COUCH_URL_WITH_PROTOCOL =
+    protocol + '://' +
+    process.env.VUE_APP_COUCHDB_SERVER;
 
 export default CouchDB;
