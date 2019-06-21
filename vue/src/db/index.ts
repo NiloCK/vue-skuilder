@@ -35,6 +35,7 @@ const expiryDocID: string = 'GuestAccountExpirationDate';
 const dbUUID = 'dbUUID';
 
 export const remote: PouchDB.Database = new pouch(
+  ENV.COUCHDB_SERVER_PROTOCOL + '://' +
   ENV.COUCHDB_SERVER_URL + 'skuilder',
   {
     skip_setup: true
@@ -69,12 +70,15 @@ export function getUserDB(username: string): PouchDB.Database {
   // odd construction here the result of a bug in the
   // interaction between pouch, pouch-auth.
   // see: https://github.com/pouchdb-community/pouchdb-authentication/issues/239
-  const ret = new pouch(ENV.COUCHDB_SERVER_URL + dbName, {
-    fetch(url: any, opts: any) {
-      opts.credentials = 'include';
-      return (pouch as any).fetch(url, opts);
-    }
-  } as PouchDB.Configuration.RemoteDatabaseConfiguration);
+  const ret = new pouch(
+    ENV.COUCHDB_SERVER_PROTOCOL +
+    '://' +
+    ENV.COUCHDB_SERVER_URL + dbName, {
+      fetch(url: any, opts: any) {
+        opts.credentials = 'include';
+        return (pouch as any).fetch(url, opts);
+      }
+    } as PouchDB.Configuration.RemoteDatabaseConfiguration);
 
   if (guestAccount) {
     updateGuestAccountExpirationDate(ret);
