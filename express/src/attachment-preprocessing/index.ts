@@ -1,6 +1,11 @@
 import CouchDB from '../couchdb';
 import nano = require('nano');
 import { normalize } from './normalize';
+import AsyncProcessQueue from '../utils/processQueue';
+
+const Q = new AsyncProcessQueue<AttachmentProcessingRequest>(
+    processDocAttachments
+);
 
 /**
  * Connect to CouchDB, monitor changes to uploaded card data,
@@ -25,7 +30,7 @@ async function filterChanges(error, response: DatabaseChangesResultItemWithDoc, 
             response.doc['processed'] === false
         )
     ) {
-        const processingRequest: ProcessingRequest = {
+        const processingRequest: AttachmentProcessingRequest = {
             docID: response.doc._id,
             fields: []
         };
@@ -40,50 +45,11 @@ async function filterChanges(error, response: DatabaseChangesResultItemWithDoc, 
                 });
             }
         }
-        q.addRequest(processingRequest);
+        Q.addRequest(processingRequest);
     }
 }
 
-class ProcessingQueue {
-    private queue: ProcessingRequest[] = [];
-    private problemQueue: ProcessingRequest[] = [];
-
-    public addRequest(req: ProcessingRequest) {
-
-        this.queue.push(req);
-        if (!this.processing) {
-            this.process();
-        }
-    }
-
-    private processing: boolean = false;
-    private async process() {
-        this.processing = true;
-
-        while (this.queue.length > 0) {
-            console.log(`Processing: ${this.queue[0].docID}`)
-            try {
-                const result = await processDocAttachments(this.queue[0]);
-                if (result.ok) {
-                    this.queue.shift();
-                } else {
-                    this.problemQueue.push(this.queue[0]);
-                    this.queue.shift();
-                }
-            } catch (e) {
-                this.problemQueue.push(this.queue[0]);
-                this.queue.shift();
-                console.log(`Caught Exception in DocQueue: ${e}`);
-            }
-        }
-
-        this.processing = false;
-    }
-}
-
-const q = new ProcessingQueue();
-
-async function processDocAttachments(request: ProcessingRequest) {
+async function processDocAttachments(request: AttachmentProcessingRequest) {
     const skuilder = CouchDB.use(`skuilder`);
     const doc = await skuilder.get(request.docID, {
         attachments: true,
@@ -125,7 +91,7 @@ interface DatabaseChangesResultItemWithDoc extends nano.DatabaseChangesResultIte
     doc: nano.DocumentGetResponse
 }
 
-interface ProcessingRequest {
+interface AttachmentProcessingRequest {
     docID: string;
     fields: ProcessingField[];
 }
