@@ -1,22 +1,18 @@
 import Nano = require('nano');
 import * as express from 'express';
-import {
-    ServerRequest,
-    ServerRequestType as RequestEnum
-} from '../../vue/src/server/types';
+import { ServerRequest, ServerRequestType as RequestEnum } from '../../vue/src/server/types';
+import PostProcess from './attachment-preprocessing';
+import { createClassroom } from './client-requests/classroom-requests';
+import CouchDB from './couchdb';
+import { requestIsAuthenticated } from './couchdb/authentication';
 import bodyParser = require('body-parser');
 import cors = require('cors');
 import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
-import CouchDB, { COUCH_URL_WITH_PROTOCOL } from './couchdb';
-import PostProcess from './attachment-preprocessing';
-import { createClassroom } from './client-requests/classroom-requests';
 
-// normalize('blue-s.mp3');
-
-const port = 3000
+const port = 3000;
 export const classroomDbDesignDoc = fileSystem.readFileSync('./assets/classroomDesignDoc.js', 'utf-8');
-const app = express()
+const app = express();
 
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -69,72 +65,16 @@ export interface SecurityObject extends Nano.MaybeDocument {
     }
 }
 
-interface CouchSession {
-    info: {
-        authenticated: string;
-        authentication_db: string;
-        authentication_handlers: string[];
-    };
-    ok: boolean;
-    userCtx: {
-        name: string;
-        roles: string[];
-    };
+export interface VueClientRequest extends express.Request {
+    body: ServerRequest
 }
 
-async function requestIsAdminAuthenticated(req: express.Request) {
-
-    const username = (req.body as ServerRequest).user;
-    console.log(`Request from ${username}...`);
-    const authCookie: string = req.cookies.AuthSession ? req.cookies.AuthSession : 'null';
-
-    if (authCookie === 'null') {
-        return false;
-    } else {
-
-        return await Nano({
-            cookie: "AuthSession=" + authCookie,
-            url: COUCH_URL_WITH_PROTOCOL
-        }).session().then((s: CouchSession) => {
-            console.log(`AuthUser: ${JSON.stringify(s)}`);
-            const isAdmin = s.userCtx.roles.indexOf('_admin') !== -1;
-            const isLoggedInUser = s.userCtx.name === username;
-
-            return isAdmin && isLoggedInUser;
-        }).catch((err) => {
-            return false;
-        });
-    }
-}
-
-async function requestIsAuthenticated(req: express.Request) {
-
-    const username = (req.body as ServerRequest).user;
-    console.log(`Request from ${username}...`);
-    const authCookie: string = req.cookies.AuthSession ? req.cookies.AuthSession : 'null';
-
-    if (authCookie === 'null') {
-        return false;
-    } else {
-
-        return await Nano({
-            cookie: "AuthSession=" + authCookie,
-            url: COUCH_URL_WITH_PROTOCOL
-        }).session().then((s: CouchSession) => {
-            console.log(`AuthUser: ${JSON.stringify(s)}`);
-            return s.userCtx.name === username;
-        }).catch((err) => {
-            return false;
-        });
-    }
-}
-
-async function postHandler(req: express.Request, res: express.Response) {
+async function postHandler(req: VueClientRequest, res: express.Response) {
     console.log(`Request made...`);
     const auth = await requestIsAuthenticated(req);
     if (auth) {
         console.log(`\tAuthenticated request made...`);
-        const data = req.body as ServerRequest;
+        const data = req.body;
 
         if (data.type === RequestEnum.CREATE_CLASSROOM) {
             console.log(`\t\tCREATE_CLASSROOM request made...`);
@@ -144,6 +84,7 @@ async function postHandler(req: express.Request, res: express.Response) {
 
         }
     } else {
+        console.log(`\tREQUEST UNAUTHORIZED!`);
         res.status(401);
         res.statusMessage = 'Unauthorized';
         res.send();
@@ -154,4 +95,4 @@ app.post('/', (req, res) => {
     postHandler(req, res);
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));
