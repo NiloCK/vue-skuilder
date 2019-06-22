@@ -1,9 +1,9 @@
 import CouchDB from '../couchdb';
 import nano = require('nano');
 import { normalize } from './normalize';
-import AsyncProcessQueue from '../utils/processQueue';
+import AsyncProcessQueue, { Result } from '../utils/processQueue';
 
-const Q = new AsyncProcessQueue<AttachmentProcessingRequest>(
+const Q = new AsyncProcessQueue<AttachmentProcessingRequest, Result>(
     processDocAttachments
 );
 
@@ -49,7 +49,7 @@ async function filterChanges(error, response: DatabaseChangesResultItemWithDoc, 
     }
 }
 
-async function processDocAttachments(request: AttachmentProcessingRequest) {
+async function processDocAttachments(request: AttachmentProcessingRequest): Promise<Result> {
     const skuilder = CouchDB.use(`skuilder`);
     const doc = await skuilder.get(request.docID, {
         attachments: true,
@@ -82,7 +82,9 @@ async function processDocAttachments(request: AttachmentProcessingRequest) {
         doc._attachments[field.name].data = field.returnData;
     });
 
-    const resp = await skuilder.insert(doc);
+    let resp: any = await skuilder.insert(doc);
+    resp.status = 'ok';
+
     console.log(`Processing request reinsert result: ${JSON.stringify(resp)}`);
     return resp;
 }

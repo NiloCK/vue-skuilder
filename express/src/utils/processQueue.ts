@@ -1,6 +1,6 @@
 
 interface Request { }
-interface Result {
+export interface Result {
     status: 'ok' | 'awaiting' | 'warning' | 'error';
     ok: boolean;
     error?: any;
@@ -25,7 +25,7 @@ interface CompletedRequest<R> extends LabelledRequest<R> {
  * This queue executes async prcesses sequentially, waiting
  * for each to complete before launching the next.
  */
-export default class AsyncProcessQueue<T extends Request> {
+export default class AsyncProcessQueue<T extends Request, R extends Result> {
     private queue: LabelledRequest<T>[] = [];
     private errors: FailedRequest<T>[] = [];
     private completed: CompletedRequest<T>[] = [];
@@ -63,7 +63,7 @@ export default class AsyncProcessQueue<T extends Request> {
         return ret;
     }
 
-    private async recurseGetResult(jobID: number, depth: number): Promise<Result> {
+    private async recurseGetResult(jobID: number, depth: number): Promise<R> {
         // polling intervals in milliseconds
         console.log(`Checking job status of job ${jobID}...`);
         const intervals = [100, 200, 400, 800, 1000, 2000, 3000, 5000];
@@ -89,14 +89,14 @@ export default class AsyncProcessQueue<T extends Request> {
         });
     }
 
-    public async getResult(jobID: number, depth: number = 0): Promise<Result> {
+    public async getResult(jobID: number, depth: number = 0): Promise<R> {
         const status = this.jobStatus(jobID);
 
         if (status === 'complete') {
             const res = this.completed.find((val) => {
                 return val.id === jobID;
             });
-            return res.result;
+            return res.result as R;
         } else if (status === 'error') {
             const res = this.errors.find((val) => {
                 return val.id === jobID;
@@ -105,7 +105,7 @@ export default class AsyncProcessQueue<T extends Request> {
                 error: res.error,
                 ok: false,
                 status: 'error'
-            };
+            } as R;
         } else {
             return this.recurseGetResult(jobID, 0);
         }
