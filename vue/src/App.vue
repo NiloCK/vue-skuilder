@@ -113,7 +113,6 @@
 <script lang="ts">
 import UserLoginAndRegistrationContainer from '@/components/UserLoginAndRegistrationContainer.vue';
 import SnackbarService from '@/components/SnackbarService.vue';
-import { GuestUsername } from './store';
 
 export default {
   name: 'App',
