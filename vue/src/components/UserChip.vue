@@ -66,7 +66,7 @@ export default class UserChip extends Vue {
           loggedIn: false,
           regDialogOpen: false,
           loginDialogOpen: false
-        }
+        };
         setTimeout(() => {
           this.$store.state.user = GuestUsername;
         }, 1000);
