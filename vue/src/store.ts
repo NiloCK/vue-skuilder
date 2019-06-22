@@ -58,6 +58,12 @@ function checkAuthCookie() {
       Store.state.user = GuestUsername;
     }
   });
-  authXML.open('GET', ENV.COUCHDB_SERVER_URL + '_session');
+  authXML.open(
+    'GET',
+    ENV.COUCHDB_SERVER_PROTOCOL +
+    '://' +
+    ENV.COUCHDB_SERVER_URL +
+    '_session'
+  );
   authXML.send();
 }
