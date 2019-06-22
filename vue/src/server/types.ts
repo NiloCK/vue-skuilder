@@ -1,6 +1,6 @@
 import { Status } from '@/enums/Status';
 
-interface IServerRequest {
+export interface IServerRequest {
   type: ServerRequestType;
   user: string;
   response: {
@@ -8,7 +8,7 @@ interface IServerRequest {
   } | null;
 }
 
-interface CreateClassroom extends IServerRequest {
+export interface CreateClassroom extends IServerRequest {
   type: ServerRequestType.CREATE_CLASSROOM;
   className: string;
   response: {
@@ -17,26 +17,31 @@ interface CreateClassroom extends IServerRequest {
     uuid: string;
   } | null;
 }
-interface DeleteClassroom extends IServerRequest {
+export interface DeleteClassroom extends IServerRequest {
   type: ServerRequestType.DELETE_CLASSROOM;
   classID: string;
 }
 
-interface CreateCourse extends IServerRequest {
+export interface CourseConfig {
+  name: string;
+  description: string;
+  public: boolean;
+  deleted: boolean;
+  creator: string;
+  admins: string[];
+  moderators: string[];
+}
+
+export interface CreateCourse extends IServerRequest {
   type: ServerRequestType.CREATE_COURSE;
-  data: {
-    courseName: string;
-    courseDescription: string;
-    private: boolean;
-    administrators: string[];
-    moderators: string[];
-  };
+  data: CourseConfig;
   response: {
     status: Status;
-    id: string;
-  };
+    ok: boolean;
+    courseID: string;
+  } | null;
 }
-interface DeleteCourse extends IServerRequest {
+export interface DeleteCourse extends IServerRequest {
   type: ServerRequestType.DELETE_COURSE;
   courseID: string;
 }

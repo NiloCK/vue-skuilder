@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-
+    
   <v-layout row wrap justify-space-around>
     <v-flex md4 sm12 xs12>
       <v-card>
@@ -66,6 +66,14 @@
               
             </v-list-tile>
           </template>
+          <v-divider></v-divider>
+          <v-btn
+            color="primary"
+            @click="createCourse()"
+          >
+            New Course
+            <v-icon right>add_circle</v-icon>
+          </v-btn>
         </v-list>
       </v-card>
     </v-flex>
@@ -80,13 +88,17 @@ import { Component } from 'vue-property-decorator';
 import CourseList from '../courses';
 import _ from 'lodash';
 import { log } from 'util';
+import serverRequest from '../server';
+import { ServerRequestType } from '../server/types';
+import SkldrVue from '../SkldrVue';
+import { alertUser } from '../components/SnackbarService.vue';
 
 @Component({
   components: {
     CourseEditor
   }
 })
-export default class Courses extends Vue {
+export default class Courses extends SkldrVue {
   public existingCourses: string[] = [];
   public registeredCourses: string[] = ['sample', 'course', 'data', 'math'];
   public get availableCourses() {
@@ -98,6 +110,29 @@ export default class Courses extends Vue {
       return course.name;
     });
   }
+
+  private async createCourse() {
+    const resp = await serverRequest({
+      type: ServerRequestType.CREATE_COURSE,
+      data: {
+        name: 'testCourseName',
+        description: 'All of these courses will be the same!',
+        public: true,
+        deleted: false,
+        creator: this.$store.state.user,
+        admins: [this.$store.state.user],
+        moderators: []
+      },
+      user: this.$store.state.user,
+      response: null
+    });
+
+    alertUser({
+      status: resp.response!,
+      text: `Course ${JSON.stringify(resp)} created`
+    });
+  }
+
   private addCourse(course: string) {
     log(`Attempting to register for ${course}.`);
   }

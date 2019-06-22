@@ -9,6 +9,7 @@ import bodyParser = require('body-parser');
 import cors = require('cors');
 import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
+import { CourseCreationQueue } from './client-requests/course-requests';
 
 const port = 3000;
 export const classroomDbDesignDoc = fileSystem.readFileSync('./assets/classroomDesignDoc.js', 'utf-8');
@@ -29,9 +30,14 @@ async function init() {
     PostProcess();
 
     useOrCreateDB('classdb-lookup');
-    (await useOrCreateDB('coursedb')).insert({
-        validate_doc_update: classroomDbDesignDoc
-    } as any, '_design/_auth');
+    try {
+        (await useOrCreateDB('coursedb')).insert({
+            validate_doc_update: classroomDbDesignDoc
+        } as any, '_design/_auth');
+    }
+    catch (e) {
+        console.log(`Error: ${e}`);
+    }
 }
 
 export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<{}>> {
@@ -82,6 +88,11 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
             res.json(data.response);
         } else if (data.type === RequestEnum.DELETE_CLASSROOM) {
 
+        } else if (data.type === RequestEnum.CREATE_COURSE) {
+            console.log(`\t\tCREATE_COURSE request made...`);
+            const id: number = CourseCreationQueue.addRequest(data.data);
+            data.response = await CourseCreationQueue.getResult(id);
+            res.json(data.response);
         }
     } else {
         console.log(`\tREQUEST UNAUTHORIZED!`);
