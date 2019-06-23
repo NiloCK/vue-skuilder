@@ -69,6 +69,7 @@
           <v-divider></v-divider>
           <v-btn
             color="primary"
+            :loading="awaitingCreateCourse"
             @click="createCourse()"
           >
             New Course
@@ -101,6 +102,8 @@ import { alertUser } from '../components/SnackbarService.vue';
 export default class Courses extends SkldrVue {
   public existingCourses: string[] = [];
   public registeredCourses: string[] = ['sample', 'course', 'data', 'math'];
+  private awaitingCreateCourse: boolean = false;
+
   public get availableCourses() {
     return _.without(this.existingCourses, ...this.registeredCourses);
   }
@@ -112,6 +115,7 @@ export default class Courses extends SkldrVue {
   }
 
   private async createCourse() {
+    this.awaitingCreateCourse = true;
     const resp = await serverRequest({
       type: ServerRequestType.CREATE_COURSE,
       data: {
@@ -131,6 +135,7 @@ export default class Courses extends SkldrVue {
       status: resp.response!,
       text: `Course ${JSON.stringify(resp)} created`
     });
+    this.awaitingCreateCourse = false;
   }
 
   private addCourse(course: string) {
