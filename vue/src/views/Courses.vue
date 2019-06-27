@@ -90,9 +90,11 @@ import CourseList from '../courses';
 import _ from 'lodash';
 import { log } from 'util';
 import serverRequest from '../server';
-import { ServerRequestType } from '../server/types';
+import { ServerRequestType, CourseConfig } from '../server/types';
 import SkldrVue from '../SkldrVue';
 import { alertUser } from '../components/SnackbarService.vue';
+import ENV from '../ENVIRONMENT_VARS';
+import pouch from 'pouchdb-browser';
 
 @Component({
   components: {
@@ -100,17 +102,31 @@ import { alertUser } from '../components/SnackbarService.vue';
   }
 })
 export default class Courses extends SkldrVue {
-  public existingCourses: string[] = [];
-  public registeredCourses: string[] = ['sample', 'course', 'data', 'math'];
+  private courseLookupDB: PouchDB.Database = new pouch(
+    ENV.COUCHDB_SERVER_PROTOCOL + '://' +
+    ENV.COUCHDB_SERVER_URL + 'coursedb-lookup'
+  );
+  private existingCourses: CourseConfig[] = [];
+  private registeredCourses: string[] = ['sample', 'course', 'data', 'math'];
   private awaitingCreateCourse: boolean = false;
 
   public get availableCourses() {
-    return _.without(this.existingCourses, ...this.registeredCourses);
+    // return _.without(this.existingCourses, ...this.registeredCourses);
+    return this.existingCourses.map((course) => course.name);
   }
 
   private created() {
-    this.existingCourses = CourseList.courses.map((course) => {
-      return course.name;
+    // CourseList.courses.map((course) => {
+    //   return course.name;
+    // });
+    this.courseLookupDB.allDocs<CourseConfig>({
+      include_docs: true
+    }).then((docs) => {
+      docs.rows.forEach((course) => {
+        if (course.doc!.public) {
+          this.existingCourses.push(course.doc!);
+        }
+      });
     });
   }
 
