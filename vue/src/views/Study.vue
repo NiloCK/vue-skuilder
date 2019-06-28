@@ -182,10 +182,10 @@ export default class Study extends Vue {
     // multiple times in a session.
     if (isQuestionRecord(r)) {
       if (r.isCorrect && r.priorAttemps === 0) {
-        scheduleCardReview(this.$store.state.user, r.cardID, nextReviewTime);
+        scheduleCardReview(this.$store.state.user, r.courseID, r.cardID, nextReviewTime);
       }
     } else {
-      scheduleCardReview(this.$store.state.user, r.cardID, nextReviewTime);
+      scheduleCardReview(this.$store.state.user, r.courseID, r.cardID, nextReviewTime);
     }
   }
 

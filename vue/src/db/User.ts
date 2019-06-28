@@ -19,8 +19,7 @@ export interface ScheduledCard {
   /**
    * The ID of the course
    */
-  // courseId: string; // this will be relevant if/when per-course dbs are implemented
-
+  courseId: string;
   /**
    * The time at which the card becomes eligible for review.
    *

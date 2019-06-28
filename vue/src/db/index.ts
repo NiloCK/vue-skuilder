@@ -512,7 +512,7 @@ function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>)
 
 const REVIEW_PREFIX: string = 'card_review_';
 
-export function scheduleCardReview(user: string, card_id: PouchDB.Core.DocumentId, time: Moment) {
+export function scheduleCardReview(user: string, course_id: string, card_id: PouchDB.Core.DocumentId, time: Moment) {
   // createClassroom("testClass"); // testing this function...
 
   const now = moment.utc();
@@ -520,6 +520,7 @@ export function scheduleCardReview(user: string, card_id: PouchDB.Core.DocumentI
     _id: REVIEW_PREFIX + time.format('YYYY-MM-DD--kk:mm:ss-SSS'),
     cardId: card_id,
     reviewTime: time,
+    courseId: course_id,
     scheduledAt: now
   });
 }
