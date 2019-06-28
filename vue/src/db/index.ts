@@ -576,7 +576,7 @@ export async function getScheduledCards(user: string) {
   });
 
   return reviewDocs.rows.map((row) => {
-    return row.doc!.cardId;
+    return `${row.doc!.courseId}-${row.doc!.cardId}`;
   });
 }
 
