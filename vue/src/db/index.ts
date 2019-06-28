@@ -56,6 +56,25 @@ function hexEncode(str: string): string {
   return returnStr;
 }
 
+const pouchDBincludeCredentialsConfig: PouchDB.Configuration.RemoteDatabaseConfiguration = {
+  fetch(url: any, opts: any) {
+    opts.credentials = 'include';
+    return (pouch as any).fetch(url, opts);
+  }
+} as PouchDB.Configuration.RemoteDatabaseConfiguration;
+
+function getCourseDB(courseID: string): PouchDB.Database {
+  // todo: keep a cache of opened courseDBs? need to benchmark this somehow
+  return new pouch(
+    ENV.COUCHDB_SERVER_PROTOCOL +
+    '://' +
+    ENV.COUCHDB_SERVER_URL +
+    'coursedb-' +
+    courseID,
+    pouchDBincludeCredentialsConfig
+  )
+}
+
 export function getUserDB(username: string): PouchDB.Database {
   let guestAccount: boolean = false;
   if (username === GuestUsername ||
@@ -74,12 +93,9 @@ export function getUserDB(username: string): PouchDB.Database {
   const ret = new pouch(
     ENV.COUCHDB_SERVER_PROTOCOL +
     '://' +
-    ENV.COUCHDB_SERVER_URL + dbName, {
-      fetch(url: any, opts: any) {
-        opts.credentials = 'include';
-        return (pouch as any).fetch(url, opts);
-      }
-    } as PouchDB.Configuration.RemoteDatabaseConfiguration);
+    ENV.COUCHDB_SERVER_URL + dbName,
+    pouchDBincludeCredentialsConfig
+  );
 
   if (guestAccount) {
     updateGuestAccountExpirationDate(ret);
@@ -183,6 +199,14 @@ export function remoteDBSignup(
 
   return newDBRequest;
 
+}
+
+export function getCourseDoc<T extends SkuilderCourseData>
+  (
+    courseID: string,
+    docID: PouchDB.Core.DocumentId,
+    options: PouchDB.Core.GetOptions = {}): Promise<T> {
+  return getCourseDB(courseID).get<T>(docID, options);
 }
 
 export function getDoc

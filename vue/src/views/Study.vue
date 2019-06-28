@@ -44,7 +44,7 @@ import Viewable from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import Courses from '@/courses';
-import { getActiveCards, getScheduledCards, getCards, getDoc, putCardRecord, scheduleCardReview } from '@/db';
+import { getActiveCards, getScheduledCards, getCards, getDoc, putCardRecord, scheduleCardReview, getCourseDoc } from '@/db';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
@@ -191,18 +191,20 @@ export default class Study extends Vue {
 
   /**
    * async fetch card data and view from the db
-   * for the given card_id, and then display the card
-   * to the user.
+   * for the given qualified card id ("courseid-cardid"),
+   * and then display the card to the user.
    */
-  private async loadCard(_id: string) {
+  private async loadCard(qualified_id: string) {
     this.loading = true;
+    const _courseID = qualified_id.split('-')[0];
+    const _cardID = qualified_id.split('-')[1];
 
     try {
-      // const tmpCardData = await CardCache.getDoc<CardData>(_id);
-      const tmpCardData = await getDoc<CardData>(_id);
+      // const tmpCardData = await CardCache.getDoc<CardData>(qualified_id);
+      const tmpCardData = await getCourseDoc<CardData>(_courseID, _cardID);
       const tmpView = Courses.getView(tmpCardData.id_view);
       const tmpDataDocs = await tmpCardData.id_displayable_data.map((id) => {
-        return getDoc<DisplayableData>(id, {
+        return getCourseDoc<DisplayableData>(_courseID, id, {
           attachments: true,
           binary: true
         });
@@ -221,11 +223,12 @@ export default class Study extends Vue {
       this.cardCount++;
       this.data = tmpData;
       this.view = tmpView;
-      this.cardID = _id;
+      this.cardID = _cardID;
+      this.courseID = _courseID;
 
     } catch (e) {
       log(`Error loading card: ${JSON.stringify(e)}`);
-      this.nextCard(_id);
+      this.nextCard(qualified_id);
     } finally {
       this.loading = false;
     }
