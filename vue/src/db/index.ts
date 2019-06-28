@@ -432,20 +432,37 @@ export function getDataShapes(course?: string) {
   }
 }
 
-export function getCards(course?: string) {
-  if (course) {
-    return remote.find({
-      selector: {
-        course,
-        docType: DocType.CARD
-      }
-    });
+/**
+ * Returns *all* cards from the paramater courses, in
+ * 'qualified' card format ("courseid-cardid")
+ * 
+ * @param courseIDs A list of all course_ids to get cards from
+ */
+export async function getRandomCards(courseIDs: string[]) {
+
+  if (courseIDs.length === 0) {
+    throw new Error(`getRandomCards:\n\tAttempted to get all cards from no courses!`);
   } else {
-    return remote.find({
-      selector: {
-        docType: DocType.CARD
-      }
+
+
+    const courseResults = await Promise.all(courseIDs.map((course) => {
+      return getCourseDB(course).find({
+        selector: {
+          docType: DocType.CARD
+        },
+        limit: 1000
+      });
+    })
+    );
+
+    let ret: string[] = [];
+    courseResults.forEach((courseCards, index) => {
+      courseCards.docs.forEach((doc) => {
+        ret.push(`${courseIDs[index]}-${doc._id}`);
+      });
     });
+
+    return ret;
   }
 }
 

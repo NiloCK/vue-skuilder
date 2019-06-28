@@ -44,7 +44,7 @@ import Viewable from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import Courses from '@/courses';
-import { getActiveCards, getScheduledCards, getCards, getDoc, putCardRecord, scheduleCardReview, getCourseDoc } from '@/db';
+import { getActiveCards, getScheduledCards, getRandomCards, getDoc, putCardRecord, scheduleCardReview, getCourseDoc } from '@/db';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
@@ -129,10 +129,7 @@ export default class Study extends Vue {
       )
     );
 
-    const cards = await getCards();
-    const cardIDs = cards.docs.map((doc) => {
-      return doc._id;
-    });
+    const cardIDs = await getRandomCards([]);
 
     const newCards = cardIDs.filter((cardID) => {
       return this.activeCards.indexOf(cardID) === -1;
