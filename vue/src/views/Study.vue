@@ -20,6 +20,7 @@
           v-bind:view="view"
           v-bind:data="data"
           v-bind:card_id="cardID"
+          v-bind:course_id="courseID"
           v-bind:sessionOrder="cardCount"
           v-on:emitResponse="processResponse($event)"
       />
@@ -63,6 +64,7 @@ export default class Study extends Vue {
   public view: VueConstructor<Vue>;
   public data: ViewData[] = [];
   public cardID: PouchDB.Core.DocumentId = '';
+  public courseID: string = '';
   public cardCount: number = 1;
 
   public readonly SessionCount: number = 10;
@@ -145,6 +147,7 @@ export default class Study extends Vue {
 
   private processResponse(r: CardRecord) {
     r.cardID = this.cardID;
+    r.courseID = this.courseID;
     log(`Study.processResponse is running...`);
     this.logCardRecordAndScheduleReview(r);
 

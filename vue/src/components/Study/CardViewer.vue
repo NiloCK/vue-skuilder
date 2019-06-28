@@ -5,9 +5,9 @@
                 class='cardView'
                 :is="view"
                 v-bind:data="data"
-                v-bind:key="card_id + '-' + sessionOrder"
+                v-bind:key="course_id + '-' + card_id + '-' + sessionOrder"
                 v-on:emitResponse="processResponse($event)"
-            />    
+            />
         </transition>
     </v-card>
 </template>
@@ -31,6 +31,9 @@ export default class CardViewer extends Vue {
   @Prop({
     required: false
   }) public card_id: PouchDB.Core.DocumentId = '';
+  @Prop({
+    required: false
+  }) public course_id: string = '';
   @Prop() public view: VueConstructor<Viewable>;
   @Prop() public data: ViewData[];
 

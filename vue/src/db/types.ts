@@ -63,6 +63,37 @@ export interface QuestionData extends SkuilderCourseData {
     dataShapeList: PouchDB.Core.DocumentId[];
 }
 
+const cardHistoryPrefix = 'cardH';
+
+export function getCardHistoryID(courseID: string, cardID: string):
+    PouchDB.Core.DocumentId {
+    return `${cardHistoryPrefix}-${courseID}-${cardID}`;
+}
+
+export function parseCardHistoryID(id: string): {
+    courseID: string,
+    cardID: string
+} {
+    const split = id.split('-');
+    let error: string = '';
+    error += split.length === 3 ?
+        '' :
+        `\n\tgiven ID has incorrect number of '-' characters`;
+    error += split[0] === cardHistoryPrefix ?
+        '' :
+        `\n\tgiven ID does not start with ${cardHistoryPrefix}`;
+
+    if (split.length === 3 &&
+        split[0] === cardHistoryPrefix) {
+        return {
+            courseID: split[1],
+            cardID: split[2]
+        }
+    } else {
+        throw new Error('parseCardHistory Error:' + error);
+    }
+}
+
 export interface CardHistory<T extends CardRecord> {
     _id: PouchDB.Core.DocumentId;
     /**
@@ -73,7 +104,7 @@ export interface CardHistory<T extends CardRecord> {
     /**
      * The ID of the course
      */
-    // courseID: string; // this will be relevant if/when per-course dbs are implemented
+    courseID: string;
 
     records: T[];
 }
@@ -83,6 +114,10 @@ export interface CardRecord {
      * The CouchDB id of the card
      */
     cardID: string;
+    /**
+     * The ID of the course
+     */
+    courseID: string;
     /**
      * Number of milliseconds that the user spent before dismissing
      * the card (ie, "I've read this" or "here is my answer")

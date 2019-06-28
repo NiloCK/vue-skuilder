@@ -9,7 +9,8 @@ import {
   DisplayableData,
   DocType,
   QuestionData,
-  SkuilderCourseData
+  SkuilderCourseData,
+  getCardHistoryID
 } from '@/db/types';
 import { FieldType } from '@/enums/FieldType';
 import ENV from '@/ENVIRONMENT_VARS';
@@ -446,7 +447,7 @@ function addCard(
 
 export async function putCardRecord<T extends CardRecord>(record: T, user: string) {
   const userDB = getUserDB(user);
-  const cardHistoryID = 'cardH-' + record.cardID;
+  const cardHistoryID = getCardHistoryID(record.courseID, record.cardID);
 
   try {
     const cardHistory = await userDB.get<CardHistory<T>>(cardHistoryID);
@@ -459,6 +460,7 @@ export async function putCardRecord<T extends CardRecord>(record: T, user: strin
       const initCardHistory: CardHistory<T> = {
         _id: cardHistoryID,
         cardID: record.cardID,
+        courseID: record.courseID,
         records: [record]
       };
       momentifyCardHistory<T>(initCardHistory);

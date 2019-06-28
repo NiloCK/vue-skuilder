@@ -56,6 +56,7 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
 
         const record: QuestionRecord = {
             priorAttemps: this.priorAttempts,
+            courseID: '',
             cardID: '',
             isCorrect,
             timeSpent: this.timeSpent,
