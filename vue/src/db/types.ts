@@ -47,11 +47,6 @@ export interface Field {
     name: string;
 }
 
-/**
- * The name of a defined interface for ctor args of a question type or viewable type
- */
-export type NoteCtor = string;
-
 export interface DataShapeData extends SkuilderCourseData {
     _id: PouchDB.Core.DocumentId;
     questionTypes: PouchDB.Core.DocumentId[];
