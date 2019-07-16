@@ -72,7 +72,7 @@ function getCourseDB(courseID: string): PouchDB.Database {
     'coursedb-' +
     courseID,
     pouchDBincludeCredentialsConfig
-  )
+  );
 }
 
 export function getUserDB(username: string): PouchDB.Database {
@@ -201,11 +201,10 @@ export function remoteDBSignup(
 
 }
 
-export function getCourseDoc<T extends SkuilderCourseData>
-  (
-    courseID: string,
-    docID: PouchDB.Core.DocumentId,
-    options: PouchDB.Core.GetOptions = {}): Promise<T> {
+export function getCourseDoc<T extends SkuilderCourseData>(
+  courseID: string,
+  docID: PouchDB.Core.DocumentId,
+  options: PouchDB.Core.GetOptions = {}): Promise<T> {
   return getCourseDB(courseID).get<T>(docID, options);
 }
 
@@ -435,7 +434,7 @@ export function getDataShapes(course?: string) {
 /**
  * Returns *all* cards from the paramater courses, in
  * 'qualified' card format ("courseid-cardid")
- * 
+ *
  * @param courseIDs A list of all course_ids to get cards from
  */
 export async function getRandomCards(courseIDs: string[]) {
@@ -455,7 +454,7 @@ export async function getRandomCards(courseIDs: string[]) {
     })
     );
 
-    let ret: string[] = [];
+    const ret: string[] = [];
     courseResults.forEach((courseCards, index) => {
       courseCards.docs.forEach((doc) => {
         ret.push(`${courseIDs[index]}-${doc._id}`);
