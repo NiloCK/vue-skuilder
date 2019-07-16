@@ -45,7 +45,7 @@ class LocalCache {
         if (key.indexOf('id_') === 0) {
           const k: any = doc[key];
         }
-      })
+      });
 
       for (const field in doc) {
         if (field.indexOf('id_') === 0) {
