@@ -12,13 +12,15 @@
           <template v-for="course in registeredCourses">
             
             <v-list-tile
-              :key="course"
+              :key="course._id"
               avatar
               @click="log('asof')"
             >
 
               <v-list-tile-content>
-                <v-list-tile-title v-html="course"></v-list-tile-title>
+                <v-list-tile-title>
+                  {{ course.name }}
+                </v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
                 <v-btn 
@@ -47,12 +49,14 @@
           <template v-for="course in availableCourses">
             
             <v-list-tile
-              :key="course"
+              :key="course._id"
               avatar
             >
 
               <v-list-tile-content>
-                <v-list-tile-title v-html="course"></v-list-tile-title>
+                <v-list-tile-title>
+                  {{ course.name }}
+                </v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
                 <v-btn 
@@ -84,33 +88,30 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import CourseEditor from '../components/Edit/CourseEditor.vue';
 import { Component } from 'vue-property-decorator';
 import CourseList from '../courses';
 import _ from 'lodash';
 import { log } from 'util';
 import serverRequest from '../server';
-import { ServerRequestType } from '../server/types';
+import { ServerRequestType, CourseConfig } from '../server/types';
 import SkldrVue from '../SkldrVue';
 import { alertUser } from '../components/SnackbarService.vue';
+import { getCourseList } from '@/db/courseDB';
 
-@Component({
-  components: {
-    CourseEditor
-  }
-})
+@Component({})
 export default class Courses extends SkldrVue {
-  public existingCourses: string[] = [];
-  public registeredCourses: string[] = ['sample', 'course', 'data', 'math'];
+  public existingCourses: CourseConfig[] = [];
+  public registeredCourses: CourseConfig[] = [];
   private awaitingCreateCourse: boolean = false;
 
   public get availableCourses() {
     return _.without(this.existingCourses, ...this.registeredCourses);
   }
 
-  private created() {
-    this.existingCourses = CourseList.courses.map((course) => {
-      return course.name;
+  private async created() {
+    // pull course list from db
+    this.existingCourses = (await getCourseList()).rows.map((course) => {
+      return course.doc!;
     });
   }
 
