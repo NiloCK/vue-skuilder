@@ -22,6 +22,7 @@ import PouchDBFind from 'pouchdb-find';
 import process from 'process';
 import { log } from 'util';
 import { ScheduledCard } from './User';
+import { getUserDB } from './userDB';
 
 (window as any).process = process; // required as a fix for pouchdb - see #18
 
@@ -42,9 +43,9 @@ export const remote: PouchDB.Database = new pouch(
     skip_setup: true
   }
 );
-const localUserDB: PouchDB.Database = new pouch('skuilder');
+export const localUserDB: PouchDB.Database = new pouch('skuilder');
 
-function hexEncode(str: string): string {
+export function hexEncode(str: string): string {
   let hex: string;
   let returnStr: string = '';
 
@@ -56,7 +57,7 @@ function hexEncode(str: string): string {
   return returnStr;
 }
 
-const pouchDBincludeCredentialsConfig: PouchDB.Configuration.RemoteDatabaseConfiguration = {
+export const pouchDBincludeCredentialsConfig: PouchDB.Configuration.RemoteDatabaseConfiguration = {
   fetch(url: any, opts: any) {
     opts.credentials = 'include';
     return (pouch as any).fetch(url, opts);
@@ -75,37 +76,6 @@ function getCourseDB(courseID: string): PouchDB.Database {
   );
 }
 
-export function getUserDB(username: string): PouchDB.Database {
-  let guestAccount: boolean = false;
-  if (username === GuestUsername ||
-    username === '') {
-    username = accomodateGuest();
-    guestAccount = true;
-  }
-
-  const hexName = hexEncode(username);
-  const dbName = `userdb-${hexName}`;
-  log(`Fetching user database: ${dbName} (${username})`);
-
-  // odd construction here the result of a bug in the
-  // interaction between pouch, pouch-auth.
-  // see: https://github.com/pouchdb-community/pouchdb-authentication/issues/239
-  const ret = new pouch(
-    ENV.COUCHDB_SERVER_PROTOCOL +
-    '://' +
-    ENV.COUCHDB_SERVER_URL + dbName,
-    pouchDBincludeCredentialsConfig
-  );
-
-  if (guestAccount) {
-    updateGuestAccountExpirationDate(ret);
-  }
-
-  pouch.replicate(ret, localUserDB);
-
-  return ret;
-}
-
 /**
  * Checks the remote couchdb to see if a given username is available
  * @param username The username to be checked
@@ -119,7 +89,7 @@ export async function usernameIsAvailable(username: string): Promise<boolean> {
   return req.status === 404;
 }
 
-function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) {
+export function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) {
   const currentTime = moment.utc();
   const expirationDate: string = currentTime.add(2, 'months').toISOString();
 
@@ -138,7 +108,7 @@ function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) {
 }
 
 
-function accomodateGuest() {
+export function accomodateGuest() {
   let username: string;
 
   if (localStorage.getItem(dbUUID) !== null) {

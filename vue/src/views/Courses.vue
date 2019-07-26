@@ -14,7 +14,6 @@
             <v-list-tile
               :key="course._id"
               avatar
-              @click="log('asof')"
             >
 
               <v-list-tile-content>
@@ -26,7 +25,8 @@
                 <v-btn 
                  small
                  color="secondary"
-                 @click="dropCourse(course)"
+                 @click="dropCourse(course._id)"
+                 :loading="spinnerMap[course._id] !== undefined"
                 >
                   Drop
                 </v-btn>
@@ -51,6 +51,7 @@
             <v-list-tile
               :key="course._id"
               avatar
+              transition="fade-transition"
             >
 
               <v-list-tile-content>
@@ -62,7 +63,8 @@
                 <v-btn 
                  small
                  color="primary"
-                 @click="addCourse(course)"
+                 @click="addCourse(course._id)"
+                 :loading="spinnerMap[course._id] !== undefined"
                 >
                   Register
                 </v-btn>
@@ -97,22 +99,45 @@ import { ServerRequestType, CourseConfig } from '../server/types';
 import SkldrVue from '../SkldrVue';
 import { alertUser } from '../components/SnackbarService.vue';
 import { getCourseList } from '@/db/courseDB';
+import { registerUserForCourse, getUserCourses, dropUserFromCourse } from '../db/userDB';
 
 @Component({})
 export default class Courses extends SkldrVue {
   public existingCourses: CourseConfig[] = [];
   public registeredCourses: CourseConfig[] = [];
   private awaitingCreateCourse: boolean = false;
+  private spinnerMap: { [key: string]: boolean } = {};
 
   public get availableCourses() {
     return _.without(this.existingCourses, ...this.registeredCourses);
   }
 
-  private async created() {
-    // pull course list from db
-    this.existingCourses = (await getCourseList()).rows.map((course) => {
+  private async refreshData() {
+    log(`Pulling user course data...`);
+    const courseList = await getCourseList();
+    const userCoursIDs = (await getUserCourses(this.$store.state.user)).courses.map((course) => {
+      return course.course_id;
+    });
+
+    this.existingCourses = courseList.rows.map((course) => {
       return course.doc!;
     });
+
+    this.registeredCourses = courseList.rows.filter((course) => {
+      let match: boolean = false;
+      userCoursIDs.forEach((id) => {
+        if (course.id === id) {
+          match = true;
+        }
+      });
+      return match;
+    }).map((course) => {
+      return course.doc!;
+    });
+  }
+
+  private async created() {
+    this.refreshData();
   }
 
   private async createCourse() {
@@ -139,11 +164,19 @@ export default class Courses extends SkldrVue {
     this.awaitingCreateCourse = false;
   }
 
-  private addCourse(course: string) {
+  private async addCourse(course: string) {
+    this.$set(this.spinnerMap, course, true);
     log(`Attempting to register for ${course}.`);
+    await registerUserForCourse(this.$store.state.user, course)
+    this.$set(this.spinnerMap, course, undefined);
+    this.refreshData();
   }
-  private dropCourse(course: string) {
+  private async dropCourse(course: string) {
+    this.$set(this.spinnerMap, course, true);
     log(`Attempting to drop ${course}.`);
+    await dropUserFromCourse(this.$store.state.user, course);
+    this.$set(this.spinnerMap, course, undefined);
+    this.refreshData();
   }
 }
 </script>

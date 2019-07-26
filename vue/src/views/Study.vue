@@ -49,6 +49,7 @@ import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/Vi
 import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
 import moment from 'moment';
+import { getUserCourses } from '../db/userDB';
 // import CardCache from '@/db/cardCache';
 
 function randInt(n: number) {
@@ -79,8 +80,15 @@ export default class Study extends Vue {
     shadowWrapper: HTMLDivElement
   };
 
+  private userCourseIDs: string[] = [];
+
   public async created() {
     this.activeCards = await getActiveCards(this.$store.state.user);
+    this.userCourseIDs =
+      (await getUserCourses(this.$store.state.user))
+        .courses.map((course) => {
+          return course.course_id;
+        });
     await this.getSessionCards();
 
     this.nextCard();
@@ -129,7 +137,7 @@ export default class Study extends Vue {
       )
     );
 
-    const cardIDs = await getRandomCards([]);
+    const cardIDs = await getRandomCards(this.userCourseIDs);
 
     const newCards = cardIDs.filter((cardID) => {
       return this.activeCards.indexOf(cardID) === -1;
