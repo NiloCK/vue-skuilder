@@ -101,5 +101,5 @@ export async function dropUserFromCourse(user: string, course_id: string) {
 }
 
 export async function getUserCourses(user: string) {
-  return getUserDB(user).get<CourseRegistrationDoc>(userCoursesDoc);
+  return getOrCreateCourseRegistrationsDoc(user);
 }

@@ -64,7 +64,7 @@ export const pouchDBincludeCredentialsConfig: PouchDB.Configuration.RemoteDataba
   }
 } as PouchDB.Configuration.RemoteDatabaseConfiguration;
 
-function getCourseDB(courseID: string): PouchDB.Database {
+export function getCourseDB(courseID: string): PouchDB.Database {
   // todo: keep a cache of opened courseDBs? need to benchmark this somehow
   return new pouch(
     ENV.COUCHDB_SERVER_PROTOCOL +
