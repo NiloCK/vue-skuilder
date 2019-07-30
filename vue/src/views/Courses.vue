@@ -73,14 +73,18 @@
             </v-list-tile>
           </template>
           <v-divider></v-divider>
-          <v-btn
-            color="primary"
-            :loading="awaitingCreateCourse"
-            @click="createCourse()"
-          >
-            New Course
-            <v-icon right>add_circle</v-icon>
-          </v-btn>
+            <v-dialog
+              v-model="newCourseDialog"
+              fullscreen
+              
+              transition="dialog-bottom-transition"
+              :overlay="false"
+            >
+              <v-btn color="primary" dark slot="activator">New Course</v-btn>
+                <course-editor 
+                 v-on:CourseEditingComplete="processResponse($event)"
+                />
+            </v-dialog>
         </v-list>
       </v-card>
     </v-flex>
@@ -90,6 +94,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import CourseEditor from '@/components/Courses/CourseEditor.vue';
 import { Component } from 'vue-property-decorator';
 import CourseList from '../courses';
 import _ from 'lodash';
@@ -101,15 +106,26 @@ import { alertUser } from '../components/SnackbarService.vue';
 import { getCourseList } from '@/db/courseDB';
 import { registerUserForCourse, getUserCourses, dropUserFromCourse } from '../db/userDB';
 
-@Component({})
+@Component({
+  components: {
+    CourseEditor
+  }
+})
 export default class Courses extends SkldrVue {
   public existingCourses: CourseConfig[] = [];
   public registeredCourses: CourseConfig[] = [];
   private awaitingCreateCourse: boolean = false;
   private spinnerMap: { [key: string]: boolean } = {};
 
+  private newCourseDialog: boolean = false;
+
   public get availableCourses() {
     return _.without(this.existingCourses, ...this.registeredCourses);
+  }
+
+  private processResponse(event: string) {
+    this.newCourseDialog = false;
+    this.refreshData();
   }
 
   private async refreshData() {
