@@ -12,6 +12,12 @@ const courseDB: PouchDB.Database = new pouch(
   }
 );
 
+// export async function incrementCourseMembership(courseID: string) {
+//   courseDB.get<CourseConfig>(courseID).then( (course) => {
+//     course.
+//   })
+// }
+
 export async function getCourseList() {
   return courseDB.allDocs<CourseConfig>({
     include_docs: true
