@@ -23,3 +23,10 @@ export async function getCourseList() {
     include_docs: true
   });
 }
+
+export async function getCourseConfigs(ids: string[]) {
+  return courseDB.allDocs<CourseConfig>({
+    include_docs: true,
+    keys: ids
+  });
+}

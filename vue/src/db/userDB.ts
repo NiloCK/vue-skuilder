@@ -9,6 +9,7 @@ import {
   updateGuestAccountExpirationDate,
   localUserDB
 } from './index';
+import { getCourseConfigs } from './courseDB';
 
 export function getUserDB(username: string): PouchDB.Database {
   let guestAccount: boolean = false;
@@ -102,4 +103,16 @@ export async function dropUserFromCourse(user: string, course_id: string) {
 
 export async function getUserCourses(user: string) {
   return getOrCreateCourseRegistrationsDoc(user);
+}
+
+export async function getUserEditableCourses(user: string) {
+  let courseIDs: string[] = [];
+
+  const registeredCourses = await getUserCourses(user);
+
+  courseIDs = courseIDs.concat(registeredCourses.courses.map((course) => {
+    return course.course_id;
+  }));
+
+  return getCourseConfigs(courseIDs);
 }

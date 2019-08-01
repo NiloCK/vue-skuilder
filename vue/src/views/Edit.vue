@@ -3,7 +3,7 @@
       <h1 class="headline">Editing Course Data</h1>
       
       <v-select
-        :items="courseList"
+        :items="courseNames"
         v-model="selectedCourse"
         label="Select a course to contribute to:"
       />
@@ -17,6 +17,9 @@ import Vue from 'vue';
 import CourseEditor from '../components/Edit/CourseEditor.vue';
 import { Component } from 'vue-property-decorator';
 import Courses from '../courses';
+import { getCourseList } from '../db/courseDB';
+import { CourseConfig } from '../server/types';
+import { getUserEditableCourses } from '../db/userDB';
 
 @Component({
   components: {
@@ -24,12 +27,20 @@ import Courses from '../courses';
   }
 })
 export default class Edit extends Vue {
-  public courseList: string[] = [];
+  public courseList: CourseConfig[] = [];
   public selectedCourse: string = '';
 
-  private created() {
-    this.courseList = Courses.courses.map((course) => {
+  private get courseNames() {
+    return this.courseList.map((course) => {
       return course.name;
+    });
+  }
+
+  private async created() {
+    const courseList = await getUserEditableCourses(this.$store.state.user);
+
+    this.courseList = courseList.rows.map((row) => {
+      return row.doc!;
     });
   }
 }
