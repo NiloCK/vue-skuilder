@@ -41,6 +41,8 @@ import { DataShapeName } from '@/enums/DataShapeNames';
 import BasicCard from '@/base-course/CardTypes/BasicCard';
 import { FieldType } from '@/enums/FieldType';
 import BaseCards from '@/base-course/CardTypes';
+import { CourseConfig } from '../../server/types';
+import { getCourseConfig } from '../../db/courseDB';
 
 @Component({
   components: {
@@ -53,10 +55,12 @@ export default class CourseEditor extends Vue {
   public registeredDataShapes: DataShape[] = [];
   public dataShapes: DataShape[] = [];
   public selectedShape: string = '';
+  private courseConfig: CourseConfig;
   private loading: boolean = true; // datashapes are loading on init
   private editingMode: boolean = true;
 
-  public created() {
+  public async created() {
+    this.courseConfig = (await getCourseConfig(this.course))!;
     // this.dataShapes = BaseCards.dataShapes;
     // this.registeredDataShapes = BaseCards.dataShapes;
     BaseCards.dataShapes.forEach((shape) => {

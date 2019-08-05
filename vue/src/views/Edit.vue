@@ -3,7 +3,9 @@
       <h1 class="headline">Editing Course Data</h1>
       
       <v-select
-        :items="courseNames"
+        item-text="name"
+        item-value="_id"
+        :items="courseList"
         v-model="selectedCourse"
         label="Select a course to contribute to:"
       />

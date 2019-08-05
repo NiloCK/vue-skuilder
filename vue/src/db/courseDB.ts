@@ -4,7 +4,7 @@ import { CourseConfig } from '@/server/types';
 
 const coursedbLookup = 'coursedb-lookup';
 
-const courseDB: PouchDB.Database = new pouch(
+const courseLookupDB: PouchDB.Database = new pouch(
   ENV.COUCHDB_SERVER_PROTOCOL + '://' +
   ENV.COUCHDB_SERVER_URL + coursedbLookup,
   {
@@ -19,13 +19,18 @@ const courseDB: PouchDB.Database = new pouch(
 // }
 
 export async function getCourseList() {
-  return courseDB.allDocs<CourseConfig>({
+  return courseLookupDB.allDocs<CourseConfig>({
     include_docs: true
   });
 }
 
+export async function getCourseConfig(courseID: string) {
+  const config = await getCourseConfigs([courseID]);
+  return config.rows[0].doc;
+}
+
 export async function getCourseConfigs(ids: string[]) {
-  return courseDB.allDocs<CourseConfig>({
+  return courseLookupDB.allDocs<CourseConfig>({
     include_docs: true,
     keys: ids
   });

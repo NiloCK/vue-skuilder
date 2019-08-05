@@ -23,6 +23,7 @@ export interface DeleteClassroom extends IServerRequest {
 }
 
 export interface CourseConfig {
+  _id?: string;
   name: string;
   description: string;
   public: boolean;
