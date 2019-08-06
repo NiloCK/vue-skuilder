@@ -63,7 +63,7 @@ async function getOrCreateCourseRegistrationsDoc(user: string):
       });
       ret = await getOrCreateCourseRegistrationsDoc(user);
     } else {
-      throw new Error(`Unexpected error ${e} in getOrCreateCourseRegistrationDoc...`)
+      throw new Error(`Unexpected error ${JSON.stringify(e)} in getOrCreateCourseRegistrationDoc...`)
     }
 
   }
