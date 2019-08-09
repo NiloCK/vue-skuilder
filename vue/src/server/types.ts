@@ -22,12 +22,16 @@ export interface DeleteClassroom extends IServerRequest {
   classID: string;
 }
 
+type NamespacedDatashape = string; // ${course}.datashape.${datashape}
+
 export interface DataShape55 {
-  name: string;
+  name: NamespacedDatashape;
   questionTypes: PouchDB.Core.DocumentId[];
 }
+
+type NamespacedQuestion = string; // ${course}.question.${question}
 export interface QuestionType55 {
-  name: string;
+  name: NamespacedQuestion;
   viewList: string[];
   dataShapeList: string[];
 }
