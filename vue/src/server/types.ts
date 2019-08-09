@@ -22,6 +22,16 @@ export interface DeleteClassroom extends IServerRequest {
   classID: string;
 }
 
+export interface DataShape55 {
+  name: string;
+  questionTypes: PouchDB.Core.DocumentId[];
+}
+export interface QuestionType55 {
+  name: string;
+  viewList: string[];
+  dataShapeList: string[];
+}
+
 export interface CourseConfig {
   _id?: string;
   name: string;
@@ -31,6 +41,8 @@ export interface CourseConfig {
   creator: string;
   admins: string[];
   moderators: string[];
+  dataShapes: DataShape55[];
+  questionTypes: QuestionType55[];
 }
 
 export interface CreateCourse extends IServerRequest {

@@ -45,20 +45,27 @@
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
-import Courses, { NameSpacer } from '@/courses';
+import Courses, { NameSpacer, QuestionDescriptor } from '@/courses';
 import { getDataShapes, getDoc, putDataShape, putQuestionType } from '@/db';
 import * as _ from 'lodash';
 import { Question, Displayable } from '@/base-course/Displayable';
 import { QuestionData, QuestionRecord } from '@/db/types';
+import {
+  getCredentialledCourseConfig,
+  updateCredentialledCourseConfig
+} from '../../../db/courseDB';
+import { DataShape55, QuestionType55, CourseConfig } from '../../../server/types';
 
 interface DataShapeRegistrationStatus {
   name: string;
+  course: string; // the namespacing "in-code" course
   dataShape: DataShape;
   registered: boolean;
 }
 
 interface QuestionRegistrationStatus {
   name: string;
+  course: string; // the namespacing "in-code" course
   question: typeof Displayable;
   registered: boolean;
 }
@@ -72,79 +79,183 @@ export default class ComponentRegistration extends Vue {
   public dataShapes: DataShapeRegistrationStatus[] = [];
   public questions: QuestionRegistrationStatus[] = [];
 
-  public created() {
-    const dataShapeData = Courses.allDataShapes().filter((shape) => {
-      return shape.course === this.course;
-    });
+  private courseDatashapes: DataShape55[] = [];
+  private courseQuestionTypes: QuestionType55[] = [];
+  private courseConfig?: CourseConfig = undefined;
+
+  public async created() {
+    this.courseConfig = await getCredentialledCourseConfig(this.course);
+    this.courseDatashapes = this.courseConfig.dataShapes;
+    this.courseQuestionTypes = this.courseConfig.questionTypes;
+
+    // #55
+    const dataShapeData = Courses.allDataShapes();
+    // const dataShapeData = Courses.allDataShapes().filter((shape) => {
+    //   return shape.course === this.course;
+    // });
 
     dataShapeData.forEach((shape) => {
-      getDoc(NameSpacer.getDataShapeString(shape)).then((doc) => {
-        this.dataShapes.push({
-          name: shape.dataShape,
-          dataShape: Courses.getDataShape(shape),
-          registered: true
-        });
-      }).catch((err) => {
-        this.dataShapes.push({
-          name: shape.dataShape,
-          dataShape: Courses.getDataShape(shape),
-          registered: false
-        });
-      }).then(() => {
-        this.dataShapes = _.sortBy(this.dataShapes, ['registered', 'name']);
+      const index = this.courseDatashapes.find((test) => {
+        return test.name === NameSpacer.getDataShapeString(shape);
+      });
+
+      this.dataShapes.push({
+        name: shape.dataShape,
+        course: shape.course,
+        dataShape: Courses.getDataShape(shape),
+        registered: index !== undefined
       });
     });
 
-    const questionData = Courses.getCourse(this.course)!.questions;
+    this.dataShapes = _.sortBy(this.dataShapes, ['registered', 'name']);
+
+    // dataShapeData.forEach((shape) => {
+    //   getDoc(NameSpacer.getDataShapeString(shape)).then((doc) => {
+    //     this.dataShapes.push({
+    //       name: shape.dataShape,
+    //       dataShape: Courses.getDataShape(shape),
+    //       registered: true
+    //     });
+    //   }).catch((err) => {
+    //     this.dataShapes.push({
+    //       name: shape.dataShape,
+    //       dataShape: Courses.getDataShape(shape),
+    //       registered: false
+    //     });
+    //   }).then(() => {
+    //     this.dataShapes = _.sortBy(this.dataShapes, ['registered', 'name']);
+    //   });
+    // });
+
+    // const questionData = Courses.
+
+    const courseNameList = Courses.courses.map((course) => course.name);
+    const questionData: Array<[QuestionDescriptor, typeof Displayable]> = [];
+
+    courseNameList.forEach((course) => {
+      const courseQs = Courses.getCourse(course)!.questions;
+
+      courseQs.forEach((courseQ) => {
+        questionData.push([{
+          course,
+          questionType: courseQ.name
+        },
+          courseQ
+        ]);
+      });
+    });
 
     questionData.forEach((question) => {
-      getDoc<QuestionData>(NameSpacer.getQuestionString({
-        course: this.course,
-        questionType: question.name
-      })).then((doc) => {
-        this.questions.push({
-          name: question.name,
-          registered: true,
-          question
-        });
-      }).catch((err) => {
-        this.questions.push({
-          name: question.name,
-          registered: false,
-          question
-        });
-      }).then(() => {
-        this.questions = _.sortBy(this.questions, ['registered', 'name']);
+      const index = this.courseQuestionTypes.find((test) => {
+        return NameSpacer.getQuestionString(question[0]) === test.name;
+      });
+
+      this.questions.push({
+        course: question[0].course,
+        name: question[1].name,
+        registered: index !== undefined,
+        question: question[1]
       });
     });
+
+    // const questionData = Courses.getCourse(this.course)!.questions;
+
+    // questionData.forEach((question) => {
+    //   getDoc<QuestionData>(NameSpacer.getQuestionString({
+    //     course: this.course,
+    //     questionType: question.name
+    //   })).then((doc) => {
+    //     this.questions.push({
+    //       name: question.name,
+    //       registered: true,
+    //       question
+    //     });
+    //   }).catch((err) => {
+    //     this.questions.push({
+    //       name: question.name,
+    //       registered: false,
+    //       question
+    //     });
+    //   }).then(() => {
+    //     this.questions = _.sortBy(this.questions, ['registered', 'name']);
+    //   });
+    // });
 
   }
 
-  private registerShape(shapeName: string) {
+  private async registerShape(shapeName: string) {
     const shape = this.dataShapes.find((findShape) => {
       return findShape.name === shapeName;
     })!;
 
-    putDataShape(this.course, shape.dataShape).then((res) => {
-      if (res.ok) {
-        shape.registered = true;
-      }
+    this.courseConfig!.dataShapes.push({
+      name: NameSpacer.getDataShapeString({
+        dataShape: shape.name,
+        course: shape.course
+      }),
+      questionTypes: []
     });
+
+    const update = await updateCredentialledCourseConfig(this.course, this.courseConfig!);
+
+    if (update.ok) {
+      shape.registered = true;
+    }
+
+    // #55 putDataShape(this.course, shape.dataShape).then((res) => {
+    //   if (res.ok) {
+    //     shape.registered = true;
+    //   }
+    // });
   }
-  private registerQuestion(questionName: string) {
+  private async registerQuestion(questionName: string) {
     const question = this.questions.find((q) => {
       return q.name === questionName;
     })!;
 
-    try {
-      putQuestionType(this.course, question.question).then((res) => {
-        if (res.ok) {
-          question.registered = true;
-        }
+    const nsQuestionName = NameSpacer.getQuestionString({
+      course: question.course,
+      questionType: question.name
+    });
+
+    this.courseConfig!.questionTypes.push({
+      name: nsQuestionName,
+      viewList: question.question.views.map((v) => v.name),
+      dataShapeList: question.question.dataShapes.map((d) => NameSpacer.getDataShapeString({
+        course: question.course,
+        dataShape: d.name
+      }))
+    });
+
+    // associate the question type with existing registered dataTypes
+    question.question.dataShapes.forEach((ds) => {
+      const nsDatashapeName = NameSpacer.getDataShapeString({
+        course: question.course,
+        dataShape: ds.name
       });
-    } catch (err) {
-      alert(err);
+
+      for (const db of this.courseConfig!.dataShapes) {
+        if (db.name === nsDatashapeName) {
+          db.questionTypes.push(nsQuestionName);
+        }
+      }
+    });
+
+    const update = await updateCredentialledCourseConfig(this.course, this.courseConfig!);
+
+    if (update.ok) {
+      question.registered = true;
     }
+
+    // try {
+    //   putQuestionType(this.course, question.question).then((res) => {
+    //     if (res.ok) {
+    //       question.registered = true;
+    //     }
+    //   });
+    // } catch (err) {
+    //   alert(err);
+    // }
   }
 
 }
