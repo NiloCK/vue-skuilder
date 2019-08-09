@@ -88,11 +88,7 @@ export default class ComponentRegistration extends Vue {
     this.courseDatashapes = this.courseConfig.dataShapes;
     this.courseQuestionTypes = this.courseConfig.questionTypes;
 
-    // #55
     const dataShapeData = Courses.allDataShapes();
-    // const dataShapeData = Courses.allDataShapes().filter((shape) => {
-    //   return shape.course === this.course;
-    // });
 
     dataShapeData.forEach((shape) => {
       const index = this.courseDatashapes.find((test) => {
@@ -108,26 +104,6 @@ export default class ComponentRegistration extends Vue {
     });
 
     this.dataShapes = _.sortBy(this.dataShapes, ['registered', 'name']);
-
-    // dataShapeData.forEach((shape) => {
-    //   getDoc(NameSpacer.getDataShapeString(shape)).then((doc) => {
-    //     this.dataShapes.push({
-    //       name: shape.dataShape,
-    //       dataShape: Courses.getDataShape(shape),
-    //       registered: true
-    //     });
-    //   }).catch((err) => {
-    //     this.dataShapes.push({
-    //       name: shape.dataShape,
-    //       dataShape: Courses.getDataShape(shape),
-    //       registered: false
-    //     });
-    //   }).then(() => {
-    //     this.dataShapes = _.sortBy(this.dataShapes, ['registered', 'name']);
-    //   });
-    // });
-
-    // const questionData = Courses.
 
     const courseNameList = Courses.courses.map((course) => course.name);
     const questionData: Array<[QuestionDescriptor, typeof Displayable]> = [];
@@ -158,29 +134,6 @@ export default class ComponentRegistration extends Vue {
       });
     });
 
-    // const questionData = Courses.getCourse(this.course)!.questions;
-
-    // questionData.forEach((question) => {
-    //   getDoc<QuestionData>(NameSpacer.getQuestionString({
-    //     course: this.course,
-    //     questionType: question.name
-    //   })).then((doc) => {
-    //     this.questions.push({
-    //       name: question.name,
-    //       registered: true,
-    //       question
-    //     });
-    //   }).catch((err) => {
-    //     this.questions.push({
-    //       name: question.name,
-    //       registered: false,
-    //       question
-    //     });
-    //   }).then(() => {
-    //     this.questions = _.sortBy(this.questions, ['registered', 'name']);
-    //   });
-    // });
-
   }
 
   private async registerShape(shapeName: string) {
@@ -201,13 +154,8 @@ export default class ComponentRegistration extends Vue {
     if (update.ok) {
       shape.registered = true;
     }
-
-    // #55 putDataShape(this.course, shape.dataShape).then((res) => {
-    //   if (res.ok) {
-    //     shape.registered = true;
-    //   }
-    // });
   }
+
   private async registerQuestion(questionName: string) {
     const question = this.questions.find((q) => {
       return q.name === questionName;
@@ -247,15 +195,6 @@ export default class ComponentRegistration extends Vue {
       question.registered = true;
     }
 
-    // try {
-    //   putQuestionType(this.course, question.question).then((res) => {
-    //     if (res.ok) {
-    //       question.registered = true;
-    //     }
-    //   });
-    // } catch (err) {
-    //   alert(err);
-    // }
   }
 
 }
