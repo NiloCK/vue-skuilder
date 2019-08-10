@@ -87,6 +87,7 @@ import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import SkldrVue from '../../../SkldrVue';
 import { CourseConfig } from '../../../server/types';
 import { addNote55 } from '../../../db/courseDB';
+import { log } from 'util';
 
 @Component({
   components: {
@@ -234,6 +235,14 @@ export default class DataInputForm extends SkldrVue {
         });
         this.reset();
       } else {
+        alertUser({
+          text: `A problem occurred. Content has not been added.`,
+          status: Status.error
+        });
+        log(`Error in DataInputForm.submit(). Result from addNote:
+
+  ${JSON.stringify(result)}
+`);
         this.uploading = false;
       }
     }
