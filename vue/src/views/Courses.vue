@@ -167,7 +167,9 @@ export default class Courses extends SkldrVue {
         deleted: false,
         creator: this.$store.state.user,
         admins: [this.$store.state.user],
-        moderators: []
+        moderators: [],
+        dataShapes: [],
+        questionTypes: []
       },
       user: this.$store.state.user,
       response: null

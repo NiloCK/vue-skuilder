@@ -71,7 +71,7 @@
 import Vue from 'vue'
 import SkldrVue from '../../SkldrVue';
 import Component from 'vue-class-component';
-import { CourseConfig, CreateCourse, ServerRequestType } from '../../server/types';
+import { CourseConfig, CreateCourse, ServerRequestType, DataShape55, QuestionType55 } from '../../server/types';
 import serverRequest from '../../server';
 import { alertUser } from '../SnackbarService.vue';
 import { Status } from '../../enums/Status';
@@ -98,6 +98,8 @@ export default class CourseEditor extends SkldrVue {
   private deleted: boolean = false;
   private admins: string[] = [];
   private moderators: string[] = [];
+  private dataShapes: DataShape55[] = [];
+  private questionTypes: QuestionType55[] = [];
 
   private banner?: Blob = undefined;
   private thumb?: Blob = undefined;
@@ -118,7 +120,9 @@ export default class CourseEditor extends SkldrVue {
       deleted: this.deleted,
       creator: this.$store.state.user,
       admins: this.admins,
-      moderators: this.moderators
+      moderators: this.moderators,
+      dataShapes: this.dataShapes,
+      questionTypes: this.questionTypes
     };
 
     const result = await serverRequest<CreateCourse>({

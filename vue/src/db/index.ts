@@ -282,55 +282,6 @@ export async function doesUserExist(name: string) {
   }
 }
 
-export async function addNote(course: string, shape: DataShape, data: any, author?: string) {
-  // todo: make less crappy - test for duplicate insertions - #15
-
-  const dataShapeId = NameSpacer.getDataShapeString({
-    course,
-    dataShape: shape.name
-  });
-
-  const attachmentFields = shape.fields.filter((field) => {
-    return (
-      field.type === FieldType.IMAGE ||
-      field.type === FieldType.AUDIO
-    );
-  });
-  const attachments: { [index: string]: PouchDB.Core.FullAttachment } = {};
-  const payload: DisplayableData = {
-    course,
-    data: [],
-    docType: DocType.DISPLAYABLE_DATA,
-    id_datashape: dataShapeId
-  };
-
-  if (author) {
-    payload.author = author;
-  }
-
-  if (attachmentFields.length !== 0) {
-    attachmentFields.forEach((attField) => {
-      attachments[attField.name] = data[attField.name];
-    });
-    payload._attachments = attachments;
-  }
-
-  shape.fields.filter((field) => {
-    return field.type !== FieldType.IMAGE;
-  }).forEach((field) => {
-    payload.data.push({
-      name: field.name,
-      data: data[field.name]
-    });
-  });
-
-  const result = await remote.post<DisplayableData>(payload);
-  if (result.ok) {
-    createCards(course, dataShapeId, result.id);
-  }
-  return result;
-}
-
 async function getImplementingQuestions(dataShape: PouchDB.Core.DocumentId) {
   const shapeResult = await getDoc<DataShapeData>(dataShape);
   const questions = shapeResult.questionTypes;

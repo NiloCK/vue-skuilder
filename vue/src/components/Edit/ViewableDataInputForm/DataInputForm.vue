@@ -74,17 +74,19 @@ import IntegerInput from './FieldInputs/IntegerInput.vue';
 import ImageInput from './FieldInputs/ImageInput.vue';
 import AudioInput from './FieldInputs/AudioInput.vue';
 import MarkdownInput from './FieldInputs/MarkdownInput.vue';
-import { addNote, getNotes, getDoc } from '@/db';
+import { getNotes, getDoc } from '@/db';
 import { DisplayableData, DataShapeData, QuestionData } from '@/db/types';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
 import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
-import Courses, { NameSpacer } from '@/courses';
+import Courses, { NameSpacer, ShapeDescriptor } from '@/courses';
 import { alertUser } from '@/components/SnackbarService.vue';
 import { Status } from '@/enums/Status';
 import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import SkldrVue from '../../../SkldrVue';
+import { CourseConfig } from '../../../server/types';
+import { addNote55 } from '../../../db/courseDB';
 
 @Component({
   components: {
@@ -121,7 +123,7 @@ export default class DataInputForm extends SkldrVue {
   }
 
   @Prop() public dataShape: DataShape;
-  @Prop() public course: string;
+  @Prop() public course: CourseConfig;
   public existingData: ViewData[] = [];
 
   public shapeViews: Array<VueConstructor<Vue>>;
@@ -171,6 +173,20 @@ export default class DataInputForm extends SkldrVue {
     this.convertInput();
   }
 
+  private get datashapeDescriptor(): ShapeDescriptor {
+    for (const ds of this.course.dataShapes) {
+      const descriptor = NameSpacer.getDataShapeDescriptor(ds.name);
+      if (descriptor.dataShape === this.dataShape.name) {
+        return descriptor;
+      }
+    }
+
+    return {
+      course: '',
+      dataShape: ''
+    };
+  }
+
   public created() {
     this.onDataShapeChange();
   }
@@ -199,19 +215,23 @@ export default class DataInputForm extends SkldrVue {
     return this.store.convertedInput;
   }
 
-  public submit() {
+  public async submit() {
     if (this.userInputIsValid) {
       this.uploading = true;
-      addNote(this.course, this.dataShape, this.convertedInput, this.$store.state.user)
-        .then((resp) => {
-          // this.uploading = false;
-          this.reset();
-          alertUser({
-            text: 'Data uploaded',
-            status: Status.ok
-          });
-          // this.$refs.fieldInputs[0].focus();
-        });
+
+      const result = await addNote55(
+        this.course.courseID!,
+        this.datashapeDescriptor.course,
+        this.dataShape,
+        this.convertedInput,
+        this.$store.state.user
+      );
+
+      if (result.ok) {
+        this.reset();
+      } else {
+        this.uploading = false;
+      }
     }
   }
 
@@ -228,38 +248,36 @@ export default class DataInputForm extends SkldrVue {
   private getExistingNotesFromDB() {
     this.existingData = [];
 
-    getNotes(this.course, this.dataShape).then((results) => {
-      results.docs.forEach((doc) => {
-        getDoc<DisplayableData>(doc._id).then((fullDoc) => {
-          this.existingData.push(
-            displayableDataToViewData(fullDoc)
-          );
-        });
-      });
-    });
+
+    // pre-#55 /skuilder implementation:
+    // getNotes(this.course, this.dataShape).then((results) => {
+    //   results.docs.forEach((doc) => {
+    //     getDoc<DisplayableData>(doc._id).then((fullDoc) => {
+    //       this.existingData.push(
+    //         displayableDataToViewData(fullDoc)
+    //       );
+    //     });
+    //   });
+    // });
   }
 
   private getImplementingViews() {
     this.shapeViews = [];
 
-    const dataShapeId = NameSpacer.getDataShapeString({
-      course: this.course,
-      dataShape: this.dataShape.name
-    });
+    for (const ds of this.course.dataShapes) {
+      const descriptor = NameSpacer.getDataShapeDescriptor(ds.name);
+      if (descriptor.dataShape === this.dataShape.name) {
+        const crs = Courses.getCourse(descriptor.course)!;
 
-    getDoc<DataShapeData>(dataShapeId).then((shape) => {
-      shape.questionTypes.forEach((questionId) => {
-        const questionName = NameSpacer.getQuestionDescriptor(
-          questionId
-        ).questionType;
+        for (const q of ds.questionTypes) {
+          const qDescriptor = NameSpacer.getQuestionDescriptor(q);
 
-        Courses.getCourse(this.course)!.getQuestion(
-          questionName
-        )!.views.forEach((view) => {
-          this.shapeViews.push(view);
-        });
-      });
-    });
+          crs.getQuestion(qDescriptor.questionType)!.views.forEach((view) => {
+            this.shapeViews.push(view);
+          });
+        }
+      }
+    }
   }
 
   private isFieldInput(component: any): component is FieldInput {

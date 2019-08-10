@@ -37,7 +37,7 @@ export interface QuestionType55 {
 }
 
 export interface CourseConfig {
-  _id?: string;
+  courseID?: string;
   name: string;
   description: string;
   public: boolean;
