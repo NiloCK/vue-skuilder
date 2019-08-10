@@ -228,6 +228,10 @@ export default class DataInputForm extends SkldrVue {
       );
 
       if (result.ok) {
+        alertUser({
+          text: `Content added... Thank you!`,
+          status: Status.ok
+        });
         this.reset();
       } else {
         this.uploading = false;
