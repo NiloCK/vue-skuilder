@@ -76,7 +76,13 @@ export async function getCourseConfig(courseID: string) {
   return config.rows[0].doc;
 }
 
-export async function addNote55(courseID: string, codeCourse: string, shape: DataShape, data: any, author?: string) {
+export async function addNote55(
+  courseID: string,
+  codeCourse: string,
+  shape: DataShape,
+  data: any,
+  author?: string
+) {
   // alert(`Course id: ${courseID}`);
   const db = await getCourseDB(courseID);
 
