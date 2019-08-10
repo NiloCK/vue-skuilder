@@ -53,6 +53,8 @@ export default class BasicView extends InformationView<BasicCard> {
   public get displayable() {
     return new BasicCard(this.data);
   }
-  public submit() { }
+  public submit() {
+    // (no nag tslint!)
+  }
 }
 </script>

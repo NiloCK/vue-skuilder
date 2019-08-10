@@ -68,7 +68,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from 'vue';
 import SkldrVue from '../../SkldrVue';
 import Component from 'vue-class-component';
 import { CourseConfig, CreateCourse, ServerRequestType, DataShape55, QuestionType55 } from '../../server/types';

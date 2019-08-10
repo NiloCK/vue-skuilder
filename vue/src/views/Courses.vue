@@ -185,7 +185,7 @@ export default class Courses extends SkldrVue {
   private async addCourse(course: string) {
     this.$set(this.spinnerMap, course, true);
     log(`Attempting to register for ${course}.`);
-    await registerUserForCourse(this.$store.state.user, course)
+    await registerUserForCourse(this.$store.state.user, course);
     this.$set(this.spinnerMap, course, undefined);
     this.refreshData();
   }

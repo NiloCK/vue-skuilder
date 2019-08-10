@@ -43,7 +43,7 @@ function lastSuccessfulInterval(cardHistory: QuestionRecord[]): number {
             cardHistory[i].priorAttemps === 0
             && cardHistory[i].isCorrect
         ) {
-            const lastInterval = secondsBetween(cardHistory[i - 1].timeStamp, cardHistory[i].timeStamp)
+            const lastInterval = secondsBetween(cardHistory[i - 1].timeStamp, cardHistory[i].timeStamp);
             log(`Last interval w/ this card was: ${lastInterval}`);
             return lastInterval;
         }

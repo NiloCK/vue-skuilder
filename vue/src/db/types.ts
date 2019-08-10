@@ -83,7 +83,7 @@ export function parseCardHistoryID(id: string): {
         return {
             courseID: split[1],
             cardID: split[2]
-        }
+        };
     } else {
         throw new Error('parseCardHistory Error:' + error);
     }

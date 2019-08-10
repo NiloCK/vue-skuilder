@@ -44,7 +44,15 @@ import Viewable from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import Courses from '@/courses';
-import { getActiveCards, getScheduledCards, getRandomCards, getDoc, putCardRecord, scheduleCardReview, getCourseDoc } from '@/db';
+import {
+  getActiveCards,
+  getScheduledCards,
+  getRandomCards,
+  getDoc,
+  putCardRecord,
+  scheduleCardReview,
+  getCourseDoc
+} from '@/db';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
@@ -242,9 +250,9 @@ export default class Study extends Vue {
 </script>
 
 <style scoped>
-.muted {
-  /* opacity: 0; */
-}
+/* .muted {
+  opacity: 0;
+} */
 
 .correct {
   animation: greenFade 1250ms ease-out;
