@@ -4,8 +4,9 @@ import CouchDB from '../couchdb';
 import AsyncProcessQueue, { Result } from '../utils/processQueue';
 import { CreateCourse, DeleteCourse } from '../../../vue/src/server/types';
 import nano = require('nano');
+import { postProcessCourse } from '../attachment-preprocessing';
 
-const COURSE_DB_LOOKUP = 'coursedb-lookup';
+export const COURSE_DB_LOOKUP = 'coursedb-lookup';
 const courseHasher = new hashids(
     COURSE_DB_LOOKUP,
     6,
@@ -30,6 +31,10 @@ async function createCourse(cfg: CreateCourse['data']): Promise<any> {
             ...cfg
         });
     };
+
+    // follow the course so that user-uploaded content goes through
+    // post-processing
+    postProcessCourse(courseID);
 
     return {
         ok: lookupInsert.ok && dbCreation.ok,
