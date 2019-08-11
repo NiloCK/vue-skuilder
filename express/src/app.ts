@@ -22,23 +22,6 @@ app.use(cors({
     origin: true
 }));
 
-init();
-
-async function init() {
-    // start the change-listner that does post-prodessing on user
-    // media uploads
-    PostProcess();
-
-    useOrCreateDB('classdb-lookup');
-    try {
-        (await useOrCreateDB('coursedb')).insert({
-            validate_doc_update: classroomDbDesignDoc
-        } as any, '_design/_auth');
-    }
-    catch (e) {
-        console.log(`Error: ${e}`);
-    }
-}
 
 export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<{}>> {
 
@@ -107,3 +90,21 @@ app.post('/', (req, res) => {
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+
+init();
+
+async function init() {
+    // start the change-listner that does post-prodessing on user
+    // media uploads
+    PostProcess();
+
+    useOrCreateDB('classdb-lookup');
+    try {
+        (await useOrCreateDB('coursedb')).insert({
+            validate_doc_update: classroomDbDesignDoc
+        } as any, '_design/_auth');
+    }
+    catch (e) {
+        console.log(`Error: ${e}`);
+    }
+}
