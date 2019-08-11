@@ -39,7 +39,7 @@
 
 <script lang="ts">
 import Vue, { VueConstructor } from 'vue';
-import { DisplayableData, DocType, CardData, CardRecord, QuestionRecord, isQuestionRecord } from '@/db/types';
+import { DisplayableData, DocType, CardData, CardRecord, QuestionRecord, isQuestionRecord, CardHistory } from '@/db/types';
 import Viewable from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
@@ -99,7 +99,19 @@ export default class Study extends Vue {
         });
     await this.getSessionCards();
 
+    log(`Session created:
+
+${this.sessionString}`);
+
     this.nextCard();
+  }
+
+  private get sessionString() {
+    let ret = '';
+    for (const q of this.session) {
+      ret += q + '\n';
+    }
+    return ret;
   }
 
   /**
@@ -162,44 +174,58 @@ export default class Study extends Vue {
     r.cardID = this.cardID;
     r.courseID = this.courseID;
     log(`Study.processResponse is running...`);
-    this.logCardRecordAndScheduleReview(r);
+    const cardHistory = this.logCardRecord(r);
 
     if (isQuestionRecord(r)) {
       log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
       if (r.isCorrect) {
         this.$refs.shadowWrapper.classList.add('correct');
         if (r.priorAttemps === 0) {
+          // user got the question right on 'the first try'.
+          // dismiss the card from this study session, and
+          // schedule its review in the future.
           this.nextCard(r.cardID);
+
+          cardHistory.then((history) => {
+            this.scheduleReview(history);
+          });
         } else {
+          // user got the question right, but with multiple
+          // attempts. Dismiss it, but don't remove from
+          // currrent study session
           this.nextCard();
         }
       } else {
         this.$refs.shadowWrapper.classList.add('incorrect');
-        // clear user input?
+        // clear user input? todo: needs to be a fcn on CardViewer
       }
     } else {
       this.nextCard(r.cardID);
     }
 
+    this.clearFeedbackShadow();
+  }
+
+  private clearFeedbackShadow() {
     setTimeout(() => {
       this.$refs.shadowWrapper.classList.remove('correct', 'incorrect');
     }, 1250);
   }
 
-  private async logCardRecordAndScheduleReview(r: CardRecord) {
-    const history = await putCardRecord(r, this.$store.state.user);
+  private async logCardRecord(r: CardRecord) {
+    return await putCardRecord(r, this.$store.state.user);
+  }
+
+  private async scheduleReview(history: CardHistory<CardRecord>) {
     const nextInterval = newInterval(history.records);
     const nextReviewTime = moment.utc().add(nextInterval, 'seconds');
 
-    // todo: need to retain some state here wrt a card's being displayed
-    // multiple times in a session.
-    if (isQuestionRecord(r)) {
-      if (r.isCorrect && r.priorAttemps === 0) {
-        scheduleCardReview(this.$store.state.user, r.courseID, r.cardID, nextReviewTime);
-      }
-    } else {
-      scheduleCardReview(this.$store.state.user, r.courseID, r.cardID, nextReviewTime);
-    }
+    scheduleCardReview(
+      this.$store.state.user,
+      history.courseID,
+      history.cardID,
+      nextReviewTime
+    );
   }
 
   /**
