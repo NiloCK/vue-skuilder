@@ -10,10 +10,9 @@
 
         <v-list>
           <transition-group
-              appear
               name='component-fade'
               mode='out-in'
-              tag='div'
+              key='registered'
           >
           <template v-for="course in registeredCourses">
             
@@ -57,6 +56,7 @@
               appear
               name='component-fade'
               mode='out-in'
+              key='available'
               tag='div'
             >
           <template v-for="course in availableCourses">
@@ -132,7 +132,8 @@ export default class Courses extends SkldrVue {
   private newCourseDialog: boolean = false;
 
   public get availableCourses() {
-    return _.without(this.existingCourses, ...this.registeredCourses).filter((course) => {
+    const availableCourses = _.without(this.existingCourses, ...this.registeredCourses);
+    const viewableCourses = availableCourses.filter((course) => {
       const user = this.$store.state.user;
       const viewable: boolean =
         course.public ||
@@ -142,6 +143,8 @@ export default class Courses extends SkldrVue {
 
       return viewable;
     });
+
+    return viewableCourses;
   }
 
   private processResponse(event: string) {
