@@ -8,7 +8,13 @@
           <v-toolbar-title>My Registered Courses</v-toolbar-title>
         </v-toolbar>
 
-        <v-list >
+        <v-list>
+          <transition-group
+              appear
+              name='component-fade'
+              mode='out-in'
+              tag='div'
+          >
           <template v-for="course in registeredCourses">
             
             <v-list-tile
@@ -33,6 +39,7 @@
               </v-list-tile-action>
             </v-list-tile>
           </template>
+          </transition-group>
         </v-list>
       </v-card>
 
@@ -46,12 +53,17 @@
         </v-toolbar>
 
         <v-list >
+            <transition-group
+              appear
+              name='component-fade'
+              mode='out-in'
+              tag='div'
+            >
           <template v-for="course in availableCourses">
             
             <v-list-tile
               :key="course._id"
               avatar
-              transition="fade-transition"
             >
 
               <v-list-tile-content>
@@ -72,15 +84,15 @@
               
             </v-list-tile>
           </template>
+          </transition-group>
           <v-divider></v-divider>
             <v-dialog
               v-model="newCourseDialog"
               fullscreen
-              
               transition="dialog-bottom-transition"
               :overlay="false"
             >
-              <v-btn color="primary" dark slot="activator">New Course</v-btn>
+              <v-btn color="primary" dark slot="activator">Start a new Quilt</v-btn>
                 <course-editor 
                  v-on:CourseEditingComplete="processResponse($event)"
                 />
@@ -207,3 +219,17 @@ export default class Courses extends SkldrVue {
   }
 }
 </script>
+
+<style scoped>
+.component-fade-enter-active,
+.component-fade-leave-active {
+  transition: all 0.65s ease;
+}
+.component-fade-enter,
+.component-fade-leave-to {
+  opacity: 0;
+}
+.componnent-fade-move {
+  transition: transform 1s;
+}
+</style>
