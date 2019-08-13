@@ -18,8 +18,6 @@
 import Vue from 'vue';
 import CourseEditor from '../components/Edit/CourseEditor.vue';
 import { Component } from 'vue-property-decorator';
-import Courses from '../courses';
-import { getCourseList } from '../db/courseDB';
 import { CourseConfig } from '../server/types';
 import { getUserEditableCourses } from '../db/userDB';
 

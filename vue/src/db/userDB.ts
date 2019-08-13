@@ -40,11 +40,20 @@ export function getUserDB(username: string): PouchDB.Database {
 
 const userCoursesDoc = 'CourseRegistrations';
 
+interface CourseRegistration {
+  courseID: string;
+  admin: boolean;
+  moderator: boolean;
+  user: boolean;
+}
+
+interface StudyWeights {
+  [courseID: string]: number;
+}
+
 interface CourseRegistrationDoc {
-  courses: Array<{
-    course_id: string;
-    weight: number;
-  }>;
+  courses: CourseRegistration[];
+  studyWeight: StudyWeights;
 }
 
 async function getOrCreateCourseRegistrationsDoc(user: string):
@@ -59,7 +68,8 @@ async function getOrCreateCourseRegistrationsDoc(user: string):
       // doc does not exist. Create it and then run this fcn again.
       await getUserDB(user).put<CourseRegistrationDoc>({
         _id: userCoursesDoc,
-        courses: []
+        courses: [],
+        studyWeight: {}
       });
       ret = await getOrCreateCourseRegistrationsDoc(user);
     } else {
@@ -74,9 +84,12 @@ async function getOrCreateCourseRegistrationsDoc(user: string):
 export async function registerUserForCourse(user: string, course_id: string) {
   return getOrCreateCourseRegistrationsDoc(user).then((doc) => {
     doc.courses.push({
-      course_id,
-      weight: 1
+      courseID: course_id,
+      user: true,
+      admin: false,
+      moderator: false
     });
+    doc.studyWeight[course_id] = 1;
 
     return getUserDB(user).put(doc);
   });
@@ -86,12 +99,14 @@ export async function dropUserFromCourse(user: string, course_id: string) {
   return getOrCreateCourseRegistrationsDoc(user).then((doc) => {
     let index: number = -1;
     for (let i = 0; i < doc.courses.length; i++) {
-      if (doc.courses[i].course_id === course_id) {
+      if (doc.courses[i].courseID === course_id) {
         index = i;
       }
     }
 
     if (index !== -1) {
+      // remove from the relative-weighting of course study
+      delete doc.studyWeight[course_id];
       doc.courses.splice(index, 1);
     } else {
       throw new Error(`User ${user} is not currently registered for course ${course_id}`);
@@ -111,7 +126,7 @@ export async function getUserEditableCourses(user: string) {
   const registeredCourses = await getUserCourses(user);
 
   courseIDs = courseIDs.concat(registeredCourses.courses.map((course) => {
-    return course.course_id;
+    return course.courseID;
   }));
 
   return getCourseConfigs(courseIDs);

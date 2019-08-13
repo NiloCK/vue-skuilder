@@ -39,7 +39,15 @@
 
 <script lang="ts">
 import Vue, { VueConstructor } from 'vue';
-import { DisplayableData, DocType, CardData, CardRecord, QuestionRecord, isQuestionRecord, CardHistory } from '@/db/types';
+import {
+  DisplayableData,
+  DocType,
+  CardData,
+  CardRecord,
+  QuestionRecord,
+  isQuestionRecord,
+  CardHistory
+} from '@/db/types';
 import Viewable from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
@@ -95,7 +103,7 @@ export default class Study extends Vue {
     this.userCourseIDs =
       (await getUserCourses(this.$store.state.user))
         .courses.map((course) => {
-          return course.course_id;
+          return course.courseID;
         });
     await this.getSessionCards();
 

@@ -120,7 +120,16 @@ export default class Courses extends SkldrVue {
   private newCourseDialog: boolean = false;
 
   public get availableCourses() {
-    return _.without(this.existingCourses, ...this.registeredCourses);
+    return _.without(this.existingCourses, ...this.registeredCourses).filter((course) => {
+      const user = this.$store.state.user;
+      const viewable: boolean =
+        course.public ||
+        course.creator === user ||
+        course.admins.indexOf(user) !== -1 ||
+        course.moderators.indexOf(user) !== -1;
+
+      return viewable;
+    });
   }
 
   private processResponse(event: string) {
@@ -132,7 +141,7 @@ export default class Courses extends SkldrVue {
     log(`Pulling user course data...`);
     const courseList = await getCourseList();
     const userCoursIDs = (await getUserCourses(this.$store.state.user)).courses.map((course) => {
-      return course.course_id;
+      return course.courseID;
     });
 
     this.existingCourses = courseList.rows.map((course) => {
