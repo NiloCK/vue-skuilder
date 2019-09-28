@@ -89,6 +89,18 @@ app.post('/', (req, res) => {
     postHandler(req, res);
 });
 
+app.get('/', (req, res) => {
+    CouchDB.session().then((s) => {
+        if (s.ok) {
+            res.send(`Couchdb session is active. (this message is from express...)`);
+        } else {
+            res.send(`Couchdb session is ... not ok?`);
+        }
+    }).catch((e) => {
+        res.send(`Problems in the couch session! ${JSON.stringify(e)}`);
+    })
+});
+
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
 init();
