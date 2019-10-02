@@ -106,17 +106,24 @@ app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 init();
 
 async function init() {
-    // start the change-listner that does post-prodessing on user
-    // media uploads
-    PostProcess();
-
-    useOrCreateDB('classdb-lookup');
     try {
-        (await useOrCreateDB('coursedb')).insert({
-            validate_doc_update: classroomDbDesignDoc
-        } as any, '_design/_auth');
+
+        // start the change-listner that does post-prodessing on user
+        // media uploads
+        PostProcess();
+
+        useOrCreateDB('classdb-lookup');
+        try {
+            (await useOrCreateDB('coursedb')).insert({
+                validate_doc_update: classroomDbDesignDoc
+            } as any, '_design/_auth');
+        }
+        catch (e) {
+            console.log(`Error: ${e}`);
+        }
+
+    } catch (e) {
+        console.log(`Error: ${JSON.stringify(e)}`);
     }
-    catch (e) {
-        console.log(`Error: ${e}`);
-    }
+
 }
