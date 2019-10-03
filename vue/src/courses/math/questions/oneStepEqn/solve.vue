@@ -6,13 +6,13 @@
         {{ variable || 'r' }} - {{ question.a }} = {{ question.b }}
       </div>
       <div v-else-if="question.operation.valueOf() === 'SUBTRACTION'">
-        {{ variable || 's' }} + {{ question.a }} = {{ question.b }}
+        {{ variable || 'r' }} + {{ question.a }} = {{ question.b }}
       </div>
       <div v-else-if="question.operation.valueOf() === 'MULTIPLICATION'">
-        {{ variable || 'q' }} &#247; {{ question.a }} = {{ question.b }}
+        {{ variable || 'r' }} &#247; {{ question.a }} = {{ question.b }}
       </div>
       <div v-else-if="question.operation.valueOf() === 'DIVISION'">
-        {{ variable || 'm' }} * {{ question.a }} = {{ question.b * question.a }}
+        {{ variable || 'r' }} * {{ question.a }} = {{ question.b * question.a }}
       </div>
       <div v-else>
         No operation!? (This should never show)
@@ -20,7 +20,7 @@
       
       <br><br>
       
-      {{ variable }} = <UserInputNumber />
+      {{ variable || 'r' }} = <UserInputNumber />
   </div>
 </template>
 
