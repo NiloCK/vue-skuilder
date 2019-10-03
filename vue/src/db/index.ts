@@ -9,7 +9,8 @@ import {
   DisplayableData,
   DocType,
   QuestionData,
-  SkuilderCourseData
+  SkuilderCourseData,
+  getCardHistoryID
 } from '@/db/types';
 import { FieldType } from '@/enums/FieldType';
 import ENV from '@/ENVIRONMENT_VARS';
@@ -21,6 +22,7 @@ import PouchDBFind from 'pouchdb-find';
 import process from 'process';
 import { log } from 'util';
 import { ScheduledCard } from './User';
+import { getUserDB } from './userDB';
 
 (window as any).process = process; // required as a fix for pouchdb - see #18
 
@@ -41,9 +43,9 @@ export const remote: PouchDB.Database = new pouch(
     skip_setup: true
   }
 );
-const localUserDB: PouchDB.Database = new pouch('skuilder');
+export const localUserDB: PouchDB.Database = new pouch('skuilder');
 
-function hexEncode(str: string): string {
+export function hexEncode(str: string): string {
   let hex: string;
   let returnStr: string = '';
 
@@ -55,38 +57,23 @@ function hexEncode(str: string): string {
   return returnStr;
 }
 
-export function getUserDB(username: string): PouchDB.Database {
-  let guestAccount: boolean = false;
-  if (username === GuestUsername ||
-    username === '') {
-    username = accomodateGuest();
-    guestAccount = true;
+export const pouchDBincludeCredentialsConfig: PouchDB.Configuration.RemoteDatabaseConfiguration = {
+  fetch(url: any, opts: any) {
+    opts.credentials = 'include';
+    return (pouch as any).fetch(url, opts);
   }
+} as PouchDB.Configuration.RemoteDatabaseConfiguration;
 
-  const hexName = hexEncode(username);
-  const dbName = `userdb-${hexName}`;
-  log(`Fetching user database: ${dbName} (${username})`);
-
-  // odd construction here the result of a bug in the
-  // interaction between pouch, pouch-auth.
-  // see: https://github.com/pouchdb-community/pouchdb-authentication/issues/239
-  const ret = new pouch(
+export function getCourseDB(courseID: string): PouchDB.Database {
+  // todo: keep a cache of opened courseDBs? need to benchmark this somehow
+  return new pouch(
     ENV.COUCHDB_SERVER_PROTOCOL +
     '://' +
-    ENV.COUCHDB_SERVER_URL + dbName, {
-      fetch(url: any, opts: any) {
-        opts.credentials = 'include';
-        return (pouch as any).fetch(url, opts);
-      }
-    } as PouchDB.Configuration.RemoteDatabaseConfiguration);
-
-  if (guestAccount) {
-    updateGuestAccountExpirationDate(ret);
-  }
-
-  pouch.replicate(ret, localUserDB);
-
-  return ret;
+    ENV.COUCHDB_SERVER_URL +
+    'coursedb-' +
+    courseID,
+    pouchDBincludeCredentialsConfig
+  );
 }
 
 /**
@@ -102,7 +89,7 @@ export async function usernameIsAvailable(username: string): Promise<boolean> {
   return req.status === 404;
 }
 
-function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) {
+export function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) {
   const currentTime = moment.utc();
   const expirationDate: string = currentTime.add(2, 'months').toISOString();
 
@@ -121,7 +108,7 @@ function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) {
 }
 
 
-function accomodateGuest() {
+export function accomodateGuest() {
   let username: string;
 
   if (localStorage.getItem(dbUUID) !== null) {
@@ -182,6 +169,13 @@ export function remoteDBSignup(
 
   return newDBRequest;
 
+}
+
+export function getCourseDoc<T extends SkuilderCourseData>(
+  courseID: string,
+  docID: PouchDB.Core.DocumentId,
+  options: PouchDB.Core.GetOptions = {}): Promise<T> {
+  return getCourseDB(courseID).get<T>(docID, options);
 }
 
 export function getDoc
@@ -288,55 +282,6 @@ export async function doesUserExist(name: string) {
   }
 }
 
-export async function addNote(course: string, shape: DataShape, data: any, author?: string) {
-  // todo: make less crappy - test for duplicate insertions - #15
-
-  const dataShapeId = NameSpacer.getDataShapeString({
-    course,
-    dataShape: shape.name
-  });
-
-  const attachmentFields = shape.fields.filter((field) => {
-    return (
-      field.type === FieldType.IMAGE ||
-      field.type === FieldType.AUDIO
-    );
-  });
-  const attachments: { [index: string]: PouchDB.Core.FullAttachment } = {};
-  const payload: DisplayableData = {
-    course,
-    data: [],
-    docType: DocType.DISPLAYABLE_DATA,
-    id_datashape: dataShapeId
-  };
-
-  if (author) {
-    payload.author = author;
-  }
-
-  if (attachmentFields.length !== 0) {
-    attachmentFields.forEach((attField) => {
-      attachments[attField.name] = data[attField.name];
-    });
-    payload._attachments = attachments;
-  }
-
-  shape.fields.filter((field) => {
-    return field.type !== FieldType.IMAGE;
-  }).forEach((field) => {
-    payload.data.push({
-      name: field.name,
-      data: data[field.name]
-    });
-  });
-
-  const result = await remote.post<DisplayableData>(payload);
-  if (result.ok) {
-    createCards(course, dataShapeId, result.id);
-  }
-  return result;
-}
-
 async function getImplementingQuestions(dataShape: PouchDB.Core.DocumentId) {
   const shapeResult = await getDoc<DataShapeData>(dataShape);
   const questions = shapeResult.questionTypes;
@@ -407,20 +352,37 @@ export function getDataShapes(course?: string) {
   }
 }
 
-export function getCards(course?: string) {
-  if (course) {
-    return remote.find({
-      selector: {
-        course,
-        docType: DocType.CARD
-      }
-    });
+/**
+ * Returns *all* cards from the paramater courses, in
+ * 'qualified' card format ("courseid-cardid")
+ *
+ * @param courseIDs A list of all course_ids to get cards from
+ */
+export async function getRandomCards(courseIDs: string[]) {
+
+  if (courseIDs.length === 0) {
+    throw new Error(`getRandomCards:\n\tAttempted to get all cards from no courses!`);
   } else {
-    return remote.find({
-      selector: {
-        docType: DocType.CARD
-      }
+
+
+    const courseResults = await Promise.all(courseIDs.map((course) => {
+      return getCourseDB(course).find({
+        selector: {
+          docType: DocType.CARD
+        },
+        limit: 1000
+      });
+    })
+    );
+
+    const ret: string[] = [];
+    courseResults.forEach((courseCards, index) => {
+      courseCards.docs.forEach((doc) => {
+        ret.push(`${courseIDs[index]}-${doc._id}`);
+      });
     });
+
+    return ret;
   }
 }
 
@@ -446,7 +408,7 @@ function addCard(
 
 export async function putCardRecord<T extends CardRecord>(record: T, user: string) {
   const userDB = getUserDB(user);
-  const cardHistoryID = 'cardH-' + record.cardID;
+  const cardHistoryID = getCardHistoryID(record.courseID, record.cardID);
 
   try {
     const cardHistory = await userDB.get<CardHistory<T>>(cardHistoryID);
@@ -459,6 +421,7 @@ export async function putCardRecord<T extends CardRecord>(record: T, user: strin
       const initCardHistory: CardHistory<T> = {
         _id: cardHistoryID,
         cardID: record.cardID,
+        courseID: record.courseID,
         records: [record]
       };
       momentifyCardHistory<T>(initCardHistory);
@@ -486,7 +449,7 @@ function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>)
 
 const REVIEW_PREFIX: string = 'card_review_';
 
-export function scheduleCardReview(user: string, card_id: PouchDB.Core.DocumentId, time: Moment) {
+export function scheduleCardReview(user: string, course_id: string, card_id: PouchDB.Core.DocumentId, time: Moment) {
   // createClassroom("testClass"); // testing this function...
 
   const now = moment.utc();
@@ -494,6 +457,7 @@ export function scheduleCardReview(user: string, card_id: PouchDB.Core.DocumentI
     _id: REVIEW_PREFIX + time.format('YYYY-MM-DD--kk:mm:ss-SSS'),
     cardId: card_id,
     reviewTime: time,
+    courseId: course_id,
     scheduledAt: now
   });
 }
@@ -532,7 +496,7 @@ export async function getScheduledCards(user: string) {
   });
 
   return reviewDocs.rows.map((row) => {
-    return row.doc!.cardId;
+    return `${row.doc!.courseId}-${row.doc!.cardId}`;
   });
 }
 

@@ -20,6 +20,7 @@
           v-bind:view="view"
           v-bind:data="data"
           v-bind:card_id="cardID"
+          v-bind:course_id="courseID"
           v-bind:sessionOrder="cardCount"
           v-on:emitResponse="processResponse($event)"
       />
@@ -38,16 +39,33 @@
 
 <script lang="ts">
 import Vue, { VueConstructor } from 'vue';
-import { DisplayableData, DocType, CardData, CardRecord, QuestionRecord, isQuestionRecord } from '@/db/types';
+import {
+  DisplayableData,
+  DocType,
+  CardData,
+  CardRecord,
+  QuestionRecord,
+  isQuestionRecord,
+  CardHistory
+} from '@/db/types';
 import Viewable from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import Courses from '@/courses';
-import { getActiveCards, getScheduledCards, getCards, getDoc, putCardRecord, scheduleCardReview } from '@/db';
+import {
+  getActiveCards,
+  getScheduledCards,
+  getRandomCards,
+  getDoc,
+  putCardRecord,
+  scheduleCardReview,
+  getCourseDoc
+} from '@/db';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
 import moment from 'moment';
+import { getUserCourses } from '../db/userDB';
 // import CardCache from '@/db/cardCache';
 
 function randInt(n: number) {
@@ -63,6 +81,7 @@ export default class Study extends Vue {
   public view: VueConstructor<Vue>;
   public data: ViewData[] = [];
   public cardID: PouchDB.Core.DocumentId = '';
+  public courseID: string = '';
   public cardCount: number = 1;
 
   public readonly SessionCount: number = 10;
@@ -77,11 +96,30 @@ export default class Study extends Vue {
     shadowWrapper: HTMLDivElement
   };
 
+  private userCourseIDs: string[] = [];
+
   public async created() {
     this.activeCards = await getActiveCards(this.$store.state.user);
+    this.userCourseIDs =
+      (await getUserCourses(this.$store.state.user))
+        .courses.map((course) => {
+          return course.courseID;
+        });
     await this.getSessionCards();
 
+    log(`Session created:
+
+${this.sessionString}`);
+
     this.nextCard();
+  }
+
+  private get sessionString() {
+    let ret = '';
+    for (const q of this.session) {
+      ret += q + '\n';
+    }
+    return ret;
   }
 
   /**
@@ -127,10 +165,7 @@ export default class Study extends Vue {
       )
     );
 
-    const cards = await getCards();
-    const cardIDs = cards.docs.map((doc) => {
-      return doc._id;
-    });
+    const cardIDs = await getRandomCards(this.userCourseIDs);
 
     const newCards = cardIDs.filter((cardID) => {
       return this.activeCards.indexOf(cardID) === -1;
@@ -145,61 +180,78 @@ export default class Study extends Vue {
 
   private processResponse(r: CardRecord) {
     r.cardID = this.cardID;
+    r.courseID = this.courseID;
     log(`Study.processResponse is running...`);
-    this.logCardRecordAndScheduleReview(r);
+    const cardHistory = this.logCardRecord(r);
 
     if (isQuestionRecord(r)) {
       log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
       if (r.isCorrect) {
         this.$refs.shadowWrapper.classList.add('correct');
         if (r.priorAttemps === 0) {
+          // user got the question right on 'the first try'.
+          // dismiss the card from this study session, and
+          // schedule its review in the future.
           this.nextCard(r.cardID);
+
+          cardHistory.then((history) => {
+            this.scheduleReview(history);
+          });
         } else {
+          // user got the question right, but with multiple
+          // attempts. Dismiss it, but don't remove from
+          // currrent study session
           this.nextCard();
         }
       } else {
         this.$refs.shadowWrapper.classList.add('incorrect');
-        // clear user input?
+        // clear user input? todo: needs to be a fcn on CardViewer
       }
     } else {
       this.nextCard(r.cardID);
     }
 
+    this.clearFeedbackShadow();
+  }
+
+  private clearFeedbackShadow() {
     setTimeout(() => {
       this.$refs.shadowWrapper.classList.remove('correct', 'incorrect');
     }, 1250);
   }
 
-  private async logCardRecordAndScheduleReview(r: CardRecord) {
-    const history = await putCardRecord(r, this.$store.state.user);
+  private async logCardRecord(r: CardRecord) {
+    return await putCardRecord(r, this.$store.state.user);
+  }
+
+  private async scheduleReview(history: CardHistory<CardRecord>) {
     const nextInterval = newInterval(history.records);
     const nextReviewTime = moment.utc().add(nextInterval, 'seconds');
 
-    // todo: need to retain some state here wrt a card's being displayed
-    // multiple times in a session.
-    if (isQuestionRecord(r)) {
-      if (r.isCorrect && r.priorAttemps === 0) {
-        scheduleCardReview(this.$store.state.user, r.cardID, nextReviewTime);
-      }
-    } else {
-      scheduleCardReview(this.$store.state.user, r.cardID, nextReviewTime);
-    }
+    scheduleCardReview(
+      this.$store.state.user,
+      history.courseID,
+      history.cardID,
+      nextReviewTime
+    );
   }
 
   /**
    * async fetch card data and view from the db
-   * for the given card_id, and then display the card
-   * to the user.
+   * for the given qualified card id ("courseid-cardid"),
+   * and then display the card to the user.
    */
-  private async loadCard(_id: string) {
+  private async loadCard(qualified_id: string) {
     this.loading = true;
+    const _courseID = qualified_id.split('-')[0];
+    const _cardID = qualified_id.split('-')[1];
 
     try {
-      // const tmpCardData = await CardCache.getDoc<CardData>(_id);
-      const tmpCardData = await getDoc<CardData>(_id);
+      // const tmpCardData = await CardCache.getDoc<CardData>(qualified_id);
+      const tmpCardData = await getCourseDoc<CardData>(_courseID, _cardID);
       const tmpView = Courses.getView(tmpCardData.id_view);
       const tmpDataDocs = await tmpCardData.id_displayable_data.map((id) => {
-        return getDoc<DisplayableData>(id, {
+        return getCourseDoc<DisplayableData>(_courseID, id, {
           attachments: true,
           binary: true
         });
@@ -218,11 +270,12 @@ export default class Study extends Vue {
       this.cardCount++;
       this.data = tmpData;
       this.view = tmpView;
-      this.cardID = _id;
+      this.cardID = _cardID;
+      this.courseID = _courseID;
 
     } catch (e) {
       log(`Error loading card: ${JSON.stringify(e)}`);
-      this.nextCard(_id);
+      this.nextCard(qualified_id);
     } finally {
       this.loading = false;
     }
@@ -231,9 +284,9 @@ export default class Study extends Vue {
 </script>
 
 <style scoped>
-.muted {
-  /* opacity: 0; */
-}
+/* .muted {
+  opacity: 0;
+} */
 
 .correct {
   animation: greenFade 1250ms ease-out;

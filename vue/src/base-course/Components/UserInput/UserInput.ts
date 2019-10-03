@@ -4,6 +4,7 @@ import { QuestionView } from '@/base-course/Viewable';
 import { log } from 'util';
 
 export default abstract class UserInput extends Vue {
+    public $el: HTMLElement;
     /**
      * This is the .submitAnswer from the parent
      */

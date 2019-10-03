@@ -16,9 +16,11 @@ interface CouchSession {
 }
 
 export async function requestIsAdminAuthenticated(req: VueClientRequest) {
+    logRequest(req);
+
     const username = req.body.user;
-    console.log(`Request from ${username}...`);
     const authCookie: string = req.cookies.AuthSession ? req.cookies.AuthSession : 'null';
+
     if (authCookie === 'null') {
         return false;
     }
@@ -37,10 +39,16 @@ export async function requestIsAdminAuthenticated(req: VueClientRequest) {
     }
 }
 
+function logRequest(req: VueClientRequest) {
+    console.log(`${req.body.type} request from ${req.body.user}...`);
+}
+
 export async function requestIsAuthenticated(req: VueClientRequest) {
+    logRequest(req);
+
     const username = req.body.user;
-    console.log(`Request from ${username}...`);
     const authCookie: string = req.cookies.AuthSession ? req.cookies.AuthSession : 'null';
+
     if (authCookie === 'null') {
         return false;
     }

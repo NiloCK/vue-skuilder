@@ -40,6 +40,20 @@
         <v-list-tile
           v-if='true'
           value="true"          
+          :to="{path: '/courses'}"
+        >
+          <v-list-tile-action>
+            <v-icon>bookmarks</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title> 
+              Courses
+            </v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile
+          v-if='true'
+          value="true"          
           :to="{path: '/edit'}"
         >
           <v-list-tile-action>

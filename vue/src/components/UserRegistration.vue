@@ -82,8 +82,7 @@ import Component from 'vue-class-component';
 import {
   remoteDBLogin,
   remoteDBSignup,
-  doesUserExist,
-  getUserDB
+  doesUserExist
 } from '@/db';
 import { log } from 'util';
 import { AppState } from '@/store';
@@ -128,11 +127,7 @@ export default class UserRegistration extends Vue {
 
   private validateUsername() {
 
-    // try {
-    //   getUserDB(this.username).allDocs();
-    // } catch (e) {
-    //   alert('no userdb!');
-    // }
+    // empty code block! to do...?...!
 
   }
 

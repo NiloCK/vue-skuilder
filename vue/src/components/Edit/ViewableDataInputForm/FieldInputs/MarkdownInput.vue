@@ -27,21 +27,20 @@ import SimpleMDE from 'simplemde';
 @Component
 export default class MarkdownInput extends FieldInput {
 
-    public get validators() {
-        const ret = super.validators;
+  public get validators() {
+    const ret = super.validators;
+    return ret;
+  }
 
-        return ret;
-    }
+  public mounted() {
+    const editor = new SimpleMDE({
+      element: this.$refs.inputField,
+      status: false,
+      placeholder: this.field.name,
+    });
 
-    public mounted() {
-        const editor = new SimpleMDE({
-            element: this.$refs.inputField,
-            status: false,
-            placeholder: this.field.name
-        });
-
-        this.$refs.inputField.onkeydown = this.validate;
-    }
+    this.$refs.inputField.onkeydown = this.validate;
+  }
 }
 </script>
 

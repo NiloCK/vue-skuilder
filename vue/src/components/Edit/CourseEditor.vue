@@ -19,7 +19,7 @@
         <data-input-form
           v-if="selectedShape !== ''"
           v-bind:dataShape="getDataShape(selectedShape)"
-          v-bind:course="course" />
+          v-bind:course="courseConfig" />
       </div>
       <component-registration v-else :course="course" />
 
@@ -41,6 +41,8 @@ import { DataShapeName } from '@/enums/DataShapeNames';
 import BasicCard from '@/base-course/CardTypes/BasicCard';
 import { FieldType } from '@/enums/FieldType';
 import BaseCards from '@/base-course/CardTypes';
+import { CourseConfig } from '../../server/types';
+import { getCourseConfig, getCourseDataShapes, getCredentialledCourseConfig } from '../../db/courseDB';
 
 @Component({
   components: {
@@ -53,10 +55,23 @@ export default class CourseEditor extends Vue {
   public registeredDataShapes: DataShape[] = [];
   public dataShapes: DataShape[] = [];
   public selectedShape: string = '';
+  public courseConfig: CourseConfig = {
+    courseID: this.course,
+    name: '',
+    description: '',
+    public: false,
+    deleted: false,
+    creator: '',
+    admins: [],
+    moderators: [],
+    dataShapes: [],
+    questionTypes: []
+  };
   private loading: boolean = true; // datashapes are loading on init
   private editingMode: boolean = true;
 
-  public created() {
+  public async created() {
+    this.courseConfig = await getCredentialledCourseConfig(this.course);
     // this.dataShapes = BaseCards.dataShapes;
     // this.registeredDataShapes = BaseCards.dataShapes;
     BaseCards.dataShapes.forEach((shape) => {
@@ -64,27 +79,25 @@ export default class CourseEditor extends Vue {
       this.registeredDataShapes.push(shape);
     });
 
-    Courses.getCourse(this.course)!.questions.forEach((question) => {
-      question.dataShapes.forEach((dataShape) => {
-        this.dataShapes.push(dataShape);
-      });
-    });
-
-    getDataShapes(this.course).then((results) => {
-      results.docs.forEach((doc) => {
-        getDoc<DataShapeData>(doc._id).then((dataShapeDoc) => {
-
-          this.registeredDataShapes.push(
-            this.dataShapes.find((shape) => {
-              return shape.name === NameSpacer.getDataShapeDescriptor(dataShapeDoc._id).dataShape;
-            })!
-          );
-
+    // #55 make all 'programmed' datashapes available, rather than
+    // the previous code-based name scoping
+    Courses.courses.forEach((course) => {
+      course.questions.forEach((question) => {
+        question.dataShapes.forEach((ds) => {
+          this.dataShapes.push(ds);
         });
       });
-    }).then(() => {
-      this.loading = false;
     });
+
+    this.courseConfig.dataShapes.forEach((ds) => {
+      this.registeredDataShapes.push(
+        this.dataShapes.find((shape) => {
+          return shape.name === NameSpacer.getDataShapeDescriptor(ds.name).dataShape;
+        })!
+      );
+    });
+
+    this.loading = false;
   }
 
   public getDataShape(shapeName: string): DataShape {

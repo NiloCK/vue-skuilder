@@ -9,6 +9,7 @@ export enum DataShapeName {
     MATH_SingleDigitDivision = 'SingleDigitDivision',
     MATH_SingleDigitMultiplication = 'SingleDigitMultiplication',
     MATH_EqualityTest = 'EqualityTest',
+    MATH_OneStepEquation = 'OneStepEquation',
 
 
     // French

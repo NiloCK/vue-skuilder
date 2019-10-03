@@ -22,23 +22,6 @@ app.use(cors({
     origin: true
 }));
 
-init();
-
-async function init() {
-    // start the change-listner that does post-prodessing on user
-    // media uploads
-    PostProcess();
-
-    useOrCreateDB('classdb-lookup');
-    try {
-        (await useOrCreateDB('coursedb')).insert({
-            validate_doc_update: classroomDbDesignDoc
-        } as any, '_design/_auth');
-    }
-    catch (e) {
-        console.log(`Error: ${e}`);
-    }
-}
 
 export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<{}>> {
 
@@ -106,4 +89,41 @@ app.post('/', (req, res) => {
     postHandler(req, res);
 });
 
+app.get('/', (req, res) => {
+    CouchDB.session().then((s) => {
+        if (s.ok) {
+            res.send(`Couchdb session is active. (this message is from express...)`);
+        } else {
+            res.send(`Couchdb session is ... not ok?`);
+        }
+    }).catch((e) => {
+        res.send(`Problems in the couch session! ${JSON.stringify(e)}`);
+    })
+});
+
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+
+init();
+
+async function init() {
+    try {
+
+        // start the change-listner that does post-prodessing on user
+        // media uploads
+        PostProcess();
+
+        useOrCreateDB('classdb-lookup');
+        try {
+            (await useOrCreateDB('coursedb')).insert({
+                validate_doc_update: classroomDbDesignDoc
+            } as any, '_design/_auth');
+        }
+        catch (e) {
+            console.log(`Error: ${e}`);
+        }
+
+    } catch (e) {
+        console.log(`Error: ${JSON.stringify(e)}`);
+    }
+
+}

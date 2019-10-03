@@ -39,6 +39,7 @@ checkAuthCookie();
 function checkAuthCookie() {
   const authXML = new XMLHttpRequest();
   authXML.withCredentials = true;
+  // tslint:disable-next-line: space-before-function-paren
   authXML.addEventListener('load', function () {
     // todo add link to couchdb doc of this json shape
     const resp: {

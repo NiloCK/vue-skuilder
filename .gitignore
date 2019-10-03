@@ -27,4 +27,6 @@ yarn-error.log*
 
 # Temp notes for issue management while offline
 /issues
+
+# The caddy (web server) config file
 vue/Caddyfile
