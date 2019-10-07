@@ -2,7 +2,7 @@ import Vue, { VueConstructor } from 'vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 
-export abstract class Answer { }
+export interface Answer { }
 
 // tslint:disable-next-line:max-classes-per-file
 export abstract class Displayable {
