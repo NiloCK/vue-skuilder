@@ -10,6 +10,7 @@ export enum DataShapeName {
     MATH_SingleDigitMultiplication = 'SingleDigitMultiplication',
     MATH_EqualityTest = 'EqualityTest',
     MATH_OneStepEquation = 'OneStepEquation',
+    MATH_AngleCategorize = 'AngleCategorize',
 
 
     // French
