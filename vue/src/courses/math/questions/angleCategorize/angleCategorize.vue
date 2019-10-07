@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- {{ question.angleCategory }} angle ... {{ angle }} degrees -->
+    <h2>What kind of angle is this?</h2>
     <canvas ref="canvas" width=300 height=300 >
 
     </canvas>
@@ -27,12 +27,12 @@ import { randomInt } from '../../utility';
   }
 })
 export default class AngleCategorizeV extends QuestionView<AngleCategorize> {
-  private angle: number;
-  $refs: {
+  public $refs: {
     canvas: HTMLCanvasElement
-  }
+  };
+  private angle: number;
 
-  created() {
+  private created() {
     this.angle = ((category) => {
       if (category === AngleCategories.ACUTE) {
         return randomInt(10, 83)
@@ -50,7 +50,7 @@ export default class AngleCategorizeV extends QuestionView<AngleCategorize> {
     })(this.question.angleCategory);
   }
 
-  mounted() {
+  private mounted() {
     this.$nextTick(
       function () {
         const width = this.$refs.canvas.width;
@@ -89,12 +89,13 @@ export default class AngleCategorizeV extends QuestionView<AngleCategorize> {
   get question() {
     return new AngleCategorize(this.data);
   }
-
-  public submit() {
-    // this.question.isCorrect();
-  }
 }
 </script>
 
 <style lang="css" scoped>
+#canvas {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
 </style>
