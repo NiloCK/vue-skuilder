@@ -50,7 +50,7 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
     protected priorAttempts: number = 0; // starts at the 1st attempt
     public abstract get question(): Q;
 
-    public submitAnswer(answer: Answer) {
+    public submitAnswer(answer: Answer): QuestionRecord {
         log('QuestionView.submitAnswer called...');
         const isCorrect = this.question.isCorrect(answer);
 
@@ -68,6 +68,7 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
             this.priorAttempts++;
         }
         this.emitResponse(record);
+        return record;
     }
 }
 
