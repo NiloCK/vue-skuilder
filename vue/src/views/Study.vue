@@ -134,6 +134,10 @@ ${this.sessionString}`);
       );
     }
 
+    log(`Cards left in session:
+    ${this.sessionString}
+    `);
+
     if (this.session.length === 0) {
       this.sessionFinished = true;
     } else {
