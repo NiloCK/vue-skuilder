@@ -5,6 +5,7 @@ import { SingleDigitMultiplicationQuestion } from '@/courses/math/questions/mult
 import { EqualityTest } from './questions/equalityTest';
 import { OneStepEquation } from './questions/oneStepEqn';
 import { AngleCategorize } from './questions/angleCategorize';
+import { SupplementaryAngles } from './questions/supplementaryAngles';
 
 const math: Course = new Course('math',
     [
@@ -13,7 +14,8 @@ const math: Course = new Course('math',
         SingleDigitAdditionQuestion,
         EqualityTest,
         OneStepEquation,
-        AngleCategorize
+        AngleCategorize,
+        SupplementaryAngles
     ]);
 
 export default math;

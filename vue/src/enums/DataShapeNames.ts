@@ -11,6 +11,7 @@ export enum DataShapeName {
     MATH_EqualityTest = 'EqualityTest',
     MATH_OneStepEquation = 'OneStepEquation',
     MATH_AngleCategorize = 'AngleCategorize',
+    MATH_SupplimentaryAngles = 'SupplimentaryAngles',
 
 
     // French
