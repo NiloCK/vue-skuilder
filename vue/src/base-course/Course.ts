@@ -1,6 +1,6 @@
-import BasicCard from '@/base-course/CardTypes/BasicCard';
 import { Displayable } from '@/base-course/Displayable';
 import Vue, { VueConstructor } from 'vue';
+import defaultCourse from '@/courses/default';
 
 // tslint:disable-next-line:max-classes-per-file
 export class Course {
@@ -51,7 +51,10 @@ export class Course {
     }
 
     private getBaseQTypes(): Array<typeof Displayable> {
-        return [BasicCard];
+        // return [BasicCard];
+        // should: get 'default' course displayable types
+        // return defaultCourse.getBaseQTypes();
+        return [];
     }
 
 }
