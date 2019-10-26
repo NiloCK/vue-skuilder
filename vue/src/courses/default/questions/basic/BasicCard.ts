@@ -4,7 +4,7 @@ import { FieldType } from '@/enums/FieldType';
 import BasicView from './BasicCardView.vue';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { Question } from '@/base-course/Displayable';
-import { DataShape } from '../Interfaces/DataShape';
+import { DataShape } from '../../../../base-course/Interfaces/DataShape';
 
 export const BasicCardDataShapes: DataShape[] = [
   {
