@@ -1,13 +1,14 @@
 <template>
     <v-text-field
         v-model="answer"
-        prepend-icon="edit"
+        :prepend-icon="prependIcon"
         @keyup.enter="submitAnswer(answer)"
         autofocus
         row-height="24"
         toggle-keys="[13,32]"
         type="text"
         class='headline'
+
     ></v-text-field>
 </template>
 
@@ -17,9 +18,19 @@ import UserInput from './UserInput';
 
 @Component({})
 export default class UserInputString extends UserInput {
+  @Prop({
+    required: false,
+    default: true
+  }) public icon: boolean;
+
+  private get prependIcon(): string {
+    return this.icon ? 'edit' : '';
+  }
+
   public mounted() {
     this.$el.focus();
   }
+
 }
 </script>
 
