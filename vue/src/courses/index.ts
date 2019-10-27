@@ -4,6 +4,7 @@ import Vue, { VueConstructor } from 'vue';
 import french from './french';
 import math from './math';
 import wordWork from './word-work';
+import defaultCourse from './default';
 
 export class CourseList {
     private readonly courseList: Course[];
@@ -187,7 +188,8 @@ export interface ViewDescriptor {
 const courseList: CourseList = new CourseList([
     math,
     wordWork,
-    french
+    french,
+    defaultCourse
 ]);
 
 export default courseList;

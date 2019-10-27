@@ -1,10 +1,11 @@
 import { DataShapeName } from '@/enums/DataShapeNames';
 import { FieldType } from '@/enums/FieldType';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
-import { Question } from '@/base-course/Displayable';
+import { Question, Answer } from '@/base-course/Displayable';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import FillInView from './fillIn.vue';
-import FillInText from './fillInText.vue';
+import { log } from 'util';
+import _ from 'lodash';
 
 export const BlanksCardDataShapes: DataShape[] = [
   {
@@ -18,9 +19,26 @@ export const BlanksCardDataShapes: DataShape[] = [
   }
 ];
 
-interface FillInSection {
-  type: 'text' | 'blank';
+type fillInSectionType = 'text' | 'blank';
+
+export interface FillInSection {
+  type: fillInSectionType;
   text: string;
+}
+
+function getAnswer(section: FillInSection): string {
+  // section.text is of the form '{{answer}}' or
+  // '{{answer||option||option||option...}}'
+  if (section.type === 'blank') {
+    let text = section.text;
+    // trimming the '{{}}'
+    text = text.substring(2, text.length - 2);
+    // taking the answer. note: 'answer'.split('||') == ['answer']
+    text = text.split('||')[0];
+    return text;
+  } else {
+    return '';
+  }
 }
 
 export class BlanksCard extends Question {
@@ -29,13 +47,65 @@ export class BlanksCard extends Question {
     FillInView
   ];
   public mdText: string = '';
+
+  public answer: string | null = null;
+  public options: string[] | null = null;
+
   constructor(data: ViewData[]) {
     super(data);
     this.mdText = data[0].Input as any as string;
+
+    let blankCount: number = 0;
+    let blankSection: FillInSection = {
+      text: '{{}}',
+      type: 'blank'
+    };
+    this.sections.forEach((section) => {
+      if (section.type === 'blank') {
+        blankCount++;
+        blankSection = section;
+      }
+    });
+    if (blankCount === 1) {
+      let text: string = blankSection.text;
+      text = text.substring(2);
+      text = text.substring(0, text.length - 2);
+
+      const split = text.split('||');
+      if (split.length > 1) {
+        // this.inputType = 'radio';
+        this.answer = split[0];
+        this.options = _.shuffle(split);
+      }
+    }
   }
 
-  public isCorrect() {
-    return true;
+  public isCorrect(answer: Answer | Answer[]) {
+    const blankSections = [];
+    // tslint:disable-next-line: prefer-for-of
+    for (let i = 0; i < this.sections.length; i++) {
+      if (this.sections[i].type === 'blank') {
+        blankSections.push(this.sections[i]);
+      }
+    }
+
+    if (Array.isArray(answer)) {
+      const scoreSheet: boolean[] = [];
+      for (let i = 0; i < answer.length; i++) {
+        scoreSheet.push(
+          answer[i] === getAnswer(blankSections[i])
+        );
+      }
+
+      scoreSheet.forEach((score) => {
+        if (score === false) {
+          return false;
+        }
+      });
+      return true;
+    } else {
+      return answer === getAnswer(blankSections[0]);
+    }
   }
 
   public get sections(): FillInSection[] {
@@ -60,10 +130,10 @@ export function parseBlanksMarkdown(md: string): FillInSection[] {
     if (i === 0) {
       const j = md.indexOf('}}');
       ret.push({
-        text: md.substring(i, j + 1),
+        text: md.substring(i, j + 2),
         type: 'blank'
       });
-      md = md.substr(j + 1);
+      md = md.substr(j + 2);
       blanksCount++;
     } else if (i === -1) {
       // no more blanks. push the rest of the string
@@ -74,7 +144,7 @@ export function parseBlanksMarkdown(md: string): FillInSection[] {
       md = '';
     } else {
       ret.push({
-        type: 'blank',
+        type: 'text',
         text: md.substring(0, i)
       });
       md = md.substr(i);
@@ -84,6 +154,7 @@ export function parseBlanksMarkdown(md: string): FillInSection[] {
   if (blanksCount > 0) {
     return ret;
   } else {
-    throw new Error('No blanks in this fill-in-the-blank question constructor string!');
+    log('No blanks in this fill-in-the-blank question constructor string!');
+    return ret;
   }
 }

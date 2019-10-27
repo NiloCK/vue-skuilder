@@ -1,29 +1,47 @@
 <template>
 <div>
   <span v-for="(section, index) in sections" :key='index'>
-    <component :is="section.type" :text="section.text" />
+    <!-- section {{index}}: {{section.type}} - "{{section.text}}"
+    <br> -->
+    <component :is="sectionType(section)" :text="section.text" />
   </span>
+
+  <radio-multiple-choice
+    v-if="question.options"
+    :choiceList="question.options"
+    :MouseTrap="MouseTrap"
+  />
 </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { QuestionView } from '@/base-course/Viewable';
-import { BlanksCard } from './index';
-import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
-import paper, { PaperScope } from 'paper';
+import { BlanksCard, FillInSection } from './index';
+import FillInInput from './fillInInput.vue';
+import FillInText from './fillInText.vue';
+import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
 import { log } from 'util';
+import { type } from 'os';
 
+const typeMap: {
+  [index: string]: string
+} = {
+  text: 'textType',
+  blank: 'blankType'
+};
 
 @Component({
   components: {
-    UserInputNumber
+    RadioMultipleChoice,
+    blankType: FillInInput,
+    textType: FillInText
   }
 })
 export default class FillInView extends QuestionView<BlanksCard> {
 
   get question() {
-    return this._question;
+    return new BlanksCard(this.data);
   }
   get sections() {
     return this.question.sections;
@@ -33,18 +51,14 @@ export default class FillInView extends QuestionView<BlanksCard> {
   };
   private angle: number;
   private _question: BlanksCard;
-  private _p: PaperScope;
 
-  public beforeDestroy() {
-    // destroy paperscope instance
-    // this._p.
-    delete this._p;
-  }
-
+  // public beforeDestroy() { }
   private created() {
     this._question = new BlanksCard(this.data);
   }
-
+  private sectionType(section: FillInSection): string {
+    return typeMap[section.type];
+  }
 
 }
 </script>

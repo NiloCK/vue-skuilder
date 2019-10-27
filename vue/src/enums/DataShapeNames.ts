@@ -1,7 +1,8 @@
 export enum DataShapeName {
     BLANK = '',
-    // Basic types
+    // Shared base-course types
     Basic = 'Basic',
+    Blanks = 'Blanks',
 
     // Math
     MATH_SingleDigitAddition = 'SingleDigitAddition',
