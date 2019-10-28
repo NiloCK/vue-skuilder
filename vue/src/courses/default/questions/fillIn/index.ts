@@ -1,11 +1,12 @@
+import { Answer, Question } from '@/base-course/Displayable';
+import { RadioMultipleChoiceAnswer } from '@/base-course/Interfaces/AnswerInterfaces';
+import { DataShape } from '@/base-course/Interfaces/DataShape';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { DataShapeName } from '@/enums/DataShapeNames';
 import { FieldType } from '@/enums/FieldType';
-import { ViewData } from '@/base-course/Interfaces/ViewData';
-import { Question, Answer } from '@/base-course/Displayable';
-import { DataShape } from '@/base-course/Interfaces/DataShape';
-import FillInView from './fillIn.vue';
-import { log } from 'util';
 import _ from 'lodash';
+import { log } from 'util';
+import FillInView from './fillIn.vue';
 
 export const BlanksCardDataShapes: DataShape[] = [
   {
@@ -80,7 +81,37 @@ export class BlanksCard extends Question {
     }
   }
 
+
   public isCorrect(answer: Answer | Answer[]) {
+    if (typeof answer === 'string') {
+      return this.isCorrectStr(answer);
+    }
+
+    if (Array.isArray(answer)) {
+      const filtered = answer.filter((ans) => {
+        return typeof ans === 'string';
+      });
+
+      if (filtered.length === answer.length) {
+        return this.isCorrectStr(answer as string[]);
+      }
+    }
+
+    return this.isCorrectRadio(answer as RadioMultipleChoiceAnswer);
+  }
+
+  public dataShapes() {
+    return BlanksCard.dataShapes;
+  }
+  public views() {
+    return BlanksCard.views;
+  }
+
+  private isCorrectRadio(answer: RadioMultipleChoiceAnswer) {
+    return this.isCorrectStr(answer.choiceList[answer.selection]);
+  }
+
+  private isCorrectStr(answer: string | string[]): boolean {
     const blankSections = [];
     // tslint:disable-next-line: prefer-for-of
     for (let i = 0; i < this.sections.length; i++) {
@@ -107,17 +138,10 @@ export class BlanksCard extends Question {
       return answer === getAnswer(blankSections[0]);
     }
   }
-
   public get sections(): FillInSection[] {
     return parseBlanksMarkdown(this.mdText);
   }
 
-  public dataShapes() {
-    return BlanksCard.dataShapes;
-  }
-  public views() {
-    return BlanksCard.views;
-  }
 }
 
 export function parseBlanksMarkdown(md: string): FillInSection[] {
