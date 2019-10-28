@@ -1,5 +1,10 @@
 <template>
+  <span
+   v-if='options !== null'
+   class='headline underline'
+  >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
   <user-input-string
+   v-else
    id="input"
    :icon="false"
    type="text"
@@ -37,7 +42,7 @@ export default class FillInInput extends FillInBase {
     if (split.length > 1) {
       this.inputType = 'radio';
       this.answer = split[0];
-      this.options = split[1].split('||');
+      this.options = split;
     }
   }
 }
@@ -45,14 +50,13 @@ export default class FillInInput extends FillInBase {
 
 <style scoped>
 #input {
-  /* border-bottom-width: 2px;
-  border-bottom-color: black;
-  border-bottom-style: solid; */
-
   display: inline-block;
   min-width: 4em;
-  /* max-width: content-box; */
-  /* align: center !important; */
   text-align: center;
+}
+
+.underline {
+  text-decoration: underline;
+  text-decoration-style: solid 14px;
 }
 </style>
