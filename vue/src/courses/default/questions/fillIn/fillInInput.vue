@@ -9,7 +9,6 @@
    :icon="false"
    type="text"
    :value="text"
-   :disabled="inputType === 'radio'"
   />
 </template>
 
@@ -17,22 +16,18 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import FillInBase from './fillInBaseClass';
 import UserInputString from '@/base-course/Components/UserInput/UserInputString.vue';
-import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
 
 @Component({
   components: {
-    UserInputString,
-    RadioMultipleChoice
+    UserInputString
   }
 })
 export default class FillInInput extends FillInBase {
   @Prop({
     required: true
-  }) private text: string;
+  }) public text: string;
 
-  private inputType: 'text' | 'radio';
-  private answer: string | null;
-  private options: string[] | null;
+  public inputType: 'text' | 'radio';
 
   private created() {
     this.text = this.text.substring(2);
@@ -41,8 +36,6 @@ export default class FillInInput extends FillInBase {
     const split = this.text.split('||');
     if (split.length > 1) {
       this.inputType = 'radio';
-      this.answer = split[0];
-      this.options = split;
     }
   }
 }

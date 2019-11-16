@@ -3,6 +3,7 @@ import { RadioMultipleChoiceAnswer } from '@/base-course/Interfaces/AnswerInterf
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { Validator } from '@/base-course/Interfaces/Validator';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
+import { randomInt } from '@/courses/math/utility';
 import { DataShapeName } from '@/enums/DataShapeNames';
 import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
@@ -54,18 +55,23 @@ export interface FillInSection {
   text: string;
 }
 
-function getAnswer(section: FillInSection): string {
+/**
+ * Returns an array of 'correct' answers for this blank
+ */
+function getAnswers(section: FillInSection): string[] {
   // section.text is of the form '{{answer}}' or
-  // '{{answer||option||option||option...}}'
+  // '{{answer1|answer2|...||distractor1|distractor2|...}}'
   if (section.type === 'blank') {
     let text = section.text;
     // trimming the '{{}}'
     text = text.substring(2, text.length - 2);
     // taking the answer. note: 'answer'.split('||') == ['answer']
-    text = text.split('||')[0];
-    return text;
+    // text = text.split('||')[0];
+    const answersString = text.split('||')[0];
+    const answers: string[] = answersString.split('|');
+    return answers;
   } else {
-    return '';
+    return [];
   }
 }
 
@@ -101,9 +107,13 @@ export class BlanksCard extends Question {
 
       const split = text.split('||');
       if (split.length > 1) {
-        // this.inputType = 'radio';
-        this.answer = split[0];
-        this.options = _.shuffle(split);
+        const answers = split[0].split('|');
+        const distractors = split[1].split('|');
+
+        this.answer = answers[randomInt(0, answers.length - 1)];
+        distractors.push(this.answer);
+        this.options = distractors;
+        this.options = _.shuffle(this.options);
       }
     }
   }
@@ -151,7 +161,7 @@ export class BlanksCard extends Question {
       const scoreSheet: boolean[] = [];
       for (let i = 0; i < answer.length; i++) {
         scoreSheet.push(
-          answer[i] === getAnswer(blankSections[i])
+          getAnswers(blankSections[i]).includes(answer[i])
         );
       }
 
@@ -162,7 +172,7 @@ export class BlanksCard extends Question {
       });
       return true;
     } else {
-      return answer === getAnswer(blankSections[0]);
+      return getAnswers(blankSections[0]).includes(answer);
     }
   }
   public get sections(): FillInSection[] {
