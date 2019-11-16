@@ -1,6 +1,6 @@
 <template>
   <span
-   v-if='options !== null'
+   v-if='inputType === "radio"'
    class='headline underline'
   >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
   <user-input-string
