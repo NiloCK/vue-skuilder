@@ -1,9 +1,11 @@
 import { Answer, Question } from '@/base-course/Displayable';
 import { RadioMultipleChoiceAnswer } from '@/base-course/Interfaces/AnswerInterfaces';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
+import { Validator } from '@/base-course/Interfaces/Validator';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { DataShapeName } from '@/enums/DataShapeNames';
 import { FieldType } from '@/enums/FieldType';
+import { Status } from '@/enums/Status';
 import _ from 'lodash';
 import { log } from 'util';
 import FillInView from './fillIn.vue';
@@ -19,6 +21,31 @@ export const BlanksCardDataShapes: DataShape[] = [
     ]
   }
 ];
+
+const val: Validator = {
+  test: (input) => {
+    const sections = parseBlanksMarkdown(input);
+    let blanksCount: number = 0;
+    sections.forEach((section) => {
+      if (section.type === 'blank') {
+        blanksCount++;
+      }
+    });
+
+    if (blanksCount === 1) {
+      return {
+        status: Status.ok,
+        msg: ''
+      };
+    } else {
+      return {
+        status: Status.error,
+        msg: 'There must be exactly one blank of the form {{answer}} in the question'
+      };
+    }
+
+  }
+};
 
 type fillInSectionType = 'text' | 'blank';
 
