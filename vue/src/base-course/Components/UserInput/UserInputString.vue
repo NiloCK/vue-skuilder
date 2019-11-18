@@ -3,7 +3,7 @@
         v-model="answer"
         :prepend-icon="prependIcon"
         @keyup.enter="submitAnswer(answer)"
-        autofocus
+        :autofocus="autofocus"
         row-height="24"
         toggle-keys="[13,32]"
         type="text"

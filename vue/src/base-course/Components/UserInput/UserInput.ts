@@ -1,10 +1,11 @@
+import SkldrVue from '@/SkldrVue';
 import { Prop, Vue } from 'vue-property-decorator';
 import { Answer, Question } from '@/base-course/Displayable';
 import { QuestionView } from '@/base-course/Viewable';
 import { log } from 'util';
 import { QuestionRecord } from '@/db/types';
 
-export default abstract class UserInput extends Vue {
+export default abstract class UserInput extends SkldrVue {
     public $el: HTMLElement;
     /**
      * This is the .submitAnswer from the parent
@@ -12,6 +13,12 @@ export default abstract class UserInput extends Vue {
     protected submitAnswer: (answer: Answer) => QuestionRecord = this.submit;
 
     protected answer: Answer = '';
+    protected get autofocus(): boolean {
+        return !this.$store.state.cardPreviewMode;
+    }
+    protected get autoFocus(): boolean {
+        return this.autofocus;
+    }
 
     /**
      * Use this lifecycle method to apply focus()

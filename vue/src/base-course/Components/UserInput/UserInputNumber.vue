@@ -9,7 +9,7 @@
         v-model="answer"
         prepend-icon="edit"
         @keyup.enter="submitAnswer(strToNumber(answer))"
-        autofocus
+        :autofocus="autofocus"
         row-height="24"
         toggle-keys="[13,32]"
         type="text"

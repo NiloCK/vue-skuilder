@@ -18,27 +18,38 @@
 import { VueConstructor } from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import Vue from 'vue';
+import SkldrVue from '@/SkldrVue';
 import Viewable from '@/base-course/Viewable';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
+import { log } from 'util';
 
 @Component({
-    components: {
-        CardViewer
-    }
+  components: {
+    CardViewer
+  }
 })
-export default class CardBrowser extends Vue {
-    @Prop() public views: Array<VueConstructor<Viewable>>;
-    @Prop() public data: ViewData[];
-    public viewIndex: number = 0;
+export default class CardBrowser extends SkldrVue {
+  @Prop() public views: Array<VueConstructor<Viewable>>;
+  @Prop() public data: ViewData[];
+  public viewIndex: number = 0;
 
-    private incrementView() {
-        this.viewIndex++;
-        this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
-    }
-    private decrementView() {
-        this.viewIndex--;
-        this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
-    }
+  private created() {
+    log(`Card browser created. Cards now in 'prewviewMode'`);
+    this.$store.state.cardPreviewMode = true;
+  }
+  private destroyed() {
+    log(`Card browser destroyed. Cards no longer in 'prewviewMode'`);
+    this.$store.state.cardPreviewMode = false;
+  }
+
+  private incrementView() {
+    this.viewIndex++;
+    this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
+  }
+  private decrementView() {
+    this.viewIndex--;
+    this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
+  }
 }
 </script>

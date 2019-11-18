@@ -13,6 +13,7 @@ export interface AppState {
     regDialogOpen: boolean;
     loginDialogOpen: boolean;
   };
+  cardPreviewMode: boolean;
 }
 
 const Store = new Vuex.Store<AppState>({
@@ -22,7 +23,8 @@ const Store = new Vuex.Store<AppState>({
       loggedIn: false,
       regDialogOpen: false,
       loginDialogOpen: false
-    }
+    },
+    cardPreviewMode: false
   },
   mutations: {
 
