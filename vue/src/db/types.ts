@@ -9,7 +9,8 @@ export enum DocType {
     VIEW = 'VIEW',
     PEDAGOGY = 'PEDAGOGY',
     CARDRECORD = 'CARDRECORD',
-    SCHEDULED_CARD = 'SCHEDULED_CARD'
+    SCHEDULED_CARD = 'SCHEDULED_CARD',
+    TAG = 'TAG'
 }
 
 /**
@@ -20,6 +21,15 @@ export interface SkuilderCourseData {
     course: string;
     docType: DocType;
 }
+
+export interface Tag extends SkuilderCourseData {
+    docType: DocType.TAG;
+    name: string;
+    snippit: string; // 200 char description of the tag
+    wiki: string; // 3000 char md-friendly description
+    taggedCards: PouchDB.Core.DocumentId[];
+}
+
 export interface CardData extends SkuilderCourseData {
     // DocType.CARD
     id_displayable_data: PouchDB.Core.DocumentId[];
