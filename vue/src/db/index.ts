@@ -290,31 +290,6 @@ async function getImplementingQuestions(dataShape: PouchDB.Core.DocumentId) {
   });
 }
 
-function createCards(course: string, dataShapeId: PouchDB.Core.DocumentId, noteId: PouchDB.Core.DocumentId) {
-  getImplementingQuestions(dataShapeId)
-    .then((qPromises) => {
-      qPromises.forEach((questionPromise) => {
-        questionPromise.then((question) => {
-          const qName = NameSpacer.getQuestionDescriptor(
-            question._id
-          ).questionType;
-
-          question.viewList.forEach((view) => {
-            addCard(
-              course,
-              [noteId],
-              NameSpacer.getViewString({
-                course,
-                questionType: qName,
-                view
-              })
-            );
-          });
-        });
-      });
-    });
-}
-
 /**
  * Returns a promise with doc stubs for all notes of the given dataShape
  * @param course The course name.
@@ -384,26 +359,6 @@ export async function getRandomCards(courseIDs: string[]) {
 
     return ret;
   }
-}
-
-/**
- * Adds a card to the DB. This function is called
- * as a side effect of adding either a View or
- * DisplayableData item.
- * @param course The name of the course that the card belongs to
- * @param id_displayable_data C/PouchDB ID of the data used to hydrate the view
- * @param id_view C/PouchDB ID of the view used to display the card
- */
-function addCard(
-  course: string,
-  id_displayable_data: PouchDB.Core.DocumentId[],
-  id_view: PouchDB.Core.DocumentId) {
-  return remote.post<CardData>({
-    course,
-    id_displayable_data,
-    id_view,
-    docType: DocType.CARD
-  });
 }
 
 export async function putCardRecord<T extends CardRecord>(record: T, user: string) {
