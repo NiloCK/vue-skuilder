@@ -9,10 +9,11 @@ import bodyParser = require('body-parser');
 import cors = require('cors');
 import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
-import { CourseCreationQueue } from './client-requests/course-requests';
+import { CourseCreationQueue, initCourseDBDesignDocInsert } from './client-requests/course-requests';
 
 const port = 3000;
 export const classroomDbDesignDoc = fileSystem.readFileSync('./assets/classroomDesignDoc.js', 'utf-8');
+export const courseDBDesignDoc = fileSystem.readFileSync('./assets/get-tagsDesignDoc.json', 'utf-8');
 const app = express();
 
 app.use(cookieParser());
@@ -111,6 +112,8 @@ async function init() {
         // start the change-listner that does post-prodessing on user
         // media uploads
         PostProcess();
+
+        initCourseDBDesignDocInsert();
 
         useOrCreateDB('classdb-lookup');
         try {

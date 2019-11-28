@@ -137,6 +137,16 @@ export async function addNote55(
   return result;
 }
 
+export function getAppliedTags(id_course: string, id_card: string) {
+  return getCourseDB(id_course).find({
+    selector: {
+      startkey: id_card,
+      endkey: id_card
+    },
+    use_index: ['getTags', 'get-tags']
+  });
+}
+
 async function createCards(
   courseID: string,
   datashapeID: PouchDB.Core.DocumentId,
