@@ -23,14 +23,31 @@ export async function initCourseDBDesignDocInsert() {
     const lookup = await useOrCreateDB(COURSE_DB_LOOKUP);
     lookup.list((err, body) => {
         if (!err) {
-            body.rows.forEach((doc) => {
-                const courseDB = CouchDB.use(getCourseDBName(doc.id));
-                courseDB.insert(JSON.parse(courseDBDesignDoc)).catch((e) => {
-                    log(`Error inserting course design doc for course-${doc.id}:
-    ${e}`);
-                }).then(() => {
-                    log(`Course design doc inserted into course-${doc.id}`);
-                });
+            body.rows.forEach((courseDoc) => {
+                const courseDB = CouchDB.use(getCourseDBName(courseDoc.id));
+                const designDoc = JSON.parse(courseDBDesignDoc);
+                // re-insert the design-doc on system inits,
+                // so that design doc is 'up to date'
+                courseDB.get(designDoc._id).then((priorDoc) => {
+                    courseDB.insert({
+                        ...designDoc,
+                        _rev: priorDoc._rev
+                    }).then((resp) => {
+                        if (resp.ok) {
+                            log(`CourseDB design doc updated in course-${courseDoc.id}`)
+                        }
+                    });
+                }).catch((notFound) => {
+
+                    courseDB.insert(designDoc).catch((e) => {
+                        log(`Error inserting courseDB design doc for course-${courseDoc.id}:
+        ${e}`);
+                    }).then((resp) => {
+                        if (resp && resp.ok) {
+                            log(`CourseDB design doc inserted into course-${courseDoc.id}`);
+                        }
+                    });
+                })
             });
         }
     });
