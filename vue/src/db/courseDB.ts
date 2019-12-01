@@ -1,7 +1,7 @@
 import pouch from 'pouchdb-browser';
 import ENV from '@/ENVIRONMENT_VARS';
 import { CourseConfig } from '@/server/types';
-import { pouchDBincludeCredentialsConfig } from '.';
+import { pouchDBincludeCredentialsConfig, filterAlldocsByPrefix } from '.';
 import { log } from 'util';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { NameSpacer } from '@/courses';
@@ -27,7 +27,7 @@ const courseLookupDB: PouchDB.Database = new pouch(
   }
 );
 
-function getCourseDB(courseID: string) {
+function getCourseDB(courseID: string): PouchDB.Database {
   const dbName = `coursedb-${courseID}`;
   return new pouch(
     ENV.COUCHDB_SERVER_PROTOCOL +
@@ -139,17 +139,40 @@ export async function addNote55(
 
 export async function getCourseTagStubs(courseID: string) {
   log(`Getting tag stubs for course: ${courseID}`);
-  const courseDB = getCourseDB(courseID);
-  const stubs = await courseDB.allDocs({
-    startkey: DocType.TAG.valueOf() + '-',
-    endkey: DocType.TAG.valueOf() + '-\ufff0'
-  });
+  const stubs = await filterAlldocsByPrefix(
+    getCourseDB(courseID),
+    DocType.TAG.valueOf() + '-'
+  );
 
   stubs.rows.forEach((row) => {
     log(`\tTag stub for doc: ${row.id}`);
   });
 
   return stubs;
+}
+
+/**
+ * Returns an array of ancestor tag IDs, where:
+ * return[0] = parent,
+ * return[1] = grandparent,
+ * return[2] = great grandparent,
+ * etc.
+ *
+ * If ret is empty, the tag itself is a root
+ */
+export function getAncestorTagIDs(courseID: string, tagID: string): string[] {
+  const split = tagID.split('>');
+  if (split.length === 1) {
+    return [];
+  } else {
+    split.pop();
+    const parent = split.join('>');
+    return [parent].concat(getAncestorTagIDs(courseID, parent));
+  }
+}
+
+export async function getChildTagStubs(courseID: string, tagID: string) {
+  return await filterAlldocsByPrefix(getCourseDB(courseID), tagID + '>');
 }
 
 export function getAppliedTags(id_course: string, id_card: string) {

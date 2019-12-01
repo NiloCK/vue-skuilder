@@ -477,3 +477,12 @@ export async function getActiveCards(user: string) {
   });
   return ret;
 }
+
+export function filterAlldocsByPrefix(db: PouchDB.Database, prefix: string) {
+  // see couchdb docs 6.2.2:
+  //   Guide to Views -> Views Collation -> String Ranges
+  return db.allDocs({
+    startkey: prefix,
+    endkey: prefix + '\ufff0'
+  });
+}
