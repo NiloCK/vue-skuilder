@@ -50,7 +50,7 @@ export class Course {
         });
     }
 
-    private getBaseQTypes(): Array<typeof Displayable> {
+    public getBaseQTypes(): Array<typeof Displayable> {
         // return [BasicCard];
         // should: get 'default' course displayable types
         // return defaultCourse.getBaseQTypes();
