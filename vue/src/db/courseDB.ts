@@ -137,6 +137,21 @@ export async function addNote55(
   return result;
 }
 
+export async function getCourseTagStubs(courseID: string) {
+  log(`Getting tag stubs for course: ${courseID}`);
+  const courseDB = getCourseDB(courseID);
+  const stubs = await courseDB.allDocs({
+    startkey: DocType.TAG.valueOf() + '-',
+    endkey: DocType.TAG.valueOf() + '-\ufff0'
+  });
+
+  stubs.rows.forEach((row) => {
+    log(`\tTag stub for doc: ${row.id}`);
+  });
+
+  return stubs;
+}
+
 export function getAppliedTags(id_course: string, id_card: string) {
   return getCourseDB(id_course).find({
     selector: {
