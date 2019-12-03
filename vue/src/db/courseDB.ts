@@ -6,7 +6,8 @@ import { log } from 'util';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { NameSpacer } from '@/courses';
 import { FieldType } from '@/enums/FieldType';
-import { DisplayableData, DocType, CardData } from './types';
+import { DisplayableData, DocType, CardData, Tag } from './types';
+import _ from 'lodash';
 
 
 // *someday...*
@@ -139,7 +140,7 @@ export async function addNote55(
 
 export async function getCourseTagStubs(courseID: string) {
   log(`Getting tag stubs for course: ${courseID}`);
-  const stubs = await filterAlldocsByPrefix(
+  const stubs = await filterAlldocsByPrefix<Tag>(
     getCourseDB(courseID),
     DocType.TAG.valueOf() + '-'
   );
@@ -149,6 +150,49 @@ export async function getCourseTagStubs(courseID: string) {
   });
 
   return stubs;
+}
+
+export async function deleteTag(courseID: string, tagName: string) {
+  const courseDB = getCourseDB(courseID);
+  const doc = await courseDB.get<Tag>(
+    DocType.TAG.valueOf() + '-' + tagName
+  );
+  const resp = await courseDB.remove(doc);
+  return resp;
+}
+
+export async function createTag(courseID: string, tagName: string) {
+  const courseDB = getCourseDB(courseID);
+  const resp = await courseDB.put<Tag>({
+    course: courseID,
+    docType: DocType.TAG,
+    name: tagName,
+    snippit: '',
+    taggedCards: [],
+    wiki: '',
+    _id: DocType.TAG.valueOf() + '-' + tagName
+  });
+  return resp;
+}
+
+export async function addTagToCard(courseID: string, cardID: string, tagID: string) {
+  // todo: possible future perf. hit if tags have large #s of taggedCards.
+  // In this case, should be converted to a server-request
+  const courseDB = getCourseDB(courseID);
+  const tag = await courseDB.get<Tag>(tagID);
+  tag.taggedCards.push(cardID);
+  return courseDB.put<Tag>(tag);
+}
+
+export async function removeTagFromCard(courseID: string, cardID: string, tagID: string) {
+  // todo: possible future perf. hit if tags have large #s of taggedCards.
+  // In this case, should be converted to a server-request
+  const courseDB = getCourseDB(courseID);
+  const tag = await courseDB.get<Tag>(tagID);
+  _.remove(tag.taggedCards, (taggedID) => {
+    return cardID === taggedID;
+  });
+  return courseDB.put<Tag>(tag);
 }
 
 /**
