@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
+    "@johmun/vue-tags-input": "^2.1.0",
     "lodash": "^4.17.15",
     "material-design-icons-iconfont": "^3.0.3",
     "moment": "^2.24.0",
