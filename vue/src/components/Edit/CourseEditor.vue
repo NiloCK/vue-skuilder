@@ -18,8 +18,7 @@
 
         <data-input-form
           v-if="selectedShape !== ''"
-          v-bind:dataShape="getDataShape(selectedShape)"
-          v-bind:course="courseConfig" />
+        />
       </div>
       <component-registration v-else :course="course" />
 
@@ -29,6 +28,7 @@
 
 
 <script lang="ts">
+import SkldrVue from '@/SkldrVue';
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
@@ -42,7 +42,13 @@ import BasicCard from '@/base-course/CardTypes/BasicCard';
 import { FieldType } from '@/enums/FieldType';
 import BaseCards from '@/base-course/CardTypes';
 import { CourseConfig } from '../../server/types';
-import { getCourseConfig, getCourseDataShapes, getCredentialledCourseConfig } from '../../db/courseDB';
+import {
+  getCourseConfig,
+  getCourseDataShapes,
+  getCredentialledCourseConfig,
+  getCourseTagStubs
+} from '../../db/courseDB';
+import { log } from 'util';
 
 @Component({
   components: {
@@ -50,7 +56,7 @@ import { getCourseConfig, getCourseDataShapes, getCredentialledCourseConfig } fr
     ComponentRegistration
   }
 })
-export default class CourseEditor extends Vue {
+export default class CourseEditor extends SkldrVue {
   @Prop() public course: string;
   public registeredDataShapes: DataShape[] = [];
   public dataShapes: DataShape[] = [];
@@ -70,6 +76,13 @@ export default class CourseEditor extends Vue {
   private loading: boolean = true; // datashapes are loading on init
   private editingMode: boolean = true;
 
+  @Watch('selectedShape')
+  public onShapeSelected(value?: string, old?: string) {
+    if (value) {
+      this.$store.state.dataInputForm.dataShape = this.getDataShape(value);
+      this.$store.state.dataInputForm.course = this.courseConfig;
+    }
+  }
   public async created() {
     this.courseConfig = await getCredentialledCourseConfig(this.course);
     // this.dataShapes = BaseCards.dataShapes;

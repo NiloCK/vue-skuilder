@@ -1,10 +1,29 @@
-import Vue from 'vue';
+import Vue, { VueConstructor } from 'vue';
 import Vuex from 'vuex';
+import { DataShape } from './base-course/Interfaces/DataShape';
+import { ViewData } from './base-course/Interfaces/ViewData';
+import { TagStub } from './db/types';
 import ENV from './ENVIRONMENT_VARS';
+import { CourseConfig } from './server/types';
+import FormInput from '@/components/Edit/ViewableDataInputForm/FieldInputs/index.vue';
 
 Vue.use(Vuex);
 
 export const GuestUsername: string = 'Guest';
+
+interface DataInputForm {
+  // current props
+  dataShape: DataShape | null;
+  course: CourseConfig | null;
+
+  existingData: ViewData[];
+  shapeViews: Array<VueConstructor<Vue>>;
+
+  fields: FormInput[];
+  localStore: any;
+
+  uploading: boolean;
+}
 
 export interface AppState {
   user: string;
@@ -14,7 +33,9 @@ export interface AppState {
     loginDialogOpen: boolean;
   };
   cardPreviewMode: boolean;
+  dataInputForm: DataInputForm;
 }
+
 
 const Store = new Vuex.Store<AppState>({
   state: {
@@ -24,7 +45,16 @@ const Store = new Vuex.Store<AppState>({
       regDialogOpen: false,
       loginDialogOpen: false
     },
-    cardPreviewMode: false
+    cardPreviewMode: false,
+    dataInputForm: {
+      course: null,
+      dataShape: null,
+      existingData: [],
+      fields: [],
+      localStore: {},
+      shapeViews: [],
+      uploading: false
+    }
   },
   mutations: {
 
