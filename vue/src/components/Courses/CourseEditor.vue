@@ -31,13 +31,14 @@
               </v-flex>
               <v-flex xs12 sm6 md4>
 
-                <v-text-field
+                <v-textarea
                   v-model="description"
-                  textarea
+                  outline
                   counter="300"
-                  auto-grow="true"
+                  :auto-grow="true"
                   label="Quilt Description"
-                  hint="Describe the course. What subject is covered? Who might be interested?"></v-text-field>
+                  hint="Describe the course. What subject is covered? Who might be interested?">
+                </v-textarea>
               </v-flex>
               <v-flex xs12 sm6 md4>
                 <label for="">Public or private quilt?</label>
