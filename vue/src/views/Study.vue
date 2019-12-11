@@ -30,10 +30,27 @@
       fixed
       bottom
       right
-      title="Discuss this card"
+      title="Edit this card"
+      @click="editCard = !editCard"
+      :loading='editCard'
     >
-      <v-icon>chat_bubble_outline</v-icon>
+      <v-icon>edit</v-icon>
     </v-btn>
+    <v-dialog
+      v-model="editCardReady"
+      scrollable fullscreen
+      persistent :overlay="false"
+      transition="dialog-transition"
+    >
+      <v-card>
+        
+      <data-input-form
+        v-if="editCardReady"
+        :course='courseID'
+        
+      />
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -50,6 +67,7 @@ import {
 } from '@/db/types';
 import Viewable from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
+import DataInputForm from '@/components/Edit/ViewableDataInputForm/DataInputForm.vue';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import Courses from '@/courses';
 import {
@@ -66,6 +84,9 @@ import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
 import moment from 'moment';
 import { getUserCourses } from '../db/userDB';
+import { Watch } from 'vue-property-decorator';
+import SkldrVue from '@/SkldrVue';
+import { getCredentialledCourseConfig, getCardDataShape } from '@/db/courseDB';
 // import CardCache from '@/db/cardCache';
 
 function randInt(n: number) {
@@ -74,16 +95,20 @@ function randInt(n: number) {
 
 @Component({
   components: {
-    CardViewer
+    CardViewer,
+    DataInputForm
   }
 })
-export default class Study extends Vue {
+export default class Study extends SkldrVue {
+  public editCard: boolean = false; // open the editor for this card
+  public editCardReady: boolean = false; // editor for this card is ready to display
+  // the currently displayed card
+  public cardID: PouchDB.Core.DocumentId = '';
   public view: VueConstructor<Vue>;
   public data: ViewData[] = [];
-  public cardID: PouchDB.Core.DocumentId = '';
   public courseID: string = '';
-  public cardCount: number = 1;
 
+  public cardCount: number = 1;
   public readonly SessionCount: number = 10;
 
   public sessionFinished: boolean = false;
@@ -95,8 +120,41 @@ export default class Study extends Vue {
   public $refs: {
     shadowWrapper: HTMLDivElement
   };
-
   private userCourseIDs: string[] = [];
+
+  @Watch('editCard')
+  public async onEditToggle(value?: boolean, old?: boolean) {
+    if (value) {
+      this.$store.state.dataInputForm.dataShape =
+        await getCardDataShape(this.courseID, this.cardID);
+
+      const cfg = await getCredentialledCourseConfig(this.courseID);
+      this.$store.state.dataInputForm.course = cfg!;
+
+      this.editCardReady = true;
+
+      // clear any stale data from the inputForm 'store'
+      for (const oldField in this.$store.state.dataInputForm.localStore) {
+        if (oldField) {
+          log(`Removing old data: ${oldField}`);
+          delete this.$store.state.dataInputForm.localStore[oldField];
+        }
+      }
+
+      // repopulate the inputForm store w/ this card's data
+      for (const field in this.data[0]) {
+        if (field) {
+          log(`Writing ${field}: ${this.data[0][field]} to the dataInputForm state...`);
+          this.$store.state.dataInputForm.localStore[field] = this.data[0][field];
+        }
+      }
+
+      // this.$store.state.dataInputForm.dataShape = this.view.question().dataShapes[0];
+    } else {
+      this.editCardReady = false;
+    }
+  }
+
 
   public async created() {
     this.activeCards = await getActiveCards(this.$store.state.user);

@@ -30,7 +30,7 @@
 <script lang="ts">
 import SkldrVue from '@/SkldrVue';
 import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import { Component, Prop, Watch } from 'vue-property-decorator';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import Courses, { NameSpacer } from '@/courses';
 import { getDoc } from '@/db';
@@ -38,7 +38,7 @@ import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
 import { DataShapeData } from '@/db/types';
 import ComponentRegistration from '@/components/Edit/ComponentRegistration/ComponentRegistration.vue';
 import { DataShapeName } from '@/enums/DataShapeNames';
-import BasicCard from '@/base-course/CardTypes/BasicCard';
+// import BasicCard from '@/base-course/CardTypes/BasicCard';
 import { FieldType } from '@/enums/FieldType';
 import BaseCards from '@/base-course/CardTypes';
 import { CourseConfig } from '../../server/types';
@@ -85,12 +85,15 @@ export default class CourseEditor extends SkldrVue {
   }
   public async created() {
     this.courseConfig = await getCredentialledCourseConfig(this.course);
+    // for testing getCourseTagStubs...
+    // log(JSON.stringify(await getCourseTagStubs(this.course)));
+
     // this.dataShapes = BaseCards.dataShapes;
     // this.registeredDataShapes = BaseCards.dataShapes;
-    BaseCards.dataShapes.forEach((shape) => {
-      this.dataShapes.push(shape);
-      this.registeredDataShapes.push(shape);
-    });
+    // BaseCards.dataShapes.forEach((shape) => {
+    //   this.dataShapes.push(shape);
+    //   this.registeredDataShapes.push(shape);
+    // });
 
     // #55 make all 'programmed' datashapes available, rather than
     // the previous code-based name scoping

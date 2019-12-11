@@ -37,6 +37,14 @@
                 v-bind:field="field" 
             />
       </div>
+
+      <vue-tags-input
+        v-model="tag"
+        :tags="tags"
+        @tags-changed="updateTags"
+        :autocomplete-items="autoCompleteSuggestions"
+      />
+
       <v-btn
           type="submit"
           color="primary"
@@ -86,8 +94,9 @@ import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import SkldrVue from '../../../SkldrVue';
 import { CourseConfig } from '../../../server/types';
-import { addNote55 } from '../../../db/courseDB';
+import { addNote55, getCourseTagStubs } from '../../../db/courseDB';
 import { log } from 'util';
+import VueTagsInput from '@johmun/vue-tags-input';
 
 @Component({
   components: {
@@ -98,7 +107,8 @@ import { log } from 'util';
     ImageInput,
     MarkdownInput,
     CardBrowser,
-    DataShapeTable
+    DataShapeTable,
+    VueTagsInput
   }
 })
 export default class DataInputForm extends SkldrVue {
@@ -123,20 +133,67 @@ export default class DataInputForm extends SkldrVue {
     });
   }
 
-  @Prop() public dataShape: DataShape;
-  @Prop() public course: CourseConfig;
-  public existingData: ViewData[] = [];
+  // @Prop() public dataShape: DataShape;
+  public get dataShape() {
+    return this.$store.state.dataInputForm.dataShape!;
+  }
+  public set dataShape(dataShape) {
+    this.$store.state.dataInputForm.dataShape = dataShape;
+  }
+  // @Prop() public course: CourseConfig;
+  public get course() {
+    return this.$store.state.dataInputForm.course!;
+  }
+  public set course(course) {
+    this.$store.state.dataInputForm.course = course;
+  }
+  // public existingData: ViewData[] = [];
+  public get existingData() {
+    return this.$store.state.dataInputForm.existingData;
+  }
+  public set existingData(data) {
+    this.$store.state.dataInputForm.existingData = data;
+  }
 
-  public shapeViews: Array<VueConstructor<Vue>>;
+  public tag: string = '';
+  public tags: any[] = [];
+  public autoCompleteSuggestions: any[] = [];
 
-  public fields: FormInput[] = [];
-  public store: any = {
-    validation: {},
-    convertedInput: {},
-    previewInput: {}
-  }; // todo: see about typing this
+  // public shapeViews: Array<VueConstructor<Vue>>;
+  public get shapeViews() {
+    return this.$store.state.dataInputForm.shapeViews;
+  }
+  public set shapeViews(views) {
+    this.$store.state.dataInputForm.shapeViews = views;
+  }
 
-  private uploading: boolean = false;
+  // public fields: FormInput[] = [];
+  public get fields() {
+    return this.$store.state.dataInputForm.fields;
+  }
+  public set fields(fields) {
+    this.$store.state.dataInputForm.fields = fields;
+  }
+
+  // public store: any = {
+  //   validation: {},
+  //   convertedInput: {},
+  //   previewInput: {}
+  // }; // todo: see about typing this
+  public get store() {
+    return this.$store.state.dataInputForm.localStore;
+  }
+  public set store(store) {
+    this.$store.state.dataInputForm.localStore = store;
+  }
+
+  // private uploading: boolean = false;
+  public get uploading() {
+    return this.$store.state.dataInputForm.uploading;
+  }
+  public set uploading(uploading) {
+    this.$store.state.dataInputForm.uploading = uploading;
+  }
 
   private readonly str: string = FieldType.STRING;
   private readonly int: string = FieldType.INT;
@@ -144,6 +201,20 @@ export default class DataInputForm extends SkldrVue {
   private readonly img: string = FieldType.IMAGE;
   private readonly mkd: string = FieldType.MARKDOWN;
   private readonly audio: string = FieldType.AUDIO;
+
+  public updateTags(newTags: string[]) {
+    log(`tags updated: ${JSON.stringify(newTags)}`);
+    this.tags = newTags;
+  }
+
+  public async getCourseTags() {
+    const existingTags = await getCourseTagStubs(this.course.courseID!);
+    this.autoCompleteSuggestions = existingTags.rows.map((tag) => {
+      return {
+        text: tag.doc!.name
+      };
+    });
+  }
 
   public get userInputIsValid(): boolean {
     let ret: boolean =
@@ -189,7 +260,17 @@ export default class DataInputForm extends SkldrVue {
   }
 
   public created() {
+    this.existingData = [];
+    this.fields = [];
+    this.store = {
+      validation: {},
+      convertedInput: {},
+      previewInput: {}
+    };
+    this.uploading = false;
+
     this.onDataShapeChange();
+    this.getCourseTags();
   }
 
   public convertInput() {
@@ -253,14 +334,12 @@ export default class DataInputForm extends SkldrVue {
 
     this.fieldInputs.forEach((input) => {
       input.clearData();
-      // (input as any).value = '';
     });
     this.fieldInputs[0].focus();
   }
 
   private getExistingNotesFromDB() {
     this.existingData = [];
-
 
     // pre-#55 /skuilder implementation:
     // getNotes(this.course, this.dataShape).then((results) => {
@@ -281,6 +360,15 @@ export default class DataInputForm extends SkldrVue {
       const descriptor = NameSpacer.getDataShapeDescriptor(ds.name);
       if (descriptor.dataShape === this.dataShape.name) {
         const crs = Courses.getCourse(descriptor.course)!;
+        crs.getBaseQTypes().forEach((qType) => {
+          if (qType.dataShapes[0].name === this.dataShape.name) {
+            // qType.views.forEach((view) => {
+            //   this.shapeViews.push(view);
+            // })
+            // // this.shapeViews.push(qType.views);
+            this.shapeViews = this.shapeViews.concat(qType.views);
+          }
+        });
 
         for (const q of ds.questionTypes) {
           const qDescriptor = NameSpacer.getQuestionDescriptor(q);
