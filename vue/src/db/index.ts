@@ -306,28 +306,6 @@ export function getNotes(course: string, shape: DataShape) {
 }
 
 /**
- * Returns a list of the registered dataShapes for the specified course,
- * or a list of all registered dataShapes if no course name is provided
- * @param course The name of the course to search
- */
-export function getDataShapes(course?: string) {
-  if (course) {
-    return remote.find({
-      selector: {
-        course,
-        docType: DocType.DATASHAPE
-      }
-    });
-  } else {
-    return remote.find({
-      selector: {
-        docType: DocType.DATASHAPE
-      }
-    });
-  }
-}
-
-/**
  * Returns *all* cards from the paramater courses, in
  * 'qualified' card format ("courseid-cardid")
  *
