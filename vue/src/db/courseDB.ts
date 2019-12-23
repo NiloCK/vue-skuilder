@@ -6,7 +6,7 @@ import { log } from 'util';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { NameSpacer } from '@/courses';
 import { FieldType } from '@/enums/FieldType';
-import { DisplayableData, DocType, CardData, Tag } from './types';
+import { DisplayableData, DocType, CardData, Tag, TagStub } from './types';
 import Courses from '@/courses';
 import _ from 'lodash';
 
@@ -171,6 +171,15 @@ export async function addNote55(
   return result;
 }
 
+function getTagID(tagName: string): string {
+  const tagPrefix = DocType.TAG.valueOf() + '-';
+  if (tagName.indexOf(tagPrefix) === 0) {
+    return tagName;
+  } else {
+    return tagPrefix + tagName;
+  }
+}
+
 export async function getCourseTagStubs(courseID: string) {
   log(`Getting tag stubs for course: ${courseID}`);
   const stubs = await filterAlldocsByPrefix<Tag>(
@@ -186,6 +195,7 @@ export async function getCourseTagStubs(courseID: string) {
 }
 
 export async function deleteTag(courseID: string, tagName: string) {
+  tagName = getTagID(tagName);
   const courseDB = getCourseDB(courseID);
   const doc = await courseDB.get<Tag>(
     DocType.TAG.valueOf() + '-' + tagName
@@ -195,6 +205,8 @@ export async function deleteTag(courseID: string, tagName: string) {
 }
 
 export async function createTag(courseID: string, tagName: string) {
+  log(`Creating tag: ${tagName}...`);
+  const tagID = getTagID(tagName);
   const courseDB = getCourseDB(courseID);
   const resp = await courseDB.put<Tag>({
     course: courseID,
@@ -203,23 +215,33 @@ export async function createTag(courseID: string, tagName: string) {
     snippit: '',
     taggedCards: [],
     wiki: '',
-    _id: DocType.TAG.valueOf() + '-' + tagName
+    _id: tagID
   });
   return resp;
 }
 
-export async function addTagToCard(courseID: string, cardID: string, tagID: string) {
+export async function addTagToCard(courseID: string, cardID: string, tagID: string):
+  Promise<PouchDB.Core.Response> {
   // todo: possible future perf. hit if tags have large #s of taggedCards.
   // In this case, should be converted to a server-request
+  const prefixedTagID = getTagID(tagID);
   const courseDB = getCourseDB(courseID);
-  const tag = await courseDB.get<Tag>(tagID);
-  tag.taggedCards.push(cardID);
-  return courseDB.put<Tag>(tag);
+  try {
+    log(`Applying tag ${tagID} to card ${courseID + '-' + cardID}...`);
+    const tag = await courseDB.get<Tag>(prefixedTagID);
+    tag.taggedCards.push(cardID);
+    return courseDB.put<Tag>(tag);
+  } catch (e) {
+    log(`Tag ${tagID} does not exist...`);
+    await createTag(courseID, tagID);
+    return addTagToCard(courseID, cardID, tagID);
+  }
 }
 
 export async function removeTagFromCard(courseID: string, cardID: string, tagID: string) {
   // todo: possible future perf. hit if tags have large #s of taggedCards.
   // In this case, should be converted to a server-request
+  tagID = getTagID(tagID);
   const courseDB = getCourseDB(courseID);
   const tag = await courseDB.get<Tag>(tagID);
   _.remove(tag.taggedCards, (taggedID) => {
@@ -238,6 +260,7 @@ export async function removeTagFromCard(courseID: string, cardID: string, tagID:
  * If ret is empty, the tag itself is a root
  */
 export function getAncestorTagIDs(courseID: string, tagID: string): string[] {
+  tagID = getTagID(tagID);
   const split = tagID.split('>');
   if (split.length === 1) {
     return [];
@@ -252,14 +275,20 @@ export async function getChildTagStubs(courseID: string, tagID: string) {
   return await filterAlldocsByPrefix(getCourseDB(courseID), tagID + '>');
 }
 
-export function getAppliedTags(id_course: string, id_card: string) {
-  return getCourseDB(id_course).find({
-    selector: {
+export async function getAppliedTags(id_course: string, id_card: string) {
+  const db = await getCourseDB(id_course);
+
+  const result = await db.query<TagStub>('getTags/get-tags',
+    {
       startkey: id_card,
       endkey: id_card
-    },
-    use_index: ['getTags', 'get-tags']
-  });
+      // include_docs: true
+    });
+
+  log(`getAppliedTags looked up: ${id_card}`);
+  log(`getAppliedTags returning: ${JSON.stringify(result)}`);
+
+  return result;
 }
 
 async function createCards(
