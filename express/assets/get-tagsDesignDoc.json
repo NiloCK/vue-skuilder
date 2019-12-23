@@ -2,7 +2,7 @@
     "_id": "_design/getTags",
     "views": {
         "get-tags": {
-            "map": "function (doc) {\n  if (doc.docType && doc.docType === \"TAG\"\n     && doc.name\n     && doc.snippit\n  ) {\n    for (var cardIndex in doc.taggedCards){\n      emit(doc.taggedCards[cardIndex], {\n        docType: doc.docType,\n        name: doc.name,\n        snippit: doc.snippit,\n        wiki: '',\n        taggedCards: []\n      });\n    }\n  }\n}"
+            "map": "function (doc) {\n  if (doc.docType && doc.docType === \"TAG\"\n) {\n    for (var cardIndex in doc.taggedCards){\n      emit(doc.taggedCards[cardIndex], {\n        docType: doc.docType,\n        name: doc.name,\n        snippit: doc.snippit,\n        wiki: '',\n        taggedCards: []\n      });\n    }\n  }\n}"
         }
     },
     "language": "javascript"
