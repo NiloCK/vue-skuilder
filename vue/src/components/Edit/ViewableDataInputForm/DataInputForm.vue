@@ -38,13 +38,6 @@
             />
       </div>
 
-      <vue-tags-input
-        v-model="tag"
-        :tags="tags"
-        @tags-changed="updateTags"
-        :autocomplete-items="autoCompleteSuggestions"
-      />
-
       <v-btn
           type="submit"
           color="primary"
@@ -96,7 +89,6 @@ import SkldrVue from '../../../SkldrVue';
 import { CourseConfig } from '../../../server/types';
 import { addNote55, getCourseTagStubs } from '../../../db/courseDB';
 import { log } from 'util';
-import VueTagsInput from '@johmun/vue-tags-input';
 
 @Component({
   components: {
@@ -107,8 +99,7 @@ import VueTagsInput from '@johmun/vue-tags-input';
     ImageInput,
     MarkdownInput,
     CardBrowser,
-    DataShapeTable,
-    VueTagsInput
+    DataShapeTable
   }
 })
 export default class DataInputForm extends SkldrVue {
