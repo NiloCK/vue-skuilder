@@ -31,26 +31,17 @@
       bottom
       right
       title="Edit this card"
-      @click="editCard = !editCard"
+      @click="editTags = !editTags"
       :loading='editCard'
     >
       <v-icon>edit</v-icon>
     </v-btn>
-    <v-dialog
-      v-model="editCardReady"
-      scrollable fullscreen
-      persistent :overlay="false"
-      transition="dialog-transition"
-    >
-      <v-card>
-        
-      <data-input-form
-        v-if="editCardReady"
-        :course='courseID'
-        
-      />
-      </v-card>
-    </v-dialog>
+    <br>
+    <sk-tags-input
+        v-if='editTags'
+        :courseID="courseID"
+        :cardID="cardID"
+    />
   </div>
 </template>
 
@@ -67,7 +58,6 @@ import {
 } from '@/db/types';
 import Viewable from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
-import DataInputForm from '@/components/Edit/ViewableDataInputForm/DataInputForm.vue';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import Courses from '@/courses';
 import {
@@ -87,6 +77,7 @@ import { getUserCourses } from '../db/userDB';
 import { Watch } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
 import { getCredentialledCourseConfig, getCardDataShape } from '@/db/courseDB';
+import SkTagsInput from '@/components/Edit/TagsInput.vue';
 // import CardCache from '@/db/cardCache';
 
 function randInt(n: number) {
@@ -96,10 +87,11 @@ function randInt(n: number) {
 @Component({
   components: {
     CardViewer,
-    DataInputForm
+    SkTagsInput
   }
 })
 export default class Study extends SkldrVue {
+  public editTags: boolean = false; // open the tagsInput for this card
   public editCard: boolean = false; // open the editor for this card
   public editCardReady: boolean = false; // editor for this card is ready to display
   // the currently displayed card
@@ -124,6 +116,8 @@ export default class Study extends SkldrVue {
 
   @Watch('editCard')
   public async onEditToggle(value?: boolean, old?: boolean) {
+    // this section was wip for editing cards w/ dataInputForm (defunct plan)
+    // Refactor to a different location for future use...
     if (value) {
       this.$store.state.dataInputForm.dataShape =
         await getCardDataShape(this.courseID, this.cardID);
@@ -148,6 +142,8 @@ export default class Study extends SkldrVue {
           this.$store.state.dataInputForm.localStore[field] = this.data[0][field];
         }
       }
+
+      // this.$refs.dataInputForm.convertInput();
 
       // this.$store.state.dataInputForm.dataShape = this.view.question().dataShapes[0];
     } else {
