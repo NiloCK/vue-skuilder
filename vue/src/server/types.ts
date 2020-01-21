@@ -44,6 +44,16 @@ export interface QuestionType55 {
   dataShapeList: string[];
 }
 
+export interface ClassroomConfig {
+  students: string[];
+  teachers: string[];
+  name: string;
+  birthYear?: number;
+  classMeetingSchedule: string;
+  peerAssist: boolean;
+  joinCode: string;
+}
+
 export interface CourseConfig {
   courseID?: string;
   name: string;
