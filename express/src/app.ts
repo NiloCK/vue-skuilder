@@ -71,7 +71,11 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
             data.response = await createClassroom(data.className, data.user);
             res.json(data.response);
         } else if (data.type === RequestEnum.DELETE_CLASSROOM) {
-
+            console.log(`\t\tDELETE_CLASSROOM request made...`);
+        } else if (data.type === RequestEnum.JOIN_CLASSROOM) {
+            console.log(`\t\tJOIN_CLASSROOM request made...`);
+        } else if (data.type === RequestEnum.LEAVE_CLASSROOM) {
+            console.log(`\t\tLEAVE_CLASSROOM request made...`);
         } else if (data.type === RequestEnum.CREATE_COURSE) {
             console.log(`\t\tCREATE_COURSE request made...`);
             const id: number = CourseCreationQueue.addRequest(data.data);

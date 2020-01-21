@@ -21,6 +21,14 @@ export interface DeleteClassroom extends IServerRequest {
   type: ServerRequestType.DELETE_CLASSROOM;
   classID: string;
 }
+export interface JoinClassroom extends IServerRequest {
+  type: ServerRequestType.JOIN_CLASSROOM;
+  classID: string;
+}
+export interface LeaveClassroom extends IServerRequest {
+  type: ServerRequestType.LEAVE_CLASSROOM;
+  classID: string;
+}
 
 type NamespacedDatashape = string; // ${course}.datashape.${datashape}
 
@@ -66,12 +74,16 @@ export interface DeleteCourse extends IServerRequest {
 export type ServerRequest =
   CreateClassroom |
   DeleteClassroom |
+  JoinClassroom |
+  LeaveClassroom |
   CreateCourse |
   DeleteCourse;
 
 export enum ServerRequestType {
   CREATE_CLASSROOM = 'CREATE_CLASSROOM',
   DELETE_CLASSROOM = 'DELETE_CLASSROOM',
+  JOIN_CLASSROOM = 'JOIN_CLASSROOM',
+  LEAVE_CLASSROOM = 'LEAVE_CLASSROOM',
   CREATE_COURSE = 'CREATE_COURSE',
   DELETE_COURSE = 'DELETE_COURSE'
 }
