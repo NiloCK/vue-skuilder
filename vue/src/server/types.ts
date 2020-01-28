@@ -10,7 +10,7 @@ export interface IServerRequest {
 
 export interface CreateClassroom extends IServerRequest {
   type: ServerRequestType.CREATE_CLASSROOM;
-  className: string;
+  data: ClassroomConfig;
   response: {
     status: Status;
     joincode: string;

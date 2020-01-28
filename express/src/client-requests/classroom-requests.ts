@@ -1,11 +1,15 @@
 import hashids from 'hashids';
 import { classroomDbDesignDoc, docCount, SecurityObject, useOrCreateDB } from '../app';
 import CouchDB from '../couchdb';
+import { ClassroomConfig } from '../../../vue/src/server/types';
 
 export async function deleteClassroom(classroom_id: string) {
 }
 
-export async function createClassroom(name: string, teacher: string) {
+export async function createClassroom(config: ClassroomConfig, teacher: string) {
+    console.log(`CreateClass Request:
+    ${JSON.stringify(config)}`);
+
     const num = await docCount('classdb-lookup') + 1; //
     const uuid = (await CouchDB.uuids(1)).uuids[0];
     const hasher = new hashids('', 6, 'abcdefghijklmnopqrstuvwxyz123456789');
@@ -35,6 +39,10 @@ export async function createClassroom(name: string, teacher: string) {
             validate_doc_update: classroomDbDesignDoc,
         } as any, '_design/_auth'),
         studentdb.insert(security, '_security'),
+        studentdb.insert({
+            _id: 'ClassroomConfig',
+            ...config
+        })
         teacherdb.insert(security, '_security'),
         lookup.insert({
             num,

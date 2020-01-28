@@ -1,6 +1,27 @@
 <template>
   <div>
-    <v-btn @click="createClass">Create a classroom</v-btn>
+    <v-form>
+      <label for="joinCode">Class Code</label> 
+      <v-text-field
+        name="joinCode"
+        label=""
+        id="joinCode"
+        :v-model="joinCode"
+      ></v-text-field>
+      <v-btn>Join a class </v-btn>
+    </v-form>
+
+    <v-dialog
+              v-model="newClassDialog"
+              fullscreen
+              transition="dialog-bottom-transition"
+              :overlay="false"
+            >
+              <v-btn color="primary" dark slot="activator">Start a new Class</v-btn>
+                <classroom-editor 
+                 v-on:CourseEditingComplete="processResponse($event)"
+                />
+            </v-dialog>
   </div>
 </template>
 
@@ -8,18 +29,22 @@
 import { Component, Vue } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
 import serverRequest from '@/server/index';
-import { ServerRequestType } from '@/server/types';
+import { ServerRequestType, JoinClassroom, CreateClassroom } from '@/server/types';
 import { alertUser } from '@/components/SnackbarService.vue';
 import { Status } from '@/enums/Status';
 import { log } from 'util';
-
+import ClassroomEditor from '@/components/Classrooms/CreateClassroom.vue';
 
 @Component({
   components: {
+    ClassroomEditor
   }
 })
 export default class Classroom extends SkldrVue {
   public classes: string[] = [];
+  private joinCode: string = '';
+
+  private newClassDialog: boolean = false;
 
   public beforeRouteEnter(to: any, from: any, next: () => {}) {
     // todo ?
@@ -33,12 +58,19 @@ export default class Classroom extends SkldrVue {
       classID: classId,
       response: null
     });
+  }
 
-
+  private async joinClass() {
+    const result = await serverRequest<JoinClassroom>({
+      type: ServerRequestType.JOIN_CLASSROOM,
+      classID: this.joinCode,
+      user: this.$store.state.user,
+      response: null
+    });
   }
 
   private async createClass() {
-    const status = await serverRequest({
+    const status = await serverRequest<CreateClassroom>({
       type: ServerRequestType.CREATE_CLASSROOM,
       className: 'hi',
       user: this.$store.state.user,

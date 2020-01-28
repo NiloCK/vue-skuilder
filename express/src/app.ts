@@ -68,7 +68,7 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
 
         if (data.type === RequestEnum.CREATE_CLASSROOM) {
             console.log(`\t\tCREATE_CLASSROOM request made...`);
-            data.response = await createClassroom(data.className, data.user);
+            data.response = await createClassroom(data.data, data.user);
             res.json(data.response);
         } else if (data.type === RequestEnum.DELETE_CLASSROOM) {
             console.log(`\t\tDELETE_CLASSROOM request made...`);
