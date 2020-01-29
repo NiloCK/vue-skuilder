@@ -6,7 +6,7 @@
         name="joinCode"
         label=""
         id="joinCode"
-        :v-model="joinCode"
+        v-model="joinCode"
       ></v-text-field>
       <v-btn>Join a class </v-btn>
     </v-form>
@@ -69,18 +69,5 @@ export default class Classroom extends SkldrVue {
     });
   }
 
-  private async createClass() {
-    const status = await serverRequest<CreateClassroom>({
-      type: ServerRequestType.CREATE_CLASSROOM,
-      className: 'hi',
-      user: this.$store.state.user,
-      response: null
-    });
-
-    alertUser({
-      text: `Class ${JSON.stringify(status)} Created`,
-      status: Status.ok
-    });
-  }
 }
 </script>
