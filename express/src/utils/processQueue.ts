@@ -26,6 +26,8 @@ interface CompletedRequest<R> extends LabelledRequest<R> {
  * for each to complete before launching the next.
  */
 export default class AsyncProcessQueue<T extends Request, R extends Result> {
+    private processRequest: ProcessingFunction<T>;
+
     private queue: LabelledRequest<T>[] = [];
     private errors: FailedRequest<T>[] = [];
     private completed: CompletedRequest<T>[] = [];
@@ -172,6 +174,4 @@ export default class AsyncProcessQueue<T extends Request, R extends Result> {
 
         this.processing = false;
     }
-
-    private processRequest: ProcessingFunction<T>;
 }
