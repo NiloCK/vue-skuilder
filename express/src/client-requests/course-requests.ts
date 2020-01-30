@@ -1,11 +1,11 @@
 import hashids from 'hashids';
-import { docCount, useOrCreateDB, SecurityObject, courseDBDesignDoc } from '../app';
-import CouchDB from '../couchdb';
-import AsyncProcessQueue, { Result } from '../utils/processQueue';
-import { CreateCourse, DeleteCourse } from '../../../vue/src/server/types';
-import nano = require('nano');
-import { postProcessCourse } from '../attachment-preprocessing';
 import { log } from 'util';
+import { CreateCourse } from '../../../vue/src/server/types';
+import { courseDBDesignDoc, SecurityObject, useOrCreateDB } from '../app';
+import { postProcessCourse } from '../attachment-preprocessing';
+import CouchDB from '../couchdb';
+import AsyncProcessQueue from '../utils/processQueue';
+import nano = require('nano');
 
 
 export const COURSE_DB_LOOKUP = 'coursedb-lookup';
