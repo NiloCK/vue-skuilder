@@ -39,6 +39,7 @@ export function getUserDB(username: string): PouchDB.Database {
 }
 
 const userCoursesDoc = 'CourseRegistrations';
+const userClassroomsDoc = 'ClassroomRegistrations';
 
 interface CourseRegistration {
   courseID: string;
@@ -54,6 +55,42 @@ interface StudyWeights {
 interface CourseRegistrationDoc {
   courses: CourseRegistration[];
   studyWeight: StudyWeights;
+}
+
+export type ClassroomRegistrationDesignation =
+  'student' | 'teacher' | 'aide' | 'admin';
+
+interface ClassroomRegistration {
+  classID: string;
+  registeredAs: ClassroomRegistrationDesignation;
+}
+
+interface ClassroomRegistrationDoc {
+  registrations: ClassroomRegistration[];
+}
+
+async function getOrCreateClassroomRegistrationsDoc(user: string):
+  Promise<ClassroomRegistrationDoc & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta> {
+  let ret;
+
+  try {
+    ret = await getUserDB(user).get<ClassroomRegistrationDoc>(userClassroomsDoc);
+  } catch (e) {
+
+    if (e.status === 404) {
+      // doc does not exist. Create it and then run this fcn again.
+      await getUserDB(user).put<ClassroomRegistrationDoc>({
+        _id: userClassroomsDoc,
+        registrations: []
+      });
+      ret = await getOrCreateClassroomRegistrationsDoc(user);
+    } else {
+      throw new Error(`Unexpected error ${JSON.stringify(e)} in getOrCreateClassroomRegistrationDoc...`);
+    }
+
+  }
+
+  return ret;
 }
 
 async function getOrCreateCourseRegistrationsDoc(user: string):
@@ -79,6 +116,18 @@ async function getOrCreateCourseRegistrationsDoc(user: string):
   }
 
   return ret;
+}
+
+export async function registerUserForClassroom(user: string, classID: string, registerAs: ClassroomRegistrationDesignation) {
+  log(`Registering user: ${user} in course: ${classID}`);
+  return getOrCreateClassroomRegistrationsDoc(user).then((doc) => {
+    doc.registrations.push({
+      classID: classID,
+      registeredAs: registerAs
+    });
+
+    return getUserDB(user).put(doc);
+  });
 }
 
 export async function registerUserForCourse(user: string, course_id: string) {
