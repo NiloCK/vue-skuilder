@@ -2,7 +2,10 @@ import Nano = require('nano');
 import * as express from 'express';
 import { ServerRequest, ServerRequestType as RequestEnum } from '../../vue/src/server/types';
 import PostProcess from './attachment-preprocessing';
-import { createClassroom } from './client-requests/classroom-requests';
+import {
+    ClassroomCreationQueue,
+    ClassroomJoinQueue
+} from './client-requests/classroom-requests';
 import CouchDB from './couchdb';
 import { requestIsAuthenticated } from './couchdb/authentication';
 import bodyParser = require('body-parser');
@@ -68,12 +71,16 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
 
         if (data.type === RequestEnum.CREATE_CLASSROOM) {
             console.log(`\t\tCREATE_CLASSROOM request made...`);
-            data.response = await createClassroom(data.data, data.user);
+            const id: number = ClassroomCreationQueue.addRequest(data.data);
+            data.response = await ClassroomCreationQueue.getResult(id);
             res.json(data.response);
         } else if (data.type === RequestEnum.DELETE_CLASSROOM) {
             console.log(`\t\tDELETE_CLASSROOM request made...`);
         } else if (data.type === RequestEnum.JOIN_CLASSROOM) {
             console.log(`\t\tJOIN_CLASSROOM request made...`);
+            const id: number = ClassroomJoinQueue.addRequest(data.data);
+            data.response = await ClassroomJoinQueue.getResult(id);
+            res.json(data.response);
         } else if (data.type === RequestEnum.LEAVE_CLASSROOM) {
             console.log(`\t\tLEAVE_CLASSROOM request made...`);
         } else if (data.type === RequestEnum.CREATE_COURSE) {
