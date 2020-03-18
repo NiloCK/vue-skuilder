@@ -12,6 +12,6 @@ export default async function serverRequest<T extends ServerRequest>(requestData
   xml.setRequestHeader('Content-Type', 'application/json');
   xml.send(JSON.stringify(requestData));
 
-  requestData.response = xml.response;
+  requestData.response = JSON.parse(xml.response);
   return requestData;
 }
