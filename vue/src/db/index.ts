@@ -36,9 +36,13 @@ if (ENV.DEBUG) {
 const expiryDocID: string = 'GuestAccountExpirationDate';
 const dbUUID = 'dbUUID';
 
+const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' +
+  ENV.COUCHDB_SERVER_URL + 'skuilder';
+
+log(`Remote db: ${remoteStr}`);
+
 export const remote: PouchDB.Database = new pouch(
-  ENV.COUCHDB_SERVER_PROTOCOL + '://' +
-  ENV.COUCHDB_SERVER_URL + 'skuilder',
+  remoteStr,
   {
     skip_setup: true
   }
@@ -152,6 +156,8 @@ export function remoteDBSignup(
   username: string,
   password: string,
   options?: PouchDB.Authentication.PutUserOptions) {
+
+  log(`Signing up to remote db:`);
 
   const newDBRequest = remote.signUp(username, password);
 
