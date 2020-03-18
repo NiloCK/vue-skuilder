@@ -4,7 +4,8 @@ export interface IServerRequest {
   type: ServerRequestType;
   user: string;
   response: {
-    status: Status
+    status: Status,
+    ok: boolean
   } | null;
 }
 
@@ -13,6 +14,7 @@ export interface CreateClassroom extends IServerRequest {
   data: ClassroomConfig;
   response: {
     status: Status;
+    ok: boolean;
     joincode: string;
     uuid: string;
   } | null;
@@ -23,7 +25,17 @@ export interface DeleteClassroom extends IServerRequest {
 }
 export interface JoinClassroom extends IServerRequest {
   type: ServerRequestType.JOIN_CLASSROOM;
-  classID: string;
+  user: string;
+  data: {
+    joinCode: string;
+    registerAs: 'student' | 'teacher' | 'aide' | 'admin';
+    user: string;
+  };
+  response: {
+    status: Status,
+    ok: boolean,
+    id_course: string
+  } | null;
 }
 export interface LeaveClassroom extends IServerRequest {
   type: ServerRequestType.LEAVE_CLASSROOM;
