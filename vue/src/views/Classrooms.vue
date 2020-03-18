@@ -8,7 +8,7 @@
         id="joinCode"
         v-model="joinCode"
       ></v-text-field>
-      <v-btn>Join a class </v-btn>
+      <v-btn @click='joinClass'>Join a class </v-btn>
     </v-form>
 
     <v-dialog
@@ -19,7 +19,7 @@
             >
               <v-btn color="primary" dark slot="activator">Start a new Class</v-btn>
                 <classroom-editor 
-                 v-on:CourseEditingComplete="processResponse($event)"
+                 v-on:ClassroomEditingComplete="processResponse($event)"
                 />
             </v-dialog>
   </div>
@@ -63,10 +63,16 @@ export default class Classroom extends SkldrVue {
   private async joinClass() {
     const result = await serverRequest<JoinClassroom>({
       type: ServerRequestType.JOIN_CLASSROOM,
-      classID: this.joinCode,
+      data: {
+        joinCode: this.joinCode,
+        registerAs: 'student'
+      },
       user: this.$store.state.user,
       response: null
     });
+  }
+  private async processResponse() {
+    this.newClassDialog = !this.newClassDialog;
   }
 
 }
