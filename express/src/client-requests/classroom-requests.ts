@@ -1,7 +1,7 @@
 import hashids from 'hashids';
 import { classroomDbDesignDoc, docCount, SecurityObject, useOrCreateDB } from '../app';
 import CouchDB from '../couchdb';
-import { ClassroomConfig, JoinClassroom, CreateClassroom } from '../../../vue/src/server/types';
+import { ClassroomConfig, JoinClassroom, CreateClassroom, CourseConfig } from '../../../vue/src/server/types';
 import { stringify } from 'querystring';
 import AsyncProcessQueue, { Result } from '../utils/processQueue';
 import nano = require('nano');
@@ -23,8 +23,9 @@ async function getClassID(joinCode: string) {
     return (doc as any as lookupData).uuid;
 }
 
-async function getClassroomConfig(id: string) {
-    return (await useOrCreateDB(getClassDBNames(id).studentDB)).get(CLASSROOM_CONFIG);
+async function getClassroomConfig(id: string): Promise<ClassroomConfig> {
+    return (await useOrCreateDB(getClassDBNames(id).studentDB)).
+        get(CLASSROOM_CONFIG) as unknown as ClassroomConfig;
 }
 async function writeClassroomConfig(config: ClassroomConfig, classID: string) {
     console.log(`Writing config for class: ${classID}`);
@@ -132,10 +133,23 @@ async function joinClassroom(req: JoinClassroom['data']) {
 
     (await useOrCreateDB(classDBNames.studentDB)).get('ClassroomConfig')
 
-    console.log('joinClassroom running...');
-    let res: Result = {
+    console.log(`joinClassroom running...
+\tRequest: ${JSON.stringify(req)}`);
+
+    let cfg: ClassroomConfig = (await getClassroomConfig(classID))!;
+
+    if (req.registerAs === 'student') {
+        if (cfg.students.indexOf(req.user) === -1) {
+            cfg.students.push(req.user);
+        }
+    }
+
+    writeClassroomConfig(cfg, classID);
+
+    let res: JoinClassroom['response'] = {
         ok: true,
-        status: 'ok'
+        status: 'ok',
+        id_course: classID
     }
     return res;
 }
