@@ -160,7 +160,8 @@ Author: ${this.author}
             this.$store.state.user = this.username;
           }
         }).catch((err) => {
-          log(`User ${this.username} NOT created`);
+          log(`User ${this.username} NOT created:
+    ${JSON.stringify(err)}`);
         });
     } else {
       alert('Passwords do not match');
