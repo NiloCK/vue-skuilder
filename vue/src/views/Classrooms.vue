@@ -34,6 +34,7 @@ import { alertUser } from '@/components/SnackbarService.vue';
 import { Status } from '@/enums/Status';
 import { log } from 'util';
 import ClassroomEditor from '@/components/Classrooms/CreateClassroom.vue';
+import { registerUserForClassroom } from '../db/userDB';
 
 @Component({
   components: {
@@ -65,11 +66,17 @@ export default class Classroom extends SkldrVue {
       type: ServerRequestType.JOIN_CLASSROOM,
       data: {
         joinCode: this.joinCode,
-        registerAs: 'student'
+        registerAs: 'student',
+        user: this.$store.state.user
       },
       user: this.$store.state.user,
       response: null
     });
+
+    if (result.response) {
+      log(`Adding registration to userDB...`);
+      await registerUserForClassroom(this.$store.state.user, result.response!.id_course, 'student');
+    }
   }
   private async processResponse() {
     this.newClassDialog = !this.newClassDialog;
