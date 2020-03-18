@@ -1,97 +1,75 @@
 <template>
   <v-card>
-    
-  <v-toolbar
-  card
-  dark
-  flat
-  color="primary">
-
-    <v-card-title class='title font-weight-regular' primary-title>
-      Start a New Class
-    </v-card-title>
-    <v-spacer></v-spacer>
-    <v-btn icon @click="clearFormAndDismiss">
-      <v-icon>close</v-icon>
-    </v-btn>
-
-  </v-toolbar>
-  <v-form>
-    <v-container grid-list-md>
-            <v-layout wrap column>
-
-              <v-flex xs12 sm6 md4>
-                <v-text-field
-                 v-model="name"
-                 counter="30"
-                 :rules="nameRules"
-                 label="Class Name"
-                 required
-                 hint="Eg: Smith, Chemistry, Period 3"></v-text-field>
-              </v-flex>
-              <v-flex xs12 sm6 md4>
-                
-                  <v-checkbox 
-                    label="Allow peer instruction"
-                    v-model="peerAssist"
-                    :value="true"></v-checkbox>
-                  
-              </v-flex>
-              <v-flex xs12 sm6 md4>
-                
-                  <v-select
-                    :items="birthYears"
-                    label="Approximate Birth Year of Students"
-                    
-                    v-model="birthYear"
-                  >
-                  
-                  </v-select>
-              </v-flex>
-              <v-flex xs12 sm6 md4>
-                <v-btn
-                  :loading="updatePending"
-                  color="primary"
-                  @click="submit"
-                >
-                  Create This Class
-                </v-btn>
-              </v-flex>            
-            </v-layout>
-          </v-container>
-  </v-form>
+    <v-toolbar card dark flat color="primary">
+      <v-card-title class="title font-weight-regular" primary-title>Start a New Class</v-card-title>
+      <v-spacer></v-spacer>
+      <v-btn icon @click="clearFormAndDismiss">
+        <v-icon>close</v-icon>
+      </v-btn>
+    </v-toolbar>
+    <v-form>
+      <v-container grid-list-md>
+        <v-layout wrap column>
+          <v-flex xs12 sm6 md4>
+            <v-text-field
+              v-model="name"
+              counter="30"
+              :rules="nameRules"
+              label="Class Name"
+              required
+              hint="Eg: Smith, Chemistry, Period 3"
+            ></v-text-field>
+          </v-flex>
+          <v-flex xs12 sm6 md4>
+            <v-checkbox label="Allow peer instruction" v-model="peerAssist" :value="true"></v-checkbox>
+          </v-flex>
+          <v-flex xs12 sm6 md4>
+            <v-select
+              :items="birthYears"
+              label="Approximate Birth Year of Students"
+              v-model="birthYear"
+            ></v-select>
+          </v-flex>
+          <v-flex xs12 sm6 md4>
+            <v-btn :loading="updatePending" color="primary" @click="submit">Create This Class</v-btn>
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </v-form>
   </v-card>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import SkldrVue from '../../SkldrVue';
-import Component from 'vue-class-component';
-import {  CourseConfig,
+import Vue from "vue";
+import SkldrVue from "../../SkldrVue";
+import Component from "vue-class-component";
+import {
+  CourseConfig,
   CreateCourse,
   ServerRequestType,
   DataShape55,
   QuestionType55,
   ClassroomConfig,
-  CreateClassroom} from '../../server/types';
-import serverRequest from '../../server';
-import { alertUser } from '../SnackbarService.vue';
-import { Status } from '../../enums/Status';
-import Mousetrap from 'mousetrap';
-import { log } from 'util';
-import moment from 'moment';
+  CreateClassroom
+} from "../../server/types";
+import serverRequest from "../../server";
+import { alertUser } from "../SnackbarService.vue";
+import { Status } from "../../enums/Status";
+import Mousetrap from "mousetrap";
+import { log } from "util";
+import moment from "moment";
 
 @Component({})
 export default class ClassroomEditor extends SkldrVue {
   private mousetrap: MousetrapInstance = new Mousetrap(this.$el);
 
   private peerAssist: boolean = true;
-  private name: string = '';
+  private name: string = "";
   private birthYear: number | undefined = undefined;
 
-  private id: string = '';
+  private id: string = "";
   private nameRules: Array<(value: string) => string | boolean> = [
-    (value) => {
+    value => {
       const max = 30;
       if (value.length > max) {
         return `Course name must be ${max} characters or less`;
@@ -100,7 +78,7 @@ export default class ClassroomEditor extends SkldrVue {
       }
     }
   ];
-  private description: string = '';
+  private description: string = "";
 
   private banner?: Blob = undefined;
   private thumb?: Blob = undefined;
@@ -109,11 +87,11 @@ export default class ClassroomEditor extends SkldrVue {
 
   private birthYears: Array<{
     text: string;
-    value: number
+    value: number;
   }> = [];
 
   private created() {
-    this.mousetrap.bind('esc', this.clearFormAndDismiss);
+    this.mousetrap.bind("esc", this.clearFormAndDismiss);
 
     const year: number = moment().year();
 
@@ -143,9 +121,9 @@ export default class ClassroomEditor extends SkldrVue {
       teachers: [this.$store.state.user],
       students: [],
       birthYear: this.birthYear,
-      classMeetingSchedule: '',
+      classMeetingSchedule: "",
       peerAssist: this.peerAssist,
-      joinCode: ''
+      joinCode: ""
     };
 
     log(`Class Config:
@@ -160,34 +138,20 @@ export default class ClassroomEditor extends SkldrVue {
 
     if (result.response) {
       alertUser({
-        text: 'Class created successfully.',
-        status: result.response.status
+        text: `Class created successfully. Join code: ${result.response.joincode}`,
+        status: Status.ok
       });
     }
-
-    // const result = await serverRequest<CreateCourse>({
-    //   data: config,
-    //   type: ServerRequestType.CREATE_COURSE,
-    //   response: null,
-    //   user: this.$store.state.user
-    // });
-
-    // if (result.response) {
-    //   alertUser({
-    //     text: `Course ${this.name} created.`,
-    //     status: result.response!.status
-    //   });
-    // }
 
     this.clearFormAndDismiss();
     this.updatePending = false;
   }
 
   private clearFormAndDismiss() {
-    this.name = '';
-    this.description = '';
+    this.name = "";
+    this.description = "";
 
-    this.$emit('ClassroomEditingComplete');
+    this.$emit("ClassroomEditingComplete");
   }
 }
 </script>
