@@ -138,6 +138,23 @@ export async function registerUserForClassroom(user: string, classID: string, re
   });
 }
 
+export async function dropUserFromClassroom(user: string, classID: string) {
+  return getOrCreateClassroomRegistrationsDoc(user).then((doc) => {
+    let index: number = -1;
+
+    for (let i = 0; i < doc.registrations.length; i++) {
+      if (doc.registrations[i].classID === classID) {
+        index = i;
+      }
+    }
+
+    if (index !== -1) {
+      doc.registrations.splice(index, 1);
+    }
+    return getUserDB(user).put(doc);
+  });
+}
+
 export async function registerUserForCourse(user: string, course_id: string) {
   return getOrCreateCourseRegistrationsDoc(user).then((doc) => {
     const regItem = {
