@@ -121,10 +121,18 @@ async function getOrCreateCourseRegistrationsDoc(user: string):
 export async function registerUserForClassroom(user: string, classID: string, registerAs: ClassroomRegistrationDesignation) {
   log(`Registering user: ${user} in course: ${classID}`);
   return getOrCreateClassroomRegistrationsDoc(user).then((doc) => {
-    doc.registrations.push({
+    const regItem = {
       classID: classID,
       registeredAs: registerAs
-    });
+    };
+
+    if (doc.registrations.filter((reg) => {
+      return reg.classID === regItem.classID && reg.registeredAs === regItem.registeredAs
+    }).length === 0) {
+      doc.registrations.push(regItem);
+    } else {
+      log(`User ${user} is already registered for class ${classID}`);
+    }
 
     return getUserDB(user).put(doc);
   });
@@ -132,13 +140,19 @@ export async function registerUserForClassroom(user: string, classID: string, re
 
 export async function registerUserForCourse(user: string, course_id: string) {
   return getOrCreateCourseRegistrationsDoc(user).then((doc) => {
-    doc.courses.push({
+    const regItem = {
       courseID: course_id,
       user: true,
       admin: false,
       moderator: false
-    });
-    doc.studyWeight[course_id] = 1;
+    };
+
+    if (doc.courses.filter((course) => {
+      return course.courseID === regItem.courseID;
+    }).length === 0) {
+      doc.courses.push(regItem);
+      doc.studyWeight[course_id] = 1;
+    }
 
     return getUserDB(user).put(doc);
   });
