@@ -58,6 +58,7 @@ import { Status } from "../../enums/Status";
 import Mousetrap from "mousetrap";
 import { log } from "util";
 import moment from "moment";
+import { registerUserForClassroom } from '../../db/userDB';
 
 @Component({})
 export default class ClassroomEditor extends SkldrVue {
@@ -141,6 +142,8 @@ export default class ClassroomEditor extends SkldrVue {
         text: `Class created successfully. Join code: ${result.response.joincode}`,
         status: Status.ok
       });
+
+      registerUserForClassroom(this.$store.state.user, result.response.uuid, 'teacher');
     }
 
     this.clearFormAndDismiss();
