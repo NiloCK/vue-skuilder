@@ -1,9 +1,10 @@
-import { Status } from '@/enums/Status';
+import { Status } from '../enums/Status';
 
 export interface IServerRequest {
   type: ServerRequestType;
   user: string;
   response: {
+    errorText?: string;
     status: Status,
     ok: boolean
   } | null;
@@ -32,9 +33,11 @@ export interface JoinClassroom extends IServerRequest {
     user: string;
   };
   response: {
+    errorText?: string;
     status: Status,
     ok: boolean,
-    id_course: string
+    id_course: string,
+    course_name: string
   } | null;
 }
 export interface LeaveClassroom extends IServerRequest {
