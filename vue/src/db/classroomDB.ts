@@ -1,7 +1,6 @@
-import pouch from 'pouchdb-browser';
 import ENV from '@/ENVIRONMENT_VARS';
 import { ClassroomConfig } from '@/server/types';
-import { Emit } from 'vue-property-decorator';
+import pouch from 'pouchdb-browser';
 import { pouchDBincludeCredentialsConfig } from '.';
 
 const classroomLookupDBTitle = 'classdb-lookup';
