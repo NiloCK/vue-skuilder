@@ -1,5 +1,5 @@
 import hashids from 'hashids';
-import { ClassroomConfig, CreateClassroom, JoinClassroom } from '../../../vue/src/server/types';
+import { ClassroomConfig, CreateClassroom, JoinClassroom, LeaveClassroom } from '../../../vue/src/server/types';
 import { Status } from '../../../vue/src/enums/Status';
 import { classroomDbDesignDoc, docCount, SecurityObject, useOrCreateDB } from '../app';
 import CouchDB from '../couchdb';
@@ -129,6 +129,30 @@ async function createClassroom(config: ClassroomConfig) {
     return ret;
 }
 
+async function leaveClassroom(req: LeaveClassroom['data'] & { username: string }) {
+    let cfg: ClassroomConfig = (await getClassroomConfig(req.classID));
+    if (cfg) {
+        let index = cfg.students.indexOf(req.username);
+        if (index !== -1) {
+            cfg.students.splice(index, 1);
+        }
+
+        await writeClassroomConfig(cfg, req.classID);
+
+        return {
+            status: Status.ok,
+            ok: true
+        }
+    } else {
+        return {
+            status: Status.error,
+            ok: false,
+            errorText: 'Course with this ID not found.'
+        }
+    }
+
+}
+
 async function joinClassroom(req: JoinClassroom['data']) {
     const classID = await getClassID(req.joinCode);
     if (classID) {
@@ -166,6 +190,11 @@ async function joinClassroom(req: JoinClassroom['data']) {
         }
     }
 }
+
+export const ClassroomLeaveQueue = new AsyncProcessQueue<
+    LeaveClassroom['data'] & { username: string },
+    LeaveClassroom['response']
+>(leaveClassroom);
 
 export const ClassroomJoinQueue = new AsyncProcessQueue<
     JoinClassroom['data'],

@@ -4,7 +4,8 @@ import { ServerRequest, ServerRequestType as RequestEnum } from '../../vue/src/s
 import PostProcess from './attachment-preprocessing';
 import {
     ClassroomCreationQueue,
-    ClassroomJoinQueue
+    ClassroomJoinQueue,
+    ClassroomLeaveQueue
 } from './client-requests/classroom-requests';
 import CouchDB from './couchdb';
 import { requestIsAuthenticated } from './couchdb/authentication';
@@ -83,6 +84,12 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
             res.json(data.response);
         } else if (data.type === RequestEnum.LEAVE_CLASSROOM) {
             console.log(`\t\tLEAVE_CLASSROOM request made...`);
+            const id: number = ClassroomLeaveQueue.addRequest({
+                username: req.body.user,
+                ...data.data
+            });
+            data.response = await ClassroomLeaveQueue.getResult(id);
+            res.json(data.response);
         } else if (data.type === RequestEnum.CREATE_COURSE) {
             console.log(`\t\tCREATE_COURSE request made...`);
             const id: number = CourseCreationQueue.addRequest(data.data);
