@@ -15,6 +15,7 @@ interface LabelledRequest<R> {
 }
 
 interface FailedRequest<R> extends LabelledRequest<R> {
+    result: Result;
     error: any
 }
 interface CompletedRequest<R> extends LabelledRequest<R> {
@@ -103,11 +104,16 @@ export default class AsyncProcessQueue<T extends Request, R extends Result> {
             const res = this.errors.find((val) => {
                 return val.id === jobID;
             });
-            return {
-                error: res.error,
-                ok: false,
-                status: 'error'
-            } as R;
+            if (res.result) {
+                return res.result as R;
+            } else {
+                // result is null b/c of an uncaugth exception                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+                return {
+                    error: res.error,
+                    ok: false,
+                    status: 'error'
+                } as R;
+            }
         } else {
             return this.recurseGetResult(jobID, 0);
         }
@@ -151,17 +157,28 @@ export default class AsyncProcessQueue<T extends Request, R extends Result> {
                         result: result
                     });
                 } else {
-                    this.errors.push({
-                        id: req.id,
-                        request: req.request,
-                        error: result.error
-                    });
+                    if (result)
+                        this.errors.push({
+                            id: req.id,
+                            request: req.request,
+                            result: result,
+                            error: result.error
+                        });
+                    else {
+                        this.errors.push({
+                            id: req.id,
+                            request: req.request,
+                            error: result.error,
+                            result: null
+                        });
+                    }
                 }
             }
             catch (e) {
                 this.errors.push({
                     id: req.id,
                     request: req.request,
+                    result: null,
                     error: e
                 });
             }
