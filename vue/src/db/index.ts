@@ -14,7 +14,7 @@ import {
 } from '@/db/types';
 import { FieldType } from '@/enums/FieldType';
 import ENV from '@/ENVIRONMENT_VARS';
-import { GuestUsername } from '@/store';
+import Store, { GuestUsername } from '@/store';
 import moment, { Moment } from 'moment';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
@@ -47,7 +47,9 @@ export const remote: PouchDB.Database = new pouch(
     skip_setup: true
   }
 );
-export const localUserDB: PouchDB.Database = new pouch('skuilder');
+
+const GUEST_LOCALDB = `userdb-${GuestUsername}`;
+export const localUserDB: PouchDB.Database = new pouch(GUEST_LOCALDB);
 
 export function hexEncode(str: string): string {
   let hex: string;
@@ -166,9 +168,13 @@ export function remoteDBSignup(
       localUserDB.get(expiryDocID).then((doc) => {
         return localUserDB.remove(doc._id, doc._rev);
       }).then(() => {
-        localUserDB.replicate.to(getUserDB(username));
+        // these replication calls were causing bugs when registering
+        // new users in browsers that had previously logged-in users.
+        // localDB implementation needs to be reconsidered
+
+        // localUserDB.replicate.to(getUserDB(username));
       }).catch(() => {
-        localUserDB.replicate.to(getUserDB(username));
+        // localUserDB.replicate.to(getUserDB(username));
       });
     }
   });
