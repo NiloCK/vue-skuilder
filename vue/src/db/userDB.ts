@@ -11,6 +11,10 @@ import {
 } from './index';
 import { getCourseConfigs } from './courseDB';
 
+export function getLocalUserDB(username: string): PouchDB.Database {
+  return new pouch(`userdb-${username}`);
+}
+
 export function getUserDB(username: string): PouchDB.Database {
   let guestAccount: boolean = false;
 
@@ -34,7 +38,7 @@ export function getUserDB(username: string): PouchDB.Database {
     updateGuestAccountExpirationDate(ret);
   }
 
-  pouch.replicate(ret, localUserDB);
+  pouch.replicate(ret, getLocalUserDB(username));
   return ret;
 }
 
@@ -198,6 +202,10 @@ export async function dropUserFromCourse(user: string, course_id: string) {
 
 export async function getUserCourses(user: string) {
   return getOrCreateCourseRegistrationsDoc(user);
+}
+
+export async function getUserClassrooms(user: string) {
+  return getOrCreateClassroomRegistrationsDoc(user);
 }
 
 export async function getUserEditableCourses(user: string) {
