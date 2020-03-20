@@ -73,9 +73,20 @@ export default class Classroom extends SkldrVue {
       response: null
     });
 
-    if (result.response) {
+    if (result.response && result.response.ok) {
       log(`Adding registration to userDB...`);
       await registerUserForClassroom(this.$store.state.user, result.response!.id_course, 'student');
+      alertUser({
+        text: `Successfully joined <em>${result.response.course_name}</em>.`,
+        status: Status.ok
+      })
+    } else {
+      if (result.response) {
+        alertUser({
+          text: result.response.errorText!,
+          status: Status.error
+        });
+      }
     }
   }
   private async processResponse() {

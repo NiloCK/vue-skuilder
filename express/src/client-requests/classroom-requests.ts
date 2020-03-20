@@ -1,11 +1,9 @@
 import hashids from 'hashids';
+import { ClassroomConfig, CreateClassroom, JoinClassroom } from '../../../vue/src/server/types';
+import { Status } from '../../../vue/src/enums/Status';
 import { classroomDbDesignDoc, docCount, SecurityObject, useOrCreateDB } from '../app';
 import CouchDB from '../couchdb';
-import { ClassroomConfig, JoinClassroom, CreateClassroom, CourseConfig } from '../../../vue/src/server/types';
-import { stringify } from 'querystring';
 import AsyncProcessQueue, { Result } from '../utils/processQueue';
-import nano = require('nano');
-import e = require('express');
 
 export const CLASSROOM_DB_LOOKUP = 'classdb-lookup';
 const CLASSROOM_CONFIG = 'ClassroomConfig';
@@ -19,8 +17,12 @@ async function deleteClassroom(classroom_id: string) {
 }
 
 async function getClassID(joinCode: string) {
-    const doc = await (await useOrCreateDB(CLASSROOM_DB_LOOKUP)).get(joinCode);
-    return (doc as any as lookupData).uuid;
+    try {
+        const doc = await (await useOrCreateDB(CLASSROOM_DB_LOOKUP)).get(joinCode);
+        return (doc as any as lookupData).uuid;
+    } catch (e) {
+        return '';
+    }
 }
 
 async function getClassroomConfig(id: string): Promise<ClassroomConfig> {
@@ -129,29 +131,40 @@ async function createClassroom(config: ClassroomConfig) {
 
 async function joinClassroom(req: JoinClassroom['data']) {
     const classID = await getClassID(req.joinCode);
-    const classDBNames = getClassDBNames(classID);
+    if (classID) {
+        const classDBNames = getClassDBNames(classID);
 
-    (await useOrCreateDB(classDBNames.studentDB)).get('ClassroomConfig')
+        (await useOrCreateDB(classDBNames.studentDB)).get('ClassroomConfig')
 
-    console.log(`joinClassroom running...
-\tRequest: ${JSON.stringify(req)}`);
+        console.log(`joinClassroom running...
+        \tRequest: ${JSON.stringify(req)}`);
 
-    let cfg: ClassroomConfig = (await getClassroomConfig(classID))!;
+        let cfg: ClassroomConfig = (await getClassroomConfig(classID))!;
 
-    if (req.registerAs === 'student') {
-        if (cfg.students.indexOf(req.user) === -1) {
-            cfg.students.push(req.user);
+        if (req.registerAs === 'student') {
+            if (cfg.students.indexOf(req.user) === -1) {
+                cfg.students.push(req.user);
+            }
+        }
+
+        writeClassroomConfig(cfg, classID);
+
+        let res: JoinClassroom['response'] = {
+            ok: true,
+            status: Status.ok,
+            id_course: classID,
+            course_name: cfg.name
+        }
+        return res;
+    } else {
+        return {
+            ok: false,
+            status: Status.error,
+            id_course: '',
+            course_name: '',
+            errorText: 'No course found with this joincode!'
         }
     }
-
-    writeClassroomConfig(cfg, classID);
-
-    let res: JoinClassroom['response'] = {
-        ok: true,
-        status: 'ok',
-        id_course: classID
-    }
-    return res;
 }
 
 export const ClassroomJoinQueue = new AsyncProcessQueue<
