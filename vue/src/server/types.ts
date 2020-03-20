@@ -42,7 +42,9 @@ export interface JoinClassroom extends IServerRequest {
 }
 export interface LeaveClassroom extends IServerRequest {
   type: ServerRequestType.LEAVE_CLASSROOM;
-  classID: string;
+  data: {
+    classID: string;
+  }
 }
 
 type NamespacedDatashape = string; // ${course}.datashape.${datashape}

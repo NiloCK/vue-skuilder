@@ -69,7 +69,7 @@
                   {{ classroom.name }}
                 </v-list-tile-title>
               </v-list-tile-content>
-              <v-list-tile-action>
+              <!-- <v-list-tile-action>
                 <v-btn 
                  small
                  color="secondary"
@@ -78,7 +78,7 @@
                 >
                   Leave this class
                 </v-btn>
-              </v-list-tile-action>
+              </v-list-tile-action> -->
             </v-list-tile>
           </template>
           </transition-group>
@@ -119,13 +119,18 @@
 import { Component, Vue } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
 import serverRequest from '@/server/index';
-import { ServerRequestType, JoinClassroom, CreateClassroom } from '@/server/types';
+import { ServerRequestType, JoinClassroom, CreateClassroom, LeaveClassroom } from '@/server/types';
 import { alertUser } from '@/components/SnackbarService.vue';
 import { Status } from '@/enums/Status';
 import { log } from 'util';
 import ClassroomEditor from '@/components/Classrooms/CreateClassroom.vue';
-import { registerUserForClassroom, getUserClassrooms } from '../db/userDB';
+import { registerUserForClassroom, getUserClassrooms, dropUserFromClassroom } from '../db/userDB';
 import { getClassroomConfig } from '../db/classroomDB';
+
+interface CourseReg {
+  _id: string;
+  name: string;
+}
 
 @Component({
   components: {
@@ -136,14 +141,10 @@ export default class Classroom extends SkldrVue {
   public classes: string[] = [];
   private joinCode: string = '';
 
-  private studentClasses: {
-    _id: string;
-    name: string;
-  }[] = [];
-  private teacherClasses: {
-    _id: string;
-    name: string;
-  }[] = [];
+
+
+  private studentClasses: CourseReg[] = [];
+  private teacherClasses: CourseReg[] = [];
 
   private spinnerMap: {
     [index: string]: boolean
@@ -167,6 +168,9 @@ export default class Classroom extends SkldrVue {
 
   private async refreshData() {
     const registrations = (await getUserClassrooms(this.$store.state.user)).registrations;
+    const studentClasses: CourseReg[] = [];
+    const teacherClasses: CourseReg[] = [];
+
     registrations.forEach(async (reg) => {
       const cfg = await getClassroomConfig(reg.classID);
       log(`Registered class: ${cfg}`);
@@ -176,11 +180,14 @@ export default class Classroom extends SkldrVue {
       };
 
       if (reg.registeredAs === 'student') {
-        this.studentClasses.push(regItem);
+        studentClasses.push(regItem);
       } else if (reg.registeredAs === 'teacher') {
-        this.teacherClasses.push(regItem);
+        teacherClasses.push(regItem);
       }
     });
+
+    this.studentClasses = studentClasses;
+    this.teacherClasses = teacherClasses;
   }
 
   private async deleteClass(classId: string) {
@@ -196,7 +203,17 @@ export default class Classroom extends SkldrVue {
     this.$set(this.spinnerMap, classID, true);
     log(`Attempting to drop class: ${classID}`);
 
-
+    const result = await serverRequest<LeaveClassroom>({
+      type: ServerRequestType.LEAVE_CLASSROOM,
+      data: {
+        classID: classID
+      },
+      user: this.$store.state.user,
+      response: null
+    });
+    if (result.response && result.response.ok) {
+      await dropUserFromClassroom(this.$store.state.user, classID);
+    }
 
     this.$set(this.spinnerMap, classID, undefined);
     this.refreshData();
@@ -229,6 +246,7 @@ export default class Classroom extends SkldrVue {
         });
       }
     }
+    this.refreshData();
   }
   private async processResponse() {
     this.newClassDialog = !this.newClassDialog;
