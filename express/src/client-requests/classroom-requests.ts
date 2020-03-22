@@ -87,11 +87,11 @@ async function createClassroom(config: ClassroomConfig) {
     const security: SecurityObject = {
         // _id: '_security',
         admins: {
-            names: config.teachers,
+            names: [],
             roles: []
         },
         members: {
-            names: [],
+            names: config.teachers,
             roles: []
         }
     };
@@ -105,7 +105,7 @@ async function createClassroom(config: ClassroomConfig) {
         studentdb.insert({
             validate_doc_update: classroomDbDesignDoc,
         } as any, '_design/_auth'),
-        studentdb.insert(security, '_security'),
+        // studentdb.insert(security, '_security'),
         teacherdb.insert(security, '_security'),
         lookup.insert({
             num,
