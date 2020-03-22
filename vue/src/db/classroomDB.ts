@@ -4,7 +4,7 @@ import pouch from 'pouchdb-browser';
 import { pouchDBincludeCredentialsConfig } from '.';
 
 const classroomLookupDBTitle = 'classdb-lookup';
-const CLASSROOM_CONFIG = 'ClassroomConfig';
+export const CLASSROOM_CONFIG = 'ClassroomConfig';
 
 const classroomLookupDB: PouchDB.Database = new pouch(
   ENV.COUCHDB_SERVER_PROTOCOL + '://' +
@@ -14,8 +14,10 @@ const classroomLookupDB: PouchDB.Database = new pouch(
   }
 );
 
-function getClassroomDB(classID: string, version: 'student' | 'teacher'): PouchDB.Database {
+export function getClassroomDB(classID: string, version: 'student' | 'teacher'): PouchDB.Database {
   const dbName = `classdb-${version}-${classID}`;
+  console.log(`Retrieving classroom db: ${dbName}`);
+
   return new pouch(
     ENV.COUCHDB_SERVER_PROTOCOL + '://' +
     ENV.COUCHDB_SERVER_URL + dbName,

@@ -5,6 +5,7 @@ import About from './views/About.vue';
 import Edit from './views/Edit.vue';
 import Study from './views/Study.vue';
 import Classrooms from './views/Classrooms.vue';
+import ClassroomCtrlPanel from './components/Classrooms/ClassroomCtrlPanel.vue';
 import Courses from './views/Courses.vue';
 
 Vue.use(Router);
@@ -38,6 +39,11 @@ export default new Router({
       path: '/classrooms',
       name: 'classrooms',
       component: Classrooms
+    },
+    {
+      path: '/classrooms/:_id',
+      props: true,
+      component: ClassroomCtrlPanel
     },
     {
       path: '/courses',
