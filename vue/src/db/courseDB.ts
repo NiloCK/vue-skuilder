@@ -180,7 +180,8 @@ function getTagID(tagName: string): string {
   }
 }
 
-export async function getCourseTagStubs(courseID: string) {
+export async function getCourseTagStubs(courseID: string):
+  Promise<PouchDB.Core.AllDocsResponse<Tag>> {
   log(`Getting tag stubs for course: ${courseID}`);
   const stubs = await filterAlldocsByPrefix<Tag>(
     getCourseDB(courseID),
