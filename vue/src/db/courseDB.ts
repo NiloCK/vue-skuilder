@@ -180,6 +180,10 @@ function getTagID(tagName: string): string {
   }
 }
 
+// todo: this is actually returning full tag docs now.
+//       - performance issue when tags have lots of
+//         applied docs
+//       - will require a computed couch DB view
 export async function getCourseTagStubs(courseID: string):
   Promise<PouchDB.Core.AllDocsResponse<Tag>> {
   log(`Getting tag stubs for course: ${courseID}`);
