@@ -175,7 +175,7 @@ export default class Classroom extends SkldrVue {
 
     registrations.forEach(async (reg) => {
       const cfg = await getClassroomConfig(reg.classID);
-      log(`Registered class: ${cfg}`);
+      log(`Registered class: ${JSON.stringify(cfg)}`);
       const regItem = {
         _id: reg.classID,
         name: cfg.name
