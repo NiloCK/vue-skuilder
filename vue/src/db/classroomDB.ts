@@ -1,7 +1,7 @@
 import ENV from '@/ENVIRONMENT_VARS';
 import { ClassroomConfig } from '@/server/types';
 import pouch from 'pouchdb-browser';
-import { pouchDBincludeCredentialsConfig } from '.';
+import { pouchDBincludeCredentialsConfig, getStartAndEndKeys } from '.';
 import moment from 'moment';
 
 const classroomLookupDBTitle = 'classdb-lookup';
@@ -36,28 +36,60 @@ interface ContentBase {
   courseID: string;
 }
 
+abstract class ClassroomDBBase {
+  protected _db: PouchDB.Database;
+  protected _cfg: ClassroomConfig;
+  protected _initComplete: boolean = false;
 
-/**
- * Interface for managing a classroom.
- */
-export default class TeacherClassroomDB {
-  private _db: PouchDB.Database;
-  private _stuDb: PouchDB.Database;
-  private _cfg: ClassroomConfig;
-  private _initComplete: boolean = false;
+  protected readonly _content_prefix: string = 'content';
+  protected get _content_searchkeys() {
+    return getStartAndEndKeys(this._content_prefix);
+  }
+
+  public async getAssignedContent(): Promise<AssignedContent[]> {
+    console.log(`Getting assigned content...`);
+    // see couchdb docs 6.2.2:
+    //   Guide to Views -> Views Collation -> String Ranges
+    let docRows = await this._db.allDocs<AssignedContent>({
+      startkey: this._content_prefix,
+      endkey: this._content_prefix + `\ufff0`,
+      include_docs: true
+    });
+
+    let ret = docRows.rows.map((row) => {
+      return row.doc!;
+    });
+    console.log(`Assigned content: ${JSON.stringify(ret)}`);
+
+    return ret;
+  }
+
+  protected getContentId(content: AssignedContent): string {
+    if (content.type === 'tag') {
+      return `${this._content_prefix}-${content.courseID}-${content.tagID}`;
+    } else {
+      return `${this._content_prefix}-${content.courseID}`;
+    }
+  }
+
+  public get ready(): boolean {
+    return this._initComplete;
+  }
+  public getConfig(): ClassroomConfig {
+    return this._cfg;
+  }
+
+}
+
+export class StudentClassroomDB extends ClassroomDBBase {
+  private readonly _prefix: string = 'content';
 
   constructor(classID: string) {
-    const dbName = `classdb-teacher-${classID}`;
-    const stuDbName = `classdb-student-${classID}`;
-
+    super();
+    const dbName = `classdb-student-${classID}`;
     this._db = new pouch(
       ENV.COUCHDB_SERVER_PROTOCOL + '://' +
       ENV.COUCHDB_SERVER_URL + dbName,
-      pouchDBincludeCredentialsConfig
-    );
-    this._stuDb = new pouch(
-      ENV.COUCHDB_SERVER_PROTOCOL + '://' +
-      ENV.COUCHDB_SERVER_URL + stuDbName,
       pouchDBincludeCredentialsConfig
     );
     try {
@@ -66,22 +98,46 @@ export default class TeacherClassroomDB {
         this._initComplete = true;
       });
     } catch (e) {
+      throw new Error(`Error in StudentClassroomDB constructor: ${JSON.stringify(e)}`);
+    }
+  }
+}
+
+
+/**
+ * Interface for managing a classroom.
+ */
+export default class TeacherClassroomDB extends ClassroomDBBase {
+  private _stuDb: PouchDB.Database;
+
+  private constructor(classID: string) {
+    super();
+  }
+
+  private async init(classID: string) {
+    const dbName = `classdb-teacher-${classID}`;
+    const stuDbName = `classdb-student-${classID}`;
+    this._db = new pouch(ENV.COUCHDB_SERVER_PROTOCOL + '://' +
+      ENV.COUCHDB_SERVER_URL + dbName, pouchDBincludeCredentialsConfig);
+    this._stuDb = new pouch(ENV.COUCHDB_SERVER_PROTOCOL + '://' +
+      ENV.COUCHDB_SERVER_URL + stuDbName, pouchDBincludeCredentialsConfig);
+    try {
+      return this._db.get<ClassroomConfig>(CLASSROOM_CONFIG).then((cfg) => {
+        this._cfg = cfg;
+        this._initComplete = true;
+      }).then(() => {
+        return;
+      });
+    }
+    catch (e) {
       throw new Error(`Error in TeacherClassroomDB constructor: ${JSON.stringify(e)}`);
     }
   }
 
-  public get ready(): boolean {
-    return this._initComplete;
-  }
-
-
-  private readonly _prefix: string = 'content';
-  private getContentId(content: AssignedContent): string {
-    if (content.type === 'tag') {
-      return `${this._prefix}-${content.courseID}-${content.tagID}`;
-    } else {
-      return `${this._prefix}-${content.courseID}`;
-    }
+  public static async factory(classID: string): Promise<TeacherClassroomDB> {
+    let ret = new TeacherClassroomDB(classID);
+    await ret.init(classID);
+    return ret;
   }
 
   public async removeContent(content: AssignedContent) {
@@ -130,29 +186,6 @@ export default class TeacherClassroomDB {
     } else {
       return false;
     }
-  }
-
-  public async getAssignedContent(): Promise<AssignedContent[]> {
-    console.log(`Getting assigned content...`);
-    // see couchdb docs 6.2.2:
-    //   Guide to Views -> Views Collation -> String Ranges
-    let docRows = await this._db.allDocs<AssignedContent>({
-      startkey: this._prefix,
-      endkey: this._prefix + `\ufff0`,
-      include_docs: true
-    });
-
-    let ret = docRows.rows.map((row) => {
-      return row.doc!;
-    });
-    console.log(`Assigned content: ${JSON.stringify(ret)}`);
-
-    return ret;
-  }
-
-  public getConfig(): ClassroomConfig {
-
-    return this._cfg;
   }
 }
 
