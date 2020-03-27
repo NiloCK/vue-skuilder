@@ -73,7 +73,7 @@ import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/Vi
 import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
 import moment from 'moment';
-import { getUserCourses } from '../db/userDB';
+import { getUserCourses, getUserClassrooms } from '../db/userDB';
 import { Watch } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
 import { getCredentialledCourseConfig, getCardDataShape } from '@/db/courseDB';
@@ -113,6 +113,7 @@ export default class Study extends SkldrVue {
     shadowWrapper: HTMLDivElement
   };
   private userCourseIDs: string[] = [];
+  private userClassroomIDs: string[] = [];
 
   @Watch('editCard')
   public async onEditToggle(value?: boolean, old?: boolean) {
@@ -159,11 +160,21 @@ export default class Study extends SkldrVue {
         .courses.map((course) => {
           return course.courseID;
         });
+    this.userClassroomIDs = (await getUserClassrooms(this.$store.state.user))
+      .registrations
+      .filter(reg => reg.registeredAs === 'student')
+      .map(reg => reg.classID);
     await this.getSessionCards();
 
     log(`Session created:
 
-${this.sessionString}`);
+${this.sessionString}
+
+User courses: ${this.userCourseIDs.toString()}
+
+User classrooms: ${this.userClassroomIDs.toString()}
+
+`);
 
     this.nextCard();
   }
