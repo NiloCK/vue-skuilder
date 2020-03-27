@@ -477,3 +477,10 @@ export function filterAlldocsByPrefix<T>(db: PouchDB.Database, prefix: string) {
     include_docs: true
   });
 }
+
+export function getStartAndEndKeys(key: string) {
+  return {
+    startkey: key,
+    endkey: key + '\ufff0'
+  };
+}
