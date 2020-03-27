@@ -121,7 +121,7 @@ export default class ClassroomCtrlPanel extends SkldrVue {
   @Prop({ required: true }) private _id: string;
   private mousetrap: MousetrapInstance = new Mousetrap(this.$el);
 
-  private _classTeacherDB: PouchDB.Database;
+  private: PouchDB.Database;
   private _classroomCfg: ClassroomConfig;
 
   private classroomDB: TeacherClassroomDB;
@@ -150,6 +150,7 @@ export default class ClassroomCtrlPanel extends SkldrVue {
   ];
 
   private updatePending: boolean = true;
+
   private addingContent: boolean = false;
   private availableCourses: CourseConfig[] = [];
   private selectedCourse: string = '';
@@ -157,12 +158,12 @@ export default class ClassroomCtrlPanel extends SkldrVue {
   private selectedTags: string[] = [];
 
   private async created() {
-    this.classroomDB = new TeacherClassroomDB(this._id);
-    this._assignedContent = await this.classroomDB.getAssignedContent();
-    this._classroomCfg = await this.classroomDB.getConfig();
+    this.classroomDB = await TeacherClassroomDB.factory(this._id);
+    Promise.all([
+      this._assignedContent = await this.classroomDB.getAssignedContent(),
+      this._classroomCfg = await this.classroomDB.getConfig()
+    ]);
     log(`Route loaded w/ (prop) _id: ${this._id}`);
-    this._classTeacherDB = await getClassroomDB(this._id, 'teacher');
-    this._classroomCfg = await this._classTeacherDB.get<ClassroomConfig>(CLASSROOM_CONFIG);
     log(`Config: 
     ${JSON.stringify(this._classroomCfg)}`);
 
@@ -198,6 +199,10 @@ export default class ClassroomCtrlPanel extends SkldrVue {
     }
 
     this._assignedContent = await this.classroomDB.getAssignedContent();
+    this.addingContent = false;
+    this.selectedCourse = '';
+    this.selectedTags = [];
+    this.availableTags = [];
   }
   private async removeContent(c: AssignedContent) {
     this.classroomDB.removeContent(c);
