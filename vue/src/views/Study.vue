@@ -156,11 +156,9 @@ export default class Study extends SkldrVue {
 
   public async created() {
     this.activeCards = await getActiveCards(this.$store.state.user);
-    this.userCourseIDs =
-      (await getUserCourses(this.$store.state.user))
-        .courses.map((course) => {
-          return course.courseID;
-        });
+    this.userCourseIDs = (await getUserCourses(this.$store.state.user))
+      .courses
+      .map(course => course.courseID);
     const classRoomPromises = (await getUserClassrooms(this.$store.state.user))
       .registrations
       .filter(reg => reg.registeredAs === 'student')
