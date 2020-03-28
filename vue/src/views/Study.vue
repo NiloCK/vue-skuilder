@@ -300,12 +300,14 @@ User classrooms: ${this.userClassroomDBs.map(db => db._id)}
     const nextReviewTime = moment.utc().add(nextInterval, 'seconds');
 
     scheduleCardReview(
-      this.$store.state.user,
-      history.courseID,
-      history.cardID,
-      nextReviewTime,
-      'course',
-      'asof'
+      {
+        user: this.$store.state.user,
+        course_id: history.courseID,
+        card_id: history.cardID,
+        time: nextReviewTime,
+        scheduledFor: 'course',
+        schedulingAgentId: 'asof' //todo
+      }
     );
   }
 
