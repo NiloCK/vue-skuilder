@@ -418,6 +418,14 @@ export async function getScheduledCards(user: string) {
   const userDB = getUserDB(user);
   const allDocs = await userDB.allDocs({});
   const ret: PouchDB.Core.DocumentId[] = [];
+
+  // todo: future optimization here: saves multiple trips to the db
+  //       for relevant doc IDs -> docs. Needs a little time to test...
+  // const allDocs = await userDB.allDocs<ScheduledCard>({
+  //   startkey: REVIEW_PREFIX,
+  //   endkey: REVIEW_PREFIX + moment.utc().format(REVIEW_TIME_FORMAT)
+  // });
+
   allDocs.rows.forEach((row) => {
     if (row.id.startsWith(REVIEW_PREFIX)) {
       const date = moment.utc(
