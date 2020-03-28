@@ -78,6 +78,7 @@ import { Watch } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
 import { getCredentialledCourseConfig, getCardDataShape } from '@/db/courseDB';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
+import { StudentClassroomDB } from '../db/classroomDB';
 // import CardCache from '@/db/cardCache';
 
 function randInt(n: number) {
@@ -113,7 +114,7 @@ export default class Study extends SkldrVue {
     shadowWrapper: HTMLDivElement
   };
   private userCourseIDs: string[] = [];
-  private userClassroomIDs: string[] = [];
+  private userClassroomDBs: StudentClassroomDB[] = [];
 
   @Watch('editCard')
   public async onEditToggle(value?: boolean, old?: boolean) {
@@ -160,10 +161,13 @@ export default class Study extends SkldrVue {
         .courses.map((course) => {
           return course.courseID;
         });
-    this.userClassroomIDs = (await getUserClassrooms(this.$store.state.user))
+    const classRoomPromises = (await getUserClassrooms(this.$store.state.user))
       .registrations
       .filter(reg => reg.registeredAs === 'student')
-      .map(reg => reg.classID);
+      .map(reg => reg.classID)
+      .map(id => StudentClassroomDB.factory(id));
+    this.userClassroomDBs = await Promise.all(classRoomPromises);
+
     await this.getSessionCards();
 
     log(`Session created:
@@ -172,7 +176,7 @@ ${this.sessionString}
 
 User courses: ${this.userCourseIDs.toString()}
 
-User classrooms: ${this.userClassroomIDs.toString()}
+User classrooms: ${this.userClassroomDBs.map(db => db._id)}
 
 `);
 

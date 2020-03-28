@@ -37,6 +37,7 @@ interface ContentBase {
 }
 
 abstract class ClassroomDBBase {
+  public _id: string;
   protected _db: PouchDB.Database;
   protected _cfg: ClassroomConfig;
   protected _initComplete: boolean = false;
@@ -45,6 +46,8 @@ abstract class ClassroomDBBase {
   protected get _content_searchkeys() {
     return getStartAndEndKeys(this._content_prefix);
   }
+
+  protected abstract async init(): Promise<void>;
 
   public async getAssignedContent(): Promise<AssignedContent[]> {
     console.log(`Getting assigned content...`);
@@ -84,22 +87,31 @@ abstract class ClassroomDBBase {
 export class StudentClassroomDB extends ClassroomDBBase {
   private readonly _prefix: string = 'content';
 
-  constructor(classID: string) {
+  private constructor(classID: string) {
     super();
-    const dbName = `classdb-student-${classID}`;
-    this._db = new pouch(
-      ENV.COUCHDB_SERVER_PROTOCOL + '://' +
-      ENV.COUCHDB_SERVER_URL + dbName,
-      pouchDBincludeCredentialsConfig
-    );
+    this._id = classID;
+    this.init();
+  }
+
+  async init() {
+    const dbName = `classdb-student-${this._id}`;
+    this._db = new pouch(ENV.COUCHDB_SERVER_PROTOCOL + '://' +
+      ENV.COUCHDB_SERVER_URL + dbName, pouchDBincludeCredentialsConfig);
     try {
       this._db.get<ClassroomConfig>(CLASSROOM_CONFIG).then((cfg) => {
         this._cfg = cfg;
         this._initComplete = true;
       });
-    } catch (e) {
+    }
+    catch (e) {
       throw new Error(`Error in StudentClassroomDB constructor: ${JSON.stringify(e)}`);
     }
+  }
+
+  public static async factory(classID: string): Promise<StudentClassroomDB> {
+    let ret = new StudentClassroomDB(classID);
+    await ret.init();
+    return ret;
   }
 }
 
@@ -112,11 +124,12 @@ export default class TeacherClassroomDB extends ClassroomDBBase {
 
   private constructor(classID: string) {
     super();
+    this._id = classID;
   }
 
-  private async init(classID: string) {
-    const dbName = `classdb-teacher-${classID}`;
-    const stuDbName = `classdb-student-${classID}`;
+  async init() {
+    const dbName = `classdb-teacher-${this._id}`;
+    const stuDbName = `classdb-student-${this._id}`;
     this._db = new pouch(ENV.COUCHDB_SERVER_PROTOCOL + '://' +
       ENV.COUCHDB_SERVER_URL + dbName, pouchDBincludeCredentialsConfig);
     this._stuDb = new pouch(ENV.COUCHDB_SERVER_PROTOCOL + '://' +
@@ -136,7 +149,7 @@ export default class TeacherClassroomDB extends ClassroomDBBase {
 
   public static async factory(classID: string): Promise<TeacherClassroomDB> {
     let ret = new TeacherClassroomDB(classID);
-    await ret.init(classID);
+    await ret.init();
     return ret;
   }
 
