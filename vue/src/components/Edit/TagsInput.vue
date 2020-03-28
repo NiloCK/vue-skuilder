@@ -21,6 +21,7 @@
 <script lang="ts">
 import SkldrVue from '@/SkldrVue';
 import { Component, Prop } from 'vue-property-decorator';
+// @ts-ignore
 import VueTagsInput from '@johmun/vue-tags-input';
 import {
   getCourseTagStubs,
