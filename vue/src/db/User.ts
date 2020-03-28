@@ -32,4 +32,16 @@ export interface ScheduledCard {
    * The time at which this scheduled event was created.
    */
   scheduledAt: Moment;
+
+  /**
+   * Classifying whether this card is scheduled on behalf of a
+   * user-registered course or by as assigned content from a
+   * user-registered classroom
+   */
+  scheduledFor: 'course' | 'classroom';
+
+  /**
+   * The ID of the course or classroom that requested this card
+   */
+  schedulingAgentId: string;
 }

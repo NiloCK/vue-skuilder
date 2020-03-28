@@ -395,14 +395,23 @@ function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>)
 const REVIEW_PREFIX: string = 'card_review_';
 const REVIEW_TIME_FORMAT: string = 'YYYY-MM-DD--kk:mm:ss-SSS';
 
-export function scheduleCardReview(user: string, course_id: string, card_id: PouchDB.Core.DocumentId, time: Moment) {
+export function scheduleCardReview(
+  user: string,
+  course_id: string,
+  card_id: PouchDB.Core.DocumentId,
+  time: Moment,
+  scheduledFor: ScheduledCard['scheduledFor'],
+  schedulingAgentId: ScheduledCard['schedulingAgentId']
+) {
   const now = moment.utc();
   getUserDB(user).put<ScheduledCard>({
     _id: REVIEW_PREFIX + time.format(REVIEW_TIME_FORMAT),
     cardId: card_id,
     reviewTime: time,
     courseId: course_id,
-    scheduledAt: now
+    scheduledAt: now,
+    scheduledFor: scheduledFor,
+    schedulingAgentId: schedulingAgentId
   });
 }
 

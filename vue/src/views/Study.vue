@@ -303,7 +303,9 @@ User classrooms: ${this.userClassroomDBs.map(db => db._id)}
       this.$store.state.user,
       history.courseID,
       history.cardID,
-      nextReviewTime
+      nextReviewTime,
+      'course',
+      'asof'
     );
   }
 
