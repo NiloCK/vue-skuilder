@@ -55,6 +55,11 @@ export default class AdminDB {
     }
 
     const dbs = await Promise.all(promisedCRDbs);
-    return dbs.map(db => db.getConfig());
+    return dbs.map(db => {
+      return {
+        ...db.getConfig(),
+        _id: db._id
+      }
+    });
   }
 }

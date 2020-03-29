@@ -10,10 +10,13 @@
         </ul>
       </div>
       <div>
-        <h3>Quilts - {{courses.length}}</h3>
+        <h3> <router-link to="/courses">
+          Quilts
+        </router-link>
+           - {{courses.length}}</h3>
         <ul>
           <li v-for='c in courses' :key='c._id'>
-            {{ c.name }} - {{ c._id }}
+            <router-link :to='`/q/${c._id}`'>{{c.name}}</router-link> - {{ c._id }}
           </li>
         </ul>
       </div>
@@ -21,6 +24,7 @@
         <h3>Classrooms - {{classrooms.length}}</h3>
         <ul>
           <li v-for='c in classrooms' :key='c._id'>
+            <router-link :to='`/c/${c._id}`'>{{ c.name }}</router-link>
             {{ c.name }} - {{ c.teachers }} - {{ c.students.length}} students
           </li>
         </ul>
