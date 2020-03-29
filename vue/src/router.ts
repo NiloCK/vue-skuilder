@@ -7,6 +7,8 @@ import Study from './views/Study.vue';
 import Classrooms from './views/Classrooms.vue';
 import ClassroomCtrlPanel from './components/Classrooms/ClassroomCtrlPanel.vue';
 import Courses from './views/Courses.vue';
+import Admin from './views/Admin.vue';
+import User from './views/User.vue';
 
 Vue.use(Router);
 
@@ -43,12 +45,28 @@ export default new Router({
     {
       path: '/classrooms/:_id',
       props: true,
+      alias: '/c/:_id',
       component: ClassroomCtrlPanel
     },
     {
       path: '/courses',
-      name: 'courses',
+      alias: ['/quilts', '/q'],
       component: Courses
+    },
+    {
+      path: '/courses/:_id',
+      alias: ['/quilts/:_id', '/q/:_id'],
+      component: Courses
+    },
+    {
+      path: '/admin',
+      component: Admin
+    },
+    {
+      path: '/user/:_id',
+      alias: '/u/:_id',
+      props: true,
+      component: User
     }
   ]
 });

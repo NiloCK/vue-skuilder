@@ -202,7 +202,7 @@ export default class TeacherClassroomDB extends ClassroomDBBase {
   }
 }
 
-const classroomLookupDB: PouchDB.Database = new pouch(
+export const ClassroomLookupDB: PouchDB.Database = new pouch(
   ENV.COUCHDB_SERVER_PROTOCOL + '://' +
   ENV.COUCHDB_SERVER_URL + classroomLookupDBTitle,
   {
