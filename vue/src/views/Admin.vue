@@ -1,0 +1,63 @@
+<template>
+    <div>
+      <h1>{{title}}</h1>
+      <div>
+        <h3>Users - {{users.length}}</h3>
+        <ul>
+          <li v-for='u in users' :key='u._id'>
+            User: {{ u.name }}
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h3>Quilts - {{courses.length}}</h3>
+        <ul>
+          <li v-for='c in courses' :key='c._id'>
+            {{ c.name }} - {{ c._id }}
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h3>Classrooms - {{classrooms.length}}</h3>
+        <ul>
+          <li v-for='c in classrooms' :key='c._id'>
+            {{ c.name }} - {{ c.teachers }} - {{ c.students.length}} students
+          </li>
+        </ul>
+      </div>
+    </div>
+</template>
+
+<script lang="ts">
+import Vue, { VueConstructor } from 'vue';
+import { Component, Prop, Emit } from 'vue-property-decorator';
+import { log } from 'util';
+import SkldrVue from '../SkldrVue';
+import AdminDB from '../db/adminDB';
+
+@Component({})
+export default class Admin extends SkldrVue {
+  public title: string = 'Admin Panel';
+
+  public db: AdminDB;
+  public users: any[] = [];
+  public courses: any[] = [];
+  public classrooms: any[] = [];
+
+  public async created() {
+    try {
+
+      this.db = await AdminDB.factory();
+      this.users = await this.db.getUsers();
+      this.courses = await this.db.getCourses();
+      this.classrooms = await this.db.getClassrooms();
+    } catch (e) {
+      this.title = 'This page is for database admins only.';
+      throw `${JSON.stringify(e)} - ${e}\n\nNot an admin!`;
+    }
+  }
+}
+</script>
+
+<style scoped>
+</style>
