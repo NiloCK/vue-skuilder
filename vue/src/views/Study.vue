@@ -79,6 +79,8 @@ import SkldrVue from '@/SkldrVue';
 import { getCredentialledCourseConfig, getCardDataShape } from '@/db/courseDB';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
 import { StudentClassroomDB } from '../db/classroomDB';
+import { alertUser } from '../components/SnackbarService.vue';
+import { Status } from '../enums/Status';
 // import CardCache from '@/db/cardCache';
 
 function randInt(n: number) {
@@ -153,6 +155,19 @@ export default class Study extends SkldrVue {
     }
   }
 
+  public handleClassroomMessage(): (v: any) => {} {
+    return (v: any) => {
+
+      alertUser({
+        text: this.$store.state.user,
+        status: Status.ok
+      })
+      log(`There was a change in the classroom DB:`);
+      log(`change: ${v}`);
+      log(`Stringified change: ${JSON.stringify(v)}`);
+      return {};
+    }
+  }
 
   public async created() {
     this.activeCards = await getActiveCards(this.$store.state.user);
@@ -165,6 +180,15 @@ export default class Study extends SkldrVue {
       .map(reg => reg.classID)
       .map(id => StudentClassroomDB.factory(id));
     this.userClassroomDBs = await Promise.all(classRoomPromises);
+    this.userClassroomDBs.forEach((db) => {
+      db.setChangeFcn(this.handleClassroomMessage())
+    });
+
+    let c = [1, 2, 3, 4, 5, 6, 7, 8, 9].reduce((prev, current, index, arr) => {
+      return prev + current;
+    })
+
+    log(`C: ${c}`)
 
     await this.getSessionCards();
 

@@ -7,6 +7,10 @@ import moment from 'moment';
 const classroomLookupDBTitle = 'classdb-lookup';
 export const CLASSROOM_CONFIG = 'ClassroomConfig';
 
+export type ClassroomMessage = {
+
+}
+
 export type AssignedContent = AssignedCourse | AssignedTag;
 
 interface AssignedTag extends ContentBase {
@@ -86,6 +90,7 @@ abstract class ClassroomDBBase {
 
 export class StudentClassroomDB extends ClassroomDBBase {
   private readonly _prefix: string = 'content';
+  private userMessages: PouchDB.Core.Changes<{}>;
 
   private constructor(classID: string) {
     super();
@@ -97,10 +102,22 @@ export class StudentClassroomDB extends ClassroomDBBase {
     const dbName = `classdb-student-${this._id}`;
     this._db = new pouch(ENV.COUCHDB_SERVER_PROTOCOL + '://' +
       ENV.COUCHDB_SERVER_URL + dbName, pouchDBincludeCredentialsConfig);
+    this._db.query({
+      map: (doc: any) => {
+        return doc._id === 'test'
+      }
+    });
     try {
       this._db.get<ClassroomConfig>(CLASSROOM_CONFIG).then((cfg) => {
+
         this._cfg = cfg;
         this._initComplete = true;
+        return;
+      });
+      this.userMessages = this._db.changes({
+        since: 'now',
+        live: true,
+        include_docs: true
       });
     }
     catch (e) {
@@ -112,6 +129,13 @@ export class StudentClassroomDB extends ClassroomDBBase {
     let ret = new StudentClassroomDB(classID);
     await ret.init();
     return ret;
+  }
+
+  public setChangeFcn(f: (value: any) => {}) {
+    // this.userMessages.on('change', (c) => {
+    //   console.log(JSON.stringify(c.doc));
+    // });
+    this.userMessages.on('change', f);
   }
 }
 
