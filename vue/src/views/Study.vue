@@ -184,12 +184,6 @@ export default class Study extends SkldrVue {
       db.setChangeFcn(this.handleClassroomMessage())
     });
 
-    let c = [1, 2, 3, 4, 5, 6, 7, 8, 9].reduce((prev, current, index, arr) => {
-      return prev + current;
-    })
-
-    log(`C: ${c}`)
-
     await this.getSessionCards();
 
     log(`Session created:
