@@ -121,7 +121,9 @@ export class StudentClassroomDB extends ClassroomDBBase {
       });
     }
     catch (e) {
-      throw new Error(`Error in StudentClassroomDB constructor: ${JSON.stringify(e)}`);
+      throw new Error(
+        `Error in StudentClassroomDB constructor: ${JSON.stringify(e)}`
+      );
     }
   }
 
@@ -132,9 +134,8 @@ export class StudentClassroomDB extends ClassroomDBBase {
   }
 
   public setChangeFcn(f: (value: any) => {}) {
-    // this.userMessages.on('change', (c) => {
-    //   console.log(JSON.stringify(c.doc));
-    // });
+    // todo: make this into a view request, w/ the user's name attached
+    // todo: requires creating the view doc on classroom create in /express
     this.userMessages.on('change', f);
   }
 }
