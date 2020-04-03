@@ -2,16 +2,6 @@
   <v-container fluid>
     <v-slide-y-transition mode="out-in">
       <v-layout column align-center>
-        <!-- <img src="@/assets/logo.png" alt="Vuetify.js" class="mb-5"> -->
-        <!-- <blockquote>
-          &#8220;First, solve the problem. Then, write the code.&#8221;
-          <footer>
-            <small>
-              <em>&mdash;John Johnson</em>
-            </small>
-          </footer>
-        </blockquote> -->
-        <!-- <h1>Hi</h1> -->
         <h1 class='display-4'>
           <span class="font-weight-thin">edu</span>
           <span class="font-weight-bold">Quilt</span>          
