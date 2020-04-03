@@ -4,6 +4,7 @@ import Vue, { VueConstructor } from 'vue';
 import french from './french';
 import math from './math';
 import wordWork from './word-work';
+import piano from './piano';
 import defaultCourse from './default';
 
 export class CourseList {
