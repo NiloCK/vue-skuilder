@@ -190,7 +190,8 @@ const courseList: CourseList = new CourseList([
     math,
     wordWork,
     french,
-    defaultCourse
+    defaultCourse,
+    piano
 ]);
 
 export default courseList;

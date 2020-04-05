@@ -36,6 +36,11 @@
                 v-bind:store="store"
                 v-bind:field="field" 
             />
+            <midi-input 
+                v-else-if="field.type === midi"
+                v-bind:store="store"
+                v-bind:field="field" 
+            />
       </div>
 
       <v-btn
@@ -75,6 +80,7 @@ import IntegerInput from './FieldInputs/IntegerInput.vue';
 import ImageInput from './FieldInputs/ImageInput.vue';
 import AudioInput from './FieldInputs/AudioInput.vue';
 import MarkdownInput from './FieldInputs/MarkdownInput.vue';
+import MidiInput from './FieldInputs/MidiInput.vue';
 import { getNotes, getDoc } from '@/db';
 import { DisplayableData, DataShapeData, QuestionData } from '@/db/types';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
@@ -98,6 +104,7 @@ import { log } from 'util';
     IntegerInput,
     ImageInput,
     MarkdownInput,
+    MidiInput,
     CardBrowser,
     DataShapeTable
   }
@@ -192,6 +199,7 @@ export default class DataInputForm extends SkldrVue {
   private readonly img: string = FieldType.IMAGE;
   private readonly mkd: string = FieldType.MARKDOWN;
   private readonly audio: string = FieldType.AUDIO;
+  private readonly midi: string = FieldType.MIDI;
 
   public updateTags(newTags: string[]) {
     log(`tags updated: ${JSON.stringify(newTags)}`);

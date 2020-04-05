@@ -57,6 +57,10 @@ export const fieldConverters:
             }
             // return '(audio)';
         }
+    },
+    midi: {
+        databaseConverter: (value) => value,
+        previewConverter: (value) => value
     }
 };
 

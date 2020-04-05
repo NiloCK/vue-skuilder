@@ -4,12 +4,13 @@ import { Component, Prop } from 'vue-property-decorator';
 import { ValidationResult } from '@/base-course/Interfaces/ValidationResult';
 import { Status } from '@/enums/Status';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
+import SkldrVue from '@/SkldrVue';
 
 export interface ValidatedInput {
     getValidators: () => ValidatingFunction[];
 }
 
-export abstract class FieldInput extends Vue {
+export abstract class FieldInput extends SkldrVue {
     public $refs: {
         inputField: HTMLInputElement
     };
