@@ -12,6 +12,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
     "@johmun/vue-tags-input": "^2.1.0",
+    "@tonaljs/tonal": "^3.6.0",
     "@types/webmidi": "^2.0.4",
     "lodash": "^4.17.15",
     "material-design-icons-iconfont": "^3.0.3",
