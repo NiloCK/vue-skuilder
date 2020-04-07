@@ -8,6 +8,7 @@ export interface NoteEvent {
 }
 
 class SkMidi {
+  private static _instance: SkMidi;
   private webmidi: WebMidi = webmidi;
   private input: Input;
   private output: Output;
@@ -90,8 +91,10 @@ class SkMidi {
     }
   }
 
-  public play() {
-    this.recording.forEach((e) => {
+  public play(recording?: NoteEvent[]) {
+    let playbackData: NoteEvent[] = recording ? recording : this.recording;
+
+    playbackData.forEach((e) => {
       if (e.type === 'noteon') {
         this.output.playNote(e.note.name + e.note.octave, 1, {
           velocity: e.velocity,
@@ -115,6 +118,18 @@ class SkMidi {
     let ret = new SkMidi();
     await ret.init();
     return ret;
+  }
+
+  public static async instance(): Promise<SkMidi> {
+    if (SkMidi._instance && SkMidi._instance.webmidi && SkMidi._instance.webmidi.enabled) {
+      return SkMidi._instance;
+    } else {
+      console.log(`Buzz, whirr, Midi factory is at work`);
+      SkMidi._instance = new SkMidi();
+      await SkMidi._instance.init();
+      return SkMidi._instance;
+    }
+
   }
 
   public get inputs(): Input[] {
