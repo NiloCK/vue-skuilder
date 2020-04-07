@@ -31,7 +31,7 @@ export default class MidiInput extends FieldInput {
   public recording: boolean = false;
 
   async created() {
-    this.midi = await SkMidi.factory();
+    this.midi = await SkMidi.instance();
     try {
       this.midi.record();
       this.recording = true;
