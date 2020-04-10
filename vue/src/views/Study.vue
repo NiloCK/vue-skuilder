@@ -99,7 +99,7 @@ export default class Study extends SkldrVue {
   public editCardReady: boolean = false; // editor for this card is ready to display
   // the currently displayed card
   public cardID: PouchDB.Core.DocumentId = '';
-  public view: VueConstructor<Vue>;
+  public view: VueConstructor<Vue> = Vue;
   public data: ViewData[] = [];
   public courseID: string = '';
 
@@ -201,8 +201,8 @@ User classrooms: ${this.userClassroomDBs.map(db => db._id)}
 
   private get sessionString() {
     let ret = '';
-    for (const q of this.session) {
-      ret += q + '\n';
+    for (let i = 0; i < this.session.length; i++) {
+      ret += `${i}: ${this.session[i]}` + '\n';
     }
     return ret;
   }
@@ -213,14 +213,14 @@ User classrooms: ${this.userClassroomDBs.map(db => db._id)}
    */
   public nextCard(_id?: string) {
     if (_id) {
-      this.session.splice(
-        this.session.indexOf(_id),
-        1
-      );
+      const index = this.session.indexOf(_id);
+      log(`index of ${_id}: ${index}`);
+
+      this.session.splice(index, 1);
     }
 
     log(`Cards left in session:
-    ${this.sessionString}
+${this.sessionString}
     `);
 
     if (this.session.length === 0) {
@@ -281,7 +281,7 @@ User classrooms: ${this.userClassroomDBs.map(db => db._id)}
           // user got the question right on 'the first try'.
           // dismiss the card from this study session, and
           // schedule its review in the future.
-          this.nextCard(r.cardID);
+          this.nextCard(`${r.courseID}-${r.cardID}`);
 
           cardHistory.then((history) => {
             this.scheduleReview(history);
@@ -297,7 +297,7 @@ User classrooms: ${this.userClassroomDBs.map(db => db._id)}
         // clear user input? todo: needs to be a fcn on CardViewer
       }
     } else {
-      this.nextCard(r.cardID);
+      this.nextCard(`${r.courseID}-${r.cardID}`);
     }
 
     this.clearFeedbackShadow();
@@ -367,7 +367,7 @@ User classrooms: ${this.userClassroomDBs.map(db => db._id)}
       this.courseID = _courseID;
 
     } catch (e) {
-      log(`Error loading card: ${JSON.stringify(e)}`);
+      log(`Error loading card: ${JSON.stringify(e)}, ${e}`);
       this.nextCard(qualified_id);
     } finally {
       this.loading = false;
