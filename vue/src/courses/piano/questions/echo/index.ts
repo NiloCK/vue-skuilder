@@ -4,8 +4,8 @@ import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { DataShapeName } from '@/enums/DataShapeNames';
 import { FieldType } from '@/enums/FieldType';
-import { Answer } from '../../../../base-course/Displayable';
 import Playback from './Playback.vue';
+import { NoteEvent } from '../../utility/midi';
 
 const fields: FieldDefinition[] = [
   {
@@ -26,16 +26,28 @@ export class EchoQuestion extends Question {
     Playback
   ];
 
-  public midi: string;
+  public midi: NoteEvent[];
 
   constructor(data: ViewData[]) {
     super(data);
-    this.midi = data[0].Melody as string;
+    this.midi = data[0].Melody as any as NoteEvent[];
   }
 
 
-  public isCorrect(answer: Answer): boolean {
-    return answer === this.midi;
+  public isCorrect(answer: NoteEvent[]): boolean {
+    let onMidi = this.midi.filter(e => e.type === "noteon");
+    let onAnswer = answer.filter(e => e.type === 'noteon');
+
+    if (onAnswer.length === onMidi.length) {
+      for (let i = 0; i < onAnswer.length; i++) {
+        if (onAnswer[i].note.number != onMidi[i].note.number) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      throw new Error(`Midi answer length not equal to question length...`);
+    }
   }
   public dataShapes(): DataShape[] {
     return EchoQuestion.dataShapes;
