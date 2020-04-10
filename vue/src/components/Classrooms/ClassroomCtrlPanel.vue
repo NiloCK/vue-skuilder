@@ -121,7 +121,6 @@ export default class ClassroomCtrlPanel extends SkldrVue {
   @Prop({ required: true }) private _id: string;
   private mousetrap: MousetrapInstance = new Mousetrap(this.$el);
 
-  private: PouchDB.Database;
   private _classroomCfg: ClassroomConfig;
 
   private classroomDB: TeacherClassroomDB;
