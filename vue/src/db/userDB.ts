@@ -50,6 +50,9 @@ interface CourseRegistration {
   admin: boolean;
   moderator: boolean;
   user: boolean;
+  settings?: {
+    [setting: string]: string | number | boolean
+  }
 }
 
 interface StudyWeights {
@@ -218,4 +221,24 @@ export async function getUserEditableCourses(user: string) {
   }));
 
   return getCourseConfigs(courseIDs);
+}
+
+export async function updateCourseSetting(
+  { user, course_id, settings }: {
+    user: string; course_id: string; settings: {
+      key: string;
+      value: string | number | boolean;
+    }[];
+  }) {
+  getOrCreateCourseRegistrationsDoc(user).then((doc) => {
+    let crs = doc.courses.find(c => c.courseID === course_id);
+    if (crs.settings === null || crs.settings === undefined) {
+      crs.settings = {};
+    }
+    settings.forEach(setting => {
+      crs.settings[setting.key] = setting.value;
+    });
+
+    return getUserDB(user).put(doc);
+  })
 }

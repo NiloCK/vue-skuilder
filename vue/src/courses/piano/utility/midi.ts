@@ -46,7 +46,7 @@ class SkMidi {
 
   public get configuredInput(): string {
     if (this.input) {
-      return this.input.manufacturer
+      return `${this.input.manufacturer}: ${this.input.name}`;
     } else {
       return "(Not Sure!)";
     }

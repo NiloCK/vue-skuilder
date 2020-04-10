@@ -23,7 +23,11 @@
 
               <v-list-tile-content>
                 <v-list-tile-title>
+                  <router-link
+                   :to="`/quilts/${course._id}`"
+                  >
                   {{ course.name }}
+                  </router-link>
                 </v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
