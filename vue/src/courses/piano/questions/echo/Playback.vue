@@ -46,7 +46,7 @@ export default class Playback extends QuestionView<EchoQuestion> {
   // }
   public get firstNote(): string {
     if (this.initialized) {
-      return this.question.midi[0].note.name + this.question.midi[0].note.number;
+      return this.question.midi[0].note.name + this.question.midi[0].note.octave;
     } else {
       return `... I don't know - something is wrong!`;
     }
