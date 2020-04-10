@@ -1,12 +1,12 @@
 <template>
   <div>
     <div class="headline">
-      Listen and repeat:
+      Listen and repeat.The first note is: <span>{{firstNote}}</span>
     </div>
     <!-- <div>
       <v-progress-linear :value="playbackProgress"></v-progress-linear>
     </div> -->
-    <v-btn 
+    <v-btn
       color="primary"
       @click="reset"
     >
@@ -25,6 +25,7 @@ import { Component } from 'vue-property-decorator';
 import { QuestionView } from '@/base-course/Viewable';
 import SkMidi, { NoteEvent } from '../../utility/midi';
 import { EchoQuestion } from '.';
+import moment from 'moment';
 
 @Component({
   components: {}
@@ -33,9 +34,22 @@ export default class Playback extends QuestionView<EchoQuestion> {
   public ready: boolean = false;
   public midi: SkMidi;
   public initialized: boolean = false;
+  public playbackInitTime: number;
 
-  public get playbackProgress(): number {
-    return 25;
+  // public get playbackProgress(): number {
+  //   if (this.initialized) {
+  //     const now = new Date();
+  //     return 100 * now.getMilliseconds() / this.playbackInitTime;
+  //   } else {
+  //     return 25;
+  //   }
+  // }
+  public get firstNote(): string {
+    if (this.initialized) {
+      return this.question.midi[0].note.name + this.question.midi[0].note.number;
+    } else {
+      return `... I don't know - something is wrong!`;
+    }
   }
   // public inputNotes: any[] = [];
 
