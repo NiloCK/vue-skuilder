@@ -6,6 +6,7 @@ import math from './math';
 import wordWork from './word-work';
 import piano from './piano';
 import defaultCourse from './default';
+import Viewable from '../base-course/Viewable';
 
 export class CourseList {
     private readonly courseList: Course[];
@@ -38,7 +39,7 @@ export class CourseList {
         return ret;
     }
 
-    public getView(viewDescription: ViewDescriptor | string): VueConstructor<Vue> {
+    public getView(viewDescription: ViewDescriptor | string): VueConstructor<Viewable> {
 
         let description: ViewDescriptor;
         if (typeof viewDescription === 'string') {

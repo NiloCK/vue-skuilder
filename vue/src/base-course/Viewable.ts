@@ -45,10 +45,20 @@ export default abstract class Viewable extends Vue {
     }
 }
 
+
 // tslint:disable-next-line:max-classes-per-file
 export abstract class QuestionView<Q extends Question> extends Viewable {
+    protected priorSessionViews: number = 0;
     protected priorAttempts: number = 0; // starts at the 1st attempt
     public abstract get question(): Q;
+
+    /**
+     * The maximum number of times that a card with this view type can
+     * be presented to a learner in one study session (to avoid burnout
+     * on too-hard content)
+     */
+    public maxSessionViews: number = 2;
+    public maxAttemptsPerView: number = 3;
 
     public submitAnswer(answer: Answer): QuestionRecord {
         log('QuestionView.submitAnswer called...');
@@ -76,4 +86,8 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
 export abstract class InformationView<D extends Displayable> extends Viewable {
     // is there anything to do here?
     public abstract get displayable(): D;
+}
+
+export function isQuestionView(v: Viewable): v is QuestionView<any> {
+    return (v as QuestionView<any>).submitAnswer !== undefined;
 }

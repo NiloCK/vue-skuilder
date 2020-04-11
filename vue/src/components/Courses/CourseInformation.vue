@@ -2,9 +2,9 @@
   <div v-if='!updatePending'>
     <h1 class='display-1'><router-link to="/q">Quilts</router-link> / {{_courseConfig.name}}</h1>
     
-    <v-row class='body-2'>
+    <div class="body-2">
       There are {{ questionCount }} questions in this course.
-    </v-row>
+    </div>
 
     <p class='body-2'>
       Course Description: {{_courseConfig.description}}

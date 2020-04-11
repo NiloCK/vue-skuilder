@@ -56,7 +56,7 @@ import {
   isQuestionRecord,
   CardHistory
 } from '@/db/types';
-import Viewable from '@/base-course/Viewable';
+import Viewable, { isQuestionView } from '@/base-course/Viewable';
 import { Component } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import Courses from '@/courses';
@@ -87,6 +87,15 @@ function randInt(n: number) {
   return Math.floor(Math.random() * n);
 }
 
+interface StudySessionRecord {
+  card: {
+    course_id: string,
+    card_id: string,
+  },
+  records: CardRecord[]
+}
+
+
 @Component({
   components: {
     CardViewer,
@@ -99,7 +108,8 @@ export default class Study extends SkldrVue {
   public editCardReady: boolean = false; // editor for this card is ready to display
   // the currently displayed card
   public cardID: PouchDB.Core.DocumentId = '';
-  public view: VueConstructor<Vue> = Vue;
+  public view: VueConstructor<Viewable>;
+  public constructedView: Viewable;
   public data: ViewData[] = [];
   public courseID: string = '';
 
@@ -108,6 +118,7 @@ export default class Study extends SkldrVue {
 
   public sessionFinished: boolean = false;
   public session: string[] = [];
+  public sessionRecord: StudySessionRecord[] = [];
   public activeCards: string[] = [];
 
   public loading: boolean = false;
@@ -267,9 +278,21 @@ ${this.sessionString}
     }
   }
 
+  private get currentCard(): StudySessionRecord {
+    return this.sessionRecord[this.sessionRecord.length - 1];
+  }
+
+  private countCardViews(course_id: string, card_id: string): number {
+    return this.sessionRecord
+      .filter(r => r.card.course_id === course_id && r.card.card_id === card_id)
+      .length;
+  }
+
   private processResponse(r: CardRecord) {
     r.cardID = this.cardID;
     r.courseID = this.courseID;
+    this.currentCard.records.push(r);
+
     log(`Study.processResponse is running...`);
     const cardHistory = this.logCardRecord(r);
 
@@ -294,6 +317,26 @@ ${this.sessionString}
         }
       } else {
         this.$refs.shadowWrapper.classList.add('incorrect');
+        if (isQuestionView(this.constructedView)) {
+          if (this.currentCard.records.length >=
+            this.constructedView.maxAttemptsPerView) {
+            const sessionViews: number = this.countCardViews(
+              this.courseID,
+              this.cardID
+            );
+            if (sessionViews >= this.constructedView.maxSessionViews) {
+              // max attempts per view and session have been reached:
+              // dismiss the card from the session without scheduling
+              // a review - it is too hard!
+              this.nextCard(`${r.courseID}-${r.cardID}`);
+              // ELO - this is a 'win' for the card
+            } else {
+              // max attempts on the view have been reached, but
+              // card may be viewed again this session.
+              this.nextCard();
+            }
+          }
+        }
         // clear user input? todo: needs to be a fcn on CardViewer
       }
     } else {
@@ -366,6 +409,16 @@ ${this.sessionString}
       this.cardID = _cardID;
       this.courseID = _courseID;
 
+      // bleeding memory? Do these get GCd?
+      this.constructedView = new this.view();
+
+      this.sessionRecord.push({
+        card: {
+          course_id: _courseID,
+          card_id: _cardID
+        },
+        records: []
+      });
     } catch (e) {
       log(`Error loading card: ${JSON.stringify(e)}, ${e}`);
       this.nextCard(qualified_id);
