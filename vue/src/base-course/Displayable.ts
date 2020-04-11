@@ -1,6 +1,7 @@
 import Vue, { VueConstructor } from 'vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
+import Viewable from './Viewable';
 
 export interface Answer { }
 
@@ -8,7 +9,7 @@ export interface Answer { }
 export abstract class Displayable {
   public static dataShapes: DataShape[];
 
-  public static views: Array<VueConstructor<Vue>>;
+  public static views: Array<VueConstructor<Viewable>>;
 
   /**
    *
@@ -23,7 +24,7 @@ Displayable Constructor was called with no view Data.
   }
 
   public abstract dataShapes(): DataShape[];
-  public abstract views(): Array<VueConstructor<Vue>>;
+  public abstract views(): Array<VueConstructor<Viewable>>;
 }
 
 function validateData(shape: DataShape[], data: ViewData[]) {
