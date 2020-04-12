@@ -6,6 +6,8 @@ import { DataShapeName } from '@/enums/DataShapeNames';
 import { FieldType } from '@/enums/FieldType';
 import Playback from './Playback.vue';
 import { NoteEvent } from '../../utility/midi';
+import { VueConstructor } from 'vue';
+import Viewable from '@/base-course/Viewable';
 
 const fields: FieldDefinition[] = [
   {
@@ -24,7 +26,7 @@ export class EchoQuestion extends Question {
 
   public static views = [
     Playback
-  ];
+  ] as VueConstructor<Viewable>[];
 
   public midi: NoteEvent[];
 
@@ -40,7 +42,7 @@ export class EchoQuestion extends Question {
 
     if (onAnswer.length === onMidi.length) {
       for (let i = 0; i < onAnswer.length; i++) {
-        if (onAnswer[i].note.number != onMidi[i].note.number) {
+        if (onAnswer[i].note.name !== onMidi[i].note.name) {
           return false;
         }
       }
@@ -53,6 +55,6 @@ export class EchoQuestion extends Question {
     return EchoQuestion.dataShapes;
   }
   public views() {
-    return EchoQuestion.views;
+    return EchoQuestion.views as VueConstructor<Viewable>[];
   }
 }
