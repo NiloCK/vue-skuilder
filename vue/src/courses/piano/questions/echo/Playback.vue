@@ -3,19 +3,33 @@
     <div class="headline">
       Listen and repeat.The first note is: <span>{{firstNote}}</span>
     </div>
-    <!-- <div>
+    <div>
       <v-progress-linear :value="playbackProgress"></v-progress-linear>
-    </div> -->
+    </div>
     <v-btn
       color="primary"
       @click="reset"
+      autofocus
     >
       Play again <v-icon right>volume_up</v-icon>
     </v-btn>
 
-    <!-- <div v-if='initialized'>
-      <span class='display-1' v-for='note in inputNotes' key='note'>&#8226;</span>
-    </div> -->
+    <div>
+
+      <span class='display-1 hidden'>&#8226;</span>
+      <span v-if='initialized'>
+        <span class="hidden">
+
+        {{inputNotes.length}}
+        </span>
+        <span
+          class='display-1'
+          v-for='n in midi.recording.filter(n => n.type === "noteon").length'
+          :key='n'>&#8226;
+        </span>
+      </span>
+      <span class='display-1 hidden'>&#8226;</span>
+    </div>
   </div>
 </template>
 
@@ -36,14 +50,7 @@ export default class Playback extends QuestionView<EchoQuestion> {
   public initialized: boolean = false;
   public playbackInitTime: number;
 
-  // public get playbackProgress(): number {
-  //   if (this.initialized) {
-  //     const now = new Date();
-  //     return 100 * now.getMilliseconds() / this.playbackInitTime;
-  //   } else {
-  //     return 25;
-  //   }
-  // }
+  public playbackProgress: number = 0;
   public get firstNote(): string {
     if (this.initialized) {
       return this.question.midi[0].note.name + this.question.midi[0].note.octave;
@@ -51,27 +58,31 @@ export default class Playback extends QuestionView<EchoQuestion> {
       return `... I don't know - something is wrong!`;
     }
   }
-  // public inputNotes: any[] = [];
+  public inputNotes: any[] = [];
+  // ublic get inputNotes(): any[] {
+  //   return this.midi.recording.filter(e => e.type === 'noteon');
+  // }
 
   async created() {
-
+    this.MouseTrap = new Mousetrap(this.$el);
     this.midi = await SkMidi.instance();
     this.midi.record();
     this.play();
     this.ready = true;
     setTimeout(this.timer, 200);
 
-    this.MouseTrap.bind('space', this.reset);
+    this.MouseTrap.bind('space', () => { this.reset() });
     this.initialized = true;
   }
 
   public reset() {
+    console.log(`Playback::Reset() called`);
     this.midi.record();
     this.play();
   }
 
   public timer() {
-    // this.inputNotes .midi.recording.filter(n => n.type === 'noteon');
+    this.inputNotes = this.midi.recording.filter(n => n.type === 'noteon');
     const length = this.question.midi.length - this.midi.recording.length;
     let done;
     if (length <= 0) {
@@ -82,7 +93,18 @@ export default class Playback extends QuestionView<EchoQuestion> {
   }
 
   public play() {
+    const duration = this.question.midi.reduce((max, current) => {
+      if (current.timestamp > max.timestamp) {
+        return current;
+      } else {
+        return max;
+      }
+    }).timestamp;
+
     this.midi.play(this.question.midi);
+    setTimeout(() => {
+      console.log('done playback...');
+    }, duration);
   }
 
   get question() {
@@ -100,3 +122,9 @@ export default class Playback extends QuestionView<EchoQuestion> {
   }
 }
 </script>
+
+<style lang="css" scoped>
+.hidden {
+  opacity: 0;
+}
+</style>
