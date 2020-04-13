@@ -6,7 +6,9 @@ import MouseTrap from 'mousetrap';
 import { Prop, Vue } from 'vue-property-decorator';
 import { log } from 'util';
 
-// @Component
+/**
+ * Base class for card views in courses.
+ */
 export default abstract class Viewable extends Vue {
     @Prop() public data: ViewData[];
     protected startTime: moment.Moment = moment.utc();
@@ -45,7 +47,9 @@ export default abstract class Viewable extends Vue {
     }
 }
 
-
+/**
+ * Base class for question views in courses.
+ */
 // tslint:disable-next-line:max-classes-per-file
 export abstract class QuestionView<Q extends Question> extends Viewable {
     protected priorSessionViews: number = 0;
