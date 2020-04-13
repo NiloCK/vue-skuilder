@@ -1,4 +1,4 @@
-import webmidi, { WebMidi, Input, Output, InputEventBase, IEventNote } from 'webmidi';
+import webmidi, { WebMidi, Input, Output, InputEventBase, IEventNote, InputEventNoteoff, InputEventNoteon } from 'webmidi';
 
 export interface NoteEvent {
   note: IEventNote;
@@ -52,6 +52,14 @@ class SkMidi {
     }
   }
 
+  public eraseRecording() {
+    this.recording = [];
+  }
+
+  public stopRecording() {
+    this.input.removeListener();
+  }
+
   public record() {
     let initTimestamp: number = 0;
 
@@ -59,10 +67,11 @@ class SkMidi {
       throw new Error(`Midi input not configured!`);
     }
     if (this.input.connection === 'open') {
-      // clear previously recorded data
-      this.recording = [];
+
       // remove previously attached listeners
-      this.input.removeListener();
+      this.stopRecording();
+      // clear previously recorded data
+      this.eraseRecording();
 
       this.input.on("noteon", "all", (e) => {
         if (this.recording.length === 0) {
@@ -89,6 +98,13 @@ class SkMidi {
         });
       })
     }
+  }
+
+  public addNoteonListenter(f: (e: InputEventNoteon) => void) {
+    this.input.on('noteon', 'all', f);
+  }
+  public addNoteoffListenter(f: (e: InputEventNoteoff) => void) {
+    this.input.on('noteoff', 'all', f);
   }
 
   public play(recording?: NoteEvent[]) {

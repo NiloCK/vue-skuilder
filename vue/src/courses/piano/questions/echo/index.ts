@@ -8,6 +8,7 @@ import Playback from './Playback.vue';
 import { NoteEvent } from '../../utility/midi';
 import { VueConstructor } from 'vue';
 import Viewable from '@/base-course/Viewable';
+import { log } from 'util';
 
 const fields: FieldDefinition[] = [
   {
@@ -35,22 +36,40 @@ export class EchoQuestion extends Question {
     this.midi = data[0].Melody as any as NoteEvent[];
   }
 
+  /**
+   * The duration of the recording in milliseconds
+   */
+  public get duration(): number {
+    return this.midi.reduce((max, current) => {
+      if (current.timestamp > max.timestamp) {
+        return current;
+      } else {
+        return max;
+      }
+    }).timestamp;
+  }
 
   public isCorrect(answer: NoteEvent[]): boolean {
-    let onMidi = this.midi.filter(e => e.type === "noteon");
-    let onAnswer = answer.filter(e => e.type === 'noteon');
+    const firstNoteNumber = this.midi[0].note.number;
 
-    if (onAnswer.length === onMidi.length) {
-      for (let i = 0; i < onAnswer.length; i++) {
-        if (onAnswer[i].note.name !== onMidi[i].note.name) {
-          return false;
-        }
-      }
-      return true;
-    } else {
-      throw new Error(`Midi answer length not equal to question length...`);
+    const onMidi = this.midi.filter(e => e.type === "noteon");
+    const onAnswer = answer.filter(e => e.type === 'noteon');
+
+    if (answer.length !== this.midi.length) {
+      log(`Input length and answer length not equal...`);
     }
+
+    for (let i = 0; i < Math.min(onAnswer.length, onMidi.length); i++) {
+      if (onAnswer[i].note.name !== onMidi[i].note.name ||
+        onAnswer[i].note.number - onAnswer[0].note.number !==
+        onMidi[i].note.number - onMidi[0].note.number
+      ) {
+        return false;
+      }
+    }
+    return true;
   }
+
   public dataShapes(): DataShape[] {
     return EchoQuestion.dataShapes;
   }

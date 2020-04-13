@@ -1,7 +1,8 @@
 <template>
   <div>
+    <div class="display-1">First note: <span class='font-weight-bold'>{{firstNote}}</span></div>
     <div class="headline">
-      Listen and repeat.The first note is: <span>{{firstNote}}</span>
+      Listen...<span v-if="recording"> and Repeat</span>
     </div>
     <div>
       <v-progress-linear :value="playbackProgress"></v-progress-linear>
@@ -18,13 +19,9 @@
 
       <span class='display-1 hidden'>&#8226;</span>
       <span v-if='initialized'>
-        <span class="hidden">
-
-        {{inputNotes.length}}
-        </span>
         <span
           class='display-1'
-          v-for='n in midi.recording.filter(n => n.type === "noteon").length'
+          v-for='n in notesOn'
           :key='n'>&#8226;
         </span>
       </span>
@@ -45,66 +42,89 @@ import moment from 'moment';
   components: {}
 })
 export default class Playback extends QuestionView<EchoQuestion> {
-  public ready: boolean = false;
   public midi: SkMidi;
   public initialized: boolean = false;
   public playbackInitTime: number;
+  public recording: boolean = false;
+
+  private intervalID: number;
 
   public playbackProgress: number = 0;
+  public playbackStartTime: moment.Moment = moment.utc();
+  public playbackDuration: number;
+
   public get firstNote(): string {
     if (this.initialized) {
-      return this.question.midi[0].note.name + this.question.midi[0].note.octave;
+      return this.question.midi[0].note.name;
     } else {
       return `... I don't know - something is wrong!`;
     }
   }
-  public inputNotes: any[] = [];
-  // ublic get inputNotes(): any[] {
-  //   return this.midi.recording.filter(e => e.type === 'noteon');
-  // }
+  public notesOn: number = 0;
+  public notesOff: number = 0;
 
   async created() {
     this.MouseTrap = new Mousetrap(this.$el);
     this.midi = await SkMidi.instance();
-    this.midi.record();
+    this.playbackDuration = this.question.duration;
     this.play();
-    this.ready = true;
-    setTimeout(this.timer, 200);
 
-    this.MouseTrap.bind('space', () => { this.reset() });
+    this.MouseTrap.unbind('space'); // remove from dismissed cards
+    this.MouseTrap.bind('space', () => { this.play() });
     this.initialized = true;
   }
 
-  public reset() {
-    console.log(`Playback::Reset() called`);
+  public record() {
     this.midi.record();
-    this.play();
+    this.recording = true;
+
+    // attach listeners
+    this.midi.addNoteonListenter((e) => {
+      this.notesOn++;
+      if (this.notesOn + this.notesOff >= this.question.midi.length) {
+        this.submit();
+      }
+    });
+    this.midi.addNoteoffListenter((e) => {
+      this.notesOff++;
+      if (this.notesOn + this.notesOff >= this.question.midi.length) {
+        this.submit();
+      }
+    });
   }
 
-  public timer() {
-    this.inputNotes = this.midi.recording.filter(n => n.type === 'noteon');
-    const length = this.question.midi.length - this.midi.recording.length;
-    let done;
-    if (length <= 0) {
-      done = this.submit();
-    }
-
-    if (!done) setTimeout(this.timer, 200);
+  public setPlaybackProgress() {
+    const msSinceStart: number = Math.abs(
+      moment.utc().diff(this.playbackStartTime, 'milliseconds')
+    );
+    this.playbackProgress = (msSinceStart / this.playbackDuration) * 100;
+    // if (this.playbackProgress < 100) {
+    //   requestAnimationFrame(this.setPlaybackProgress);
+    // }
   }
 
   public play() {
-    const duration = this.question.midi.reduce((max, current) => {
-      if (current.timestamp > max.timestamp) {
-        return current;
-      } else {
-        return max;
-      }
-    }).timestamp;
+    this.midi.stopRecording();
+    this.midi.eraseRecording();
+    this.playbackStartTime = moment.utc();
+    this.notesOn = 0;
+    this.notesOff = 0;
+    this.recording = false;
+    this.playbackProgress = 0;
+
+    // this.intervalID = window.setInterval(() => {
+    //   this.setPlaybackProgress();
+    //   if (this.playbackProgress >= 100) {
+    //     window.clearInterval(this.intervalID);
+    //   }
+    // }, 150);
+    // requestAnimationFrame(this.setPlaybackProgress);
 
     this.midi.play(this.question.midi);
     setTimeout(() => {
       console.log('done playback...');
-    }, duration);
+      this.record();
+    }, this.playbackDuration);
   }
 
   get question() {
@@ -114,7 +134,7 @@ export default class Playback extends QuestionView<EchoQuestion> {
   public submit() {
     // this.question.isCorrect(this.midi.recording);
     if (!this.submitAnswer(this.midi.recording).isCorrect) {
-      this.midi.record();
+      this.play();
       return false;
     } else {
       return true;
