@@ -9,11 +9,11 @@ export interface NoteEvent {
 
 class SkMidi {
   private static _instance: SkMidi;
+  public recording: NoteEvent[] = [];
+
   private webmidi: WebMidi = webmidi;
   private input: Input;
   private output: Output;
-
-  public recording: NoteEvent[] = [];
 
   private constructor() { }
 
