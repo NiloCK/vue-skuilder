@@ -37,7 +37,6 @@ export default class MidiInput extends FieldInput {
       this.recording = true;
 
       this.store[this.field.name] = this.midi.recording;
-      this.validate();
     } catch (e) {
       throw e
     }
@@ -59,6 +58,7 @@ export default class MidiInput extends FieldInput {
 
   public play() {
     this.midi.play();
+    this.validate();
   }
 }
 </script>
