@@ -55,6 +55,7 @@ export default class Playback extends QuestionView<EchoQuestion> {
   public playbackProgress: number = 0;
   public playbackStartTime: moment.Moment = moment.utc();
   public playbackDuration: number;
+  public attempts: number = 0;
 
   public get firstNote(): string {
     if (this.initialized) {
@@ -72,12 +73,13 @@ export default class Playback extends QuestionView<EchoQuestion> {
 
   async created() {
     // this.MouseTrap = new Mousetrap(this.$el);
+    this.midi = await SkMidi.instance();
     this.MouseTrap.unbind('space'); // remove from dismissed cards
     this.MouseTrap.bind('space', () => { this.play() });
   }
 
   public async mounted() {
-    this.midi = await SkMidi.instance();
+    await SkMidi.instance();
     this.playbackDuration = this.question.duration;
     this.play();
 
@@ -141,7 +143,10 @@ export default class Playback extends QuestionView<EchoQuestion> {
   public submit() {
     // this.question.isCorrect(this.midi.recording);
     if (!this.submitAnswer(this.midi.recording).isCorrect) {
-      this.play();
+      this.attempts++;
+      if (this.attempts < this.maxAttemptsPerView) {
+        this.play();
+      }
       return false;
     } else {
       return true;
