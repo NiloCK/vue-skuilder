@@ -49,6 +49,22 @@ export class EchoQuestion extends Question {
     }).timestamp;
   }
 
+  /**
+   * The time (in MS) at which the last note in 
+   * recording is played
+   */
+  public get lastNoteOnTimestamp(): number {
+    return this.midi
+      .filter((e) => e.type === 'noteon')
+      .reduce((max, current) => {
+        if (current.timestamp > max.timestamp) {
+          return current;
+        } else {
+          return max;
+        }
+      }).timestamp;
+  }
+
   public isCorrect(answer: NoteEvent[]): boolean {
     const firstNoteNumber = this.midi[0].note.number;
 

@@ -115,10 +115,12 @@ export default class Playback extends QuestionView<EchoQuestion> {
     this.runProgressBar();
 
     this.midi.play(this.question.midi);
+
+    // start listening for input after last note is played
     setTimeout(() => {
       console.log('done playback...');
       this.record();
-    }, this.playbackDuration / 2);
+    }, this.question.lastNoteOnTimestamp);
   }
 
   private runProgressBar() {
