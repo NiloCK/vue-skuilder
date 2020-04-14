@@ -4,19 +4,22 @@
     <div class="headline">
       Listen...<span v-if="recording"> and Repeat</span>
     </div>
-    <div>
-      <v-progress-linear :value="playbackProgress"></v-progress-linear>
+    <!-- <div id="progressBar">
+      <v-progress-linear :value="100"></v-progress-linear>
+    </div> -->
+    <div class="progressContainer">
+      <div id="progress" ref="progressBar"></div> 
     </div>
+      
     <v-btn
       color="primary"
-      @click="reset"
+      @click="play"
       autofocus
     >
       Play again <v-icon right>volume_up</v-icon>
     </v-btn>
 
     <div>
-
       <span class='display-1 hidden'>&#8226;</span>
       <span v-if='initialized'>
         <span
@@ -63,14 +66,21 @@ export default class Playback extends QuestionView<EchoQuestion> {
   public notesOn: number = 0;
   public notesOff: number = 0;
 
+  public $refs: {
+    progressBar: HTMLDivElement;
+  }
+
   async created() {
-    this.MouseTrap = new Mousetrap(this.$el);
+    // this.MouseTrap = new Mousetrap(this.$el);
+    this.MouseTrap.unbind('space'); // remove from dismissed cards
+    this.MouseTrap.bind('space', () => { this.play() });
+  }
+
+  public async mounted() {
     this.midi = await SkMidi.instance();
     this.playbackDuration = this.question.duration;
     this.play();
 
-    this.MouseTrap.unbind('space'); // remove from dismissed cards
-    this.MouseTrap.bind('space', () => { this.play() });
     this.initialized = true;
   }
 
@@ -93,16 +103,6 @@ export default class Playback extends QuestionView<EchoQuestion> {
     });
   }
 
-  public setPlaybackProgress() {
-    const msSinceStart: number = Math.abs(
-      moment.utc().diff(this.playbackStartTime, 'milliseconds')
-    );
-    this.playbackProgress = (msSinceStart / this.playbackDuration) * 100;
-    // if (this.playbackProgress < 100) {
-    //   requestAnimationFrame(this.setPlaybackProgress);
-    // }
-  }
-
   public play() {
     this.midi.stopRecording();
     this.midi.eraseRecording();
@@ -112,19 +112,24 @@ export default class Playback extends QuestionView<EchoQuestion> {
     this.recording = false;
     this.playbackProgress = 0;
 
-    // this.intervalID = window.setInterval(() => {
-    //   this.setPlaybackProgress();
-    //   if (this.playbackProgress >= 100) {
-    //     window.clearInterval(this.intervalID);
-    //   }
-    // }, 150);
-    // requestAnimationFrame(this.setPlaybackProgress);
+    this.runProgressBar();
 
     this.midi.play(this.question.midi);
     setTimeout(() => {
       console.log('done playback...');
       this.record();
-    }, this.playbackDuration);
+    }, this.playbackDuration / 2);
+  }
+
+  private runProgressBar() {
+    // console.log('running progress bar...');
+    this.$refs.progressBar.style.animationName = '';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.$refs.progressBar.style.animationDuration = this.playbackDuration + 'ms';
+        this.$refs.progressBar.style.animationName = 'progress';
+      })
+    })
   }
 
   get question() {
@@ -143,7 +148,29 @@ export default class Playback extends QuestionView<EchoQuestion> {
 }
 </script>
 
-<style lang="css" scoped>
+<style lang="css" >
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+
+  100% {
+    width: 100%;
+  }
+}
+
+.progressContainer {
+  background-color: #eee;
+  height: 5px;
+}
+
+#progress {
+  background-color: blue;
+  width: 100%;
+  height: 5px;
+  animation-timing-function: linear;
+}
+
 .hidden {
   opacity: 0;
 }
