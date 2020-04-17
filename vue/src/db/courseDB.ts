@@ -283,7 +283,7 @@ export async function getChildTagStubs(courseID: string, tagID: string) {
 export async function getAppliedTags(id_course: string, id_card: string) {
   const db = await getCourseDB(id_course);
 
-  const result = await db.query<TagStub>('getTags/get-tags',
+  const result = await db.query<TagStub>('getTags',
     {
       startkey: id_card,
       endkey: id_card
@@ -332,6 +332,14 @@ async function createCards(
   }
 }
 
+export function updateCardElo(courseID: string, cardID: string, elo: number) {
+  const cDB = getCourseDB(courseID);
+  return cDB.get<CardData>(cardID).then(card => {
+    card.elo = elo;
+    return cDB.put(card); // race conditions - how to handle - is it important? probably not
+  });
+}
+
 /**
  * Adds a card to the DB. This function is called
  * as a side effect of adding either a View or
@@ -344,12 +352,14 @@ function addCard(
   courseID: string,
   course: string,
   id_displayable_data: PouchDB.Core.DocumentId[],
-  id_view: PouchDB.Core.DocumentId) {
+  id_view: PouchDB.Core.DocumentId,
+  elo?: number) {
   return getCourseDB(courseID).post<CardData>({
     course,
     id_displayable_data,
     id_view,
-    docType: DocType.CARD
+    docType: DocType.CARD,
+    elo: elo || 1000
   });
 }
 

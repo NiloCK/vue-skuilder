@@ -6,6 +6,7 @@ import { postProcessCourse } from '../attachment-preprocessing';
 import CouchDB from '../couchdb';
 import AsyncProcessQueue from '../utils/processQueue';
 import nano = require('nano');
+import { emit } from 'cluster';
 
 
 export const COURSE_DB_LOOKUP = 'coursedb-lookup';
@@ -19,35 +20,102 @@ function getCourseDBName(courseID: string): string {
     return `coursedb-${courseID}`;
 }
 
+const tagsDoc = {
+    "_id": "_design/getTags",
+    "views": {
+        "getTags": {
+            "map": `function (doc) {
+                if (doc.docType && doc.docType === "TAG") {
+                    for (var cardIndex in doc.taggedCards) {
+                        emit(doc.taggedCards[cardIndex], {
+                            docType: doc.docType,
+                            name: doc.name,
+                            snippit: doc.snippit,
+                            wiki: '',
+                            taggedCards: []
+                        });
+                    }
+                }
+            }`,
+            // "mapFcn": function getTags(doc) {
+            //     if (doc.docType && doc.docType === "TAG") {
+            //         for (var cardIndex in doc.taggedCards) {
+            //             emit(doc.taggedCards[cardIndex], {
+            //                 docType: doc.docType,
+            //                 name: doc.name,
+            //                 snippit: doc.snippit,
+            //                 wiki: '',
+            //                 taggedCards: []
+            //             });
+            //         }
+            //     }
+            // }
+        }
+    },
+    "language": "javascript"
+}
+
+const elodoc = {
+    "_id": "_design/elo",
+    "views": {
+        "elo": {
+            "map": `function (doc) {
+                if (doc.docType && doc.docType === 'CARD') {
+                    if (doc.elo) {
+                        emit(doc.elo, doc._id);
+                    } else {
+                        emit(1000, doc._id);
+                    }
+                }
+            }`,
+            // "mapFcn": function eloView(doc: any) {
+            //     if (doc.docType && doc.docType === 'CARD') {
+            //         if (doc.elo) {
+            //             emit(doc.elo, doc._id);
+            //         } else {
+            //             emit(1000, doc._id);
+            //         }
+            //     }
+            // }
+        }
+    },
+    "language": "javascript"
+}
+
+function insertDesignDoc(courseID: string, doc: {
+    _id: string
+}) {
+    const courseDB = CouchDB.use(courseID);
+
+    courseDB.get(doc._id).then((priorDoc) => {
+        courseDB.insert({
+            ...doc,
+            _rev: priorDoc._rev
+        });
+    }).catch((notFound) => {
+        courseDB.insert(doc).catch(e => {
+            log(`Error inserting design doc ${doc._id} in course-${courseID}`);
+        }).then((resp) => {
+            if (resp && resp.ok) {
+                log(`CourseDB design doc inserted into course-${courseID}`);
+            }
+        });
+    });
+}
+
+const courseDBDesignDocs: { _id: string }[] = [
+    elodoc,
+    tagsDoc
+];
+
 export async function initCourseDBDesignDocInsert() {
     const lookup = await useOrCreateDB(COURSE_DB_LOOKUP);
     lookup.list((err, body) => {
         if (!err) {
             body.rows.forEach((courseDoc) => {
-                const courseDB = CouchDB.use(getCourseDBName(courseDoc.id));
-                const designDoc = JSON.parse(courseDBDesignDoc);
-                // re-insert the design-doc on system inits,
-                // so that design doc is 'up to date'
-                courseDB.get(designDoc._id).then((priorDoc) => {
-                    courseDB.insert({
-                        ...designDoc,
-                        _rev: priorDoc._rev
-                    }).then((resp) => {
-                        if (resp.ok) {
-                            log(`CourseDB design doc updated in course-${courseDoc.id}`)
-                        }
-                    });
-                }).catch((notFound) => {
-
-                    courseDB.insert(designDoc).catch((e) => {
-                        log(`Error inserting courseDB design doc for course-${courseDoc.id}:
-        ${e}`);
-                    }).then((resp) => {
-                        if (resp && resp.ok) {
-                            log(`CourseDB design doc inserted into course-${courseDoc.id}`);
-                        }
-                    });
-                })
+                courseDBDesignDocs.forEach((dDoc) => {
+                    insertDesignDoc(getCourseDBName(courseDoc.id), dDoc);
+                });
             });
         }
     });
@@ -75,7 +143,10 @@ async function createCourse(cfg: CourseConfig): Promise<any> {
             ...cfg
         });
 
-        courseDB.insert(JSON.parse(courseDBDesignDoc));
+        // insert the tags, elo, etc view docs
+        courseDBDesignDocs.forEach((doc) => {
+            courseDB.insert(doc);
+        });
 
         if (!cfg.public) {
             const secObj: SecurityObject = {

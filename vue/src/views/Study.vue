@@ -67,34 +67,84 @@ import {
   getDoc,
   putCardRecord,
   scheduleCardReview,
-  getCourseDoc
+  getCourseDoc,
+  getEloNeighborCards
 } from '@/db';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
 import moment from 'moment';
-import { getUserCourses, getUserClassrooms } from '../db/userDB';
+import { getUserCourses, getUserClassrooms, CourseRegistrationDoc, updateUserElo } from '../db/userDB';
 import { Watch } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
-import { getCredentialledCourseConfig, getCardDataShape } from '@/db/courseDB';
+import { getCredentialledCourseConfig, getCardDataShape, updateCardElo } from '@/db/courseDB';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
 import { StudentClassroomDB } from '../db/classroomDB';
 import { alertUser } from '../components/SnackbarService.vue';
 import { Status } from '../enums/Status';
+import { randomInt } from '../courses/math/utility';
 // import CardCache from '@/db/cardCache';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
 }
 
+function randIntWeightedTowardZero(n: number) {
+  return Math.floor(Math.random() * Math.random() * Math.random() * n);
+}
+
 interface StudySessionRecord {
   card: {
     course_id: string,
     card_id: string,
+    card_elo: number
   },
   records: CardRecord[]
 }
 
+class EloRank {
+  k: number;
+  constructor(k?: number) {
+    this.k = k || 32;
+  }
+
+  setKFactor(k: number) {
+    this.k = k;
+  }
+  getKFactor() {
+    return this.k;
+  }
+
+  getExpected(a: number, b: number) {
+    return 1 / (1 + Math.pow(10, ((b - a) / 400)));
+  }
+  updateRating(expected: number, actual: number, current: number) {
+    return Math.round(current + this.k * (actual - expected));
+  }
+}
+
+function adjustScores(userElo: number, cardElo: number, userScore: number, k?: number): {
+  userElo: number,
+  cardElo: number
+} {
+  const elo = new EloRank(k);
+  const exp = elo.getExpected(userElo, cardElo);
+  const upA = elo.updateRating(exp, userScore, userElo);
+  const upB = elo.updateRating(1 - exp, 1 - userScore, cardElo);
+
+  if (userElo + cardElo === upA + upB) {
+
+    return {
+      userElo: upA,
+      cardElo: upB
+    };
+  } else {
+    return {
+      userElo: 0,
+      cardElo: 0
+    };
+  }
+}
 
 @Component({
   components: {
@@ -126,6 +176,7 @@ export default class Study extends SkldrVue {
   public $refs: {
     shadowWrapper: HTMLDivElement
   };
+  private userCourseRegDoc: CourseRegistrationDoc;
   private userCourseIDs: string[] = [];
   private userClassroomDBs: StudentClassroomDB[] = [];
 
@@ -182,9 +233,12 @@ export default class Study extends SkldrVue {
 
   public async created() {
     this.activeCards = await getActiveCards(this.$store.state.user);
-    this.userCourseIDs = (await getUserCourses(this.$store.state.user))
+    this.userCourseRegDoc = await getUserCourses(this.$store.state.user);
+
+    this.userCourseIDs = this.userCourseRegDoc
       .courses
       .map(course => course.courseID);
+
     const classRoomPromises = (await getUserClassrooms(this.$store.state.user))
       .registrations
       .filter(reg => reg.registeredAs === 'student')
@@ -265,16 +319,53 @@ ${this.sessionString}
       )
     );
 
-    const cardIDs = await getRandomCards(this.userCourseIDs);
+    // const cardIDs = await getRandomCards(this.userCourseIDs);
+    let cardIDs: string[][] = [];
+    // this.userCourseRegDoc.courses.forEach(async c => {
+    //   cardIDs = cardIDs.concat(await getEloNeighborCards(c.courseID, c.elo))
+    // });
+    for (let i = 0; i < this.userCourseRegDoc.courses.length; i++) {
+      cardIDs.push(await getEloNeighborCards(
+        this.userCourseRegDoc.courses[i].courseID,
+        this.userCourseRegDoc.courses[i].elo ? this.userCourseRegDoc.courses[i].elo : 1000
+      ));
+    }
 
-    const newCards = cardIDs.filter((cardID) => {
-      return this.activeCards.indexOf(cardID) === -1;
+    // todo: this is not correctly handling new-card picking when more
+    //       than one course is involved.
+
+    const newCards = cardIDs.map((cardList) => {
+      return cardList.filter(
+        (card) => {
+          return this.activeCards.indexOf(card) === -1;
+        });
     });
+    // cardIDs.filter((cardID) => {
+    //   return this.activeCards.indexOf(cardID) === -1;
+    // });
 
-    while (newCardCount > 0 && newCards.length > 0) {
-      const index = randInt(newCards.length);
-      this.session.push(newCards.splice(index, 1)[0]);
-      newCardCount--;
+    let courseIndex = randInt(newCards.length);
+
+    function hasElements(arr: any[][]): boolean {
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].length > 0) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    while (newCardCount > 0 && hasElements(newCards)) {
+      const newCourseCards = newCards[courseIndex % newCards.length];
+      if (newCourseCards.length > 0) {
+
+
+        const index = randIntWeightedTowardZero(newCourseCards.length);
+        this.session.push(newCourseCards.splice(index, 1)[0]);
+
+        newCardCount--;
+      }
+      courseIndex++;
     }
   }
 
@@ -308,6 +399,12 @@ ${this.sessionString}
 
           cardHistory.then((history) => {
             this.scheduleReview(history);
+            if (history.records.length === 1) {
+              // correct answer on first sight: elo win for student
+              this.updateUserAndCardElo(1);
+            } else {
+              // ELO? Or only on first-sight?
+            }
           });
         } else {
           // user got the question right, but with multiple
@@ -328,8 +425,9 @@ ${this.sessionString}
               // max attempts per view and session have been reached:
               // dismiss the card from the session without scheduling
               // a review - it is too hard!
-              this.nextCard(`${r.courseID}-${r.cardID}`);
+              this.nextCard(`${r.courseID}-${r.cardID}-${this.currentCard.card.card_elo}`);
               // ELO - this is a 'win' for the card
+              this.updateUserAndCardElo(0);
             } else {
               // max attempts on the view have been reached, but
               // card may be viewed again this session.
@@ -340,10 +438,20 @@ ${this.sessionString}
         // clear user input? todo: needs to be a fcn on CardViewer
       }
     } else {
-      this.nextCard(`${r.courseID}-${r.cardID}`);
+      this.nextCard(`${r.courseID}-${r.cardID}-${this.currentCard.card.card_elo}`);
     }
 
     this.clearFeedbackShadow();
+  }
+
+  private updateUserAndCardElo(userScore: number) {
+    const eloUpdate = adjustScores(
+      this.userCourseRegDoc.courses.find(c => c.courseID === this.courseID)!.elo,
+      this.currentCard.card.card_elo,
+      userScore
+    );
+    updateUserElo(this.$store.state.user, this.courseID, eloUpdate.userElo);
+    updateCardElo(this.courseID, this.cardID, eloUpdate.cardElo);
   }
 
   private clearFeedbackShadow() {
@@ -374,13 +482,16 @@ ${this.sessionString}
 
   /**
    * async fetch card data and view from the db
-   * for the given qualified card id ("courseid-cardid"),
+   * for the given qualified card id ("courseid-cardid-elo"),
    * and then display the card to the user.
    */
   private async loadCard(qualified_id: string) {
     this.loading = true;
     const _courseID = qualified_id.split('-')[0];
     const _cardID = qualified_id.split('-')[1];
+    const _cardElo = qualified_id.split('-')[2];
+
+    console.log(`Now displaying: ${qualified_id}`);
 
     try {
       // const tmpCardData = await CardCache.getDoc<CardData>(qualified_id);
@@ -415,7 +526,8 @@ ${this.sessionString}
       this.sessionRecord.push({
         card: {
           course_id: _courseID,
-          card_id: _cardID
+          card_id: _cardID,
+          card_elo: parseInt(_cardElo)
         },
         records: []
       });

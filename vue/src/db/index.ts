@@ -351,6 +351,21 @@ export async function getRandomCards(courseIDs: string[]) {
   }
 }
 
+/**
+ * Returns all course cards sorted by elo-proximity to the input elo
+ * in 'qualified' card format ("courseid-cardid-elo")
+ * 
+ * @param course_id id of the Course being queried
+ * @param elo the target elo card rating
+ */
+export async function getEloNeighborCards(course_id: string, elo: number) {
+  const cards = await getCourseDB(course_id).query('elo');
+  return cards.rows.sort((a, b) => {
+    return Math.abs(a.key - elo) - Math.abs(b.key - elo);
+  }).map(c => `${course_id}-${c.id}-${c.key}`);
+
+}
+
 export async function putCardRecord<T extends CardRecord>(record: T, user: string) {
   const userDB = getUserDB(user);
   const cardHistoryID = getCardHistoryID(record.courseID, record.cardID);

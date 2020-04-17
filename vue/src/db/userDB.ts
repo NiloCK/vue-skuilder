@@ -45,6 +45,10 @@ export function getUserDB(username: string): PouchDB.Database {
 const userCoursesDoc = 'CourseRegistrations';
 const userClassroomsDoc = 'ClassroomRegistrations';
 
+interface TaggedElo {
+  [tag: string]: number;
+}
+
 interface CourseRegistration {
   courseID: string;
   admin: boolean;
@@ -53,13 +57,15 @@ interface CourseRegistration {
   settings?: {
     [setting: string]: string | number | boolean
   }
+  elo: number;
+  taggedElo: TaggedElo;
 }
 
 interface StudyWeights {
   [courseID: string]: number;
 }
 
-interface CourseRegistrationDoc {
+export interface CourseRegistrationDoc {
   courses: CourseRegistration[];
   studyWeight: StudyWeights;
 }
@@ -125,6 +131,23 @@ async function getOrCreateCourseRegistrationsDoc(user: string):
   return ret;
 }
 
+export async function updateUserElo(user: string, course_id: string, elo: number | TaggedElo) {
+  let regDoc = await getOrCreateCourseRegistrationsDoc(user);
+  if (isTaggedElo(elo)) {
+    for (const tag in elo) {
+      regDoc.courses.find(c => c.courseID === course_id)!
+        .taggedElo[tag] = elo[tag]
+    }
+  } else {
+    regDoc.courses.find(c => c.courseID === course_id)!
+      .elo = elo;
+  }
+}
+
+function isTaggedElo(e: number | TaggedElo): e is TaggedElo {
+  return (e as TaggedElo).length !== undefined;
+}
+
 export async function registerUserForClassroom(user: string, classID: string, registerAs: ClassroomRegistrationDesignation) {
   log(`Registering user: ${user} in course: ${classID}`);
   return getOrCreateClassroomRegistrationsDoc(user).then((doc) => {
@@ -168,7 +191,9 @@ export async function registerUserForCourse(user: string, course_id: string) {
       courseID: course_id,
       user: true,
       admin: false,
-      moderator: false
+      moderator: false,
+      elo: 1000,
+      taggedElo: {}
     };
 
     if (doc.courses.filter((course) => {
