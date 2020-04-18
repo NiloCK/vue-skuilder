@@ -142,6 +142,7 @@ export async function updateUserElo(user: string, course_id: string, elo: number
     regDoc.courses.find(c => c.courseID === course_id)!
       .elo = elo;
   }
+  return getUserDB(user).put(regDoc);
 }
 
 function isTaggedElo(e: number | TaggedElo): e is TaggedElo {
@@ -257,12 +258,14 @@ export async function updateCourseSetting(
   }) {
   getOrCreateCourseRegistrationsDoc(user).then((doc) => {
     let crs = doc.courses.find(c => c.courseID === course_id);
-    if (crs.settings === null || crs.settings === undefined) {
-      crs.settings = {};
+    if (crs) {
+      if (crs.settings === null || crs.settings === undefined) {
+        crs.settings = {};
+      }
+      settings.forEach(setting => {
+        crs!.settings![setting.key] = setting.value;
+      });
     }
-    settings.forEach(setting => {
-      crs.settings[setting.key] = setting.value;
-    });
 
     return getUserDB(user).put(doc);
   })
