@@ -73,6 +73,7 @@ export class EchoQuestion extends Question {
 
     if (answer.length !== this.midi.length) {
       log(`Input length and answer length not equal...`);
+      return false;
     }
 
     for (let i = 0; i < Math.min(onAnswer.length, onMidi.length); i++) {

@@ -13,7 +13,7 @@
       
     <v-btn
       color="primary"
-      @click="play"
+      @click="clearAttempt"
       autofocus
     >
       Play again <v-icon right>volume_up</v-icon>
@@ -75,7 +75,15 @@ export default class Playback extends QuestionView<EchoQuestion> {
     // this.MouseTrap = new Mousetrap(this.$el);
     this.midi = await SkMidi.instance();
     this.MouseTrap.unbind('space'); // remove from dismissed cards
-    this.MouseTrap.bind('space', () => { this.play() });
+    this.MouseTrap.bind('space', () => { this.clearAttempt() });
+  }
+
+  public clearAttempt() {
+    if (this.notesOn > 0) {
+      this.submit();
+    } else {
+      this.play();
+    }
   }
 
   public async mounted() {
