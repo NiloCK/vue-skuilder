@@ -165,18 +165,16 @@ function adjustScores(userElo: number, cardElo: number, userScore: number, k?: n
   const upA = elo.updateRating(exp, userScore, userElo);
   const upB = elo.updateRating(1 - exp, 1 - userScore, cardElo);
 
-  if (userElo + cardElo === upA + upB) {
+  console.log(`ELO updates w/ user score ${userScore}
+       user  |  card
+init   ${userElo}         ${cardElo}
+final  ${upA}         ${upB}
+  `)
 
-    return {
-      userElo: upA,
-      cardElo: upB
-    };
-  } else {
-    return {
-      userElo: 0,
-      cardElo: 0
-    };
-  }
+  return {
+    userElo: upA,
+    cardElo: upB
+  };
 }
 
 @Component({
@@ -429,17 +427,22 @@ ${this.sessionString}
           // user got the question right on 'the first try'.
           // dismiss the card from this study session, and
           // schedule its review in the future.
-          this.nextCard(`${r.courseID}-${r.cardID}`);
+          this.nextCard(`${r.courseID}-${r.cardID}-${this.currentCard.card.card_elo}`);
 
+          // elo win for the user
           cardHistory.then((history) => {
             this.scheduleReview(history);
             if (history.records.length === 1) {
               // correct answer on first sight: elo win for student
-              this.updateUserAndCardElo(1);
+              this.updateUserAndCardElo(1, this.courseID, this.cardID);
             } else {
-              // ELO? Or only on first-sight?
+              // win for the student, but adjust less aggressively as
+              // the card is more familiar
+              const k = Math.floor(32 / history.records.length);
+              this.updateUserAndCardElo(1, this.courseID, this.cardID, k);
             }
           });
+
         } else {
           // user got the question right, but with multiple
           // attempts. Dismiss it, but don't remove from
@@ -460,8 +463,9 @@ ${this.sessionString}
               // dismiss the card from the session without scheduling
               // a review - it is too hard!
               this.nextCard(`${r.courseID}-${r.cardID}-${this.currentCard.card.card_elo}`);
+
               // ELO - this is a 'win' for the card
-              this.updateUserAndCardElo(0);
+              this.updateUserAndCardElo(0, this.courseID, this.cardID);
             } else {
               // max attempts on the view have been reached, but
               // card may be viewed again this session.
@@ -478,14 +482,29 @@ ${this.sessionString}
     this.clearFeedbackShadow();
   }
 
-  private updateUserAndCardElo(userScore: number) {
+  private async updateUserAndCardElo(userScore: number, course_id: string, card_id: string, k?: number) {
+    console.log(`Updating ELO scores for
+      user: ${this.$store.state.user}
+      card: ${course_id}-${card_id}`);
     const eloUpdate = adjustScores(
-      this.userCourseRegDoc.courses.find(c => c.courseID === this.courseID)!.elo,
+      this.userCourseRegDoc.courses.find(c => c.courseID === course_id)!.elo,
       this.currentCard.card.card_elo,
-      userScore
+      userScore,
+      k
     );
-    updateUserElo(this.$store.state.user, this.courseID, eloUpdate.userElo);
-    updateCardElo(this.courseID, this.cardID, eloUpdate.cardElo);
+    const user = await updateUserElo(this.$store.state.user, course_id, eloUpdate.userElo);
+    const card = await updateCardElo(course_id, card_id, eloUpdate.cardElo);
+
+    if (user.ok && card.ok) {
+      console.log(`Updated ELOs:
+  user: ${this.$store.state.user}
+  course: ${course_id}
+  card: ${card_id}
+      `)
+      this.userCourseRegDoc.courses.find(c => c.courseID === course_id)!.elo = eloUpdate.userElo
+    }
+
+    return (user.ok && card.ok);
   }
 
   private clearFeedbackShadow() {
