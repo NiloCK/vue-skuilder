@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import Home from './views/Home.vue';
 import About from './views/About.vue';
 import Edit from './views/Edit.vue';
+import CourseEditor from './components/Edit/CourseEditor.vue';
 import Study from './views/Study.vue';
 import Classrooms from './views/Classrooms.vue';
 import ClassroomCtrlPanel from './components/Classrooms/ClassroomCtrlPanel.vue';
@@ -32,6 +33,11 @@ export default new Router({
       path: '/edit',
       name: 'edit',
       component: Edit
+    },
+    {
+      path: '/edit/:course',
+      props: true,
+      component: CourseEditor
     },
     {
       path: '/study',

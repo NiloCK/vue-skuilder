@@ -11,6 +11,20 @@
     </p>
     
     <midi-config :_id='_id' />
+
+    <router-link
+      :to='`/edit/${_id}`'
+    >
+      <v-btn
+        fab
+        small
+        dark
+        color='indigo'
+        title="Add content to this course"
+      >
+        <v-icon>add</v-icon>
+      </v-btn>
+    </router-link>
   </div>  
 </template>
 

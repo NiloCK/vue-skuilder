@@ -25,17 +25,50 @@
           v-on:emitResponse="processResponse($event)"
       />
     </div>
-    <v-btn
-      fab
+    <v-speed-dial
+      v-model="fab"
       fixed
       bottom
       right
-      title="Edit this card"
+      transition='scale-transition'
+    >
+      <template v-slot:activator>
+        <v-btn
+          v-model="fab"
+          color="blue darken-2"
+          dark
+          fab
+        >
+          <v-icon v-if='fab'>close</v-icon>
+          <v-icon v-else>edit</v-icon>
+        </v-btn>
+      </template>
+      <router-link
+      :to='`/edit/${courseID}`'
+    >
+      <v-btn
+        fab
+        small
+        dark
+        color='indigo'
+        title="Add content to this course"
+      >
+        <v-icon>add</v-icon>
+      </v-btn>
+    </router-link>
+    <v-btn
+      fab
+      dark
+      small
+      color="orange darken-2"
+      title="Edit tags on this card"
       @click="editTags = !editTags"
       :loading='editCard'
     >
-      <v-icon>edit</v-icon>
+      <v-icon>bookmark</v-icon>
     </v-btn>
+    
+    </v-speed-dial>
     <br>
     <sk-tags-input
         v-if='editTags'
@@ -153,6 +186,7 @@ function adjustScores(userElo: number, cardElo: number, userScore: number, k?: n
   }
 })
 export default class Study extends SkldrVue {
+  public fab: boolean = false; // open the speed-dial fab
   public editTags: boolean = false; // open the tagsInput for this card
   public editCard: boolean = false; // open the editor for this card
   public editCardReady: boolean = false; // editor for this card is ready to display
