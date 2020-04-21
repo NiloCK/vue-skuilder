@@ -20,7 +20,7 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { FieldInput } from "../FieldInput";
-import SkMidi from "../../../../courses/piano/utility/midi";
+import SkMidi, { eventsToSyllableSequence } from "../../../../courses/piano/utility/midi";
 
 @Component({})
 export default class MidiInput extends FieldInput {
@@ -68,6 +68,7 @@ export default class MidiInput extends FieldInput {
 
   public play() {
     this.midi.play();
+    console.log(eventsToSyllableSequence(this.midi.recording));
     this.validate();
   }
 }

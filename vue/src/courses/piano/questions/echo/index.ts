@@ -5,7 +5,7 @@ import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { DataShapeName } from '@/enums/DataShapeNames';
 import { FieldType } from '@/enums/FieldType';
 import Playback from './Playback.vue';
-import { NoteEvent } from '../../utility/midi';
+import { NoteEvent, eventsToSyllableSequence } from '../../utility/midi';
 import { VueConstructor } from 'vue';
 import Viewable from '@/base-course/Viewable';
 import { log } from 'util';
@@ -70,6 +70,12 @@ export class EchoQuestion extends Question {
 
     const onMidi = this.midi.filter(e => e.type === "noteon");
     const onAnswer = answer.filter(e => e.type === 'noteon');
+
+    const qSSeq = eventsToSyllableSequence(this.midi);
+    const aSSeq = eventsToSyllableSequence(answer);
+    const gradedSeq = qSSeq.grade(aSSeq);
+
+    console.log();
 
     if (answer.length !== this.midi.length) {
       log(`Input length and answer length not equal...`);
