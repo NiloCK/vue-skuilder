@@ -13,11 +13,13 @@ export function eventsToSyllableSequence(midi: NoteEvent[]): SyllableSequence {
     .sort((a, b) => a.timestamp - b.timestamp);
 
   for (let chordSize = 10; chordSize > 0; chordSize--) {
-    for (let i = 0; i < midi.length - chordSize; i++) {
+    for (let i = 0; i < midi.length - chordSize + 1; i++) {
       try {
         syllables.push(new Syllable(midi.slice(i, i + chordSize)));
         midi.splice(i, chordSize);
-      } catch { }
+      } catch {
+        // console.log(`awef`);
+      }
     }
   }
 
@@ -80,9 +82,9 @@ class SyllableSequence {
   public toString(): string {
     let ret = "";
     this.syllables.forEach((s, i) => {
-      ret += `Syllable ${i}: {`
+      ret += `Syllable ${i}: {\n`
       s.notes.forEach((n) => {
-        ret += `\t${n.note.name}\t${n.note.number}\n`
+        ret += `\t${n.note.name}\t${n.note.number}\t${n.timestamp}\n`
       });
       ret += `} - ${s.timestamp}, correct: ${s.isCorrect}\n`
     });
@@ -168,7 +170,7 @@ class Syllable {
    * @param n number of notes
    */
   private static gracePeriod(n: number): number {
-    const sequentialEventsLowerBound = 15;
+    const sequentialEventsLowerBound = 12;
     return 1.3 * sequentialEventsLowerBound * n;
   }
 }
