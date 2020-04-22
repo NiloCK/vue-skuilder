@@ -70,6 +70,16 @@ export const pouchDBincludeCredentialsConfig: PouchDB.Configuration.RemoteDataba
   }
 } as PouchDB.Configuration.RemoteDatabaseConfiguration;
 
+function getCouchDB(dbName: string): PouchDB.Database {
+  return new pouch(
+    ENV.COUCHDB_SERVER_PROTOCOL +
+    '://' +
+    ENV.COUCHDB_SERVER_URL +
+    dbName,
+    pouchDBincludeCredentialsConfig
+  );
+}
+
 export function getCourseDB(courseID: string): PouchDB.Database {
   // todo: keep a cache of opened courseDBs? need to benchmark this somehow
   return new pouch(
@@ -80,6 +90,18 @@ export function getCourseDB(courseID: string): PouchDB.Database {
     courseID,
     pouchDBincludeCredentialsConfig
   );
+}
+
+export async function getLatestVersion() {
+  const docs = await getCouchDB('version').allDocs({
+    descending: true,
+    limit: 1
+  });
+  if (docs && docs.rows && docs.rows[0]) {
+    return docs.rows[0].id;
+  } else {
+    return '0.0.0';
+  }
 }
 
 /**

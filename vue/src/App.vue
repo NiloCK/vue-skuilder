@@ -130,7 +130,11 @@
       </v-list>
     </v-navigation-drawer>
     <v-footer :fixed="fixed" app>
-      <span>&copy; 2017</span>
+      <span>v: {{build}}      <span v-if='latestBuild && build !== latestBuild'>
+        ({{latestBuild}} current)
+      </span>
+      <router-link to='/notes'>Release Notes</router-link>
+      </span>
     </v-footer>
     <snackbar-service id="SnackbarService" />
   </v-app>
@@ -139,6 +143,7 @@
 <script lang="ts">
 import UserLoginAndRegistrationContainer from '@/components/UserLoginAndRegistrationContainer.vue';
 import SnackbarService from '@/components/SnackbarService.vue';
+import { getLatestVersion } from '@/db';
 
 export default {
   name: 'App',
@@ -148,6 +153,8 @@ export default {
   },
   data() {
     return {
+      build: '0.0.1',
+      latestBuild: '',
       clipped: false,
       drawer: true,
       fixed: false,
@@ -156,6 +163,9 @@ export default {
       rightDrawer: false,
       title: 'Skuilder'
     };
+  },
+  async created() {
+    this.latestBuild = await getLatestVersion();
   }
 };
 </script>

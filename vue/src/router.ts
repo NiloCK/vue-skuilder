@@ -11,6 +11,7 @@ import Courses from './views/Courses.vue';
 import CourseInformation from './components/Courses/CourseInformation.vue';
 import Admin from './views/Admin.vue';
 import User from './views/User.vue';
+import ReleaseNotes from './views/ReleaseNotes.vue';
 
 Vue.use(Router);
 
@@ -33,6 +34,10 @@ export default new Router({
       path: '/edit',
       name: 'edit',
       component: Edit
+    },
+    {
+      path: '/notes',
+      component: ReleaseNotes
     },
     {
       path: '/edit/:course',
