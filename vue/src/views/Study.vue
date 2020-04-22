@@ -486,25 +486,32 @@ ${this.sessionString}
     console.log(`Updating ELO scores for
       user: ${this.$store.state.user}
       card: ${course_id}-${card_id}`);
-    const eloUpdate = adjustScores(
-      this.userCourseRegDoc.courses.find(c => c.courseID === course_id)!.elo,
-      this.currentCard.card.card_elo,
-      userScore,
-      k
-    );
-    const user = await updateUserElo(this.$store.state.user, course_id, eloUpdate.userElo);
-    const card = await updateCardElo(course_id, card_id, eloUpdate.cardElo);
 
-    if (user.ok && card.ok) {
-      console.log(`Updated ELOs:
+    const userElo = this.userCourseRegDoc.courses.find(c => c.courseID === course_id)!.elo;
+    const cardElo = this.currentCard.card.card_elo
+
+    if (cardElo && userElo) {
+
+      const eloUpdate = adjustScores(
+        userElo,
+        cardElo,
+        userScore,
+        k
+      );
+      const user = await updateUserElo(this.$store.state.user, course_id, eloUpdate.userElo);
+      const card = await updateCardElo(course_id, card_id, eloUpdate.cardElo);
+
+      if (user.ok && card.ok) {
+        console.log(`Updated ELOs:
   user: ${this.$store.state.user}
   course: ${course_id}
   card: ${card_id}
       `)
-      this.userCourseRegDoc.courses.find(c => c.courseID === course_id)!.elo = eloUpdate.userElo
-    }
+        this.userCourseRegDoc.courses.find(c => c.courseID === course_id)!.elo = eloUpdate.userElo
+      }
 
-    return (user.ok && card.ok);
+      return (user.ok && card.ok);
+    }
   }
 
   private clearFeedbackShadow() {
