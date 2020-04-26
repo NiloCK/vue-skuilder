@@ -16,7 +16,12 @@ export function eventsToSyllableSequence(midi: NoteEvent[]): SyllableSequence {
     for (let i = 0; i < midi.length - chordSize + 1; i++) {
       try {
         syllables.push(new Syllable(midi.slice(i, i + chordSize)));
+        // if a chordSized syllable has been created, remove these notes from
+        // the 'to be parsed' pile
         midi.splice(i, chordSize);
+        // and reset the 'parse from the beginning' index so that
+        // the new midi[0] is not passed over
+        i = -1;
       } catch {
         // console.log(`awef`);
       }
