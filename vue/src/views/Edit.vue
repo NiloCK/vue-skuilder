@@ -17,7 +17,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import CourseEditor from '../components/Edit/CourseEditor.vue';
-import { Component } from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
 import { CourseConfig } from '../server/types';
 import { getUserEditableCourses } from '../db/userDB';
 
@@ -28,6 +28,7 @@ import { getUserEditableCourses } from '../db/userDB';
 })
 export default class Edit extends Vue {
   public courseList: CourseConfig[] = [];
+  @Prop()
   public selectedCourse: string = '';
 
   private get courseNames() {
