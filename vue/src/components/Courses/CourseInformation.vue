@@ -3,7 +3,7 @@
     <h1 class='display-1'><router-link to="/q">Quilts</router-link> / {{_courseConfig.name}}</h1>
     
     <div class="body-2">
-      There are {{ questionCount }} questions in this course.
+      There are {{ questionCount }} exercises in this course.
     </div>
 
     <p class='body-2'>
