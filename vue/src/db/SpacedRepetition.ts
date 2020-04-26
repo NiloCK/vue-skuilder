@@ -4,7 +4,7 @@ import { log } from 'util';
 import Store from '@/store';
 
 /**
- * Returns the number of seconds that should pass before a
+ * Returns the minimum number of seconds that should pass before a
  * card is redisplayed for review / practice.
  *
  * @param cardHistory The user's history working with the given card
@@ -13,7 +13,7 @@ export function newInterval<T extends CardRecord>(cardHistory: T[]): number {
     if (isQuestionRecord(cardHistory[0])) {
         return newQuestionInterval(cardHistory as unknown as QuestionRecord[]);
     } else {
-        return 10000; // random - replace
+        return 100000; // random - replace
     }
 }
 
@@ -44,8 +44,9 @@ function lastSuccessfulInterval(cardHistory: QuestionRecord[]): number {
             && cardHistory[i].isCorrect
         ) {
             const lastInterval = secondsBetween(cardHistory[i - 1].timeStamp, cardHistory[i].timeStamp);
-            log(`Last interval w/ this card was: ${lastInterval}`);
-            return lastInterval;
+            const ret = Math.max(lastInterval, 20 * 60 * 60);
+            log(`Last interval w/ this card was: ${lastInterval}s, returning ${ret}s`);
+            return ret;
         }
     }
 
