@@ -2,7 +2,7 @@ import dotenv = require('dotenv');
 import Nano = require('nano');
 
 dotenv.config({
-    path: '../vue/.env.development.local'
+    path: '../.env.development.local'
 });
 
 const url = process.env.VUE_APP_COUCHDB_SERVER;
