@@ -26,7 +26,7 @@ export function eventsToSyllableSequence(midi: NoteEvent[]): SyllableSequence {
   return new SyllableSequence(syllables);
 }
 
-class SyllableSequence {
+export class SyllableSequence {
   syllables: Syllable[];
   rootNote: IEventNote;
 
@@ -34,12 +34,22 @@ class SyllableSequence {
    *
    */
   constructor(syllables: Syllable[]) {
-    this.syllables = syllables.sort((a, b) => {
-      return a.timestamp - b.timestamp
-    });
-    this.rootNote = this.syllables[0].notes.reduce((lowest, current) => {
-      return current.note.number < lowest.note.number ? current : lowest;
-    }).note;
+    if (syllables.length > 0) {
+
+      this.syllables = syllables.sort((a, b) => {
+        return a.timestamp - b.timestamp
+      });
+      this.rootNote = this.syllables[0].notes.reduce((lowest, current) => {
+        return current.note.number < lowest.note.number ? current : lowest;
+      }).note;
+    } else {
+      this.syllables = [];
+      this.rootNote = {
+        name: 'C',
+        octave: 4,
+        number: 0
+      }
+    }
   }
 
   public grade(answer: SyllableSequence): SyllableSequence {
