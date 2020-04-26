@@ -9,6 +9,7 @@
        v-for="note in syl.notes"
       >
         <circle
+          @mouseenter="sayNote(note)"
           :key="syl.timestamp + '-' + note.note.number" 
           :cx="( syl.timestamp * 500 / lastTS ) + 4"
           :cy="3 * (high - note.note.number) + 4"
@@ -28,7 +29,7 @@ import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import { log } from 'util';
 import SkldrVue from '../../../SkldrVue';
-import { SyllableSequence } from './midi';
+import { SyllableSequence, NoteEvent } from './midi';
 
 @Component({})
 export default class SyllableSeqVis extends SkldrVue {
@@ -38,6 +39,10 @@ export default class SyllableSeqVis extends SkldrVue {
   public lastTS: number = 0; // in ms
   public high: number = 0;
   public low: number = 500;
+
+  public sayNote(note: NoteEvent) {
+    console.log(`${JSON.stringify(note)}`);
+  }
 
   created() {
     try {
