@@ -37,7 +37,7 @@
             </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile
+        <!-- <v-list-tile
           v-if='true'
           value="true"          
           :to="{path: '/classrooms'}"
@@ -50,7 +50,7 @@
               Classrooms
             </v-list-tile-title>
           </v-list-tile-content>
-        </v-list-tile>
+        </v-list-tile> -->
         <v-list-tile
           v-if='true'
           value="true"          
@@ -65,7 +65,7 @@
             </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile
+        <!-- <v-list-tile
           v-if='true'
           value="true"          
           :to="{path: '/edit'}"
@@ -78,7 +78,7 @@
               Edit
             </v-list-tile-title>
           </v-list-tile-content>
-        </v-list-tile>
+        </v-list-tile> -->
       </v-list>
     </v-navigation-drawer>
     <v-toolbar
@@ -130,10 +130,8 @@
       </v-list>
     </v-navigation-drawer>
     <v-footer :fixed="fixed" app>
-      <span>v: {{build}}      <span v-if='latestBuild && build !== latestBuild'>
-        ({{latestBuild}} current)
-      </span>
-      <router-link to='/notes'>Release Notes</router-link>
+      <span>
+       v: <router-link to='/notes'>{{build}}</router-link>
       </span>
     </v-footer>
     <snackbar-service id="SnackbarService" />
