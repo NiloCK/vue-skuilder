@@ -15,7 +15,8 @@
           :cy="3 * (high - note.note.number) + 4"
           :alt='note.note.name'
           r="3"
-          :fill="note.isCorrect ? 'black' : 'red'"
+          :fill="note.isCorrect ? 'black' :  note.isMissing ? 'none' : 'red'"
+          :stroke="note.isMissing ? 'red' : 'none'"
         />
       </template>
     </template>
@@ -45,6 +46,8 @@ export default class SyllableSeqVis extends SkldrVue {
   }
 
   created() {
+    console.log(`SyllableSeqVis created w/ input: \n${this.seq}`);
+
     try {
       this.lastTS = this.seq.syllables[this.seq.syllables.length - 1].timestamp
     } catch { }
