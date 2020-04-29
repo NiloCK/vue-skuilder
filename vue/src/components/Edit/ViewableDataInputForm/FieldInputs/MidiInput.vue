@@ -6,6 +6,7 @@
         <span class="font-weight-black">{{midi.configuredInput}}</span>
       </span>
     </div>
+    <syllable-seq-vis v-if="display" :seq="SylSeq" />
     <v-btn color="primary" @click="play" :disabled="hasRecording()">
       Preview
       <v-icon right>volume_up</v-icon>
@@ -14,18 +15,27 @@
       Clear and try again
       <v-icon right>close</v-icon>
     </v-btn>
+    <!-- <v-checkbox label="Include Transpositions" v-model="transpositions"></v-checkbox> -->
   </div>
 </template>
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { FieldInput } from "../FieldInput";
-import SkMidi, { eventsToSyllableSequence } from "../../../../courses/piano/utility/midi";
+import SkMidi, { eventsToSyllableSequence, SyllableSequence } from "../../../../courses/piano/utility/midi";
+import SyllableSeqVis from "../../../../courses/piano/utility/SyllableSeqVis.vue";
 
-@Component({})
+@Component({
+  components: {
+    SyllableSeqVis
+  }
+})
 export default class MidiInput extends FieldInput {
   public midi: SkMidi;
   public recording: boolean = false;
+  public SylSeq: SyllableSequence = eventsToSyllableSequence([]);
+  public display: boolean = false;
+  public transpositions: boolean = false;
 
   async created() {
     this.midi = await SkMidi.instance();
@@ -68,7 +78,9 @@ export default class MidiInput extends FieldInput {
 
   public play() {
     this.midi.play();
-    console.log(eventsToSyllableSequence(this.midi.recording));
+    this.SylSeq = eventsToSyllableSequence(this.midi.recording);
+    this.display = true;
+    console.log(eventsToSyllableSequence(this.midi.recording).toString());
     this.validate();
   }
 }
