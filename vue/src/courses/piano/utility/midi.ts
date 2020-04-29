@@ -58,48 +58,25 @@ export class SyllableSequence {
   }
 
   public grade(answer: SyllableSequence): SyllableSequence {
+    let ret: Syllable[] = [];
+
     for (let i = 0; i < this.syllables.length; i++) {
-
-      // handling missing notes in a syllable
-      if (this.syllables[i].notes.length !== answer.syllables[i].notes.length) {
-        answer.syllables[i].isCorrect = false;
-      }
-
-      // this.syllables[i].notes.forEach((note) => {
-      //   const ansNote = answer.syllables[i].notes.find( (n) => {
-      //     const sameName = n.note.name === note.note.name;
-      //     const sameDiff = n.note.number - this.rootNote.number ===
-      //                      note.note.number - answer.rootNote.number
-      //     return sameName && sameDiff;
-      //   });
-      //   if (ansNote) {
-
-      //   }
-      // })
-
-      for (let j = 0; j < this.syllables[i].notes.length; j++) {
-        const notTheSameNote = this.syllables[i].notes[j].note.name !==
-          answer.syllables[i].notes[j].note.name;
-        const notTheSameInterval =
-          this.syllables[i].notes[j].note.number - this.rootNote.number !==
-          answer.syllables[i].notes[j].note.number - answer.rootNote.number;
-
-        if (notTheSameInterval || notTheSameNote) {
-          answer.syllables[i].notes[j].isCorrect = false;
-          answer.syllables[i].isCorrect = false;
-        }
-      }
+      ret.push(this.syllables[i].grade(answer.syllables[i]));
     }
 
-    return answer;
+    return new SyllableSequence(ret);
   }
 
   public toString(): string {
     let ret = "";
     this.syllables.forEach((s, i) => {
-      ret += `Syllable ${i}: {\n`
+      ret += `Syllable ${i + 1}: {\n`
       s.notes.forEach((n) => {
-        ret += `\t${n.note.name}\t${n.note.number}\t${n.timestamp}\n`
+        ret += `\t${n.note.name}\t${n.note.number}\t${n.timestamp} ${
+          !n.isCorrect ? "" : '(incorrect)'
+          } ${
+          n.isMissing ? "" : '(missing)'
+          }\n`
       });
       ret += `} - ${s.timestamp}, correct: ${s.isCorrect}\n`
     });
@@ -110,11 +87,11 @@ export class SyllableSequence {
     let ret = true;
     this.syllables.forEach((s) => {
       if (s.isCorrect === false) {
-        return false;
+        ret = false;
       } else {
         s.notes.forEach(n => {
           if (n.isCorrect === false) {
-            return false;
+            ret = false;
           }
         })
       }
@@ -125,7 +102,10 @@ export class SyllableSequence {
 
 
 class Syllable {
-  notes: (NoteEvent & { isCorrect: boolean })[];
+  notes: (NoteEvent & {
+    isCorrect: boolean,
+    isMissing: boolean
+  })[];
   isCorrect: boolean;
 
   get timestamp(): number {
@@ -171,7 +151,8 @@ class Syllable {
       this.notes = notes.map((note) => {
         return {
           ...note,
-          isCorrect: true
+          isCorrect: true,
+          isMissing: false
         }
       }).sort((a, b) => {
         return a.note.number - b.note.number;
@@ -185,8 +166,37 @@ class Syllable {
    * @param n number of notes
    */
   private static gracePeriod(n: number): number {
-    const sequentialEventsLowerBound = 12;
+    const sequentialEventsLowerBound = 12; // milliseconds
     return 1.3 * sequentialEventsLowerBound * n;
+  }
+
+  public grade(answer: Syllable, refNote?: IEventNote): Syllable {
+    const ref = refNote || this.notes[0];
+
+    if (this.notes.length !== answer.notes.length) {
+      answer.isCorrect = false;
+    }
+
+    answer.notes.forEach((studentNote) => {
+      studentNote.isCorrect =
+        this.notes.filter(
+          note => studentNote.note.name === note.note.name).length === 1;
+      if (!studentNote.isCorrect) {
+        answer.isCorrect = false;
+      }
+    });
+
+    this.notes.forEach(note => {
+      if (!answer.notes.some(studentNote => studentNote.note.name === note.note.name)) {
+        answer.notes.push({
+          ...note,
+          isMissing: true,
+          isCorrect: false
+        });
+      }
+    });
+
+    return answer;
   }
 }
 
