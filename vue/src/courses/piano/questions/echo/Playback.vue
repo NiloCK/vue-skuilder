@@ -30,6 +30,7 @@
       </span>
       <span class='display-1 hidden'>&#8226;</span>
     </div>
+    <syllable-seq-vis v-if="graded" :seq="gradedSeq" />
   </div>
 </template>
 
@@ -37,12 +38,15 @@
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 import { QuestionView } from '@/base-course/Viewable';
-import SkMidi, { NoteEvent } from '../../utility/midi';
+import SkMidi, { NoteEvent, eventsToSyllableSequence, SyllableSequence } from '../../utility/midi';
 import { EchoQuestion } from '.';
 import moment from 'moment';
+import SyllableSeqVis from '../../utility/SyllableSeqVis.vue';
 
 @Component({
-  components: {}
+  components: {
+    SyllableSeqVis
+  }
 })
 export default class Playback extends QuestionView<EchoQuestion> {
   public midi: SkMidi;
@@ -57,9 +61,13 @@ export default class Playback extends QuestionView<EchoQuestion> {
   public playbackDuration: number;
   public attempts: number = 0;
 
+  public gradedSeq: SyllableSequence = eventsToSyllableSequence([]);
+  public graded: boolean = true;
+
   public get firstNote(): string {
     if (this.initialized) {
-      return this.question.midi[0].note.name;
+      // return this.question.midi[0].note.name;
+      return eventsToSyllableSequence(this.question.midi).rootNote.name;
     } else {
       return `... I don't know - something is wrong!`;
     }
@@ -149,9 +157,15 @@ export default class Playback extends QuestionView<EchoQuestion> {
   }
 
   public submit() {
+    const qSylSeq = eventsToSyllableSequence(this.question.midi);
+    const aSylSeq = eventsToSyllableSequence(this.midi.recording);
+    this.gradedSeq = qSylSeq.grade(aSylSeq);
+
+    console.log("Graded Sequence:\n" + this.gradedSeq);
     // this.question.isCorrect(this.midi.recording);
     if (!this.submitAnswer(this.midi.recording).isCorrect) {
       this.attempts++;
+      this.graded = true;
       if (this.attempts < this.maxAttemptsPerView) {
         this.play();
       }
