@@ -1,7 +1,7 @@
 <template>
 <div>
 
-  <svg :width="510" :height="3 * (high - low) + 10">
+  <svg :width="510" :height="Math.max(3 * (high - low) + 10, 0)">
     <template
       v-for="syl in seq.syllables"
     >
@@ -11,7 +11,7 @@
         <circle
           @mouseenter="sayNote(note)"
           :key="syl.timestamp + '-' + note.note.number" 
-          :cx="( syl.timestamp * 500 / lastTS ) + 4"
+          :cx="( (syl.timestamp - firstTS) * 500 / (lastTS - firstTS) ) + 4"
           :cy="3 * (high - note.note.number) + 4"
           :alt='note.note.name'
           r="3"
@@ -36,8 +36,14 @@ import { SyllableSequence, NoteEvent } from './midi';
 export default class SyllableSeqVis extends SkldrVue {
   @Prop()
   public seq: SyllableSequence;
+  @Prop({
+    required: false,
+    default: 0
+  })
+  public lastTSsuggestion: number;
 
-  public lastTS: number = 0; // in ms
+  public firstTS: number = 0; // in ms
+  public lastTS: number = 0;  // in ms
   public high: number = 0;
   public low: number = 500;
 
@@ -45,11 +51,35 @@ export default class SyllableSeqVis extends SkldrVue {
     console.log(`${JSON.stringify(note)}`);
   }
 
-  created() {
-    console.log(`SyllableSeqVis created w/ input: \n${this.seq}`);
+  get getLastTS(): number {
+    let min = 1;
+    let ts = this.seq.syllables[this.seq.syllables.length - 1].timestamp;
+    return Math.max(min, ts, this.lastTSsuggestion);
+  }
 
+  get getHeight(): number {
+    let high = 0;
+    let low = 500;
+    this.seq.syllables.forEach(s => {
+      s.notes.forEach((n) => {
+        if (n.note.number > high) {
+          high = n.note.number;
+        }
+        if (n.note.number < low) {
+          low = n.note.number;
+        }
+      });
+    })
+    return Math.max(3 * (high - low) + 10, 0)
+  }
+
+  public updateBounds() {
     try {
-      this.lastTS = this.seq.syllables[this.seq.syllables.length - 1].timestamp
+      this.firstTS = this.seq.syllables[0].timestamp
+      const dataTS = this.seq.syllables[this.seq.syllables.length - 1].timestamp;
+      const suggestedTS = this.firstTS + this.lastTSsuggestion;
+
+      this.lastTS = Math.max(dataTS, suggestedTS);
     } catch { }
     this.seq.syllables.forEach(s => {
       s.notes.forEach((n) => {
@@ -60,7 +90,19 @@ export default class SyllableSeqVis extends SkldrVue {
           this.low = n.note.number;
         }
       });
-    })
+    });
+  }
+
+  created() {
+    console.log(`SyllableSeqVis created w/ input: \n${this.seq}`);
+
+    this.updateBounds();
   }
 }
 </script>
+
+<style lang="css" scoped>
+svg {
+  border: 1px;
+}
+</style>
