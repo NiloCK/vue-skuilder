@@ -19,7 +19,7 @@
       Play again <v-icon right>volume_up</v-icon>
     </v-btn>
 
-    <div>
+    <!-- <div>
       <span class='display-1 hidden'>&#8226;</span>
       <span v-if='initialized'>
         <span
@@ -29,7 +29,13 @@
         </span>
       </span>
       <span class='display-1 hidden'>&#8226;</span>
-    </div>
+    </div> -->
+    <syllable-seq-vis 
+      ref="inputVis"
+      v-if="true" 
+      :seq="inputSeq"
+      :lastTSsuggestion="lastTSsuggestion"
+    />
     <syllable-seq-vis v-if="graded" :seq="gradedSeq" />
   </div>
 </template>
@@ -62,7 +68,10 @@ export default class Playback extends QuestionView<EchoQuestion> {
   public attempts: number = 0;
 
   public gradedSeq: SyllableSequence = eventsToSyllableSequence([]);
-  public graded: boolean = true;
+  public graded: boolean = false;
+
+  public inputSeq: SyllableSequence = eventsToSyllableSequence([]);
+  public lastTSsuggestion: number = 0;
 
   public get firstNote(): string {
     if (this.initialized) {
@@ -77,11 +86,13 @@ export default class Playback extends QuestionView<EchoQuestion> {
 
   public $refs: {
     progressBar: HTMLDivElement;
+    inputVis: SyllableSeqVis;
   }
 
   async created() {
     // this.MouseTrap = new Mousetrap(this.$el);
     this.midi = await SkMidi.instance();
+    this.lastTSsuggestion = this.question.midi[this.question.midi.length - 1].timestamp;
     this.MouseTrap.unbind('space'); // remove from dismissed cards
     this.MouseTrap.bind('space', () => { this.clearAttempt() });
   }
@@ -109,6 +120,8 @@ export default class Playback extends QuestionView<EchoQuestion> {
     // attach listeners
     this.midi.addNoteonListenter((e) => {
       this.notesOn++;
+      this.inputSeq.append(e);
+      this.$refs.inputVis.updateBounds();
       if (this.notesOn + this.notesOff >= this.question.midi.length) {
         this.submit();
       }
@@ -160,8 +173,12 @@ export default class Playback extends QuestionView<EchoQuestion> {
     const qSylSeq = eventsToSyllableSequence(this.question.midi);
     const aSylSeq = eventsToSyllableSequence(this.midi.recording);
     this.gradedSeq = qSylSeq.grade(aSylSeq);
+    this.inputSeq = eventsToSyllableSequence([]);
+    // this.$set()
+    // this.gradedSeq = Object.assign({}, this.gradedSeq, {});
 
-    console.log("Graded Sequence:\n" + this.gradedSeq);
+    console.log("Graded Sequence:\n" + this.gradedSeq.toString());
+    console.log("Graded Sequence is correct: " + this.gradedSeq.isCorrect());
     // this.question.isCorrect(this.midi.recording);
     if (!this.submitAnswer(this.midi.recording).isCorrect) {
       this.attempts++;

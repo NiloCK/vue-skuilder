@@ -71,26 +71,31 @@ export class EchoQuestion extends Question {
     const onMidi = this.midi.filter(e => e.type === "noteon");
     const onAnswer = answer.filter(e => e.type === 'noteon');
 
-    const qSSeq = eventsToSyllableSequence(this.midi);
-    const aSSeq = eventsToSyllableSequence(answer);
-    const gradedSeq = qSSeq.grade(aSSeq);
+    const qSylSeq = eventsToSyllableSequence(this.midi);
+    const aSylSeq = eventsToSyllableSequence(answer);
+    const gradedSeq = qSylSeq.grade(aSylSeq);
 
-    console.log();
+    return gradedSeq.isCorrect();
 
-    if (answer.length !== this.midi.length) {
-      log(`Input length and answer length not equal...`);
-      return false;
-    }
+    // console.log(`Sequence is correct: ${gradedSeq.isCorrect()}`);
+    // if (gradedSeq.isCorrect()) {
+    //   console.log(`The correct sequence: \n${gradedSeq}`);
+    // }
 
-    for (let i = 0; i < Math.min(onAnswer.length, onMidi.length); i++) {
-      if (onAnswer[i].note.name !== onMidi[i].note.name ||
-        onAnswer[i].note.number - onAnswer[0].note.number !==
-        onMidi[i].note.number - onMidi[0].note.number
-      ) {
-        return false;
-      }
-    }
-    return true;
+    // if (answer.length !== this.midi.length) {
+    //   log(`Input length and answer length not equal...`);
+    //   return false;
+    // }
+
+    // for (let i = 0; i < Math.min(onAnswer.length, onMidi.length); i++) {
+    //   if (onAnswer[i].note.name !== onMidi[i].note.name ||
+    //     onAnswer[i].note.number - onAnswer[0].note.number !==
+    //     onMidi[i].note.number - onMidi[0].note.number
+    //   ) {
+    //     return false || gradedSeq.isCorrect();
+    //   }
+    // }
+    // return true;
   }
 
   public dataShapes(): DataShape[] {

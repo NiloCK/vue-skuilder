@@ -35,6 +35,33 @@ export class SyllableSequence {
   syllables: Syllable[];
   rootNote: IEventNote;
 
+  append(e: NoteEvent) {
+    if (this.syllables.length) {
+      try {
+        const amendedLastSyllable = new Syllable(
+          this.syllables[this.syllables.length - 1]
+            .notes
+            .map((note) => {
+              return {
+                note: note.note,
+                timestamp: note.timestamp,
+                type: note.type,
+                velocity: note.velocity
+              }
+            }).concat(e)
+        );
+        this.syllables.splice(
+          this.syllables.length - 1, 1, amendedLastSyllable
+        );
+      } catch {
+        this.syllables.push(new Syllable([e]));
+      }
+    } else {
+      this.syllables.push(new Syllable([e]));
+      this.rootNote = e.note;
+    }
+  }
+
   /**
    *
    */
@@ -73,9 +100,9 @@ export class SyllableSequence {
       ret += `Syllable ${i + 1}: {\n`
       s.notes.forEach((n) => {
         ret += `\t${n.note.name}\t${n.note.number}\t${n.timestamp} ${
-          !n.isCorrect ? "" : '(incorrect)'
+          n.isCorrect ? "" : '(incorrect)'
           } ${
-          n.isMissing ? "" : '(missing)'
+          n.isMissing ? "(missing)" : ''
           }\n`
       });
       ret += `} - ${s.timestamp}, correct: ${s.isCorrect}\n`
