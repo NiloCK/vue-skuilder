@@ -23,5 +23,6 @@ export enum DataShapeName {
     WORDWORK_Spelling = 'WordWork_Spelling',
 
     // Piano
-    PIANO_Echo = 'Piano_Echo'
+    PIANO_Echo = 'Piano_Echo',
+    PIANO_PlayNote = 'Piano_PlayNote'
 }

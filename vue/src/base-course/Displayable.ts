@@ -10,6 +10,7 @@ export abstract class Displayable {
   public static dataShapes: DataShape[];
 
   public static views: Array<VueConstructor<Viewable>>;
+  public static seedData?: Array<any>;
 
   /**
    *

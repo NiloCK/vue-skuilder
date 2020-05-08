@@ -52,9 +52,11 @@ import { Question, Displayable } from '@/base-course/Displayable';
 import { QuestionData, QuestionRecord } from '@/db/types';
 import {
   getCredentialledCourseConfig,
-  updateCredentialledCourseConfig
+  updateCredentialledCourseConfig,
+  addNote55
 } from '../../../db/courseDB';
 import { DataShape55, QuestionType55, CourseConfig } from '../../../server/types';
+import SkldrVue from '../../../SkldrVue';
 
 interface DataShapeRegistrationStatus {
   name: string;
@@ -74,7 +76,7 @@ interface QuestionRegistrationStatus {
   components: {
   }
 })
-export default class ComponentRegistration extends Vue {
+export default class ComponentRegistration extends SkldrVue {
   @Prop() public course: string;
   public dataShapes: DataShapeRegistrationStatus[] = [];
   public questions: QuestionRegistrationStatus[] = [];
@@ -191,8 +193,28 @@ export default class ComponentRegistration extends Vue {
 
     const update = await updateCredentialledCourseConfig(this.course, this.courseConfig!);
 
+
     if (update.ok) {
       question.registered = true;
+      console.log(`
+Question: ${JSON.stringify(question)}
+CourseID: ${this.course}
+      `)
+      if (question.question.seedData) {
+        console.log(`Question has seed data!`);
+        question.question.seedData.forEach((d) => {
+          addNote55(
+            this.course,
+            question.course,
+            question.question.dataShapes[0],
+            d,
+            this.$store.state.user
+          );
+        });
+      } else {
+        console.log(`Question has NO seed data!`);
+      }
+
     }
 
   }
