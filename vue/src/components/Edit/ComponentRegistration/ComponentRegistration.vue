@@ -28,7 +28,7 @@
         {{ question.name }}
         <button
           v-if="!question.registered"
-          @click="registerQuestion(question.name)">
+          @click="registerQuestionView(question.name)">
           Register
         </button>
         <span class="inset" v-else>
@@ -78,7 +78,7 @@ interface QuestionRegistrationStatus {
 })
 export default class ComponentRegistration extends SkldrVue {
   @Prop() public course: string;
-  public dataShapes: DataShapeRegistrationStatus[] = [];
+  public dataShapes: (DataShapeRegistrationStatus & { displayable: typeof Displayable })[] = [];
   public questions: QuestionRegistrationStatus[] = [];
 
   private courseDatashapes: DataShape55[] = [];
@@ -101,7 +101,8 @@ export default class ComponentRegistration extends SkldrVue {
         name: shape.dataShape,
         course: shape.course,
         dataShape: Courses.getDataShape(shape),
-        registered: index !== undefined
+        registered: index !== undefined,
+        displayable: shape.displayable
       });
     });
 
@@ -155,10 +156,28 @@ export default class ComponentRegistration extends SkldrVue {
 
     if (update.ok) {
       shape.registered = true;
+
+      // activate this when: adding a new questionView can find existing
+      // notes in the db and create associated cards.
+      //
+      // if (shape.displayable.seedData) {
+      //   console.log(`Datashape has seed data!`);
+      //   shape.displayable.seedData.forEach((d) => {
+      //     addNote55(
+      //       this.course,
+      //       shape.course,
+      //       shape.displayable.dataShapes[0],
+      //       d,
+      //       this.$store.state.user
+      //     );
+      //   });
+      // } else {
+      //   console.log(`Datashape has NO seed data!`);
+      // }
     }
   }
 
-  private async registerQuestion(questionName: string) {
+  private async registerQuestionView(questionName: string) {
     const question = this.questions.find((q) => {
       return q.name === questionName;
     })!;

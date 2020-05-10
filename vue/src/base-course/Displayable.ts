@@ -11,6 +11,14 @@ export abstract class Displayable {
 
   public static views: Array<VueConstructor<Viewable>>;
   public static seedData?: Array<any>;
+  /**
+   * True if this displayable content type is meant to have
+   * user-submitted questions. False if supplied seedData array
+   * is comprehensive for the content type. EG, a SingleDigitAddition
+   * type may comprehensively supply 0+0,0+1,...,9+9 as its seed
+   * data, and not want any user input.
+   */
+  public static acceptsUserData: boolean = true;
 
   /**
    *

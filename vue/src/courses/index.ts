@@ -7,6 +7,7 @@ import wordWork from './word-work';
 import piano from './piano';
 import defaultCourse from './default';
 import Viewable from '../base-course/Viewable';
+import { Displayable } from '@/base-course/Displayable';
 
 export class CourseList {
     private readonly courseList: Course[];
@@ -73,8 +74,8 @@ export class CourseList {
         }
     }
 
-    public allDataShapes(): ShapeDescriptor[] {
-        const ret: ShapeDescriptor[] = [];
+    public allDataShapes(): (ShapeDescriptor & { displayable: typeof Displayable })[] {
+        const ret: (ShapeDescriptor & { displayable: typeof Displayable })[] = [];
 
         this.courseList.forEach((course) => {
             course.questions.forEach((question) => {
@@ -85,7 +86,8 @@ export class CourseList {
                     }) === -1) {
                         ret.push({
                             course: course.name,
-                            dataShape: shape.name
+                            dataShape: shape.name,
+                            displayable: question
                         });
                     }
                 });
