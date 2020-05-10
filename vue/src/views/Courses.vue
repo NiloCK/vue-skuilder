@@ -49,7 +49,7 @@
       
     </v-flex>
     <!-- <v-spacer></v-spacer> -->
-    <v-flex md4 sm12 xs12>
+    <!-- <v-flex xs12 md4>
       <v-card>
         <v-toolbar >
           <v-toolbar-title>Available Courses</v-toolbar-title>
@@ -90,19 +90,16 @@
           </template>
           </transition-group>
           <v-divider></v-divider>
-            <v-dialog
-              v-model="newCourseDialog"
-              fullscreen
-              transition="dialog-bottom-transition"
-              :overlay="false"
-            >
-              <v-btn color="primary" dark slot="activator">Start a new Quilt</v-btn>
-                <course-editor 
-                 v-on:CourseEditingComplete="processResponse($event)"
-                />
-            </v-dialog>
+            
         </v-list>
       </v-card>
+    </v-flex> -->
+  </v-layout>
+  
+    <h1 class="display-1">Available Courses:</h1>
+  <v-layout row wrap>
+    <v-flex pa-2 xs12 sm6 md4 lg3 v-for="course in availableCourses" :key="course._id">
+      <course-stub-card v-on:refresh="refreshData" :_id="course._id" />
     </v-flex>
   </v-layout>
   </v-container>
@@ -111,6 +108,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import CourseEditor from '@/components/Courses/CourseEditor.vue';
+import CourseStubCard from '@/components/Courses/CourseStubCard.vue';
 import { Component } from 'vue-property-decorator';
 import CourseList from '../courses';
 import _ from 'lodash';
@@ -124,7 +122,8 @@ import { registerUserForCourse, getUserCourses, dropUserFromCourse } from '../db
 
 @Component({
   components: {
-    CourseEditor
+    CourseEditor,
+    CourseStubCard
   }
 })
 export default class Courses extends SkldrVue {
@@ -182,6 +181,9 @@ export default class Courses extends SkldrVue {
 
   private async created() {
     this.refreshData();
+    // this.$on('refresh', () => {
+    //   this.refreshData();
+    // });
   }
 
   private async createCourse() {
