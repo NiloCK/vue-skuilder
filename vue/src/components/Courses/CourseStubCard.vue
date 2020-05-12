@@ -1,12 +1,12 @@
 <template>
   <div>
     <v-card v-if="!updatePending">
-    
-      <v-card-title primary-title>
-        <div>
-          <h3 class="headline mb-0">{{_courseConfig.name}}</h3>
-        </div>
-      </v-card-title>
+
+      <v-toolbar dense flat>
+        <v-toolbar-title @click="routeToCourse">
+          {{_courseConfig.name}}
+        </v-toolbar-title>
+      </v-toolbar>
       <v-card-text>
         Questions: {{ questionCount }}
 

@@ -4,7 +4,7 @@
   <v-layout row wrap justify-space-around>
     <v-flex md4 sm12 xs12>
       <v-card>
-        <v-toolbar >
+        <v-toolbar flat>
           <v-toolbar-title>My Registered Courses</v-toolbar-title>
         </v-toolbar>
 
