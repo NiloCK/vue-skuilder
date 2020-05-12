@@ -4,7 +4,7 @@ import { CourseConfig } from '@/server/types';
 import { pouchDBincludeCredentialsConfig, filterAlldocsByPrefix } from '.';
 import { log } from 'util';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
-import { NameSpacer } from '@/courses';
+import { NameSpacer, ShapeDescriptor } from '@/courses';
 import { FieldType } from '@/enums/FieldType';
 import { DisplayableData, DocType, CardData, Tag, TagStub } from './types';
 import Courses from '@/courses';
@@ -302,42 +302,48 @@ async function createCards(
   noteID: PouchDB.Core.DocumentId) {
   const cfg = await getCredentialledCourseConfig(courseID);
   const dsDescriptor = NameSpacer.getDataShapeDescriptor(datashapeID);
-  let questions: string[] = [];
+  let questionViewTypes: string[] = [];
 
   for (const ds of cfg.dataShapes) {
     if (ds.name === datashapeID) {
-      questions = ds.questionTypes;
+      questionViewTypes = ds.questionTypes;
     }
   }
 
-  for (const q of questions) {
-    const qDescriptor = NameSpacer.getQuestionDescriptor(q);
+  for (const questionView of questionViewTypes) {
+    createCard(questionView, courseID, dsDescriptor, noteID);
+  }
+}
 
-    for (const rQ of cfg.questionTypes) {
-      if (rQ.name === q) {
-        for (const view of rQ.viewList) {
-          addCard(
-            courseID,
-            dsDescriptor.course,
-            [noteID],
-            NameSpacer.getViewString({
-              course: qDescriptor.course,
-              questionType: qDescriptor.questionType,
-              view
-            })
-          );
-        }
+async function createCard(
+  questionViewName: string,
+  courseID: string,
+  dsDescriptor: ShapeDescriptor,
+  noteID: string
+) {
+  const qDescriptor = NameSpacer.getQuestionDescriptor(questionViewName);
+  const cfg = await getCredentialledCourseConfig(courseID);
+
+  for (const rQ of cfg.questionTypes) {
+    if (rQ.name === questionViewName) {
+      for (const view of rQ.viewList) {
+        addCard(courseID, dsDescriptor.course, [noteID], NameSpacer.getViewString({
+          course: qDescriptor.course,
+          questionType: qDescriptor.questionType,
+          view
+        }));
       }
     }
   }
 }
 
-export function updateCardElo(courseID: string, cardID: string, elo: number) {
-  const cDB = getCourseDB(courseID);
-  return cDB.get<CardData>(cardID).then(card => {
+export async function updateCardElo(courseID: string, cardID: string, elo: number) {
+  if (elo) { // checking against null, undefined, NaN
+    const cDB = getCourseDB(courseID);
+    const card = await cDB.get<CardData>(cardID);
     card.elo = elo;
     return cDB.put(card); // race conditions - how to handle - is it important? probably not
-  });
+  }
 }
 
 /**
