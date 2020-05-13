@@ -1,5 +1,4 @@
 <template>
-  <div>
     <v-card v-if="!updatePending">
 
       <v-toolbar dense flat>
@@ -17,7 +16,6 @@
         <v-btn :loading="addingCourse" @click="registerForCourse" color="primary">Register</v-btn>
       </v-card-actions>
     </v-card>  
-  </div>
 </template>
 
 <script lang="ts">
