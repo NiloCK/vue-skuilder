@@ -1,10 +1,29 @@
 import webmidi, { WebMidi, Input, Output, InputEventBase, IEventNote, InputEventNoteoff, InputEventNoteon } from 'webmidi';
+import { Note, Interval, NoteLiteral } from '@tonaljs/tonal';
 
 export interface NoteEvent {
   note: IEventNote;
   velocity: number;
   timestamp: number;
   type: 'noteon' | 'noteoff'
+}
+
+function transpose(note: NoteEvent, semitones: number): NoteEvent {
+  let ret: NoteEvent = { ...note };
+  const transposedNote = Note.transpose(note.note.name + note.note.number,
+    Interval.fromSemitones(semitones)
+  );
+
+  ret.note = {
+    name: Note.name(transposedNote),
+    number: note.note.number + semitones,
+    octave: Note.octave(transposedNote)!
+  }
+  return ret;
+}
+
+export function transposeSyllableSeq(notes: NoteEvent[], semitones: number) {
+  return notes.map((n) => transpose(n, semitones));
 }
 
 export function eventsToSyllableSequence(midi: NoteEvent[]): SyllableSequence {

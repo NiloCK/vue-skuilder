@@ -15,14 +15,14 @@
       Clear and try again
       <v-icon right>close</v-icon>
     </v-btn>
-    <!-- <v-checkbox label="Include Transpositions" v-model="transpositions"></v-checkbox> -->
+    <v-checkbox label="Include Transpositions" v-model="transpositions"></v-checkbox>
   </div>
 </template>
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { FieldInput } from "../FieldInput";
-import SkMidi, { eventsToSyllableSequence, SyllableSequence } from "../../../../courses/piano/utility/midi";
+import SkMidi, { eventsToSyllableSequence, SyllableSequence, transposeSyllableSeq } from "../../../../courses/piano/utility/midi";
 import SyllableSeqVis from "../../../../courses/piano/utility/SyllableSeqVis.vue";
 
 @Component({
@@ -43,9 +43,20 @@ export default class MidiInput extends FieldInput {
       this.midi.record();
       this.recording = true;
 
-      this.store[this.field.name] = this.midi.recording;
+      // this.store[this.field.name] = this.midi.recording;
+      this.store[this.field.name] = this.input;
     } catch (e) {
       throw e;
+    }
+  }
+
+  public get input() {
+    if (this.transpositions) {
+      return () => [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6].map((shift) => {
+        transposeSyllableSeq(this.midi.recording, shift);
+      });
+    } else {
+      return this.midi.recording;
     }
   }
 
@@ -59,7 +70,8 @@ export default class MidiInput extends FieldInput {
     this.store.convertedInput[this.field.name] = this.midi.recording;
     this.store.validation[this.field.name] = false;
 
-    this.store[this.field.name] = this.midi.recording;
+    // this.store[this.field.name] = this.midi.recording;
+    this.store[this.field.name] = this.input;
   }
 
   public hasRecording(): boolean {
