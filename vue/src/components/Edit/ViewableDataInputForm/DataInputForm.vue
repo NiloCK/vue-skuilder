@@ -95,6 +95,9 @@ import SkldrVue from '../../../SkldrVue';
 import { CourseConfig } from '../../../server/types';
 import { addNote55, getCourseTagStubs } from '../../../db/courseDB';
 import { log } from 'util';
+import _ from 'lodash';
+
+type StringIndexable = { [x: string]: any };
 
 @Component({
   components: {
@@ -296,19 +299,95 @@ export default class DataInputForm extends SkldrVue {
     return this.store.convertedInput;
   }
 
+  public inputContainsTranspositionFcns(): boolean {
+    this.convertInput();
+    for (let input in this.convertedInput) {
+      if (typeof this.convertedInput[input] === 'function') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private objectContainsFunction(o: StringIndexable): boolean {
+    for (let key in o) {
+      if (typeof o[key] === 'function') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+  private expandO(
+    o: StringIndexable
+  ) {
+    let ret: StringIndexable[] = [];
+
+    if (this.objectContainsFunction(o)) {
+      for (let fKey in o) {
+        if (typeof o[fKey] === 'function') {
+          console.log(`Key ${fKey} is a function.`)
+          // array of objs w/ the fcn value replaced by
+          // one of its outputs
+          const replaced: StringIndexable[] = [];
+
+          (o[fKey]() as Array<any>).forEach((fcnOutput) => {
+
+            let copy: StringIndexable = {};
+            copy = _.cloneDeep(o);
+            copy[fKey] = fcnOutput;
+
+            console.log(`Replaced Copy: ${JSON.stringify(copy)}`);
+
+            replaced.push(copy);
+          });
+
+          replaced.forEach((obj) => {
+            if (this.objectContainsFunction(obj)) {
+              console.log('2nd pass...')
+              const recursiveExpance = this.expandO(obj);
+              ret = ret.concat(recursiveExpance);
+            } else {
+              ret.push(obj);
+            }
+          });
+        }
+      }
+      return ret;
+    } else {
+      return [];
+    }
+  }
+
   public async submit() {
     if (this.userInputIsValid) {
+      log(`Store: ${JSON.stringify(this.store)}`)
+      log(`ConvertedStore: ${JSON.stringify(this.convertedInput)}`);
       this.uploading = true;
 
-      const result = await addNote55(
-        this.course.courseID!,
-        this.datashapeDescriptor.course,
-        this.dataShape,
-        this.convertedInput,
-        this.$store.state.user
-      );
+      let inputs = [];
 
-      if (result.ok) {
+      if (this.inputContainsTranspositionFcns()) {
+        console.log(`Expanded input: 
+        ${JSON.stringify(this.expandO(this.convertedInput))}`);
+        inputs = this.expandO(this.convertedInput);
+      } else {
+        console.log(`No Transposition fcn detected`);
+        inputs = [this.convertedInput];
+      }
+
+      const result = await Promise.all(inputs.map(async (input) => {
+        return await addNote55(
+          this.course.courseID!,
+          this.datashapeDescriptor.course,
+          this.dataShape,
+          input,
+          this.$store.state.user
+        );
+      }));
+
+      if (result[0].ok) {
         alertUser({
           text: `Content added... Thank you!`,
           status: Status.ok
@@ -321,8 +400,8 @@ export default class DataInputForm extends SkldrVue {
         });
         log(`Error in DataInputForm.submit(). Result from addNote:
 
-  ${JSON.stringify(result)}
-`);
+        ${JSON.stringify(result)}
+      `);
         this.uploading = false;
       }
     }
@@ -335,6 +414,7 @@ export default class DataInputForm extends SkldrVue {
       input.clearData();
     });
     this.fieldInputs[0].focus();
+    this.convertInput();
   }
 
   private getExistingNotesFromDB() {
