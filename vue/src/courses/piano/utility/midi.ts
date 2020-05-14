@@ -227,8 +227,14 @@ class Syllable {
       let fNote = Note.fromMidi(studentNote.note.number);
       let sNote = Note.fromMidiSharps(studentNote.note.number);
 
+
       fNote = Note.pitchClass(fNote);
       sNote = Note.pitchClass(sNote);
+
+      console.log(`
+fNote: ${fNote}
+sNote: ${sNote}
+`)
 
       studentNote.isCorrect =
         this.notes.
@@ -241,7 +247,14 @@ class Syllable {
     });
 
     this.notes.forEach(note => {
-      if (!answer.notes.some(studentNote => studentNote.note.name === note.note.name)) {
+      let fNote = Note.fromMidi(note.note.number);
+      let sNote = Note.fromMidiSharps(note.note.number);
+
+      fNote = Note.pitchClass(fNote);
+      sNote = Note.pitchClass(sNote);
+
+      if (!answer.notes.some(
+        studentNote => studentNote.note.name === fNote || studentNote.note.name === sNote)) {
         answer.notes.push({
           ...note,
           isMissing: true,
