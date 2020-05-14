@@ -2,7 +2,7 @@
   <div>
     <div v-if="recording">
       <span class="headline">
-        Now Recording from device:
+        Now Recording from device: aweftiavwef
         <span class="font-weight-black">{{midi.configuredInput}}</span>
       </span>
     </div>
@@ -12,10 +12,10 @@
       <v-icon right>volume_up</v-icon>
     </v-btn>
     <v-btn color="error" @click="reset" :disabled="hasRecording()">
-      Clear and try again
+      Clear and try again 
       <v-icon right>close</v-icon>
     </v-btn>
-    <v-checkbox label="Include Transpositions" v-model="transpositions"></v-checkbox>
+    <v-checkbox @click.capture="resetInput" label="Include Transpositions" v-model="transpositions"></v-checkbox>
   </div>
 </template>
 
@@ -44,19 +44,19 @@ export default class MidiInput extends FieldInput {
       this.recording = true;
 
       // this.store[this.field.name] = this.midi.recording;
-      this.store[this.field.name] = this.input;
+      this.store[this.field.name] = this.getTransposedSeqs;
     } catch (e) {
       throw e;
     }
   }
 
-  public get input() {
+  public getTransposedSeqs() {
     if (this.transpositions) {
-      return () => [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6].map((shift) => {
-        transposeSyllableSeq(this.midi.recording, shift);
+      return [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6].map((shift) => {
+        return transposeSyllableSeq(this.midi.recording, shift);
       });
     } else {
-      return this.midi.recording;
+      return [this.midi.recording];
     }
   }
 
@@ -71,7 +71,7 @@ export default class MidiInput extends FieldInput {
     this.store.validation[this.field.name] = false;
 
     // this.store[this.field.name] = this.midi.recording;
-    this.store[this.field.name] = this.input;
+    this.store[this.field.name] = this.getTransposedSeqs;
   }
 
   public hasRecording(): boolean {

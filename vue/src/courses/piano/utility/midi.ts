@@ -10,12 +10,12 @@ export interface NoteEvent {
 
 function transpose(note: NoteEvent, semitones: number): NoteEvent {
   let ret: NoteEvent = { ...note };
-  const transposedNote = Note.transpose(note.note.name + note.note.number,
+  const transposedNote = Note.transpose(note.note.name + note.note.octave,
     Interval.fromSemitones(semitones)
   );
 
   ret.note = {
-    name: Note.name(transposedNote),
+    name: Note.pitchClass(transposedNote),
     number: note.note.number + semitones,
     octave: Note.octave(transposedNote)!
   }
@@ -224,9 +224,17 @@ class Syllable {
     }
 
     answer.notes.forEach((studentNote) => {
+      let fNote = Note.fromMidi(studentNote.note.number);
+      let sNote = Note.fromMidiSharps(studentNote.note.number);
+
+      fNote = Note.pitchClass(fNote);
+      sNote = Note.pitchClass(sNote);
+
       studentNote.isCorrect =
-        this.notes.filter(
-          note => studentNote.note.name === note.note.name).length === 1;
+        this.notes.
+          filter(
+            note => fNote === note.note.name || sNote === note.note.name)
+          .length === 1;
       if (!studentNote.isCorrect) {
         answer.isCorrect = false;
       }
