@@ -1,7 +1,7 @@
 import pouch from 'pouchdb-browser';
 import ENV from '@/ENVIRONMENT_VARS';
 import { pouchDBincludeCredentialsConfig, getStartAndEndKeys } from '.';
-import { getCourseList } from './courseDB';
+import { getCourseList, removeCourse } from './courseDB';
 import TeacherClassroomDB, { ClassroomLookupDB } from './classroomDB';
 
 export default class AdminDB {
@@ -32,6 +32,9 @@ export default class AdminDB {
   }
   public async getCourses() {
     return (await getCourseList()).rows.map(r => r.doc);
+  }
+  public async removeCourse(id: string) {
+    return await removeCourse(id);
   }
   public async getClassrooms() {
     // const joincodes = 
