@@ -11,8 +11,15 @@
     ></v-progress-circular>
     </h1>
     <br>
-    <div v-if='sessionFinished' class='display-1'>
-      All done! Great job!
+    <div v-if='noRegistrations' class='display-1'>
+      <p>You don't have anything to study!</p>
+      <p>Head over to the <router-link to="quilts">Quilts</router-link> page to find something for you.</p>
+    </div>
+    <div v-else-if='sessionFinished' class='display-1'>
+      <p>Study session finished! Great job!</p>
+      <p>Start <a @click="refreshRoute">another study session</a>, or try 
+      <router-link to="/edit">adding some new content</router-link> to challenge yourself and others!
+      </p>
     </div>
     <div v-else ref="shadowWrapper">    
       <card-viewer
@@ -25,7 +32,23 @@
           v-on:emitResponse="processResponse($event)"
       />
     </div>
-    <v-speed-dial
+    <router-link
+      :to='`/edit/${courseID}`'
+    >
+      <v-btn
+        v-if="!noRegistrations"
+        fab
+        fixed
+        dark
+        bottom
+        right
+        color="blue darken-2"
+        title="Add content to this course"
+      >
+        <v-icon dark>add</v-icon>
+      </v-btn>
+    </router-link>
+    <!-- <v-speed-dial
       v-model="fab"
       fixed
       bottom
@@ -66,12 +89,12 @@
       :loading='editCard'
     >
       <v-icon>bookmark</v-icon>
-    </v-btn>
+    </v-btn> 
     
-    </v-speed-dial>
+    </v-speed-dial>-->
     <br>
     <sk-tags-input
-        v-if='editTags'
+        v-if='!sessionFinished'
         :courseID="courseID"
         :cardID="cardID"
     />
@@ -196,12 +219,14 @@ export default class Study extends SkldrVue {
   public courseID: string = '';
 
   public cardCount: number = 1;
-  public readonly SessionCount: number = 10;
+  public readonly SessionCount: number = 15;
 
   public sessionFinished: boolean = false;
   public session: string[] = [];
   public sessionRecord: StudySessionRecord[] = [];
   public activeCards: string[] = [];
+
+  public noRegistrations: boolean = false;
 
   public loading: boolean = false;
 
@@ -263,6 +288,10 @@ export default class Study extends SkldrVue {
     }
   }
 
+  public refreshRoute() {
+    this.$router.go(0);
+  }
+
   public async created() {
     this.activeCards = await getActiveCards(this.$store.state.user);
     this.userCourseRegDoc = await getUserCourses(this.$store.state.user);
@@ -280,6 +309,12 @@ export default class Study extends SkldrVue {
     this.userClassroomDBs.forEach((db) => {
       db.setChangeFcn(this.handleClassroomMessage())
     });
+
+    if (this.userCourseIDs.length === 0
+      && this.userClassroomDBs.length === 0
+      && this.activeCards.length === 0) {
+      this.noRegistrations = true;
+    }
 
     await this.getSessionCards();
 
@@ -612,6 +647,10 @@ ${this.sessionString}
 
 .incorrect {
   animation: purpleFade 1250ms ease-out;
+}
+
+a {
+  text-decoration: underline;
 }
 
 @keyframes greenFade {
