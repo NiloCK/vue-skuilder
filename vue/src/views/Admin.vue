@@ -16,7 +16,9 @@
            - {{courses.length}}</h3>
         <ul>
           <li v-for='c in courses' :key='c._id'>
-            <router-link :to='`/q/${c._id}`'>{{c.name}}</router-link> - {{ c._id }}
+            <router-link :to='`/q/${c._id}`'>{{c.name}}</router-link>
+            - {{ c._id }}
+            - <a @click='removeCourse(c._id)'>X</a>
           </li>
         </ul>
       </div>
@@ -59,6 +61,11 @@ export default class Admin extends SkldrVue {
       this.title = 'This page is for database admins only.';
       throw `${JSON.stringify(e)} - ${e}\n\nNot an admin!`;
     }
+  }
+
+  public removeCourse(id: string) {
+    console.log(`Removing ${id}`);
+    this.db.removeCourse(id);
   }
 }
 </script>
