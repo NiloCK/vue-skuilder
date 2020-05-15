@@ -536,7 +536,7 @@ ${this.sessionString}
       const user = await updateUserElo(this.$store.state.user, course_id, eloUpdate.userElo);
       const card = await updateCardElo(course_id, card_id, eloUpdate.cardElo);
 
-      if (user.ok && card.ok) {
+      if (user.ok && card && card.ok) {
         console.log(`Updated ELOs:
   user: ${this.$store.state.user}
   course: ${course_id}
@@ -545,7 +545,7 @@ ${this.sessionString}
         this.userCourseRegDoc.courses.find(c => c.courseID === course_id)!.elo = eloUpdate.userElo
       }
 
-      return (user.ok && card.ok);
+      return (user.ok && card && card.ok);
     }
   }
 
