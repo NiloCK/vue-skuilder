@@ -1,5 +1,6 @@
 <template>
   <v-app >
+  <!-- class="blue darken-2 grey--text text--lighten-5" dark> -->
     <v-navigation-drawer
       clipped
       v-model="drawer"
@@ -52,14 +53,14 @@
         <v-list-tile
           v-if='true'
           value="true"          
-          :to="{path: '/courses'}"
+          :to="{path: '/quilts'}"
         >
           <v-list-tile-action>
             <v-icon>bookmarks</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
             <v-list-tile-title> 
-              Courses
+              Quilts
             </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
@@ -81,7 +82,7 @@
     </v-navigation-drawer>
     <v-toolbar
       app
-      absolute
+      dense
       clipped-left
     >
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
@@ -101,7 +102,7 @@
     </v-content>
     <v-footer fixed app>
       <span>
-       v: <router-link to='/notes'>{{build}}</router-link>
+       v: <router-link to='/notes'>{{build}}</rou2er-link>
       </span>
     </v-footer>
     <snackbar-service id="SnackbarService" />
@@ -121,7 +122,7 @@ export default {
   },
   data() {
     return {
-      build: '0.0.1',
+      build: '0.0.2',
       latestBuild: '',
       drawer: false,
     };
