@@ -52,6 +52,8 @@ export default abstract class Viewable extends Vue {
  */
 // tslint:disable-next-line:max-classes-per-file
 export abstract class QuestionView<Q extends Question> extends Viewable {
+    static seedData: any[];
+
     protected priorSessionViews: number = 0;
     protected priorAttempts: number = 0; // starts at the 1st attempt
     public abstract get question(): Q;
@@ -61,7 +63,7 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
      * be presented to a learner in one study session (to avoid burnout
      * on too-hard content)
      */
-    public maxSessionViews: number = 2;
+    public maxSessionViews: number = 1;
     public maxAttemptsPerView: number = 3;
 
     public submitAnswer(answer: Answer): QuestionRecord {
