@@ -5,7 +5,7 @@
     <v-flex md4 sm12 xs12>
       <v-card>
         <v-toolbar flat>
-          <v-toolbar-title>My Registered Courses</v-toolbar-title>
+          <v-toolbar-title>My Registered Quilts</v-toolbar-title>
         </v-toolbar>
 
         <v-list>
@@ -96,12 +96,23 @@
     </v-flex> -->
   </v-layout>
   
-    <h1 class="display-1">Available Courses:</h1>
-  <v-layout row wrap>
-    <v-flex pa-2 xs12 sm6 md4 lg3 v-for="course in availableCourses" :key="course._id">
-      <course-stub-card v-on:refresh="refreshData" :_id="course._id" />
+    <h1 class="display-1">Available Quilts:</h1> 
+  <v-layout align-space-between fill-height wrap >
+    <v-flex fill-height pa-2 xs12 sm6 md4 lg3 v-for="course in availableCourses" :key="course._id">
+      <course-stub-card  v-on:refresh="refreshData" :_id="course._id" />
     </v-flex>
   </v-layout>
+  <v-dialog
+              v-model="newCourseDialog"
+              fullscreen
+              transition="dialog-bottom-transition"
+              :overlay="false"
+            >
+              <v-btn color="primary" dark slot="activator">Start a new Quilt</v-btn>
+                <course-editor 
+                 v-on:CourseEditingComplete="processResponse($event)"
+                />
+            </v-dialog>
   </v-container>
 </template>
 
@@ -162,7 +173,9 @@ export default class Courses extends SkldrVue {
       return course.courseID;
     });
 
-    this.existingCourses = courseList.rows.map((course) => {
+    this.existingCourses = courseList.rows.filter((course) => {
+      return course && course.doc;
+    }).map((course) => {
       return course.doc!;
     });
 
