@@ -45,6 +45,14 @@ function getCourseDB(courseID: string): PouchDB.Database {
 //   })
 // }
 
+export async function removeCourse(courseID: string) {
+  return courseLookupDB.get(courseID).then((course) => {
+    return courseLookupDB.remove({
+      ...course
+    });
+  });
+}
+
 export async function getCourseList() {
 
   return courseLookupDB.allDocs<CourseConfig>({
