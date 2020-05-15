@@ -102,7 +102,7 @@
     </v-content>
     <v-footer fixed app>
       <span>
-       v: <router-link to='/notes'>{{build}}</rou2er-link>
+       v: <router-link to='/notes'>{{build}}</router-link>
       </span>
     </v-footer>
     <snackbar-service id="SnackbarService" />
