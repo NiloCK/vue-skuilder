@@ -1,7 +1,7 @@
 <template>
 <transition name="component-fade" mode="out-in">
     <div v-if="$store.state.user !== ''">
-        <div v-if="$store.state.user === GuestUsername">
+        <div v-if="guestMode">
             <v-dialog
                 v-model="regDialog"
                 width="500px"
@@ -53,6 +53,11 @@ import { GuestUsername } from '@/store';
 })
 export default class UserLoginAndRegistrationContainer extends Vue {
   private readonly GuestUsername: string = GuestUsername;
+
+  private get guestMode(): boolean {
+    console.log(`Username: ${this.$store.state.user}`);
+    return (this.$store.state.user as string).startsWith(GuestUsername);
+  }
 
   private get regDialog(): boolean {
     return this.$store.state.
