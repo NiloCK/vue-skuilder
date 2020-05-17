@@ -147,6 +147,7 @@ export function accomodateGuest() {
     localStorage.setItem(dbUUID, uuid);
     username = GuestUsername + uuid;
     remoteDBSignup(username, uuid);
+    console.log(`Accommodating a new guest with account: ${username}`);
     remoteDBLogin(username, uuid);
   }
 
