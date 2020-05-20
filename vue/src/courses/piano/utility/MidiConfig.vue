@@ -33,7 +33,23 @@
 
         </v-form>
         <div v-else>
-          Midi is not supported in this browser!
+          <p>
+           This quilt requires a midi input device, which is not supported by this browser.
+          </p>
+          <p>
+            Try one of the following browsers:
+            <ul>
+              <li>
+                <a href="https://www.google.com/chrome/">Google Chrome</a>
+              </li>
+              <li>
+                <a href="https://www.microsoft.com/edge">Microsoft Edge</a>
+              </li>
+              <li>
+                <a href="https://brave.com/">Brave</a>
+              </li>
+            </ul>
+          </p>
         </div>
         <!-- Input: {{selectedInput}}
         Output: {{selectedOutput}} -->
@@ -56,7 +72,7 @@ import { Status } from '../../../enums/Status';
 export default class MidiConfig extends SkldrVue {
   @Prop() public _id: string;
   public midi: SkMidi;
-  public midiSupported: boolean = false;
+  public midiSupported: boolean = true;
 
   public inputs: {
     text: string;
@@ -247,32 +263,34 @@ export default class MidiConfig extends SkldrVue {
     try {
       this.midi = await SkMidi.instance();
       this.midiSupported = true;
-      this.midi.addNoteonListenter(this.indicateHeardNotes);
     } catch (e) {
-      console.log(e);
+      console.log(`Error on midi Init: ${e}`);
       this.midiSupported = false;
     }
-    this.inputs = this.midi.inputs
-      .filter(i => i.state === 'connected')
-      .map(i => {
-        return {
-          text: `${i.manufacturer}: ${i.name}`,
-          value: i.id
-        }
-      });
-    this.outputs = this.midi.outputs
-      .filter(i => i.state === 'connected')
-      .map(i => {
-        return {
-          text: `${i.manufacturer}: ${i.name}`,
-          value: i.id
-        }
-      });
-    // todo:
-    // this.outputs.push({
-    //   text: 'Computer Audio',
-    //   value: ''
-    // });
+    if (this.midiSupported) {
+      this.midi.addNoteonListenter(this.indicateHeardNotes);
+      this.inputs = this.midi.inputs
+        .filter(i => i.state === 'connected')
+        .map(i => {
+          return {
+            text: `${i.manufacturer}: ${i.name}`,
+            value: i.id
+          }
+        });
+      this.outputs = this.midi.outputs
+        .filter(i => i.state === 'connected')
+        .map(i => {
+          return {
+            text: `${i.manufacturer}: ${i.name}`,
+            value: i.id
+          }
+        });
+      // todo:
+      // this.outputs.push({
+      //   text: 'Computer Audio',
+      //   value: ''
+      // });
+    }
   }
 
   public async saveSettings() {
