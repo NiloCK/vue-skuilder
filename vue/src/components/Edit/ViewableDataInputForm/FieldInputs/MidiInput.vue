@@ -2,11 +2,16 @@
   <div>
     <div v-if="recording">
       <span class="headline">
-        Now Recording from device: aweftiavwef
+        Now Recording from device:
         <span class="font-weight-black">{{midi.configuredInput}}</span>
       </span>
     </div>
-    <syllable-seq-vis v-if="display" :seq="SylSeq" />
+    <syllable-seq-vis 
+      ref="inputVis"
+      v-if="true"
+      :seq="SylSeq"
+      lastTSsuggestion=5000
+    />
     <v-btn color="primary" @click="play" :disabled="hasRecording()">
       Preview
       <v-icon right>volume_up</v-icon>
@@ -37,17 +42,30 @@ export default class MidiInput extends FieldInput {
   public display: boolean = false;
   public transpositions: boolean = false;
 
+  public $refs: {
+    inputVis: SyllableSeqVis,
+    inputField: HTMLInputElement
+  };
+
   async created() {
-    this.midi = await SkMidi.instance();
     try {
-      this.midi.record();
-      this.recording = true;
+      this.midi = await SkMidi.instance();
+      this.record();
 
       // this.store[this.field.name] = this.midi.recording;
       this.store[this.field.name] = this.getTransposedSeqs;
     } catch (e) {
       throw e;
     }
+  }
+
+  public record() {
+    this.midi.record();
+    this.midi.addNoteonListenter((e) => {
+      this.SylSeq.append(e);
+      this.$refs.inputVis.updateBounds();
+    })
+    this.recording = true;
   }
 
   public getTransposedSeqs() {
@@ -64,7 +82,8 @@ export default class MidiInput extends FieldInput {
     console.log('midiInput clearing data...');
     this.midi.stopRecording();
     this.midi.eraseRecording();
-    this.midi.record();
+    this.SylSeq = eventsToSyllableSequence([]);
+    this.record();
     this.recording = true;
 
     this.store.convertedInput[this.field.name] = this.midi.recording;
@@ -85,12 +104,12 @@ export default class MidiInput extends FieldInput {
   }
 
   public reset() {
-    this.midi.record();
+    this.clearData();
   }
 
   public play() {
     this.midi.play();
-    this.SylSeq = eventsToSyllableSequence(this.midi.recording);
+    // this.SylSeq = eventsToSyllableSequence(this.midi.recording);
     this.display = true;
     console.log(eventsToSyllableSequence(this.midi.recording).toString());
     this.validate();
