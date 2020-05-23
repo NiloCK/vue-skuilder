@@ -1,5 +1,10 @@
+/// <reference types="webmidi" />
 import webmidi, { WebMidi, Input, Output, InputEventBase, IEventNote, InputEventNoteoff, InputEventNoteon } from 'webmidi';
-import { Note, Interval, NoteLiteral } from '@tonaljs/tonal';
+import { Note, Interval, NoteLiteral, Midi } from '@tonaljs/tonal';
+import { alertUser } from '@/components/SnackbarService.vue';
+import { Status } from '@/enums/Status';
+// import Navigator from '@types/webmidi';
+
 
 export interface NoteEvent {
   note: IEventNote;
@@ -217,7 +222,9 @@ class Syllable {
   }
 
   public grade(answer: Syllable, refNote?: IEventNote): Syllable {
-    const ref = refNote || this.notes[0];
+    const ref = refNote || this.notes.sort((a, b) => {
+      return a.note.number - b.note.number
+    })[0];
 
     if (this.notes.length !== answer.notes.length) {
       answer.isCorrect = false;
@@ -234,12 +241,14 @@ class Syllable {
       console.log(`
 fNote: ${fNote}
 sNote: ${sNote}
+refNotes: ${this.notes.map(n => n.note.name).toString()}
 `)
 
       studentNote.isCorrect =
         this.notes.
           filter(
-            note => fNote === note.note.name || sNote === note.note.name)
+            note => Note.chroma(fNote) === Note.chroma(note.note.name) ||
+              Note.chroma(sNote) === Note.chroma(note.note.name))
           .length === 1;
       if (!studentNote.isCorrect) {
         answer.isCorrect = false;
@@ -254,7 +263,9 @@ sNote: ${sNote}
       sNote = Note.pitchClass(sNote);
 
       if (!answer.notes.some(
-        studentNote => studentNote.note.name === fNote || studentNote.note.name === sNote)) {
+        studentNote => Note.chroma(studentNote.note.name) === Note.chroma(fNote)
+      )
+      ) {
         answer.notes.push({
           ...note,
           isMissing: true,
@@ -274,15 +285,36 @@ class SkMidi {
   private webmidi: WebMidi = webmidi;
   private input: Input;
   private output: Output;
+  private _noteonListeners: ((e: InputEventNoteon) => void)[] = [];
+  private _noteoffListeners: ((e: InputEventNoteoff) => void)[] = [];
+
+  private midiAccess: WebMidi.MIDIAccess;
+
+  private state: 'nodevice' | 'notsupported' | 'ready';
 
   private constructor() { }
 
   private async init(): Promise<boolean> {
+    if (!this.midiAccess) {
+      navigator.requestMIDIAccess().then((access) => {
+        this.midiAccess = access;
+        this.midiAccess.onstatechange = (e) => {
+          this.init();
+          alertUser({
+            text: `Midi device ${e.port.name?.toUpperCase()} is ${e.port.state}`,
+            status: e.port.state === 'connected' ? Status.ok : Status.warning
+          });
+        }
+      });
+    }
+    this.webmidi.disable();
 
     return new Promise<boolean>((resolve, reject) => {
       this.webmidi.enable((err) => {
         if (err) {
+          this.state = 'notsupported';
           console.log(`Webmidi not enabled: ${err}`);
+          // setTimeout(this.init, 2000);
           reject(err);
         } else {
           console.log(`Webmidi enabled`);
@@ -293,11 +325,23 @@ class SkMidi {
 
           this.output = this.webmidi.outputs[0];
           this.input = this.webmidi.inputs[0];
+          this.attachListeners();
+
           resolve();
         }
       });
-    })
+    });
+  }
 
+  private attachListeners() {
+    if (this.input) {
+      this._noteonListeners.forEach((f) => {
+        this.input.on('noteon', 'all', f)
+      });
+      this._noteoffListeners.forEach((f) => {
+        this.input.on('noteoff', 'all', f)
+      });
+    }
   }
 
   public get hasRecording(): boolean {
@@ -360,11 +404,18 @@ class SkMidi {
     }
   }
 
+
   public addNoteonListenter(f: (e: InputEventNoteon) => void) {
-    this.input.on('noteon', 'all', f);
+    this._noteonListeners.push(f);
+    if (this.input) {
+      this.input.on('noteon', 'all', f);
+    }
   }
   public addNoteoffListenter(f: (e: InputEventNoteoff) => void) {
-    this.input.on('noteoff', 'all', f);
+    this._noteoffListeners.push(f);
+    if (this.input) {
+      this.input.on('noteoff', 'all', f);
+    }
   }
 
   public play(recording?: NoteEvent[]) {
@@ -389,23 +440,15 @@ class SkMidi {
     })
   }
 
-  public static async factory(): Promise<SkMidi> {
-    console.log(`Buzz, whirr, Midi factory is at work`);
-    let ret = new SkMidi();
-    await ret.init();
-    return ret;
-  }
-
   public static async instance(): Promise<SkMidi> {
-    if (SkMidi._instance && SkMidi._instance.webmidi && SkMidi._instance.webmidi.enabled) {
+    if (SkMidi._instance) {
       return SkMidi._instance;
     } else {
-      console.log(`Buzz, whirr, Midi factory is at work`);
+      console.log(`Buzz, whirr, Midi instance factory is at work`);
       SkMidi._instance = new SkMidi();
       await SkMidi._instance.init();
       return SkMidi._instance;
     }
-
   }
 
   public get inputs(): Input[] {
