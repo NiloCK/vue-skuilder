@@ -2,9 +2,9 @@
     <div>
       <h1>{{title}}</h1>
       <div>
-        <h3>Users - {{users.length}}</h3>
+        <h3>Users - {{registeredUsers.length}}</h3>
         <ul>
-          <li v-for='u in users' :key='u._id'>
+          <li v-for='u in registeredUsers' :key='u._id'>
             User: {{ u.name }}
           </li>
         </ul>
@@ -40,6 +40,7 @@ import { Component, Prop, Emit } from 'vue-property-decorator';
 import { log } from 'util';
 import SkldrVue from '../SkldrVue';
 import AdminDB from '../db/adminDB';
+import { GuestUsername } from '../store';
 
 @Component({})
 export default class Admin extends SkldrVue {
@@ -49,6 +50,12 @@ export default class Admin extends SkldrVue {
   public users: any[] = [];
   public courses: any[] = [];
   public classrooms: any[] = [];
+
+  public get registeredUsers(): any[] {
+    return this.users.filter((u) => {
+      return !(u.name as string).startsWith(GuestUsername);
+    });
+  }
 
   public async created() {
     try {
