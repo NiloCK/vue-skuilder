@@ -262,7 +262,7 @@ export default class MidiConfig extends SkldrVue {
   public async created() {
     try {
       this.midi = await SkMidi.instance();
-      this.midiSupported = true;
+      this.midiSupported = this.midi.state === 'ready' || this.midi.state === 'nodevice';
     } catch (e) {
       console.log(`Error on midi Init: ${e}`);
       this.midiSupported = false;
