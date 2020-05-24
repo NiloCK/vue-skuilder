@@ -1,5 +1,7 @@
 <template>
-  <div>
+<div v-if="initialized">
+
+  <div v-if="state === 'ready'">
     <div class="display-1">First note: <span class='font-weight-bold'>{{firstNote}}</span></div>
     <div class="headline">
       Listen...<span v-if="recording"> and Repeat</span>
@@ -38,11 +40,34 @@
     />
     <syllable-seq-vis v-if="graded" :seq="gradedSeq" />
   </div>
+  <div v-else-if="state === 'nodevice'">
+    No midi device detected. Please attach one!
+  </div>
+  <div v-else-if="state === 'notsupported'">
+    <p>
+      This exercise requires a midi input device, which is not supported by this browser ☹
+    </p>
+    <p>
+      Please try again with one of the following browsers:
+      <ul>
+        <li>
+          <a href="https://www.google.com/chrome/">Google Chrome</a>
+        </li>
+        <li>
+          <a href="https://www.microsoft.com/edge">Microsoft Edge</a>
+        </li>
+        <li>
+          <a href="https://brave.com/">Brave</a>
+        </li>
+      </ul>
+    </p>
+  </div>
+</div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import { Component } from 'vue-property-decorator';
+import { Component, Watch } from 'vue-property-decorator';
 import { QuestionView } from '@/base-course/Viewable';
 import SkMidi, { NoteEvent, eventsToSyllableSequence, SyllableSequence } from '../../utility/midi';
 import { EchoQuestion } from '.';
@@ -57,6 +82,7 @@ import SyllableSeqVis from '../../utility/SyllableSeqVis.vue';
 export default class Playback extends QuestionView<EchoQuestion> {
   public midi: SkMidi;
   public initialized: boolean = false;
+  public state: string;
   public playbackInitTime: number;
   public recording: boolean = false;
 
@@ -73,12 +99,14 @@ export default class Playback extends QuestionView<EchoQuestion> {
   public inputSeq: SyllableSequence = eventsToSyllableSequence([]);
   public lastTSsuggestion: number = 0;
 
+  public error: string = '';
+
   public get firstNote(): string {
     if (this.initialized) {
       // return this.question.midi[0].note.name;
       return eventsToSyllableSequence(this.question.midi).rootNote.name;
     } else {
-      return `... I don't know - something is wrong!`;
+      return `... I don't know! ${this.error}`;
     }
   }
   public notesOn: number = 0;
@@ -90,8 +118,8 @@ export default class Playback extends QuestionView<EchoQuestion> {
   }
 
   async created() {
+
     // this.MouseTrap = new Mousetrap(this.$el);
-    this.midi = await SkMidi.instance();
     this.lastTSsuggestion = this.question.midi[this.question.midi.length - 1].timestamp;
     this.MouseTrap.unbind('space'); // remove from dismissed cards
     this.MouseTrap.bind('space', () => { this.clearAttempt() });
@@ -106,11 +134,39 @@ export default class Playback extends QuestionView<EchoQuestion> {
   }
 
   public async mounted() {
-    await SkMidi.instance();
-    this.playbackDuration = this.question.duration;
-    this.play();
+    try {
+      this.midi = await SkMidi.instance();
+      this.midi.setStateChangeListener(() => { this.init(); });
+      this.initialized = true;
+    } catch (error) {
+      this.error = error;
+    }
 
-    this.initialized = true;
+    this.init();
+
+  }
+
+  public init() {
+    if (this.state) {
+
+      if (this.state !== this.midi.state) {
+        this.initialized = false;
+        this.state = this.midi.state;
+        this.initialized = true;
+      }
+    } else {
+      this.state = this.midi.state;
+      this.initialized = true;
+    }
+
+    console.log(`Playback is running init with state: ${this.state}`);
+
+    if (this.state === 'ready') {
+
+      this.playbackDuration = this.question.duration;
+      this.play();
+    }
+
   }
 
   public record() {
@@ -156,13 +212,18 @@ export default class Playback extends QuestionView<EchoQuestion> {
 
   private runProgressBar() {
     // console.log('running progress bar...');
-    this.$refs.progressBar.style.animationName = '';
-    requestAnimationFrame(() => {
+    try {
+
+      this.$refs.progressBar.style.animationName = '';
       requestAnimationFrame(() => {
-        this.$refs.progressBar.style.animationDuration = this.playbackDuration + 'ms';
-        this.$refs.progressBar.style.animationName = 'progress';
+        requestAnimationFrame(() => {
+          this.$refs.progressBar.style.animationDuration = this.playbackDuration + 'ms';
+          this.$refs.progressBar.style.animationName = 'progress';
+        })
       })
-    })
+    } catch (e) {
+      setTimeout(this.runProgressBar, 50);
+    }
   }
 
   get question() {

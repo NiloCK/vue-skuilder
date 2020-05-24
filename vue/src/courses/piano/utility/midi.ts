@@ -290,29 +290,37 @@ class SkMidi {
 
   private midiAccess: WebMidi.MIDIAccess;
 
-  private state: 'nodevice' | 'notsupported' | 'ready';
+  private _state: 'nodevice' | 'notsupported' | 'ready';
+  public get state() {
+    return this._state;
+  }
 
   private constructor() { }
 
   private async init(): Promise<boolean> {
     if (!this.midiAccess) {
-      navigator.requestMIDIAccess().then((access) => {
-        this.midiAccess = access;
-        this.midiAccess.onstatechange = (e) => {
-          this.init();
-          alertUser({
-            text: `Midi device ${e.port.name?.toUpperCase()} is ${e.port.state}`,
-            status: e.port.state === 'connected' ? Status.ok : Status.warning
-          });
-        }
-      });
+      try {
+        navigator.requestMIDIAccess().then((access) => {
+          this.midiAccess = access;
+          this.midiAccess.onstatechange = (e) => {
+            // this.init().then(this._stateChangeListener);
+            alertUser({
+              text: `Midi device ${e.port.name} is ${e.port.state}`,
+              status: e.port.state === 'connected' ? Status.ok : Status.error
+            });
+          }
+        });
+      } catch (e) {
+        console.log(`Webmidi not enabled: ${e}`);
+        this._state = 'notsupported';
+      }
     }
     this.webmidi.disable();
 
     return new Promise<boolean>((resolve, reject) => {
       this.webmidi.enable((err) => {
         if (err) {
-          this.state = 'notsupported';
+          this._state = 'notsupported';
           console.log(`Webmidi not enabled: ${err}`);
           // setTimeout(this.init, 2000);
           reject(err);
@@ -325,12 +333,56 @@ class SkMidi {
 
           this.output = this.webmidi.outputs[0];
           this.input = this.webmidi.inputs[0];
-          this.attachListeners();
+
+          if (this.input && this.output) {
+            console.log('midi init state: ready');
+            this._state = 'ready';
+            this.attachListeners();
+          } else {
+            console.log('midi init state: nodevice');
+
+            this._state = 'nodevice';
+          }
 
           resolve();
         }
       });
     });
+  }
+  private _stateChangeListener: () => void;
+
+  public setStateChangeListener(f: () => void) {
+    if (!this.midiAccess) {
+      try {
+        navigator.requestMIDIAccess().then((access) => {
+          this.midiAccess = access;
+          this.midiAccess.onstatechange = (e) => {
+            this.init().then(() => {
+              console.log(`Midi state: ${this.state}`);
+              f();
+            });
+            alertUser({
+              text: `Midi device ${e.port.name} is ${e.port.state}`,
+              status: e.port.state === 'connected' ? Status.ok : Status.error
+            });
+          }
+        });
+      } catch (e) {
+        console.log(`Webmidi not enabled: ${e}`);
+        this._state = 'notsupported';
+      }
+    } else {
+      this.midiAccess.onstatechange = (e) => {
+        this.init().then(() => {
+          console.log(`Midi state: ${this.state}`);
+          f();
+        });
+        alertUser({
+          text: `Midi device ${e.port.name} is ${e.port.state}`,
+          status: e.port.state === 'connected' ? Status.ok : Status.error
+        });
+      }
+    }
   }
 
   private attachListeners() {
