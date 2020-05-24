@@ -82,7 +82,7 @@ import SyllableSeqVis from '../../utility/SyllableSeqVis.vue';
 export default class Playback extends QuestionView<EchoQuestion> {
   public midi: SkMidi;
   public initialized: boolean = false;
-  public state: string;
+  public state: string = 'notSet';
   public playbackInitTime: number;
   public recording: boolean = false;
 
