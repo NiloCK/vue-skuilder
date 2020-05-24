@@ -249,7 +249,7 @@ refNotes: ${this.notes.map(n => n.note.name).toString()}
           filter(
             note => Note.chroma(fNote) === Note.chroma(note.note.name) ||
               Note.chroma(sNote) === Note.chroma(note.note.name))
-          .length === 1;
+          .length >= 1;
       if (!studentNote.isCorrect) {
         answer.isCorrect = false;
       }
