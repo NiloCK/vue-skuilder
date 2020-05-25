@@ -6,6 +6,7 @@ import { TagStub } from './db/types';
 import ENV from './ENVIRONMENT_VARS';
 import { CourseConfig } from './server/types';
 import FormInput from '@/components/Edit/ViewableDataInputForm/FieldInputs/index.vue';
+import { User } from './db/userDB';
 
 Vue.use(Vuex);
 
@@ -27,6 +28,7 @@ interface DataInputForm {
 
 export interface AppState {
   user: string;
+  _user?: User;
   userLoginAndRegistrationContainer: {
     loggedIn: boolean;
     regDialogOpen: boolean;
@@ -40,6 +42,7 @@ export interface AppState {
 const Store = new Vuex.Store<AppState>({
   state: {
     user: '',
+    _user: undefined,
     userLoginAndRegistrationContainer: {
       loggedIn: false,
       regDialogOpen: false,
@@ -64,7 +67,9 @@ const Store = new Vuex.Store<AppState>({
   }
 });
 
+
 export default Store;
+
 
 checkAuthCookie();
 
@@ -72,7 +77,7 @@ function checkAuthCookie() {
   const authXML = new XMLHttpRequest();
   authXML.withCredentials = true;
   // tslint:disable-next-line: space-before-function-paren
-  authXML.addEventListener('load', function () {
+  authXML.addEventListener('load', async function () {
     // todo add link to couchdb doc of this json shape
     const resp: {
       info: {};
@@ -87,8 +92,10 @@ function checkAuthCookie() {
       resp.userCtx.name !== '' &&
       resp.userCtx.name !== null) {
       Store.state.user = resp.userCtx.name;
+      Store.state._user = (await User.instance(resp.userCtx.name))!;
     } else {
       Store.state.user = GuestUsername;
+      Store.state._user = (await User.instance(GuestUsername))!;
     }
   });
   authXML.open(
