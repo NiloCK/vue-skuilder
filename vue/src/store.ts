@@ -30,6 +30,7 @@ export interface AppState {
   user: string;
   _user?: User;
   userLoginAndRegistrationContainer: {
+    init: boolean;
     loggedIn: boolean;
     regDialogOpen: boolean;
     loginDialogOpen: boolean;
@@ -44,6 +45,7 @@ const Store = new Vuex.Store<AppState>({
     user: '',
     _user: undefined,
     userLoginAndRegistrationContainer: {
+      init: false,
       loggedIn: false,
       regDialogOpen: false,
       loginDialogOpen: false
@@ -93,10 +95,13 @@ function checkAuthCookie() {
       resp.userCtx.name !== null) {
       Store.state.user = resp.userCtx.name;
       Store.state._user = (await User.instance(resp.userCtx.name))!;
+      Store.state.userLoginAndRegistrationContainer.loggedIn = true;
     } else {
       Store.state.user = GuestUsername;
       Store.state._user = (await User.instance(GuestUsername))!;
+      Store.state.userLoginAndRegistrationContainer.loggedIn = false;
     }
+    Store.state.userLoginAndRegistrationContainer.init = true;
   });
   authXML.open(
     'GET',

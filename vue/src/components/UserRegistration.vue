@@ -174,10 +174,9 @@ Author: ${this.author}
         // ${JSON.stringify(err)}`);
         //       });
         await this.$store.state._user!.createAccount(this.username, this.password)
-        this.$store.state.userLoginAndRegistrationContainer = {
-          ...this.$store.state.userLoginAndRegistrationContainer,
-          loggedIn: true
-        }
+        this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
+        this.$store.state.userLoginAndRegistrationContainer.init = false;
+        this.$store.state.userLoginAndRegistrationContainer.init = true;
       } else {
         alertUser({
           text: 'Passwords do not match',

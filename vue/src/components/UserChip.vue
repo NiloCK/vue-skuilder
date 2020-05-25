@@ -70,6 +70,7 @@ export default class UserChip extends SkldrVue {
     const res = await this.$store.state._user!.logout();
     if (res.ok) {
       this.$store.state.userLoginAndRegistrationContainer = {
+        init: true,
         loggedIn: false,
         regDialogOpen: false,
         loginDialogOpen: false

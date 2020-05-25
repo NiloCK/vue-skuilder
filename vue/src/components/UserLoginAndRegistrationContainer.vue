@@ -1,5 +1,5 @@
 <template>
-<transition name="component-fade" mode="out-in">
+<transition v-if="$store.state.userLoginAndRegistrationContainer.init" name="component-fade" mode="out-in">
         <div v-if="guestMode">
             <v-dialog
                 v-model="regDialog"
