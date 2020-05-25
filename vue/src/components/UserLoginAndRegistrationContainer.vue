@@ -1,36 +1,36 @@
 <template>
 <transition v-if="$store.state.userLoginAndRegistrationContainer.init" name="component-fade" mode="out-in">
-        <div v-if="guestMode">
-            <v-dialog
-                v-model="regDialog"
-                width="500px"
-                lazy
-            >
-                <v-btn
-                    small
-                    slot="activator"
-                    color="success"
-                >
-                    Sign Up
-                </v-btn>
-                <UserRegistration @toggle="toggle" />
-            </v-dialog>
-            <v-dialog
-            lazy
-            v-model="loginDialog"
-            width="500px"
-            >
-                <v-btn
-                    small
-                    slot="activator"
-                    color="success"
-                >
-                    Log In
-                </v-btn>
-                <UserLogin @toggle="toggle" />
-            </v-dialog>
-        </div>
-        <user-chip v-else/>
+  <div v-if="guestMode">
+      <v-dialog
+          v-model="regDialog"
+          width="500px"
+          lazy
+      >
+          <v-btn
+              small
+              slot="activator"
+              color="success"
+          >
+              Sign Up
+          </v-btn>
+          <UserRegistration @toggle="toggle" />
+      </v-dialog>
+      <v-dialog
+      lazy
+      v-model="loginDialog"
+      width="500px"
+      >
+          <v-btn
+              small
+              slot="activator"
+              color="success"
+          >
+              Log In
+          </v-btn>
+          <UserLogin @toggle="toggle" />
+      </v-dialog>
+  </div>
+  <user-chip v-else/>
 </transition>
 </template>
 
