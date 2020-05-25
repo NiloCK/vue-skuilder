@@ -52,9 +52,10 @@ import { log } from 'util';
 import { AppState } from '@/store';
 import { Emit } from 'vue-property-decorator';
 import { Status } from '@/enums/Status';
+import SkldrVue from '../SkldrVue';
 
 @Component({})
-export default class UserLogin extends Vue {
+export default class UserLogin extends SkldrVue {
   private username: string = '';
   private password: string = '';
   private retypedPassword: string = '';
@@ -76,19 +77,23 @@ export default class UserLogin extends Vue {
     }, this.errorTimeout);
   }
 
-  private login() {
+  private async login() {
     this.awaitingResponse = true;
-    remoteDBLogin(this.username, this.password).
-      then((resp) => {
-        if (resp.ok) {
-          this.$store.state.user = this.username;
-        } else {
-          this.initBadLogin();
-        }
-        log('Logged in: ' + resp.ok);
-      }).catch((err) => {
-        this.initBadLogin();
-      });
+    // remoteDBLogin(this.username, this.password).
+    //   then((resp) => {
+    //     if (resp.ok) {
+    //       this.$store.state.user = this.username;
+    //     } else {
+    //       this.initBadLogin();
+    //     }
+    //     log('Logged in: ' + resp.ok);
+    //   }).catch((err) => {
+    //     this.initBadLogin();
+    //   });
+    const res = await this.$store.state._user!.login(this.username, this.password);
+    if (!res.ok) {
+      this.initBadLogin();
+    }
     this.awaitingResponse = false;
   }
 

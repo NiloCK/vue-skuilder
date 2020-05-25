@@ -20,7 +20,7 @@
                 <v-avatar class='primary'>
                 <v-icon dark>school</v-icon>
                 </v-avatar>
-                {{ $store.state.user }}
+                {{ username }}
         </v-chip>
         
         <v-list>
@@ -44,34 +44,37 @@ import { remoteDBLogout } from '@/db';
 import { GuestUsername } from '@/store';
 import { log } from 'util';
 import { setTimeout } from 'timers';
+import SkldrVue from '../SkldrVue';
 
 @Component({})
-export default class UserChip extends Vue {
+export default class UserChip extends SkldrVue {
   private items: string[] = [
     // 'sample1', 'sample2', 'sample3', 'sample4'
   ];
 
   private checked: boolean = false;
+  private get username() {
+    if (this.$store.state._user) {
+      return this.$store.state._user.username;
+    }
+    else {
+      return '';
+    }
+  }
 
   private dismiss(item: string) {
     const index = this.items.indexOf(item);
     this.items.splice(index, 1);
   }
-  private logout() {
-    remoteDBLogout().then((res) => {
-      if (res.ok) {
-        log(`Logged out: ${res}`);
-        this.$store.state.user = '';
-        this.$store.state.userLoginAndRegistrationContainer = {
-          loggedIn: false,
-          regDialogOpen: false,
-          loginDialogOpen: false
-        };
-        setTimeout(() => {
-          this.$store.state.user = GuestUsername;
-        }, 1000);
-      }
-    });
+  private async logout() {
+    const res = await this.$store.state._user!.logout();
+    if (res.ok) {
+      this.$store.state.userLoginAndRegistrationContainer = {
+        loggedIn: false,
+        regDialogOpen: false,
+        loginDialogOpen: false
+      };
+    }
   }
 
   public get hasNewItems(): boolean {

@@ -1,6 +1,5 @@
 <template>
 <transition name="component-fade" mode="out-in">
-    <div v-if="$store.state.user !== ''">
         <div v-if="guestMode">
             <v-dialog
                 v-model="regDialog"
@@ -32,17 +31,20 @@
             </v-dialog>
         </div>
         <user-chip v-else/>
-    </div>
 </transition>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
 import UserLogin from './UserLogin.vue';
 import UserRegistration from './UserRegistration.vue';
 import Component from 'vue-class-component';
 import UserChip from './UserChip.vue';
 import { GuestUsername } from '@/store';
+import SkldrVue from '../SkldrVue';
+import { getUserDB } from '../db/userDB';
+import { User } from '../db/userDB';
+
+
 
 @Component({
   components: {
@@ -51,12 +53,15 @@ import { GuestUsername } from '@/store';
     UserChip
   }
 })
-export default class UserLoginAndRegistrationContainer extends Vue {
+export default class UserLoginAndRegistrationContainer extends SkldrVue {
   private readonly GuestUsername: string = GuestUsername;
 
   private get guestMode(): boolean {
-    console.log(`Username: ${this.$store.state.user}`);
-    return (this.$store.state.user as string).startsWith(GuestUsername);
+    if (this.$store.state._user) {
+      return this.$store.state._user.username.startsWith(GuestUsername);
+    } else {
+      return true;
+    }
   }
 
   private get regDialog(): boolean {
