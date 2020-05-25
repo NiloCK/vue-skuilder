@@ -45,21 +45,21 @@ import { GuestUsername } from '@/store';
 import { log } from 'util';
 import { setTimeout } from 'timers';
 import SkldrVue from '../SkldrVue';
+import { User } from '../db/userDB';
+
 
 @Component({})
 export default class UserChip extends SkldrVue {
+  private username: string = '';
   private items: string[] = [
     // 'sample1', 'sample2', 'sample3', 'sample4'
   ];
 
   private checked: boolean = false;
-  private get username() {
-    if (this.$store.state._user) {
-      return this.$store.state._user.username;
-    }
-    else {
-      return '';
-    }
+  created() {
+    User.instance().then((u) => {
+      this.username = u.username;
+    });
   }
 
   private dismiss(item: string) {
