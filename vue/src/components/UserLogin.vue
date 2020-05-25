@@ -94,6 +94,10 @@ export default class UserLogin extends SkldrVue {
     if (!res.ok) {
       this.initBadLogin();
     }
+    this.$store.state.userLoginAndRegistrationContainer = {
+      ...this.$store.state.userLoginAndRegistrationContainer,
+      loggedIn: true
+    }
     this.awaitingResponse = false;
   }
 

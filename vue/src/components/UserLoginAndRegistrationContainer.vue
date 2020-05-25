@@ -60,7 +60,7 @@ export default class UserLoginAndRegistrationContainer extends SkldrVue {
     if (this.$store.state._user) {
       return this.$store.state._user.username.startsWith(GuestUsername);
     } else {
-      return true;
+      return !this.$store.state.userLoginAndRegistrationContainer.loggedIn;
     }
   }
 

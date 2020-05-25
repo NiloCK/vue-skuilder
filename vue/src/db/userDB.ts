@@ -7,9 +7,132 @@ import {
   hexEncode,
   pouchDBincludeCredentialsConfig,
   updateGuestAccountExpirationDate,
-  localUserDB
+  localUserDB,
+  remoteDBSignup,
+  remoteDBLogin
 } from './index';
 import { getCourseConfigs } from './courseDB';
+import { Moment } from 'moment';
+
+const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' +
+  ENV.COUCHDB_SERVER_URL + 'skuilder';
+const remoteCouchRootDB: PouchDB.Database = new pouch(
+  remoteStr,
+  {
+    skip_setup: true
+  }
+);
+
+/**
+ * The current logged-in user
+ */
+export class User {
+  private static _instance: User;
+  private static _initialized: boolean = false;
+
+  private email: string;
+  private _username: string;
+  public get username(): string { return this._username; }
+
+  private remoteDB: PouchDB.Database;
+  private localDB: PouchDB.Database;
+
+  public async logout() {
+    // end session w/ couchdb
+    const ret = await this.remoteDB.logOut();
+    // return to 'guest' mode
+    this._username = GuestUsername;
+    await this.init();
+
+    return ret;
+  }
+
+  public async login(username: string, password: string) {
+    if (!this._username.startsWith(GuestUsername)) {
+      throw new Error(`Cannot change accounts while logged in.
+      Log out of account ${this.username} before logging in as ${username}.`);
+    }
+
+    let loginResult = await remoteCouchRootDB.logIn(username, password);
+    if (loginResult.ok) {
+      this._username = username;
+      await this.init();
+    }
+    return loginResult;
+  }
+
+  public async createAccount(username: string, password: string) {
+    if (!this._username.startsWith(GuestUsername)) {
+      throw new Error(
+        `Cannot create a new account while logged in:
+Currently logged-in as ${this._username}.`);
+    } else {
+      const oldUsername = this._username;
+      // remoteDBSignup(username, password);
+      remoteDBSignup(username, password).then(async (result) => {
+        if (result.ok) {
+          remoteDBLogin(username, password);
+
+          const newLocal = getLocalUserDB(username);
+          const newRemote = getUserDB(username);
+
+          const sync = await Promise.all(
+            [
+              this.localDB.replicate.to(newLocal),
+              this.localDB.replicate.to(newRemote)
+            ]
+          );
+          this._username = username;
+          // reset this.local & this.remote DBs
+          this.init();
+        }
+      });
+    }
+  }
+
+  /**
+   * 
+   * @param username Only supplied on page-load by store.ts - from the cookie authSession response
+   */
+  public static async instance(username: string): Promise<User> {
+    if (username) {
+      User._instance = new User(username);
+      await User._instance.init();
+      return User._instance;
+    } else if (User._instance && User._initialized) {
+      return User._instance;
+    } else if (User._instance) {
+      return new Promise((resolve, reject) => {
+        (function waitForUser() {
+          if (User._initialized) {
+            return resolve(User._instance);
+          } else {
+            setTimeout(waitForUser, 50);
+          }
+        })();
+      });
+    } else {
+      User._instance = new User(GuestUsername);
+      await User._instance.init();
+      return User._instance;
+    }
+  }
+
+  private constructor(username: string) {
+    this._username = username;
+  }
+
+  private async init() {
+    User._initialized = false;
+    this.localDB = getLocalUserDB(this._username);
+    this.remoteDB = getUserDB(this._username);
+
+    pouch.sync(this.localDB, this.remoteDB);
+    User._initialized = true;
+  }
+
+  public courseRegistrations: string[];
+}
 
 export function getLocalUserDB(username: string): PouchDB.Database {
   return new pouch(`userdb-${username}`);
@@ -17,11 +140,13 @@ export function getLocalUserDB(username: string): PouchDB.Database {
 
 export function getUserDB(username: string): PouchDB.Database {
   let guestAccount: boolean = false;
+  console.log(`Getting user db: ${username}`);
 
   if (username === GuestUsername ||
     username === '') {
-    username = accomodateGuest();
-    guestAccount = true;
+    // username = accomodateGuest();
+    // guestAccount = true;
+    return getLocalUserDB(GuestUsername);
   }
 
   const hexName = hexEncode(username);

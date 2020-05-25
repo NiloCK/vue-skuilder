@@ -4,46 +4,46 @@
             class="headline grey lighten-2"
             primary-title
         >
-          Create Account
+          Create an Account
         </v-card-title>
 
         <v-card-text>
         <v-form
             onsubmit="return false;"
         >
-            <v-text-field
-                ref="userNameTextField"
-                @blur="validateUsername"
-                autofocus
-                name="name"
-                label="Username"
-                id=""
-                v-model="username"
-                prepend-icon="account_circle"
-                
-            ></v-text-field>
-            <v-text-field
-                prepend-icon="lock"
-                name="name"
-                hover="Show password input"
-                label="Enter your password"
-                hint=""
-                min="4"
-                :append-icon="passwordVisible ? 'visibility_off' : 'visibility'"
-                @click:append="() => (passwordVisible = !passwordVisible)"
-                :type="passwordVisible ? 'text' : 'password'"
-                v-model="password"
-            ></v-text-field>
-            <v-text-field
-                prepend-icon="lock"
-                name="name"
-                hover="Show password input"
-                label="Retype your password"
-                hint=""
-                min="4"
-                :type="passwordVisible ? 'text' : 'password'"
-                v-model="retypedPassword"
-            ></v-text-field>
+              <v-text-field
+                  ref="userNameTextField"
+                  @blur="validateUsername"
+                  autofocus
+                  name="name"
+                  label="Choose a Username"
+                  id=""
+                  v-model="username"
+                  prepend-icon="account_circle"
+                  
+              ></v-text-field>
+              <v-text-field
+                  prepend-icon="lock"
+                  name="name"
+                  hover="Show password"
+                  label="Create a password"
+                  hint=""
+                  min="4"
+                  :append-icon="passwordVisible ? 'visibility_off' : 'visibility'"
+                  @click:append="() => (passwordVisible = !passwordVisible)"
+                  :type="passwordVisible ? 'text' : 'password'"
+                  v-model="password"
+              ></v-text-field>
+              <v-text-field
+                  prepend-icon="lock"
+                  name="name"
+                  hover="Show password"
+                  label="Retype your password"
+                  hint=""
+                  min="4"
+                  :type="passwordVisible ? 'text' : 'password'"
+                  v-model="retypedPassword"
+              ></v-text-field>
 
             <!-- <v-checkbox label="Student" v-model="student" ></v-checkbox>
             <v-checkbox label="Teacher" v-model="teacher" ></v-checkbox>
@@ -82,14 +82,18 @@ import Component from 'vue-class-component';
 import {
   remoteDBLogin,
   remoteDBSignup,
-  doesUserExist
+  doesUserExist,
+  remoteDBLogout
 } from '@/db';
 import { log } from 'util';
 import { AppState } from '@/store';
 import { Emit } from 'vue-property-decorator';
+import { alertUser } from './SnackbarService.vue';
+import { Status } from '../enums/Status';
+import SkldrVue from '../SkldrVue';
 
 @Component({})
-export default class UserRegistration extends Vue {
+export default class UserRegistration extends SkldrVue {
   public $refs: {
     userNameTextField: any
   };
@@ -102,6 +106,9 @@ export default class UserRegistration extends Vue {
   private usernameValidationInProgress: boolean = false;
   private awaitingResponse: boolean = false;
   private badLoginAttempt: boolean = false;
+
+  private userSecret: string = '';
+  private secret: string = 'goons';
 
   private readonly roles: string[] = [
     'Student',
@@ -131,7 +138,7 @@ export default class UserRegistration extends Vue {
 
   }
 
-  private createUser() {
+  private async createUser() {
     this.awaitingResponse = true;
     log(`
 User creation
@@ -142,31 +149,50 @@ Student: ${this.student}
 Teacher: ${this.teacher}
 Author: ${this.author}
 `);
+    if (true) {
 
-    if (this.password === this.retypedPassword) {
-      const options: PouchDB.Authentication.PutUserOptions = {};
-      // couchdb objects at non-admin creation of 'roles'
-      // will need a different approach here
-      options.roles = [];
-      if (this.student) { options.roles.push('student'); }
-      if (this.author) { options.roles.push('author'); }
-      if (this.teacher) { options.roles.push('teacher'); }
 
-      remoteDBSignup(this.username, this.password, options).
-        then((resp) => {
-          if (resp.ok) {
-            log(`User ${this.username} created`);
-            remoteDBLogin(this.username, this.password);
-            this.$store.state.user = this.username;
-          }
-        }).catch((err) => {
-          log(`User ${this.username} NOT created:
-    ${JSON.stringify(err)}`);
+      if (this.password === this.retypedPassword) {
+        //     await remoteDBLogout();
+        //     const options: PouchDB.Authentication.PutUserOptions = {};
+        //     // couchdb objects at non-admin creation of 'roles'
+        //     // will need a different approach here
+        //     options.roles = [];
+        //     if (this.student) { options.roles.push('student'); }
+        //     if (this.author) { options.roles.push('author'); }
+        //     if (this.teacher) { options.roles.push('teacher'); }
+
+        //     remoteDBSignup(this.username, this.password, options).
+        //       then((resp) => {
+        //         if (resp.ok) {
+        //           log(`User ${this.username} created`);
+        //           remoteDBLogin(this.username, this.password);
+        //           this.$store.state.user = this.username;
+        //         }
+        //       }).catch((err) => {
+        //         log(`User ${this.username} NOT created:
+        // ${JSON.stringify(err)}`);
+        //       });
+        await this.$store.state._user!.createAccount(this.username, this.password)
+        this.$store.state.userLoginAndRegistrationContainer = {
+          ...this.$store.state.userLoginAndRegistrationContainer,
+          loggedIn: true
+        }
+      } else {
+        alertUser({
+          text: 'Passwords do not match',
+          status: Status.error
         });
+      }
+      this.awaitingResponse = false;
+      // this.$router.push('/quilts');
     } else {
-      alert('Passwords do not match');
+      alertUser({
+        text: 'Secret join code is not correct.',
+        status: Status.error
+      });
+      this.awaitingResponse = false;
     }
-    this.awaitingResponse = false;
   }
 }
 </script>
