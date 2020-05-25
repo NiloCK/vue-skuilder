@@ -124,7 +124,7 @@ export default {
     return {
       build: '0.0.2',
       latestBuild: '',
-      drawer: false,
+      drawer: true,
     };
   },
   async created() {
