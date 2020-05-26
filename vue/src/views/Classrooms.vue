@@ -169,7 +169,7 @@ export default class Classroom extends SkldrVue {
 
 
   private async refreshData() {
-    const registrations = (await getUserClassrooms(this.$store.state.user)).registrations;
+    const registrations = (await getUserClassrooms(this.$store.state._user!.username)).registrations;
     const studentClasses: CourseReg[] = [];
     const teacherClasses: CourseReg[] = [];
 
@@ -195,7 +195,7 @@ export default class Classroom extends SkldrVue {
   private async deleteClass(classId: string) {
     const result = await serverRequest({
       type: ServerRequestType.DELETE_CLASSROOM,
-      user: this.$store.state.user,
+      user: this.$store.state._user!.username,
       classID: classId,
       response: null
     });
@@ -210,11 +210,11 @@ export default class Classroom extends SkldrVue {
       data: {
         classID: classID
       },
-      user: this.$store.state.user,
+      user: this.$store.state._user!.username,
       response: null
     });
     if (result.response && result.response.ok) {
-      await dropUserFromClassroom(this.$store.state.user, classID);
+      await dropUserFromClassroom(this.$store.state._user!.username, classID);
     }
 
     this.$set(this.spinnerMap, classID, undefined);
@@ -227,15 +227,15 @@ export default class Classroom extends SkldrVue {
       data: {
         joinCode: this.joinCode,
         registerAs: 'student',
-        user: this.$store.state.user
+        user: this.$store.state._user!.username
       },
-      user: this.$store.state.user,
+      user: this.$store.state._user!.username,
       response: null
     });
 
     if (result.response && result.response.ok) {
       log(`Adding registration to userDB...`);
-      await registerUserForClassroom(this.$store.state.user, result.response!.id_course, 'student');
+      await registerUserForClassroom(this.$store.state._user!.username, result.response!.id_course, 'student');
       alertUser({
         text: `Successfully joined class: ${result.response.course_name}.`,
         status: Status.ok

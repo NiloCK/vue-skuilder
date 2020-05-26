@@ -168,7 +168,7 @@ export default class ComponentRegistration extends SkldrVue {
       //       shape.course,
       //       shape.displayable.dataShapes[0],
       //       d,
-      //       this.$store.state.user
+      //       this.$store.state._user!.username
       //     );
       //   });
       // } else {
@@ -227,7 +227,7 @@ CourseID: ${this.course}
             question.course,
             question.question.dataShapes[0],
             d,
-            this.$store.state.user
+            this.$store.state._user!.username
           );
         });
       } else {

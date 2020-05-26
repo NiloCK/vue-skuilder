@@ -20,13 +20,14 @@ import CourseEditor from '../components/Edit/CourseEditor.vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { CourseConfig } from '../server/types';
 import { getUserEditableCourses } from '../db/userDB';
+import SkldrVue from '../SkldrVue';
 
 @Component({
   components: {
     CourseEditor
   }
 })
-export default class Edit extends Vue {
+export default class Edit extends SkldrVue {
   public courseList: CourseConfig[] = [];
   @Prop()
   public selectedCourse: string = '';
@@ -38,7 +39,7 @@ export default class Edit extends Vue {
   }
 
   private async created() {
-    const courseList = await getUserEditableCourses(this.$store.state.user);
+    const courseList = await getUserEditableCourses(this.$store.state._user!.username);
 
     this.courseList = courseList.rows.map((row) => {
       return row.doc!;

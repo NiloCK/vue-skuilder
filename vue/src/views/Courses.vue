@@ -103,6 +103,7 @@
     </v-flex>
   </v-layout>
   <v-dialog
+              v-if="false"
               v-model="newCourseDialog"
               fullscreen
               transition="dialog-bottom-transition"
@@ -129,7 +130,7 @@ import { ServerRequestType, CourseConfig } from '../server/types';
 import SkldrVue from '../SkldrVue';
 import { alertUser } from '../components/SnackbarService.vue';
 import { getCourseList } from '@/db/courseDB';
-import { registerUserForCourse, getUserCourses, dropUserFromCourse } from '../db/userDB';
+import { registerUserForCourse, dropUserFromCourse, User } from '../db/userDB';
 
 @Component({
   components: {
@@ -148,7 +149,7 @@ export default class Courses extends SkldrVue {
   public get availableCourses() {
     const availableCourses = _.without(this.existingCourses, ...this.registeredCourses);
     const viewableCourses = availableCourses.filter((course) => {
-      const user = this.$store.state.user;
+      const user = this.$store.state._user!.username;
       const viewable: boolean =
         course.public ||
         course.creator === user ||
@@ -168,10 +169,10 @@ export default class Courses extends SkldrVue {
 
   private async refreshData() {
     log(`Pulling user course data...`);
+    const userCourseIDs = (await (await User.instance()).getCourseRegistrations()).courses.map((c) => {
+      return c.courseID;
+    })
     const courseList = await getCourseList();
-    const userCoursIDs = (await getUserCourses(this.$store.state.user)).courses.map((course) => {
-      return course.courseID;
-    });
 
     this.existingCourses = courseList.rows.filter((course) => {
       return course && course.doc;
@@ -181,7 +182,7 @@ export default class Courses extends SkldrVue {
 
     this.registeredCourses = courseList.rows.filter((course) => {
       let match: boolean = false;
-      userCoursIDs.forEach((id) => {
+      userCourseIDs.forEach((id) => {
         if (course.id === id) {
           match = true;
         }
@@ -208,13 +209,13 @@ export default class Courses extends SkldrVue {
         description: 'All of these courses will be the same!',
         public: true,
         deleted: false,
-        creator: this.$store.state.user,
-        admins: [this.$store.state.user],
+        creator: this.$store.state._user!.username,
+        admins: [this.$store.state._user!.username],
         moderators: [],
         dataShapes: [],
         questionTypes: []
       },
-      user: this.$store.state.user,
+      user: this.$store.state._user!.username,
       response: null
     });
 
@@ -228,14 +229,14 @@ export default class Courses extends SkldrVue {
   private async addCourse(course: string) {
     this.$set(this.spinnerMap, course, true);
     log(`Attempting to register for ${course}.`);
-    await registerUserForCourse(this.$store.state.user, course);
+    await registerUserForCourse(this.$store.state._user!.username, course);
     this.$set(this.spinnerMap, course, undefined);
     this.refreshData();
   }
   private async dropCourse(course: string) {
     this.$set(this.spinnerMap, course, true);
     log(`Attempting to drop ${course}.`);
-    await dropUserFromCourse(this.$store.state.user, course);
+    await dropUserFromCourse(this.$store.state._user!.username, course);
     this.$set(this.spinnerMap, course, undefined);
     this.refreshData();
   }

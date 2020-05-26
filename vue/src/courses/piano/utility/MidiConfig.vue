@@ -296,7 +296,7 @@ export default class MidiConfig extends SkldrVue {
   public async saveSettings() {
     this.updatePending = true;
     await updateCourseSetting({
-      user: this.$store.state.user,
+      user: this.$store.state._user!.username,
       course_id: this._id,
       settings: [
         {

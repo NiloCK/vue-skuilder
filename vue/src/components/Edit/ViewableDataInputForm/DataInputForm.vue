@@ -383,7 +383,7 @@ export default class DataInputForm extends SkldrVue {
           this.datashapeDescriptor.course,
           this.dataShape,
           input,
-          this.$store.state.user
+          this.$store.state._user!.username
         );
       }));
 

@@ -11,16 +11,23 @@
     ></v-progress-circular>
     </h1>
     <br>
-    <div v-if='noRegistrations' class='display-1'>
-      <p>You don't have anything to study!</p>
-      <p>Head over to the <router-link to="quilts">Quilts</router-link> page to find something for you.</p>
+
+    <div v-if='!checkLoggedIn' class='display-1'>
+      <p>Sign up t!o get to work!</p>
     </div>
+   
+    <div v-else-if='noRegistrations' class='display-1'>
+      <p>You don't have anything to study!</p>
+      <p>Head over to the <router-link to="/quilts">Quilts</router-link> page to find something for you.</p>
+    </div>
+
     <div v-else-if='sessionFinished' class='display-1'>
       <p>Study session finished! Great job!</p>
-      <p>Start <a @click="refreshRoute">another study session</a>, or try 
+      <p>Start <router-link to="/study">another study session</router-link>, or try 
       <router-link to="/edit">adding some new content</router-link> to challenge yourself and others!
       </p>
     </div>
+
     <div v-else ref="shadowWrapper">    
       <card-viewer
           v-bind:class="loading ? 'muted' : ''"
@@ -32,6 +39,13 @@
           v-on:emitResponse="processResponse($event)"
       />
     </div>
+    <br>
+    <p>Add tags to this card:</p>
+    <sk-tags-input
+        v-if='!sessionFinished'
+        :courseID="courseID"
+        :cardID="cardID"
+    />
     <router-link
       :to='`/edit/${courseID}`'
     >
@@ -93,11 +107,7 @@
     
     </v-speed-dial>-->
     <br>
-    <sk-tags-input
-        v-if='!sessionFinished'
-        :courseID="courseID"
-        :cardID="cardID"
-    />
+    
   </div>
 </template>
 
@@ -130,7 +140,7 @@ import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/Vi
 import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
 import moment from 'moment';
-import { getUserCourses, getUserClassrooms, CourseRegistrationDoc, updateUserElo } from '../db/userDB';
+import { getUserClassrooms, CourseRegistrationDoc, updateUserElo } from '../db/userDB';
 import { Watch } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
 import { getCredentialledCourseConfig, getCardDataShape, updateCardElo } from '@/db/courseDB';
@@ -139,6 +149,7 @@ import { StudentClassroomDB } from '../db/classroomDB';
 import { alertUser } from '../components/SnackbarService.vue';
 import { Status } from '../enums/Status';
 import { randomInt } from '../courses/math/utility';
+import { GuestUsername } from '@/store';
 // import CardCache from '@/db/cardCache';
 
 function randInt(n: number) {
@@ -237,6 +248,11 @@ export default class Study extends SkldrVue {
   private userCourseIDs: string[] = [];
   private userClassroomDBs: StudentClassroomDB[] = [];
 
+  public checkLoggedIn(): boolean {
+    // return !this.$store.state._user!.username.startsWith(GuestUsername);
+    return true;
+  }
+
   @Watch('editCard')
   public async onEditToggle(value?: boolean, old?: boolean) {
     // this section was wip for editing cards w/ dataInputForm (defunct plan)
@@ -278,7 +294,7 @@ export default class Study extends SkldrVue {
     return (v: any) => {
 
       alertUser({
-        text: this.$store.state.user,
+        text: this.$store.state._user!.username,
         status: Status.ok
       })
       log(`There was a change in the classroom DB:`);
@@ -293,14 +309,14 @@ export default class Study extends SkldrVue {
   }
 
   public async created() {
-    this.activeCards = await getActiveCards(this.$store.state.user);
-    this.userCourseRegDoc = await getUserCourses(this.$store.state.user);
+    this.activeCards = await getActiveCards(this.$store.state._user!.username);
+    this.userCourseRegDoc = await this.$store.state._user!.getCourseRegistrations();
 
     this.userCourseIDs = this.userCourseRegDoc
       .courses
       .map(course => course.courseID);
 
-    const classRoomPromises = (await getUserClassrooms(this.$store.state.user))
+    const classRoomPromises = (await getUserClassrooms(this.$store.state._user!.username))
       .registrations
       .filter(reg => reg.registeredAs === 'student')
       .map(reg => reg.classID)
@@ -366,7 +382,7 @@ ${this.sessionString}
 
   private async getSessionCards() {
     // start with the review cards that are 'due'
-    const dueCards = await getScheduledCards(this.$store.state.user);
+    const dueCards = await getScheduledCards(this.$store.state._user!.username);
 
     // but cut them off if they are too many for the session
     if (dueCards.length <= this.SessionCount) {
@@ -519,7 +535,7 @@ ${this.sessionString}
 
   private async updateUserAndCardElo(userScore: number, course_id: string, card_id: string, k?: number) {
     console.log(`Updating ELO scores for
-      user: ${this.$store.state.user}
+      user: ${this.$store.state._user!.username}
       card: ${course_id}-${card_id}`);
 
     const userElo = this.userCourseRegDoc.courses.find(c => c.courseID === course_id)!.elo;
@@ -533,12 +549,12 @@ ${this.sessionString}
         userScore,
         k
       );
-      const user = await updateUserElo(this.$store.state.user, course_id, eloUpdate.userElo);
+      const user = await updateUserElo(this.$store.state._user!.username, course_id, eloUpdate.userElo);
       const card = await updateCardElo(course_id, card_id, eloUpdate.cardElo);
 
       if (user.ok && card && card.ok) {
         console.log(`Updated ELOs:
-  user: ${this.$store.state.user}
+  user: ${this.$store.state._user!.username}
   course: ${course_id}
   card: ${card_id}
       `)
@@ -556,7 +572,7 @@ ${this.sessionString}
   }
 
   private async logCardRecord(r: CardRecord) {
-    return await putCardRecord(r, this.$store.state.user);
+    return await putCardRecord(r, this.$store.state._user!.username);
   }
 
   private async scheduleReview(history: CardHistory<CardRecord>) {
@@ -565,7 +581,7 @@ ${this.sessionString}
 
     scheduleCardReview(
       {
-        user: this.$store.state.user,
+        user: this.$store.state._user!.username,
         course_id: history.courseID,
         card_id: history.cardID,
         time: nextReviewTime,

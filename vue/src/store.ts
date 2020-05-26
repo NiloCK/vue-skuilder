@@ -27,7 +27,6 @@ interface DataInputForm {
 }
 
 export interface AppState {
-  user: string;
   _user?: User;
   userLoginAndRegistrationContainer: {
     init: boolean;
@@ -42,7 +41,6 @@ export interface AppState {
 
 const Store = new Vuex.Store<AppState>({
   state: {
-    user: '',
     _user: undefined,
     userLoginAndRegistrationContainer: {
       init: false,
@@ -93,11 +91,9 @@ function checkAuthCookie() {
     if (resp.userCtx.name !== undefined &&
       resp.userCtx.name !== '' &&
       resp.userCtx.name !== null) {
-      Store.state.user = resp.userCtx.name;
       Store.state._user = (await User.instance(resp.userCtx.name))!;
       Store.state.userLoginAndRegistrationContainer.loggedIn = true;
     } else {
-      Store.state.user = GuestUsername;
       Store.state._user = (await User.instance(GuestUsername))!;
       Store.state.userLoginAndRegistrationContainer.loggedIn = false;
     }
