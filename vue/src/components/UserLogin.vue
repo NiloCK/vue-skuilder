@@ -79,17 +79,7 @@ export default class UserLogin extends SkldrVue {
 
   private async login() {
     this.awaitingResponse = true;
-    // remoteDBLogin(this.username, this.password).
-    //   then((resp) => {
-    //     if (resp.ok) {
-    //       this.$store.state.user = this.username;
-    //     } else {
-    //       this.initBadLogin();
-    //     }
-    //     log('Logged in: ' + resp.ok);
-    //   }).catch((err) => {
-    //     this.initBadLogin();
-    //   });
+
     const res = await this.$store.state._user!.login(this.username, this.password);
     if (!res.ok) {
       this.initBadLogin();
@@ -98,6 +88,7 @@ export default class UserLogin extends SkldrVue {
       ...this.$store.state.userLoginAndRegistrationContainer,
       loggedIn: true
     }
+
     this.awaitingResponse = false;
   }
 
