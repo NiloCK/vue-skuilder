@@ -9,7 +9,7 @@
           </h1>
           <div class="display-1">An experiment in community-driven learning and teaching</div>
           <br><br><br>
-          <div class="headline">(let's get cozy)</div>
+          <div class="headline">(get cozy)</div>
         
         </v-flex>
         <!-- <div class="section"></div> -->
