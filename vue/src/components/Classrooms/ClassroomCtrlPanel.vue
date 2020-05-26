@@ -184,7 +184,7 @@ export default class ClassroomCtrlPanel extends SkldrVue {
       await this.classroomDB.assignContent({
         type: 'course',
         courseID: this.selectedCourse,
-        assignedBy: this.$store.state.user
+        assignedBy: this.$store.state._user!.username
       });
     } else {
       await this.selectedTags.forEach((tag) => {
@@ -192,7 +192,7 @@ export default class ClassroomCtrlPanel extends SkldrVue {
           type: 'tag',
           courseID: this.selectedCourse,
           tagID: tag,
-          assignedBy: this.$store.state.user,
+          assignedBy: this.$store.state._user!.username,
         })
       })
     }

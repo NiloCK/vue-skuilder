@@ -119,7 +119,7 @@ export default class ClassroomEditor extends SkldrVue {
 
     const config: ClassroomConfig = {
       name: this.name,
-      teachers: [this.$store.state.user],
+      teachers: [this.$store.state._user!.username],
       students: [],
       birthYear: this.birthYear,
       classMeetingSchedule: "",
@@ -134,7 +134,7 @@ export default class ClassroomEditor extends SkldrVue {
       data: config,
       type: ServerRequestType.CREATE_CLASSROOM,
       response: null,
-      user: this.$store.state.user
+      user: this.$store.state._user!.username
     });
 
     if (result.response) {
@@ -143,7 +143,7 @@ export default class ClassroomEditor extends SkldrVue {
         status: Status.ok
       });
 
-      registerUserForClassroom(this.$store.state.user, result.response.uuid, 'teacher');
+      registerUserForClassroom(this.$store.state._user!.username, result.response.uuid, 'teacher');
     }
 
     this.clearFormAndDismiss();

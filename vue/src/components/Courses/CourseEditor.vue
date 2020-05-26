@@ -119,7 +119,7 @@ export default class CourseEditor extends SkldrVue {
       description: this.description,
       public: this.publicCourse,
       deleted: this.deleted,
-      creator: this.$store.state.user,
+      creator: this.$store.state._user!.username,
       admins: this.admins,
       moderators: this.moderators,
       dataShapes: this.dataShapes,
@@ -130,7 +130,7 @@ export default class CourseEditor extends SkldrVue {
       data: config,
       type: ServerRequestType.CREATE_COURSE,
       response: null,
-      user: this.$store.state.user
+      user: this.$store.state._user!.username
     });
 
     if (result.response) {

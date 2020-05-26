@@ -52,6 +52,7 @@ export default class CourseStubCard extends SkldrVue {
     const db = await getCourseDB(this._id);
     this._courseConfig = (await getCourseConfig(this._id))!;
     this.questionCount = (await db.find({
+      limit: 1000,
       selector: {
         docType: DocType.CARD
       }
@@ -67,7 +68,7 @@ export default class CourseStubCard extends SkldrVue {
   async registerForCourse() {
     this.addingCourse = true;
     log(`Attempting to register for ${this._id}.`);
-    await registerUserForCourse(this.$store.state.user, this._id);
+    await registerUserForCourse(this.$store.state._user!.username, this._id);
     // this.$set(this.spinnerMap, course, undefined);
     // this.refreshData();
     this.$emit('refresh');
