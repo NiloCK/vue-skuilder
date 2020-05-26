@@ -96,7 +96,7 @@
     <v-content>
       <v-container fluid>
         <v-slide-y-transition mode="out-in">
-          <router-view/>
+          <router-view v-if="$store.state._user" />
         </v-slide-y-transition>
       </v-container>
     </v-content>
@@ -113,22 +113,22 @@
 import UserLoginAndRegistrationContainer from '@/components/UserLoginAndRegistrationContainer.vue';
 import SnackbarService from '@/components/SnackbarService.vue';
 import { getLatestVersion } from '@/db';
+import SkldrVue from './SkldrVue';
+import Component from 'vue-class-component';
 
-export default {
-  name: 'App',
+@Component({
   components: {
     UserLoginAndRegistrationContainer,
     SnackbarService
-  },
-  data() {
-    return {
-      build: '0.0.2',
-      latestBuild: '',
-      drawer: true,
-    };
-  },
+  }
+})
+export default class App extends SkldrVue {
+  public build: string = '0.0.2';
+  public latestBuild: string = '';
+  public drawer: boolean = true;
+
   async created() {
     this.latestBuild = await getLatestVersion();
   }
-};
+}
 </script>
