@@ -41,7 +41,6 @@ import Component from 'vue-class-component';
 import UserChip from './UserChip.vue';
 import { GuestUsername } from '@/store';
 import SkldrVue from '../SkldrVue';
-import { getUserDB } from '../db/userDB';
 import { User } from '../db/userDB';
 
 
