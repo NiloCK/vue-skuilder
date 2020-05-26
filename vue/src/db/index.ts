@@ -22,7 +22,8 @@ import PouchDBFind from 'pouchdb-find';
 import process from 'process';
 import { log } from 'util';
 import { ScheduledCard } from './User';
-import { getUserDB } from './userDB';
+import { getUserDB, getLocalUserDB } from './userDB';
+import _ from 'lodash';
 
 (window as any).process = process; // required as a fix for pouchdb - see #18
 
@@ -141,13 +142,14 @@ export function accomodateGuest() {
 
   if (localStorage.getItem(dbUUID) !== null) {
     username = GuestUsername + localStorage.getItem(dbUUID);
+    console.log(`Returning guest ${username} "logging in".`);
     remoteDBLogin(username, localStorage.getItem(dbUUID)!);
   } else {
     const uuid = generateUUID();
     localStorage.setItem(dbUUID, uuid);
     username = GuestUsername + uuid;
-    remoteDBSignup(username, uuid);
     console.log(`Accommodating a new guest with account: ${username}`);
+    remoteDBSignup(username, uuid);
     remoteDBLogin(username, uuid);
   }
 
@@ -173,10 +175,12 @@ export function remoteDBLogin(username: string, password: string) {
   return remote.logIn(username, password);
 }
 
-export function remoteDBLogout() {
-  return remote.logOut();
+export async function remoteDBLogout() {
+  return await remote.logOut();
 }
 
+//todo USER - this is to be pruned out when GuestAccomodation is
+//            figured out. Moved to class User from userDB.ts.
 export function remoteDBSignup(
   username: string,
   password: string,
@@ -188,22 +192,26 @@ export function remoteDBSignup(
 
   newDBRequest.then((resp) => {
     if (resp.ok) {
+      if (localStorage.dbUUID) {
+        remoteDBLogout().then(() => {
+          remoteDBLogin(username, password).then(() => {
+            getLocalUserDB(GuestUsername + localStorage.dbUUID)
+              .replicate
+              .to(getUserDB(username));
+          }).then(() => {
+            console.log(`deleting local dbUUID`);
+            delete localStorage.dbUUID;
+          });
+        });
+      }
+
       localUserDB.get(expiryDocID).then((doc) => {
         return localUserDB.remove(doc._id, doc._rev);
-      }).then(() => {
-        // these replication calls were causing bugs when registering
-        // new users in browsers that had previously logged-in users.
-        // localDB implementation needs to be reconsidered
-
-        // localUserDB.replicate.to(getUserDB(username));
-      }).catch(() => {
-        // localUserDB.replicate.to(getUserDB(username));
       });
     }
   });
 
   return newDBRequest;
-
 }
 
 export function getCourseDoc<T extends SkuilderCourseData>(
@@ -383,9 +391,15 @@ export async function getRandomCards(courseIDs: string[]) {
  */
 export async function getEloNeighborCards(course_id: string, elo: number) {
   const cards = await getCourseDB(course_id).query('elo');
-  return cards.rows.sort((a, b) => {
+  const rows = _.shuffle(cards.rows);
+
+  return rows.sort((a, b) => {
     return Math.abs(a.key - elo) - Math.abs(b.key - elo);
-  }).map(c => `${course_id}-${c.id}-${c.key}`);
+  }).map(card => `${course_id}-${card.id}-${card.key}`);
+
+  // const ret = cards.rows.sort((a, b) => {
+  //   return Math.abs(a.key - elo) - Math.abs(b.key - elo);
+  // }).map(c => `${course_id}-${c.id}-${c.key}`);
 
 }
 
@@ -442,6 +456,7 @@ export function scheduleCardReview(review: {
   schedulingAgentId: ScheduledCard['schedulingAgentId']
 }) {
   const now = moment.utc();
+  console.log(`Scheduling for review in: ${review.time.diff(now, 'd')} days`);
   getUserDB(review.user).put<ScheduledCard>({
     _id: REVIEW_PREFIX + review.time.format(REVIEW_TIME_FORMAT),
     cardId: review.card_id,

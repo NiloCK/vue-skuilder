@@ -13,6 +13,7 @@ import {
 } from './index';
 import { getCourseConfigs } from './courseDB';
 import { Moment } from 'moment';
+import { Status } from '@/enums/Status';
 
 const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' +
   ENV.COUCHDB_SERVER_URL + 'skuilder';
@@ -61,17 +62,35 @@ export class User {
     return loginResult;
   }
 
+  public async getCourseRegistrations() {
+    console.log(`Fetching courseRegistrations for ${this.username}`);
+
+    // todo USER - refactor to use this.localDB
+    return getOrCreateCourseRegistrationsDoc(this.username);
+  }
+
   public async createAccount(username: string, password: string) {
+    let ret = {
+      status: Status.ok,
+      error: ''
+    }
+
     if (!this._username.startsWith(GuestUsername)) {
       throw new Error(
         `Cannot create a new account while logged in:
 Currently logged-in as ${this._username}.`);
     } else {
-      const oldUsername = this._username;
-      // remoteDBSignup(username, password);
-      remoteDBSignup(username, password).then(async (result) => {
-        if (result.ok) {
-          remoteDBLogin(username, password);
+
+      try {
+
+
+        const oldUsername = this._username;
+
+        const signupRequest = await remoteCouchRootDB.signUp(username, password);
+
+        if (signupRequest.ok) {
+          await remoteCouchRootDB.logOut();
+          await remoteDBLogin(username, password);
 
           const newLocal = getLocalUserDB(username);
           const newRemote = getUserDB(username);
@@ -85,16 +104,32 @@ Currently logged-in as ${this._username}.`);
           this._username = username;
           // reset this.local & this.remote DBs
           this.init();
+        } else {
+          ret.status = Status.error;
+          ret.error = ''
+          console.log(`Signup not OK: ${JSON.stringify(signupRequest)}`);
+          // throw signupRequest;
+          return ret;
         }
-      });
+      } catch (e) {
+        if (e.reason === "Document update conflict.") {
+          ret.error = "This username is taken!";
+          ret.status = Status.error;
+        }
+        console.log(`Error on signup: ${JSON.stringify(e)}`);
+        return ret;
+      }
     }
+
+    return ret;
   }
 
   /**
+   * Returns the current user.
    * 
    * @param username Only supplied on page-load by store.ts - from the cookie authSession response
    */
-  public static async instance(username: string): Promise<User> {
+  public static async instance(username?: string): Promise<User> {
     if (username) {
       User._instance = new User(username);
       await User._instance.init();
@@ -119,6 +154,7 @@ Currently logged-in as ${this._username}.`);
   }
 
   private constructor(username: string) {
+    User._initialized = false;
     this._username = username;
   }
 
@@ -352,10 +388,6 @@ export async function dropUserFromCourse(user: string, course_id: string) {
 
     return getUserDB(user).put(doc);
   });
-}
-
-export async function getUserCourses(user: string) {
-  return getOrCreateCourseRegistrationsDoc(user);
 }
 
 export async function getUserClassrooms(user: string) {

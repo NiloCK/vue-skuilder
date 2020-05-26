@@ -20,7 +20,8 @@
                   id=""
                   v-model="username"
                   prepend-icon="account_circle"
-                  
+                  :error="usernameError"
+                  :hint="usernameHint"
               ></v-text-field>
               <v-text-field
                   prepend-icon="lock"
@@ -79,12 +80,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import {
-  remoteDBLogin,
-  remoteDBSignup,
-  doesUserExist,
-  remoteDBLogout
-} from '@/db';
+import { doesUserExist } from '@/db';
 import { log } from 'util';
 import { AppState } from '@/store';
 import { Emit } from 'vue-property-decorator';
@@ -95,7 +91,7 @@ import SkldrVue from '../SkldrVue';
 @Component({})
 export default class UserRegistration extends SkldrVue {
   public $refs: {
-    userNameTextField: any
+    userNameTextField: HTMLInputElement;
   };
 
   private username: string = '';
@@ -104,6 +100,8 @@ export default class UserRegistration extends SkldrVue {
   private passwordVisible: boolean = false;
 
   private usernameValidationInProgress: boolean = false;
+  private usernameError: boolean = false;
+  private usernameHint: string = '';
   private awaitingResponse: boolean = false;
   private badLoginAttempt: boolean = false;
 
@@ -133,9 +131,8 @@ export default class UserRegistration extends SkldrVue {
   }
 
   private validateUsername() {
-
     // empty code block! to do...?...!
-
+    this.usernameError = false;
   }
 
   private async createUser() {
@@ -153,30 +150,35 @@ Author: ${this.author}
 
 
       if (this.password === this.retypedPassword) {
-        //     await remoteDBLogout();
-        //     const options: PouchDB.Authentication.PutUserOptions = {};
-        //     // couchdb objects at non-admin creation of 'roles'
-        //     // will need a different approach here
-        //     options.roles = [];
-        //     if (this.student) { options.roles.push('student'); }
-        //     if (this.author) { options.roles.push('author'); }
-        //     if (this.teacher) { options.roles.push('teacher'); }
+        this.$store.state._user!.createAccount(this.username, this.password).then((resp) => {
+          if (resp.status === Status.ok) {
 
-        //     remoteDBSignup(this.username, this.password, options).
-        //       then((resp) => {
-        //         if (resp.ok) {
-        //           log(`User ${this.username} created`);
-        //           remoteDBLogin(this.username, this.password);
-        //           this.$store.state.user = this.username;
-        //         }
-        //       }).catch((err) => {
-        //         log(`User ${this.username} NOT created:
-        // ${JSON.stringify(err)}`);
-        //       });
-        await this.$store.state._user!.createAccount(this.username, this.password)
-        this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
-        this.$store.state.userLoginAndRegistrationContainer.init = false;
-        this.$store.state.userLoginAndRegistrationContainer.init = true;
+            this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
+            this.$store.state.userLoginAndRegistrationContainer.init = false;
+            this.$store.state.userLoginAndRegistrationContainer.init = true;
+          } else {
+            if (resp.error === "This username is taken!") {
+              this.usernameError = true;
+              this.usernameHint = "Try a different name.";
+              this.$refs.userNameTextField.focus();
+              alertUser({
+                text: `The name ${this.username} is taken!`,
+                status: resp.status
+              });
+            } else {
+              alertUser({
+                text: resp.error,
+                status: resp.status
+              });
+            }
+          }
+        }).catch((e) => {
+          if (e)
+            alertUser({
+              text: JSON.stringify(e),
+              status: Status.error
+            });
+        });
       } else {
         alertUser({
           text: 'Passwords do not match',
