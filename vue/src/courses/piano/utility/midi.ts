@@ -315,7 +315,12 @@ class SkMidi {
         this._state = 'notsupported';
       }
     }
-    this.webmidi.disable();
+    try {
+      this.webmidi.disable();
+    } catch (e) {
+      console.log(`Webmidi not enabled: ${e}`);
+      this._state = 'notsupported';
+    }
 
     return new Promise<boolean>((resolve, reject) => {
       this.webmidi.enable((err) => {
