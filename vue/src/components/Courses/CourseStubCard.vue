@@ -36,7 +36,6 @@ import { Prop, Watch } from 'vue-property-decorator';
 import { getCourseList, getCourseTagStubs, getCourseConfig } from '../../db/courseDB';
 import { getQuestions, getCourseDB } from '../../db';
 import { DocType } from '../../db/types';
-import { registerUserForCourse } from '../../db/userDB';
 
 @Component({})
 export default class CourseStubCard extends SkldrVue {
@@ -68,7 +67,7 @@ export default class CourseStubCard extends SkldrVue {
   async registerForCourse() {
     this.addingCourse = true;
     log(`Attempting to register for ${this._id}.`);
-    await registerUserForCourse(this.$store.state._user!.username, this._id);
+    await this.$store.state._user!.registerForCourse(this._id);
     // this.$set(this.spinnerMap, course, undefined);
     // this.refreshData();
     this.$emit('refresh');

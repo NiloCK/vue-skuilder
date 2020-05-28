@@ -130,7 +130,7 @@ import { ServerRequestType, CourseConfig } from '../server/types';
 import SkldrVue from '../SkldrVue';
 import { alertUser } from '../components/SnackbarService.vue';
 import { getCourseList } from '@/db/courseDB';
-import { registerUserForCourse, dropUserFromCourse, User } from '../db/userDB';
+import { User } from '../db/userDB';
 
 @Component({
   components: {
@@ -169,9 +169,9 @@ export default class Courses extends SkldrVue {
 
   private async refreshData() {
     log(`Pulling user course data...`);
-    const userCourseIDs = (await (await User.instance()).getCourseRegistrations()).courses.map((c) => {
+    const userCourseIDs = (await this.$store.state._user!.getRegisteredCourses()).map(c => {
       return c.courseID;
-    })
+    });
     const courseList = await getCourseList();
 
     this.existingCourses = courseList.rows.filter((course) => {
@@ -229,14 +229,14 @@ export default class Courses extends SkldrVue {
   private async addCourse(course: string) {
     this.$set(this.spinnerMap, course, true);
     log(`Attempting to register for ${course}.`);
-    await registerUserForCourse(this.$store.state._user!.username, course);
+    await this.$store.state._user!.registerForCourse(course);
     this.$set(this.spinnerMap, course, undefined);
     this.refreshData();
   }
   private async dropCourse(course: string) {
     this.$set(this.spinnerMap, course, true);
     log(`Attempting to drop ${course}.`);
-    await dropUserFromCourse(this.$store.state._user!.username, course);
+    await this.$store.state._user!.dropCourse(course);
     this.$set(this.spinnerMap, course, undefined);
     this.refreshData();
   }

@@ -149,6 +149,13 @@ Currently logged-in as ${this._username}.`);
     });
   }
 
+  public async getRegisteredCourses() {
+    const regDoc = await this.getCourseRegistrationsDoc();
+    return regDoc.courses.filter((c) => {
+      return !c.status || c.status === 'active' || c.status === 'maintenance-mode'
+    });
+  }
+
   public async registerForCourse(course_id: string, previewMode: boolean = false) {
     return this.getCourseRegistrationsDoc().then((doc: CourseRegistrationDoc) => {
       const regItem: CourseRegistration = {
@@ -160,22 +167,29 @@ Currently logged-in as ${this._username}.`);
         elo: 1000,
         taggedElo: {}
       };
+      log(`Registering for course: ${course_id}`);
 
       if (doc.courses.filter((course) => {
         return course.courseID === regItem.courseID;
       }).length === 0) {
+        log(`It's a new course registration!`);
         doc.courses.push(regItem);
         doc.studyWeight[course_id] = 1;
       } else {
-        let c = doc.courses.find((c) => {
-          return c.courseID === regItem.courseID
-        })!.status = 'active';
+        doc.courses.forEach((c) => {
+          log(`Found the previously registered course!`);
+          if (c.courseID === course_id) {
+            c.status = 'active';
+          }
+        });
       }
 
       return this.localDB.put<CourseRegistrationDoc>(doc);
+    }).catch((e) => {
+      log(`Registration failed because of: ${JSON.stringify(e)}`);
     });
   }
-  public async dropCourse(course_id: string, dropStatus: CourseRegistration['status'] = 'dropped-completely') {
+  public async dropCourse(course_id: string, dropStatus: CourseRegistration['status'] = 'dropped') {
     return this.getCourseRegistrationsDoc().then((doc) => {
       let index: number = -1;
       for (let i = 0; i < doc.courses.length; i++) {
@@ -451,48 +465,7 @@ export async function dropUserFromClassroom(user: string, classID: string) {
   });
 }
 
-export async function registerUserForCourse(user: string, course_id: string) {
-  return getOrCreateCourseRegistrationsDoc(user).then((doc) => {
-    const regItem = {
-      courseID: course_id,
-      user: true,
-      admin: false,
-      moderator: false,
-      elo: 1000,
-      taggedElo: {}
-    };
 
-    if (doc.courses.filter((course) => {
-      return course.courseID === regItem.courseID;
-    }).length === 0) {
-      doc.courses.push(regItem);
-      doc.studyWeight[course_id] = 1;
-    }
-
-    return getUserDB(user).put(doc);
-  });
-}
-
-export async function dropUserFromCourse(user: string, course_id: string) {
-  return getOrCreateCourseRegistrationsDoc(user).then((doc) => {
-    let index: number = -1;
-    for (let i = 0; i < doc.courses.length; i++) {
-      if (doc.courses[i].courseID === course_id) {
-        index = i;
-      }
-    }
-
-    if (index !== -1) {
-      // remove from the relative-weighting of course study
-      delete doc.studyWeight[course_id];
-      doc.courses.splice(index, 1);
-    } else {
-      throw new Error(`User ${user} is not currently registered for course ${course_id}`);
-    }
-
-    return getUserDB(user).put(doc);
-  });
-}
 
 export async function getUserClassrooms(user: string) {
   return getOrCreateClassroomRegistrationsDoc(user);
