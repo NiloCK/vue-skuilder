@@ -69,7 +69,13 @@ export default new Router({
       path: '/courses/:_id',
       props: true,
       alias: ['/quilts/:_id', '/q/:_id'],
-      component: CourseInformation
+      component: CourseInformation,
+    },
+    {
+      path: '/courses/:previewCourseID/preview',
+      props: true,
+      alias: ['/quilts/:previewCourseID/preview', '/q/:previewCourseID/preview'],
+      component: Study,
     },
     {
       path: '/admin',
