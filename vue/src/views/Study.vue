@@ -13,7 +13,7 @@
     <br>
 
     <div v-if='!checkLoggedIn' class='display-1'>
-      <p>Sign up t!o get to work!</p>
+      <p>Sign up to get to work!</p>
     </div>
    
     <div v-else-if='noRegistrations' class='display-1'>
@@ -23,7 +23,7 @@
 
     <div v-else-if='sessionFinished' class='display-1'>
       <p>Study session finished! Great job!</p>
-      <p>Start <router-link to="/study">another study session</router-link>, or try 
+      <p>Start <a @click="refreshRoute">another study session</a>, or try 
       <router-link to="/edit">adding some new content</router-link> to challenge yourself and others!
       </p>
     </div>
@@ -40,12 +40,14 @@
       />
     </div>
     <br>
-    <p>Add tags to this card:</p>
-    <sk-tags-input
-        v-if='!sessionFinished'
-        :courseID="courseID"
-        :cardID="cardID"
-    />
+    <div v-if="!sessionFinished">
+      <p>Add tags to this card:</p>
+      <sk-tags-input
+          v-if='!sessionFinished'
+          :courseID="courseID"
+          :cardID="cardID"
+      />
+    </div>
     <router-link
       :to='`/edit/${courseID}`'
     >
@@ -123,11 +125,10 @@ import {
   CardHistory
 } from '@/db/types';
 import Viewable, { isQuestionView } from '@/base-course/Viewable';
-import { Component } from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import Courses from '@/courses';
 import {
-  getActiveCards,
   getScheduledCards,
   getRandomCards,
   getDoc,
@@ -140,7 +141,7 @@ import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/Vi
 import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
 import moment from 'moment';
-import { getUserClassrooms, CourseRegistrationDoc, updateUserElo } from '../db/userDB';
+import { getUserClassrooms, CourseRegistrationDoc, updateUserElo, User } from '../db/userDB';
 import { Watch } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
 import { getCredentialledCourseConfig, getCardDataShape, updateCardElo } from '@/db/courseDB';
@@ -240,6 +241,7 @@ export default class Study extends SkldrVue {
   public noRegistrations: boolean = false;
 
   public loading: boolean = false;
+  public user: User;
 
   public $refs: {
     shadowWrapper: HTMLDivElement
@@ -247,6 +249,9 @@ export default class Study extends SkldrVue {
   private userCourseRegDoc: CourseRegistrationDoc;
   private userCourseIDs: string[] = [];
   private userClassroomDBs: StudentClassroomDB[] = [];
+
+  @Prop()
+  public previewCourseID?: string;
 
   public checkLoggedIn(): boolean {
     // return !this.$store.state._user!.username.startsWith(GuestUsername);
@@ -309,27 +314,37 @@ export default class Study extends SkldrVue {
   }
 
   public async created() {
-    this.activeCards = await getActiveCards(this.$store.state._user!.username);
-    this.userCourseRegDoc = await this.$store.state._user!.getCourseRegistrations();
+    this.user = this.$store.state._user!;
+    this.userCourseRegDoc = await this.user.getCourseRegistrationsDoc();
+    this.activeCards = await this.user.getActiveCards();
+    if (this.previewCourseID) {
+      log(`COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
+      // this.activeCards = [];
+      this.userCourseIDs = [this.previewCourseID];
+      this.userClassroomDBs = [];
+      this.courseID = this.previewCourseID;
+      await this.user.registerForCourse(this.previewCourseID, true);
+    } else {
 
-    this.userCourseIDs = this.userCourseRegDoc
-      .courses
-      .map(course => course.courseID);
+      this.userCourseIDs = this.userCourseRegDoc
+        .courses
+        .map(course => course.courseID);
 
-    const classRoomPromises = (await getUserClassrooms(this.$store.state._user!.username))
-      .registrations
-      .filter(reg => reg.registeredAs === 'student')
-      .map(reg => reg.classID)
-      .map(id => StudentClassroomDB.factory(id));
-    this.userClassroomDBs = await Promise.all(classRoomPromises);
-    this.userClassroomDBs.forEach((db) => {
-      db.setChangeFcn(this.handleClassroomMessage())
-    });
+      const classRoomPromises = (await getUserClassrooms(this.$store.state._user!.username))
+        .registrations
+        .filter(reg => reg.registeredAs === 'student')
+        .map(reg => reg.classID)
+        .map(id => StudentClassroomDB.factory(id));
+      this.userClassroomDBs = await Promise.all(classRoomPromises);
+      this.userClassroomDBs.forEach((db) => {
+        db.setChangeFcn(this.handleClassroomMessage())
+      });
 
-    if (this.userCourseIDs.length === 0
-      && this.userClassroomDBs.length === 0
-      && this.activeCards.length === 0) {
-      this.noRegistrations = true;
+      if (this.userCourseIDs.length === 0
+        && this.userClassroomDBs.length === 0
+        && this.activeCards.length === 0) {
+        this.noRegistrations = true;
+      }
     }
 
     await this.getSessionCards();
@@ -382,7 +397,11 @@ ${this.sessionString}
 
   private async getSessionCards() {
     // start with the review cards that are 'due'
-    const dueCards = await getScheduledCards(this.$store.state._user!.username);
+    let dueCards = await getScheduledCards(this.$store.state._user!.username);
+
+    if (this.previewCourseID) {
+      dueCards = dueCards.filter(c => c.includes(this.previewCourseID!));
+    }
 
     // but cut them off if they are too many for the session
     if (dueCards.length <= this.SessionCount) {
@@ -407,12 +426,19 @@ ${this.sessionString}
     // this.userCourseRegDoc.courses.forEach(async c => {
     //   cardIDs = cardIDs.concat(await getEloNeighborCards(c.courseID, c.elo))
     // });
-    for (let i = 0; i < this.userCourseRegDoc.courses.length; i++) {
-      cardIDs.push(await getEloNeighborCards(
-        this.userCourseRegDoc.courses[i].courseID,
-        this.userCourseRegDoc.courses[i].elo ? this.userCourseRegDoc.courses[i].elo : 1000
-      ));
+    if (this.previewCourseID) {
+      cardIDs.push(await getEloNeighborCards(this.previewCourseID, 1000));
+    } else {
+      for (let i = 0; i < this.userCourseRegDoc.courses.length; i++) {
+        cardIDs.push(await getEloNeighborCards(
+          this.userCourseRegDoc.courses[i].courseID,
+          this.userCourseRegDoc.courses[i].elo ? this.userCourseRegDoc.courses[i].elo : 1000
+        ));
+      }
     }
+
+    console.log(`Cards: ${cardIDs.toString()}`);
+
 
     // todo: this is not correctly handling new-card picking when more
     //       than one course is involved.

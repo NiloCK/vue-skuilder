@@ -456,7 +456,7 @@ export function scheduleCardReview(review: {
   schedulingAgentId: ScheduledCard['schedulingAgentId']
 }) {
   const now = moment.utc();
-  console.log(`Scheduling for review in: ${review.time.diff(now, 'd')} days`);
+  console.log(`Scheduling for review in: ${review.time.diff(now, 'h') / 24} days`);
   getUserDB(review.user).put<ScheduledCard>({
     _id: REVIEW_PREFIX + review.time.format(REVIEW_TIME_FORMAT),
     cardId: review.card_id,
@@ -516,24 +516,6 @@ export async function getScheduledCards(user: string) {
 
 export async function removeScheduledCardReview(user: string, doc: ScheduledCard & PouchDB.Core.GetMeta) {
   getUserDB(user).remove(doc);
-}
-
-/**
- * Returns a promise of the card IDs that the user has
- * previously studied
- *
- * @param user The username of the corcerned user
- */
-export async function getActiveCards(user: string) {
-  const now = moment.utc();
-  const docs = await getUserDB(user).allDocs({});
-  const ret: PouchDB.Core.DocumentId[] = [];
-  docs.rows.forEach((row) => {
-    if (row.id.startsWith('cardH-')) {
-      ret.push(row.id.substr('cardH-'.length));
-    }
-  });
-  return ret;
 }
 
 export function filterAlldocsByPrefix<T>(db: PouchDB.Database, prefix: string) {
