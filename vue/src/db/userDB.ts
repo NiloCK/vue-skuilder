@@ -38,37 +38,6 @@ export class User {
   private remoteDB: PouchDB.Database;
   private localDB: PouchDB.Database;
 
-  public async logout() {
-    // end session w/ couchdb
-    const ret = await this.remoteDB.logOut();
-    // return to 'guest' mode
-    this._username = GuestUsername;
-    await this.init();
-
-    return ret;
-  }
-
-  public async login(username: string, password: string) {
-    if (!this._username.startsWith(GuestUsername)) {
-      throw new Error(`Cannot change accounts while logged in.
-      Log out of account ${this.username} before logging in as ${username}.`);
-    }
-
-    let loginResult = await remoteCouchRootDB.logIn(username, password);
-    if (loginResult.ok) {
-      this._username = username;
-      await this.init();
-    }
-    return loginResult;
-  }
-
-  public async getCourseRegistrations() {
-    console.log(`Fetching courseRegistrations for ${this.username}`);
-
-    // todo USER - refactor to use this.localDB
-    return getOrCreateCourseRegistrationsDoc(this.username);
-  }
-
   public async createAccount(username: string, password: string) {
     let ret = {
       status: Status.ok,
@@ -123,6 +92,122 @@ Currently logged-in as ${this._username}.`);
 
     return ret;
   }
+  public async login(username: string, password: string) {
+    if (!this._username.startsWith(GuestUsername)) {
+      throw new Error(`Cannot change accounts while logged in.
+      Log out of account ${this.username} before logging in as ${username}.`);
+    }
+
+    let loginResult = await remoteCouchRootDB.logIn(username, password);
+    if (loginResult.ok) {
+      this._username = username;
+      await this.init();
+    }
+    return loginResult;
+  }
+  public async logout() {
+    // end session w/ couchdb
+    const ret = await this.remoteDB.logOut();
+    // return to 'guest' mode
+    this._username = GuestUsername;
+    await this.init();
+
+    return ret;
+  }
+
+  public async getCourseRegistrationsDoc():
+    Promise<CourseRegistrationDoc & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta> {
+    console.log(`Fetching courseRegistrations for ${this.username}`);
+
+    let ret;
+
+    try {
+      ret = await this.localDB.get<CourseRegistrationDoc>(userCoursesDoc);
+    } catch (e) {
+
+      if (e.status === 404) {
+        // doc does not exist. Create it and then run this fcn again.
+        await this.localDB.put<CourseRegistrationDoc>({
+          _id: userCoursesDoc,
+          courses: [],
+          studyWeight: {}
+        });
+        ret = await this.getCourseRegistrationsDoc();
+      } else {
+        throw new Error(`Unexpected error ${JSON.stringify(e)} in getOrCreateCourseRegistrationDoc...`);
+      }
+
+    }
+
+    return ret;
+  }
+
+  public async getActiveCourses() {
+    const reg = await this.getCourseRegistrationsDoc();
+    return reg.courses.filter((c) => {
+      return c.status === undefined || c.status === 'active'
+    });
+  }
+
+  public async registerForCourse(course_id: string, previewMode: boolean = false) {
+    return this.getCourseRegistrationsDoc().then((doc: CourseRegistrationDoc) => {
+      const regItem: CourseRegistration = {
+        status: previewMode ? 'preview' : 'active',
+        courseID: course_id,
+        user: true,
+        admin: false,
+        moderator: false,
+        elo: 1000,
+        taggedElo: {}
+      };
+
+      if (doc.courses.filter((course) => {
+        return course.courseID === regItem.courseID;
+      }).length === 0) {
+        doc.courses.push(regItem);
+        doc.studyWeight[course_id] = 1;
+      } else {
+        let c = doc.courses.find((c) => {
+          return c.courseID === regItem.courseID
+        })!.status = 'active';
+      }
+
+      return this.localDB.put<CourseRegistrationDoc>(doc);
+    });
+  }
+  public async dropCourse(course_id: string, dropStatus: CourseRegistration['status'] = 'dropped-completely') {
+    return this.getCourseRegistrationsDoc().then((doc) => {
+      let index: number = -1;
+      for (let i = 0; i < doc.courses.length; i++) {
+        if (doc.courses[i].courseID === course_id) {
+          index = i;
+        }
+      }
+
+      if (index !== -1) {
+        // remove from the relative-weighting of course study
+        delete doc.studyWeight[course_id];
+        // set drop status
+        doc.courses[index].status = dropStatus;
+      } else {
+        throw new Error(`User ${this.username} is not currently registered for course ${course_id}`);
+      }
+
+      return this.localDB.put<CourseRegistrationDoc>(doc);
+    });
+  }
+
+  public async getUserEditableCourses() {
+    let courseIDs: string[] = [];
+
+    const registeredCourses = await this.getCourseRegistrationsDoc();
+
+    courseIDs = courseIDs.concat(registeredCourses.courses.map((course) => {
+      return course.courseID;
+    }));
+
+    return getCourseConfigs(courseIDs);
+  }
 
   /**
    * Returns the current user.
@@ -163,11 +248,29 @@ Currently logged-in as ${this._username}.`);
     this.localDB = getLocalUserDB(this._username);
     this.remoteDB = getUserDB(this._username);
 
-    pouch.sync(this.localDB, this.remoteDB);
+    pouch.sync(this.localDB, this.remoteDB, {
+      live: true,
+      retry: true
+    });
     User._initialized = true;
   }
 
   public courseRegistrations: string[];
+
+  /**
+  * Returns a promise of the card IDs that the user has
+  * previously studied
+  */
+  async getActiveCards() {
+    const docs = await this.localDB.allDocs({});
+    const ret: PouchDB.Core.DocumentId[] = [];
+    docs.rows.forEach((row) => {
+      if (row.id.startsWith('cardH-')) {
+        ret.push(row.id.substr('cardH-'.length));
+      }
+    });
+    return ret;
+  }
 }
 
 export function getLocalUserDB(username: string): PouchDB.Database {
@@ -211,6 +314,7 @@ interface TaggedElo {
 }
 
 interface CourseRegistration {
+  status?: 'active' | 'dropped' | 'maintenance-mode' | 'preview';
   courseID: string;
   admin: boolean;
   moderator: boolean;
@@ -394,17 +498,6 @@ export async function getUserClassrooms(user: string) {
   return getOrCreateClassroomRegistrationsDoc(user);
 }
 
-export async function getUserEditableCourses(user: string) {
-  let courseIDs: string[] = [];
-
-  const registeredCourses = await getUserCourses(user);
-
-  courseIDs = courseIDs.concat(registeredCourses.courses.map((course) => {
-    return course.courseID;
-  }));
-
-  return getCourseConfigs(courseIDs);
-}
 
 export async function updateCourseSetting(
   { user, course_id, settings }: {
