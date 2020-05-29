@@ -2,7 +2,7 @@
 <div v-if="initialized">
 
   <div v-if="state === 'ready'">
-    <div class="display-1">First note: <span class='font-weight-bold'>{{firstNote}}</span></div>
+    <div class="display-1">{{promptText}} <span class='font-weight-bold'>{{firstNote}}</span></div>
     <div class="headline">
       Listen...<span v-if="recording"> and Repeat</span>
     </div>
@@ -100,6 +100,15 @@ export default class Playback extends QuestionView<EchoQuestion> {
   public lastTSsuggestion: number = 0;
 
   public error: string = '';
+
+  public get promptText(): string {
+    if (eventsToSyllableSequence(this.question.midi).syllables[0].notes.length > 1) {
+      return "Lowest note of first chord:"
+    } else {
+      return "First note:"
+    }
+
+  }
 
   public get firstNote(): string {
     if (this.initialized) {
