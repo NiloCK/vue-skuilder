@@ -75,6 +75,7 @@ export default class UserChip extends SkldrVue {
         regDialogOpen: false,
         loginDialogOpen: false
       };
+      this.$router.push('/home');
     }
   }
 
