@@ -70,6 +70,11 @@ Currently logged-in as ${this._username}.`);
               this.localDB.replicate.to(newRemote)
             ]
           );
+          // remove existing 'guest' database so that future
+          // guests on the device start fresh
+          this.localDB.destroy();
+
+          // reset this.local & this.remote DBs
           this._username = username;
           // reset this.local & this.remote DBs
           this.init();
