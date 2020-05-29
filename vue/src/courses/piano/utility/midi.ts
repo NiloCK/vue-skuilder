@@ -238,12 +238,6 @@ class Syllable {
       fNote = Note.pitchClass(fNote);
       sNote = Note.pitchClass(sNote);
 
-      console.log(`
-fNote: ${fNote}
-sNote: ${sNote}
-refNotes: ${this.notes.map(n => n.note.name).toString()}
-`)
-
       studentNote.isCorrect =
         this.notes.
           filter(

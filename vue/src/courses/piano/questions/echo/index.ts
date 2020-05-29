@@ -73,9 +73,14 @@ export class EchoQuestion extends Question {
 
     const qSylSeq = eventsToSyllableSequence(this.midi);
     const aSylSeq = eventsToSyllableSequence(answer);
-    const gradedSeq = qSylSeq.grade(aSylSeq);
 
-    return gradedSeq.isCorrect();
+    try {
+      const gradedSeq = qSylSeq.grade(aSylSeq);
+      return gradedSeq.isCorrect();
+    } catch (e) {
+      console.log(`ERROR grading this midi sequence!`);
+      return false;
+    }
 
     // console.log(`Sequence is correct: ${gradedSeq.isCorrect()}`);
     // if (gradedSeq.isCorrect()) {
