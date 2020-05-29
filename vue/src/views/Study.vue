@@ -48,6 +48,16 @@
           :cardID="cardID"
       />
     </div>
+    
+    <v-bottom-nav
+      absolute
+      value="true"
+    >
+      <v-flex xs12
+        class="headline teal darken-2 white--text text-sm-center text-align-center align-content-center align-center">
+          Cards Remaining: {{ session.length }}
+      </v-flex>
+    </v-bottom-nav>
     <router-link
       :to='`/edit/${courseID}`'
     >
