@@ -7,9 +7,6 @@ import {
   hexEncode,
   pouchDBincludeCredentialsConfig,
   updateGuestAccountExpirationDate,
-  localUserDB,
-  remoteDBSignup,
-  remoteDBLogin
 } from './index';
 import { getCourseConfigs } from './courseDB';
 import { Moment } from 'moment';
@@ -59,7 +56,7 @@ Currently logged-in as ${this._username}.`);
 
         if (signupRequest.ok) {
           await remoteCouchRootDB.logOut();
-          await remoteDBLogin(username, password);
+          await remoteCouchRootDB.logIn(username, password);
 
           const newLocal = getLocalUserDB(username);
           const newRemote = getUserDB(username);
@@ -76,7 +73,6 @@ Currently logged-in as ${this._username}.`);
 
           // reset this.local & this.remote DBs
           this._username = username;
-          // reset this.local & this.remote DBs
           this.init();
         } else {
           ret.status = Status.error;

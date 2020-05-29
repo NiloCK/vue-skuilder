@@ -143,14 +143,14 @@ export function accomodateGuest() {
   if (localStorage.getItem(dbUUID) !== null) {
     username = GuestUsername + localStorage.getItem(dbUUID);
     console.log(`Returning guest ${username} "logging in".`);
-    remoteDBLogin(username, localStorage.getItem(dbUUID)!);
+    // remoteDBLogin(username, localStorage.getItem(dbUUID)!);
   } else {
     const uuid = generateUUID();
     localStorage.setItem(dbUUID, uuid);
     username = GuestUsername + uuid;
     console.log(`Accommodating a new guest with account: ${username}`);
-    remoteDBSignup(username, uuid);
-    remoteDBLogin(username, uuid);
+    // remoteDBSignup(username, uuid);
+    // remoteDBLogin(username, uuid);
   }
 
   return username;
@@ -171,14 +171,6 @@ export function accomodateGuest() {
   }
 }
 
-export function remoteDBLogin(username: string, password: string) {
-  return remote.logIn(username, password);
-}
-
-export async function remoteDBLogout() {
-  return await remote.logOut();
-}
-
 //todo USER - this is to be pruned out when GuestAccomodation is
 //            figured out. Moved to class User from userDB.ts.
 export function remoteDBSignup(
@@ -193,16 +185,16 @@ export function remoteDBSignup(
   newDBRequest.then((resp) => {
     if (resp.ok) {
       if (localStorage.dbUUID) {
-        remoteDBLogout().then(() => {
-          remoteDBLogin(username, password).then(() => {
-            getLocalUserDB(GuestUsername + localStorage.dbUUID)
-              .replicate
-              .to(getUserDB(username));
-          }).then(() => {
-            console.log(`deleting local dbUUID`);
-            delete localStorage.dbUUID;
-          });
-        });
+        // remoteDBLogout().then(() => {
+        //   remoteDBLogin(username, password).then(() => {
+        //     getLocalUserDB(GuestUsername + localStorage.dbUUID)
+        //       .replicate
+        //       .to(getUserDB(username));
+        //   }).then(() => {
+        //     console.log(`deleting local dbUUID`);
+        //     delete localStorage.dbUUID;
+        //   });
+        // });
       }
 
       localUserDB.get(expiryDocID).then((doc) => {

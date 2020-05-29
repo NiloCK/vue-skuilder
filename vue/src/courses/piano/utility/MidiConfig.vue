@@ -60,7 +60,6 @@
 <script lang="ts">
 import Component from 'vue-class-component';
 import { alertUser } from '@/components/SnackbarService.vue';
-import { remoteDBLogin } from '@/db';
 import { log } from 'util';
 import SkldrVue from '../../../SkldrVue';
 import SkMidi from './midi';

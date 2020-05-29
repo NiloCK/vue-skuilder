@@ -47,7 +47,6 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import { alertUser } from '@/components/SnackbarService.vue';
-import { remoteDBLogin } from '@/db';
 import { log } from 'util';
 import { AppState } from '@/store';
 import { Emit } from 'vue-property-decorator';

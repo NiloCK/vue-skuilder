@@ -40,7 +40,6 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import { remoteDBLogout } from '@/db';
 import { GuestUsername } from '@/store';
 import { log } from 'util';
 import { setTimeout } from 'timers';
