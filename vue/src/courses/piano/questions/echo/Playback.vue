@@ -21,17 +21,6 @@
       Play again <v-icon right>volume_up</v-icon>
     </v-btn>
 
-    <!-- <div>
-      <span class='display-1 hidden'>&#8226;</span>
-      <span v-if='initialized'>
-        <span
-          class='display-1'
-          v-for='n in notesOn'
-          :key='n'>&#8226;
-        </span>
-      </span>
-      <span class='display-1 hidden'>&#8226;</span>
-    </div> -->
     <syllable-seq-vis 
       ref="inputVis"
       v-if="true" 
