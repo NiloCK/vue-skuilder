@@ -3,13 +3,11 @@ import { GuestUsername } from '@/store';
 import pouch from 'pouchdb-browser';
 import { log } from 'util';
 import {
-  accomodateGuest,
   hexEncode,
   pouchDBincludeCredentialsConfig,
   updateGuestAccountExpirationDate,
 } from './index';
 import { getCourseConfigs } from './courseDB';
-import { Moment } from 'moment';
 import { Status } from '@/enums/Status';
 
 const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' +
@@ -55,25 +53,29 @@ Currently logged-in as ${this._username}.`);
         const signupRequest = await remoteCouchRootDB.signUp(username, password);
 
         if (signupRequest.ok) {
-          await remoteCouchRootDB.logOut();
-          await remoteCouchRootDB.logIn(username, password);
-
+          log(`CREATEACCOUNT: logging out of ${this.username}`);
+          const logoutResult = await remoteCouchRootDB.logOut();
+          log(`CREATEACCOUNT: logged out: ${logoutResult.ok}`);
+          const loginResult = await remoteCouchRootDB.logIn(username, password);
+          log(`CREATEACCOUNT: logged in as new user: ${loginResult.ok}`);
           const newLocal = getLocalUserDB(username);
           const newRemote = getUserDB(username);
 
-          const sync = await Promise.all(
-            [
-              this.localDB.replicate.to(newLocal),
-              this.localDB.replicate.to(newRemote)
-            ]
-          );
-          // remove existing 'guest' database so that future
-          // guests on the device start fresh
-          this.localDB.destroy();
+          this.localDB.replicate.to(
+            newLocal
+          ).on('complete', () => {
+            newLocal.replicate.to(
+              newRemote
+            ).on('complete', async () => {
+              log('CREATEACCOUNT: Attempting to destroy guest localDB')
+              await clearLocalGuestDB();
 
-          // reset this.local & this.remote DBs
-          this._username = username;
-          this.init();
+              // reset this.local & this.remote DBs
+              this._username = username;
+              this.init();
+            });
+          });
+
         } else {
           ret.status = Status.error;
           ret.error = ''
@@ -292,6 +294,19 @@ export function getLocalUserDB(username: string): PouchDB.Database {
   return new pouch(`userdb-${username}`);
 }
 
+async function clearLocalGuestDB() {
+  const docs = await getLocalUserDB(GuestUsername).allDocs({
+    limit: 1000,
+    include_docs: true
+  });
+
+  docs.rows.forEach(r => {
+    log(`CREATEACCOUNT: Deleting ${r.id}`);
+    getLocalUserDB(GuestUsername).remove(r.doc!);
+  });
+
+}
+
 export function getUserDB(username: string): PouchDB.Database {
   let guestAccount: boolean = false;
   console.log(`Getting user db: ${username}`);
@@ -319,6 +334,41 @@ export function getUserDB(username: string): PouchDB.Database {
 
   pouch.replicate(ret, getLocalUserDB(username));
   return ret;
+}
+
+function accomodateGuest() {
+  const dbUUID = 'dbUUID';
+  let username: string;
+
+  if (localStorage.getItem(dbUUID) !== null) {
+    username = GuestUsername + localStorage.getItem(dbUUID);
+    console.log(`Returning guest ${username} "logging in".`);
+    // remoteDBLogin(username, localStorage.getItem(dbUUID)!);
+  } else {
+    const uuid = generateUUID();
+    localStorage.setItem(dbUUID, uuid);
+    username = GuestUsername + uuid;
+    console.log(`Accommodating a new guest with account: ${username}`);
+    // remoteDBSignup(username, uuid);
+    // remoteDBLogin(username, uuid);
+  }
+
+  return username;
+
+  // pilfered from https://stackoverflow.com/a/8809472/1252649
+  function generateUUID() {
+    let d = new Date().getTime();
+    if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+      d += performance.now(); // use high-precision timer if available
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      // tslint:disable-next-line:no-bitwise
+      const r = (d + Math.random() * 16) % 16 | 0;
+      d = Math.floor(d / 16);
+      // tslint:disable-next-line:no-bitwise
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+  }
 }
 
 const userCoursesDoc = 'CourseRegistrations';
