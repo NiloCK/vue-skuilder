@@ -79,13 +79,11 @@ export default class UserLogin extends SkldrVue {
   private async login() {
     this.awaitingResponse = true;
 
-    const res = await this.$store.state._user!.login(this.username, this.password);
-    if (!res.ok) {
+    try {
+      const res = await this.$store.state._user!.login(this.username, this.password);
+      this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
+    } catch (e) {
       this.initBadLogin();
-    }
-    this.$store.state.userLoginAndRegistrationContainer = {
-      ...this.$store.state.userLoginAndRegistrationContainer,
-      loggedIn: true
     }
 
     this.awaitingResponse = false;
