@@ -1,5 +1,5 @@
 <template>
-  <div class="Study">
+  <div class="Study" v-if="sessionPrepared">
     <h1 class='display-1'>Study:
     <v-progress-circular v-if="loading"
         color="primary"
@@ -40,7 +40,7 @@
       />
     </div>
     <br>
-    <div v-if="!sessionFinished">
+    <div v-if="!sessionFinished && !noRegistrations">
       <p>Add tags to this card:</p>
       <sk-tags-input
           v-if='!sessionFinished'
@@ -50,6 +50,7 @@
     </div>
     
     <v-bottom-nav
+      v-if="!noRegistrations"
       absolute
       value="true"
     >
@@ -243,8 +244,9 @@ export default class Study extends SkldrVue {
   public cardCount: number = 1;
   public readonly SessionCount: number = 15;
 
-  public sessionFinished: boolean = false;
   public session: string[] = [];
+  public sessionPrepared: boolean = false;
+  public sessionFinished: boolean = false;
   public sessionRecord: StudySessionRecord[] = [];
   public activeCards: string[] = [];
 
@@ -335,9 +337,11 @@ export default class Study extends SkldrVue {
       this.courseID = this.previewCourseID;
       await this.user.registerForCourse(this.previewCourseID, true);
     } else {
+      this.user.getActiveCourses()
 
       this.userCourseIDs = this.userCourseRegDoc
         .courses
+        .filter(c => c.status === undefined || c.status === 'active' || c.status === 'maintenance-mode')
         .map(course => course.courseID);
 
       const classRoomPromises = (await getUserClassrooms(this.$store.state._user!.username))
@@ -358,6 +362,7 @@ export default class Study extends SkldrVue {
     }
 
     await this.getSessionCards();
+    this.sessionPrepared = true;
 
     log(`Session created:
 
@@ -485,6 +490,28 @@ ${this.sessionString}
         newCardCount--;
       }
       courseIndex++;
+    }
+    this.deDuplicateSession();
+  }
+
+
+  /**
+   * Remove duplicate cards from a session. This is a debug step -
+   * duplicate cards shouldn't exist. But some Scheduling issues
+   * can cause them to appear.
+   */
+  private deDuplicateSession() {
+    const priorCount: number = this.session.length;
+
+    this.session.forEach((c, i) => {
+      if (this.session.lastIndexOf(c) !== i || this.session.indexOf(c) !== i) {
+        log(`Removing duplicate session card: ${c}`);
+        this.session.splice(i, 1);
+      }
+    });
+
+    if (this.session.length !== priorCount) {
+      this.deDuplicateSession();
     }
   }
 
