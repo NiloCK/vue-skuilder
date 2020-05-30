@@ -451,9 +451,7 @@ ${this.sessionString}
         ));
       }
     }
-
-    console.log(`Cards: ${cardIDs.toString()}`);
-
+    // console.log(`Cards: ${cardIDs.toString()}`);
 
     // todo: this is not correctly handling new-card picking when more
     //       than one course is involved.
