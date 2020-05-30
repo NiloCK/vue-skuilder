@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import SkldrVue from '@/SkldrVue';
-import { Component, Prop } from 'vue-property-decorator';
+import { Component, Prop, Watch } from 'vue-property-decorator';
 // @ts-ignore
 import VueTagsInput from '@johmun/vue-tags-input';
 import {
@@ -80,18 +80,16 @@ export default class SkTagsInput extends SkldrVue {
     });
   }
 
-  public async created() {
-    try {
 
-      this.availableCourseTags = (await getCourseTagStubs(this.courseID)).rows.map(
-        (row) => {
-          log(`available tag: ${JSON.stringify(row)}`);
-          return row.doc!;
-        }
-      );
-    } catch (e) {
-      log(`Error in init-availableCourseTags: ${JSON.stringify(e)}`);
-    }
+  public async created() {
+    await this.updateAvailableCourseTags();
+    await this.getAppliedTags();
+  }
+
+  @Watch('cardID')
+  private async getAppliedTags() {
+    this.initialTags = [];
+    this.tags = [];
     try {
       const appliedDocsFindResult = await getAppliedTags(this.courseID, this.cardID);
       // this.tags = appliedDocsFindResult.map((doc) => {
@@ -113,10 +111,25 @@ export default class SkTagsInput extends SkldrVue {
       this.tags.forEach((tag) => {
         this.initialTags.push(tag.text);
       });
-    } catch (e) {
+    }
+    catch (e) {
       log(`Error in init-getAppliedTags: ${JSON.stringify(e)}, ${e}`);
-    } finally {
+    }
+    finally {
       this.loading = false;
+    }
+  }
+
+  @Watch('courseID')
+  private async updateAvailableCourseTags() {
+    try {
+      this.availableCourseTags = (await getCourseTagStubs(this.courseID)).rows.map((row) => {
+        log(`available tag: ${JSON.stringify(row)}`);
+        return row.doc!;
+      });
+    }
+    catch (e) {
+      log(`Error in init-availableCourseTags: ${JSON.stringify(e)}`);
     }
   }
 
