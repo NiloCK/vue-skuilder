@@ -103,8 +103,11 @@ Currently logged-in as ${this._username}.`);
 
     let loginResult = await remoteCouchRootDB.logIn(username, password);
     if (loginResult.ok) {
+      log(`Logged in as ${username}`);
       this._username = username;
       await this.init();
+    } else {
+      log(`Login ERROR as ${username}`);
     }
     return loginResult;
   }
