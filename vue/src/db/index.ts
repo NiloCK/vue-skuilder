@@ -137,40 +137,6 @@ export function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) 
 }
 
 
-export function accomodateGuest() {
-  let username: string;
-
-  if (localStorage.getItem(dbUUID) !== null) {
-    username = GuestUsername + localStorage.getItem(dbUUID);
-    console.log(`Returning guest ${username} "logging in".`);
-    // remoteDBLogin(username, localStorage.getItem(dbUUID)!);
-  } else {
-    const uuid = generateUUID();
-    localStorage.setItem(dbUUID, uuid);
-    username = GuestUsername + uuid;
-    console.log(`Accommodating a new guest with account: ${username}`);
-    // remoteDBSignup(username, uuid);
-    // remoteDBLogin(username, uuid);
-  }
-
-  return username;
-
-  // pilfered from https://stackoverflow.com/a/8809472/1252649
-  function generateUUID() {
-    let d = new Date().getTime();
-    if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
-      d += performance.now(); // use high-precision timer if available
-    }
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      // tslint:disable-next-line:no-bitwise
-      const r = (d + Math.random() * 16) % 16 | 0;
-      d = Math.floor(d / 16);
-      // tslint:disable-next-line:no-bitwise
-      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    });
-  }
-}
-
 //todo USER - this is to be pruned out when GuestAccomodation is
 //            figured out. Moved to class User from userDB.ts.
 export function remoteDBSignup(
