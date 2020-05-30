@@ -2,17 +2,32 @@
   <div v-if='!updatePending'>
     <h1 class='display-1'><router-link to="/q">Quilts</router-link> / {{_courseConfig.name}}</h1>
     
+    <p class='body-2'>
+      {{_courseConfig.description}}
+    </p>
+
     <div class="body-2">
-      There are {{ questionCount }} exercises in this course.
+      {{ questionCount }} exercises
+    </div>
+    <div class="body-2">
+      {{ tagCount }} tags
     </div>
 
-    <p class='body-2'>
-      Course Description: {{_courseConfig.description}}
-    </p>
     
     <transition name="component-fade" mode="out-in">
       <div v-if="userIsRegistered" >
-        <v-btn color="error" @click="drop">Drop this course</v-btn>
+        <v-btn color="success">Start a study session</v-btn>
+        <router-link :to='`/edit/${_id}`'>
+          <v-btn
+            dark
+            color='indigo lighten-1'
+            title="Add content to this course"
+          >
+            <v-icon left>add</v-icon>
+            Add content
+          </v-btn>
+        </router-link>
+        <v-btn color="error" small outline @click="drop">Drop this course</v-btn>
       </div>
       <div v-else>
         <v-btn color="primary" @click="register">Register</v-btn>
@@ -22,21 +37,7 @@
       </div>
     </transition>
     
-    <midi-config :_id='_id' />
-
-    <router-link
-      :to='`/edit/${_id}`'
-    >
-      <v-btn
-        fab
-        small
-        dark
-        color='indigo'
-        title="Add content to this course"
-      >
-        <v-icon>add</v-icon>
-      </v-btn>
-    </router-link>
+    <midi-config v-if="isPianoCourse" :_id='_id' />
   </div>  
 </template>
 
@@ -75,6 +76,9 @@ export default class CourseInformation extends SkldrVue {
   @Prop({ required: true }) private _id: string;
   private mousetrap: MousetrapInstance = new Mousetrap(this.$el);
 
+  private get isPianoCourse(): boolean {
+    return this._courseConfig.name.toLowerCase().includes('piano');
+  }
 
   private nameRules: Array<(value: string) => string | boolean> = [
     value => {
@@ -98,6 +102,7 @@ export default class CourseInformation extends SkldrVue {
   private _courseConfig: CourseConfig;
   public userIsRegistered: boolean = false;
   private questionCount: number;
+  private tagCount: number;
 
 
   private async created() {
@@ -110,8 +115,10 @@ export default class CourseInformation extends SkldrVue {
     this.questionCount = (await db.find({
       selector: {
         docType: DocType.CARD
-      }
+      },
+      limit: 1000
     })).docs.length;
+    this.tagCount = (await getCourseTagStubs(this._id)).rows.length;
     this.updatePending = false;
   }
 
