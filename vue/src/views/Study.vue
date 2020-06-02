@@ -155,7 +155,7 @@ import moment from 'moment';
 import { getUserClassrooms, CourseRegistrationDoc, updateUserElo, User } from '../db/userDB';
 import { Watch } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
-import { getCredentialledCourseConfig, getCardDataShape, updateCardElo } from '@/db/courseDB';
+import { getCredentialledCourseConfig, getCardDataShape, updateCardElo, getCourseList } from '@/db/courseDB';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
 import { StudentClassroomDB } from '../db/classroomDB';
 import { alertUser } from '../components/SnackbarService.vue';
@@ -230,6 +230,12 @@ final  ${upA}         ${upB}
   }
 })
 export default class Study extends SkldrVue {
+  @Prop()
+  public previewCourseID?: string;
+  @Prop()
+  public randomPreview?: boolean;
+
+
   public fab: boolean = false; // open the speed-dial fab
   public editTags: boolean = false; // open the tagsInput for this card
   public editCard: boolean = false; // open the editor for this card
@@ -262,8 +268,6 @@ export default class Study extends SkldrVue {
   private userCourseIDs: string[] = [];
   private userClassroomDBs: StudentClassroomDB[] = [];
 
-  @Prop()
-  public previewCourseID?: string;
 
   public checkLoggedIn(): boolean {
     // return !this.$store.state._user!.username.startsWith(GuestUsername);
@@ -329,6 +333,20 @@ export default class Study extends SkldrVue {
     this.user = this.$store.state._user!;
     this.userCourseRegDoc = await this.user.getCourseRegistrationsDoc();
     this.activeCards = await this.user.getActiveCards();
+
+    if (this.randomPreview) {
+      // set a .previewCourseID 
+      const allCourses = (await getCourseList()).rows.map(r => r.id);
+      const unRegisteredCourses = allCourses.filter(c => {
+        return !this.userCourseRegDoc.courses.some((rc) => rc.courseID === c);
+      });
+      if (unRegisteredCourses.length > 0) {
+        this.previewCourseID = unRegisteredCourses[randomInt(0, unRegisteredCourses.length)];
+      } else {
+        this.previewCourseID = allCourses[randomInt(0, allCourses.length)];
+      }
+    }
+
     if (this.previewCourseID) {
       log(`COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
       // this.activeCards = [];

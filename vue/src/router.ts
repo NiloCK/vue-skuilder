@@ -47,7 +47,18 @@ export default new Router({
     {
       path: '/study',
       name: 'study',
-      component: Study
+      component: Study,
+    },
+    {
+      path: '/random',
+      name: 'random',
+      alias: [
+        '/r'
+      ],
+      props: {
+        randomPreview: true,
+      },
+      component: Study,
     },
     {
       path: '/classrooms',
