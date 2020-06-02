@@ -164,8 +164,11 @@ Currently logged-in as ${this._username}.`);
 
   public async registerForCourse(course_id: string, previewMode: boolean = false) {
     return this.getCourseRegistrationsDoc().then((doc: CourseRegistrationDoc) => {
+      const status = previewMode ? 'preview' : 'active';
+      console.log(`Registering for ${course_id} with status: ${status}`);
+
       const regItem: CourseRegistration = {
-        status: previewMode ? 'preview' : 'active',
+        status: status,
         courseID: course_id,
         user: true,
         admin: false,
@@ -173,7 +176,6 @@ Currently logged-in as ${this._username}.`);
         elo: 1000,
         taggedElo: {}
       };
-      log(`Registering for course: ${course_id}`);
 
       if (doc.courses.filter((course) => {
         return course.courseID === regItem.courseID;
@@ -185,7 +187,7 @@ Currently logged-in as ${this._username}.`);
         doc.courses.forEach((c) => {
           log(`Found the previously registered course!`);
           if (c.courseID === course_id) {
-            c.status = 'active';
+            c.status = status;
           }
         });
       }
