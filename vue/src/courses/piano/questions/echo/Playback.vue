@@ -138,6 +138,8 @@ export default class Playback extends QuestionView<EchoQuestion> {
       this.initialized = true;
     } catch (error) {
       this.error = error;
+      this.state = 'notsupported';
+      this.initialized = true;
     }
 
     this.init();
