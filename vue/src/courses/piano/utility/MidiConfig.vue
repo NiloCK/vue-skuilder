@@ -258,6 +258,19 @@ export default class MidiConfig extends SkldrVue {
     });
   }
 
+  @Watch('selectedInput')
+  setInput() {
+    this.midi.selectInput(
+      this.selectedInput
+    );
+  }
+  @Watch('selectedOutput')
+  setOutput() {
+    this.midi.selectOutput(
+      this.selectedOutput
+    );
+  }
+
   public async created() {
     try {
       this.midi = await SkMidi.instance();
@@ -284,12 +297,22 @@ export default class MidiConfig extends SkldrVue {
             value: i.id
           }
         });
+
       // todo:
       // this.outputs.push({
       //   text: 'Computer Audio',
       //   value: ''
       // });
+
+      this.selectedInput = this.inputs[0].text
+      this.selectedOutput = this.outputs[0].text;
+
+      this.retrieveSettings();
     }
+  }
+
+  public async retrieveSettings() {
+    //todo
   }
 
   public async saveSettings() {
