@@ -195,6 +195,7 @@ Currently logged-in as ${this._username}.`);
       return this.localDB.put<CourseRegistrationDoc>(doc);
     }).catch((e) => {
       log(`Registration failed because of: ${JSON.stringify(e)}`);
+      throw e;
     });
   }
   public async dropCourse(course_id: string, dropStatus: CourseRegistration['status'] = 'dropped') {
@@ -292,6 +293,36 @@ Currently logged-in as ${this._username}.`);
       }
     });
     return ret;
+  }
+
+  async updateCourseSettings(course_id: string, settings: {
+    key: string;
+    value: string | number | boolean;
+  }[]) {
+    this.getCourseRegistrationsDoc().then((doc) => {
+      let crs = doc.courses.find(c => c.courseID === course_id);
+      if (crs) {
+        if (crs.settings === null || crs.settings === undefined) {
+          crs.settings = {};
+        }
+        settings.forEach(setting => {
+          crs!.settings![setting.key] = setting.value;
+        });
+      }
+
+      return this.localDB.put(doc);
+    });
+  }
+  async getCourseSettings(course_id: string) {
+    const regDoc = await this.getCourseRegistrationsDoc();
+    const crsDoc = regDoc.courses.find(c => c.courseID === course_id);
+
+    if (crsDoc) {
+      return crsDoc.settings;
+    } else {
+      throw new Error(`getCourseSettings Failed:
+      User is not registered for course ${course_id}`)
+    }
   }
 }
 
@@ -521,31 +552,6 @@ export async function dropUserFromClassroom(user: string, classID: string) {
   });
 }
 
-
-
 export async function getUserClassrooms(user: string) {
   return getOrCreateClassroomRegistrationsDoc(user);
-}
-
-
-export async function updateCourseSetting(
-  { user, course_id, settings }: {
-    user: string; course_id: string; settings: {
-      key: string;
-      value: string | number | boolean;
-    }[];
-  }) {
-  getOrCreateCourseRegistrationsDoc(user).then((doc) => {
-    let crs = doc.courses.find(c => c.courseID === course_id);
-    if (crs) {
-      if (crs.settings === null || crs.settings === undefined) {
-        crs.settings = {};
-      }
-      settings.forEach(setting => {
-        crs!.settings![setting.key] = setting.value;
-      });
-    }
-
-    return getUserDB(user).put(doc);
-  })
 }

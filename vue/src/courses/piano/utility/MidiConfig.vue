@@ -64,7 +64,6 @@ import { log } from 'util';
 import SkldrVue from '../../../SkldrVue';
 import SkMidi from './midi';
 import { Watch, Prop } from 'vue-property-decorator';
-import { updateCourseSetting } from '@/db/userDB';
 import { Status } from '../../../enums/Status';
 
 @Component({})
@@ -313,24 +312,31 @@ export default class MidiConfig extends SkldrVue {
 
   public async retrieveSettings() {
     //todo
+    this.$store.state._user!.getCourseSettings(this._id).then((s) => {
+      if (s && s.midiinput) {
+        this.selectedInput = s.midiinput.toString();
+      }
+      if (s && s.midioutput) {
+        this.selectedOutput = s.midioutput.toString();
+      }
+    });
   }
 
   public async saveSettings() {
     this.updatePending = true;
-    await updateCourseSetting({
-      user: this.$store.state._user!.username,
-      course_id: this._id,
-      settings: [
+    await this.$store.state._user!.updateCourseSettings(
+      this._id,
+      [
         {
           key: 'midiinput',
-          value: this.selectedInput
+          value: this.selectedInput,
         },
         {
           key: 'midioutput',
           value: this.selectedOutput
         }
       ]
-    });
+    );
     this.updatePending = false;
   }
 
