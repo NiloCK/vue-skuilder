@@ -169,9 +169,13 @@ export default class Courses extends SkldrVue {
 
   private async refreshData() {
     log(`Pulling user course data...`);
-    const userCourseIDs = (await this.$store.state._user!.getRegisteredCourses()).map(c => {
-      return c.courseID;
-    });
+    const userCourseIDs = (await this.$store.state._user!.getRegisteredCourses())
+      .filter(c => {
+        return c.status === 'active' || c.status === 'maintenance-mode' || c.status === undefined
+      })
+      .map(c => {
+        return c.courseID;
+      });
     const courseList = await getCourseList();
 
     this.existingCourses = courseList.rows.filter((course) => {
