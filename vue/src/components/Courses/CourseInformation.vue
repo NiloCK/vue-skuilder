@@ -16,7 +16,9 @@
     
     <transition name="component-fade" mode="out-in">
       <div v-if="userIsRegistered" >
-        <v-btn color="success">Start a study session</v-btn>
+        <router-link :to="`/study/${_id}`">
+          <v-btn color="success">Start a study session</v-btn>
+        </router-link>
         <router-link :to='`/edit/${_id}`'>
           <v-btn
             dark
