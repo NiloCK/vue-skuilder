@@ -1,15 +1,26 @@
 <template>
   <div class="Study" v-if="sessionPrepared">
-    <h1 class='display-1'>Study:
-    <v-progress-circular v-if="loading"
-        color="primary"
-        indeterminate
-        rotate="0"
-        size="32"
-        value="0"
-        width="4"
-    ></v-progress-circular>
-    </h1>
+    
+    <div v-if="previewMode">
+      <span class="headline">Quilt preview for <em>{{courseConfig.name}}</em></span>
+      <v-btn small @click="registerUserForPreviewCourse" color="primary">Join</v-btn>
+      <router-link :to="`/quilts/${courseConfig.courseID}`"><v-btn small color="secondary">More info</v-btn></router-link>
+    </div>
+    <v-layout v-else>
+      <h1  class='display-1'>Study:
+        <v-progress-circular v-if="loading"
+            color="primary"
+            indeterminate
+            rotate="0"
+            size="32"
+            value="0"
+            width="4"
+        ></v-progress-circular>
+      </h1>
+      <v-spacer></v-spacer>
+      <SkldrControlsView />
+    </v-layout>
+    
     <br>
 
     <div v-if='!checkLoggedIn' class='display-1'>
@@ -24,11 +35,11 @@
     <div v-else-if='sessionFinished' class='display-1'>
       <p>Study session finished! Great job!</p>
       <p>Start <a @click="refreshRoute">another study session</a>, or try 
-      <router-link to="/edit">adding some new content</router-link> to challenge yourself and others!
+      <router-link :to="`/edit/${courseID}`">adding some new content</router-link> to challenge yourself and others!
       </p>
     </div>
 
-    <div v-else ref="shadowWrapper">    
+    <div v-else ref="shadowWrapper">
       <card-viewer
           v-bind:class="loading ? 'muted' : ''"
           v-bind:view="view"
@@ -38,6 +49,7 @@
           v-bind:sessionOrder="cardCount"
           v-on:emitResponse="processResponse($event)"
       />
+      
     </div>
     <br>
     <div v-if="!sessionFinished && !noRegistrations">
@@ -162,6 +174,8 @@ import { alertUser } from '../components/SnackbarService.vue';
 import { Status } from '../enums/Status';
 import { randomInt } from '../courses/math/utility';
 import { GuestUsername } from '@/store';
+import { CourseConfig } from '../server/types';
+import SkldrControlsView from '../components/SkMouseTrap.vue';
 // import CardCache from '@/db/cardCache';
 
 function randInt(n: number) {
@@ -226,6 +240,7 @@ final  ${upA}         ${upB}
 @Component({
   components: {
     CardViewer,
+    SkldrControlsView,
     SkTagsInput
   }
 })
@@ -234,6 +249,9 @@ export default class Study extends SkldrVue {
   public previewCourseID?: string;
   @Prop()
   public randomPreview?: boolean;
+
+  public courseConfig?: CourseConfig;
+  public previewMode: boolean = false;
 
 
   public fab: boolean = false; // open the speed-dial fab
@@ -337,6 +355,9 @@ export default class Study extends SkldrVue {
     if (this.randomPreview) {
       // set a .previewCourseID 
       const allCourses = (await getCourseList()).rows.map(r => r.id);
+      log(`RANDOMPREVIEW:
+      Courses:
+      ${allCourses.toString()}`);
       const unRegisteredCourses = allCourses.filter(c => {
         return !this.userCourseRegDoc.courses.some((rc) => rc.courseID === c);
       });
@@ -348,6 +369,15 @@ export default class Study extends SkldrVue {
     }
 
     if (this.previewCourseID) {
+      this.previewMode = true;
+      getCourseList().then((courses) => {
+        courses.rows.forEach((c) => {
+          if (c.id === this.previewCourseID) {
+            this.courseConfig = c.doc!;
+            this.courseConfig.courseID = c.id;
+          }
+        });
+      });
       log(`COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
       // this.activeCards = [];
       this.userCourseIDs = [this.previewCourseID];
@@ -393,6 +423,13 @@ User classrooms: ${this.userClassroomDBs.map(db => db._id)}
 `);
 
     this.nextCard();
+  }
+
+  private registerUserForPreviewCourse() {
+    this.user.registerForCourse(this.courseConfig!.courseID!).then(() =>
+      this.$router.push(`/quilts/${this.courseConfig!.courseID!}`
+      )
+    )
   }
 
   private get sessionString() {
