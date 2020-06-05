@@ -7,9 +7,9 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Prop, Component } from 'vue-property-decorator';
-import * as mousetrap from 'mousetrap';
 import { log } from 'util';
 import { setTimeout } from 'timers';
+import SkldrMouseTrap from '../../SkldrMouseTrap';
 
 @Component({})
 export default class AudioAutoPlayer extends Vue {
@@ -29,9 +29,11 @@ export default class AudioAutoPlayer extends Vue {
       });
     }
 
-    mousetrap.bind('up', () => {
-      this.play();
-    });
+    SkldrMouseTrap.bind([{
+      hotkey: 'up',
+      callback: this.play,
+      command: 'Replay Audio'
+    }]);
 
     this.play();
   }
@@ -84,6 +86,7 @@ export default class AudioAutoPlayer extends Vue {
   }
 
   private beforeDestroy() {
+    SkldrMouseTrap.reset();
     this.stop();
   }
 
