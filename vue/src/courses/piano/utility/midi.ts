@@ -508,14 +508,21 @@ class SkMidi {
   public get outputs(): Output[] {
     return this.webmidi.outputs;
   }
+
   public selectInput(id: string): void {
     if (this.webmidi.getInputById(id) !== false) {
       this.input = this.webmidi.getInputById(id) as Input;
+    } else if (this.webmidi.getInputByName(id) !== false) {
+      this.input = this.webmidi.getInputByName(id) as Input;
     }
   }
 
-  public selectOuput(index: number): void {
-    this.output = this.outputs[index];
+  public selectOutput(id: string): void {
+    if (this.webmidi.getOutputById(id) !== false) {
+      this.output = this.webmidi.getOutputById(id) as Output;
+    } else if (this.webmidi.getOutputByName(id) !== false) {
+      this.output = this.webmidi.getOutputByName(id) as Output;
+    }
   }
 }
 
