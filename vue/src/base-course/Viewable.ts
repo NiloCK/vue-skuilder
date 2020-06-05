@@ -5,6 +5,7 @@ import moment, { duration } from 'moment';
 import MouseTrap from 'mousetrap';
 import { Prop, Vue } from 'vue-property-decorator';
 import { log } from 'util';
+import { HotKey } from '@/SkldrMouseTrap';
 
 /**
  * Base class for card views in courses.
@@ -13,6 +14,7 @@ export default abstract class Viewable extends Vue {
     @Prop() public data: ViewData[];
     protected startTime: moment.Moment = moment.utc();
     protected MouseTrap: MousetrapInstance = new MouseTrap(this.$el);
+    public abstract hotKeys: HotKey[] = [];
 
     /**
      * Returns the time in milliseconds since the element was created
