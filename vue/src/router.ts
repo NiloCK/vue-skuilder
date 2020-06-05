@@ -50,6 +50,11 @@ export default new Router({
       component: Study,
     },
     {
+      path: '/study/:focusCourseID',
+      component: Study,
+      props: true
+    },
+    {
       path: '/random',
       name: 'random',
       alias: [

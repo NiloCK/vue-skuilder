@@ -1,11 +1,13 @@
 <template>
   <div class="Study" v-if="sessionPrepared">
     
-    <div v-if="previewMode">
+    <v-layout v-if="previewMode">
       <span class="headline">Quilt preview for <em>{{courseConfig.name}}</em></span>
       <v-btn small @click="registerUserForPreviewCourse" color="primary">Join</v-btn>
       <router-link :to="`/quilts/${courseConfig.courseID}`"><v-btn small color="secondary">More info</v-btn></router-link>
-    </div>
+       <v-spacer></v-spacer>
+       <SkldrControlsView />
+    </v-layout>
     <v-layout v-else>
       <h1  class='display-1'>Study:
         <v-progress-circular v-if="loading"
@@ -249,6 +251,8 @@ export default class Study extends SkldrVue {
   public previewCourseID?: string;
   @Prop()
   public randomPreview?: boolean;
+  @Prop()
+  public focusCourseID?: string;
 
   public courseConfig?: CourseConfig;
   public previewMode: boolean = false;
@@ -387,25 +391,32 @@ export default class Study extends SkldrVue {
     } else {
       this.user.getActiveCourses()
 
-      this.userCourseIDs = this.userCourseRegDoc
-        .courses
-        .filter(c => c.status === undefined || c.status === 'active' || c.status === 'maintenance-mode')
-        .map(course => course.courseID);
+      if (this.focusCourseID) {
+        this.userCourseIDs = [this.focusCourseID];
+        this.userClassroomDBs = [];
+      } else {
 
-      const classRoomPromises = (await getUserClassrooms(this.$store.state._user!.username))
-        .registrations
-        .filter(reg => reg.registeredAs === 'student')
-        .map(reg => reg.classID)
-        .map(id => StudentClassroomDB.factory(id));
-      this.userClassroomDBs = await Promise.all(classRoomPromises);
-      this.userClassroomDBs.forEach((db) => {
-        db.setChangeFcn(this.handleClassroomMessage())
-      });
 
-      if (this.userCourseIDs.length === 0
-        && this.userClassroomDBs.length === 0
-        && this.activeCards.length === 0) {
-        this.noRegistrations = true;
+        this.userCourseIDs = this.userCourseRegDoc
+          .courses
+          .filter(c => c.status === undefined || c.status === 'active' || c.status === 'maintenance-mode')
+          .map(course => course.courseID);
+
+        const classRoomPromises = (await getUserClassrooms(this.$store.state._user!.username))
+          .registrations
+          .filter(reg => reg.registeredAs === 'student')
+          .map(reg => reg.classID)
+          .map(id => StudentClassroomDB.factory(id));
+        this.userClassroomDBs = await Promise.all(classRoomPromises);
+        this.userClassroomDBs.forEach((db) => {
+          db.setChangeFcn(this.handleClassroomMessage())
+        });
+
+        if (this.userCourseIDs.length === 0
+          && this.userClassroomDBs.length === 0
+          && this.activeCards.length === 0) {
+          this.noRegistrations = true;
+        }
       }
     }
 
