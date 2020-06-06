@@ -19,6 +19,7 @@ export default class SkldrMouseTrap {
 
   private constructor() {
     this.mouseTrap = new MouseTrap();
+    this.hotkeys = [];
   }
 
   public static get commands(): HotKeyMetaData[] {
