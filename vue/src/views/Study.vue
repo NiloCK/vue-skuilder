@@ -392,6 +392,7 @@ export default class Study extends SkldrVue {
       this.user.getActiveCourses()
 
       if (this.focusCourseID) {
+        log(`FOCUS study session: ${this.focusCourseID}`);
         this.userCourseIDs = [this.focusCourseID];
         this.userClassroomDBs = [];
       } else {
@@ -457,8 +458,13 @@ User classrooms: ${this.userClassroomDBs.map(db => db._id)}
    */
   public nextCard(_id?: string) {
     if (_id) {
-      const index = this.session.indexOf(_id);
-      log(`index of ${_id}: ${index}`);
+      // const index = this.session.indexOf(_id);
+      const index = this.session.findIndex((card) => {
+        const card_split = card.split('-');
+        const _id_split = _id.split('-');
+        return _id_split[0] === card_split[0] && _id_split[1] === card_split[1];
+      })
+      log(`Dismissing card ${_id} (index ${index})`);
 
       this.session.splice(index, 1);
     }
