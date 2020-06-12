@@ -9,6 +9,7 @@ import { FieldType } from '@/enums/FieldType';
 import { DisplayableData, DocType, CardData, Tag, TagStub } from './types';
 import Courses from '@/courses';
 import _ from 'lodash';
+import { User } from './userDB';
 
 
 // *someday...*
@@ -28,6 +29,76 @@ const courseLookupDB: PouchDB.Database = new pouch(
     skip_setup: true
   }
 );
+
+export class CourseDB {
+  private log(msg: string): void {
+    log(`CourseLog: ${this.id}\n  ${msg}`);
+  }
+
+  private db: PouchDB.Database;
+  private id: string;
+
+  constructor(id: string) {
+    this.id = id;
+    this.db = getCourseDB(this.id);
+  }
+
+  public async getStudySession(cardLimit?: number) {
+    const u = await User.instance();
+    const userCrsdoc = await u.getCourseRegDoc(this.id);
+    const activeCards = await u.getActiveCards(this.id);
+
+    // this.log()
+    const newCards = (await this.getCardsByELO(userCrsdoc!.elo))
+      .filter((card) => {
+
+        return activeCards.indexOf(card) === -1;
+      });
+
+
+    // get scheduled reviews ... .... .....
+    return newCards;
+  }
+
+  private async getCardsByELO(elo: number, cardLimit?: number) {
+    elo = parseInt(elo as any);
+    const limit = cardLimit ? cardLimit : 25;
+
+    let below: PouchDB.Query.Response<any>;
+    let above: PouchDB.Query.Response<any>;
+    below = await this.db.query('elo', {
+      limit: Math.ceil(limit / 2),
+      startkey: elo,
+      descending: true
+    });
+    above = await this.db.query('elo', {
+      limit: Math.floor(limit / 2),
+      startkey: elo + 1,
+    });
+    this.log(JSON.stringify(below));
+
+    const cards = below.rows;
+    cards.concat(above.rows);
+
+    let ret = cards.sort((a, b) => {
+      let s = Math.abs(a.key - elo) - Math.abs(b.key - elo);
+      if (s !== 0) {
+        return s;
+      } else {
+        return -1 + 2 * Math.round(Math.random());
+      }
+    }).map(c => `${this.id}-${c.id}-${c.key}`);
+
+
+    const str = `below:\n${below.rows.map(r => `\t${r.id}-${r.key}\n`)}
+
+above:\n${above.rows.map(r => `\t${r.id}-${r.key}\n`)}`;
+
+    this.log(`Getting ${limit} cards centered around elo: ${elo}:\n\n` + str);
+
+    return ret;
+  }
+}
 
 function getCourseDB(courseID: string): PouchDB.Database {
   const dbName = `coursedb-${courseID}`;
