@@ -476,14 +476,19 @@ export async function removeScheduledCardReview(user: string, doc: ScheduledCard
   getUserDB(user).remove(doc);
 }
 
-export function filterAlldocsByPrefix<T>(db: PouchDB.Database, prefix: string) {
+export function filterAlldocsByPrefix<T>(db: PouchDB.Database, prefix: string, opts?: PouchDB.Core.AllDocsOptions) {
   // see couchdb docs 6.2.2:
   //   Guide to Views -> Views Collation -> String Ranges
-  return db.allDocs<T>({
+  let options: PouchDB.Core.AllDocsWithinRangeOptions = {
     startkey: prefix,
     endkey: prefix + '\ufff0',
     include_docs: true
-  });
+  };
+
+  if (opts) {
+    Object.assign(options, opts);
+  }
+  return db.allDocs<T>(options);
 }
 
 export function getStartAndEndKeys(key: string) {
