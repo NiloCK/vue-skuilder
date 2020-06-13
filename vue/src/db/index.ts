@@ -354,11 +354,6 @@ export async function getEloNeighborCards(course_id: string, elo: number) {
   return rows.sort((a, b) => {
     return Math.abs(a.key - elo) - Math.abs(b.key - elo);
   }).map(card => `${course_id}-${card.id}-${card.key}`);
-
-  // const ret = cards.rows.sort((a, b) => {
-  //   return Math.abs(a.key - elo) - Math.abs(b.key - elo);
-  // }).map(c => `${course_id}-${c.id}-${c.key}`);
-
 }
 
 export async function putCardRecord<T extends CardRecord>(record: T, user: string) {
