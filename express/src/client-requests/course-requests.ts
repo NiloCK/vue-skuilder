@@ -64,7 +64,8 @@ const elodoc = {
                     if (doc.elo) {
                         emit(doc.elo, doc._id);
                     } else {
-                        emit(1000, doc._id);
+                        const randElo = 995 + Math.round(10 * Math.random());
+                        emit(randElo, doc._id);
                     }
                 }
             }`,
@@ -73,7 +74,8 @@ const elodoc = {
             //         if (doc.elo) {
             //             emit(doc.elo, doc._id);
             //         } else {
-            //             emit(1000, doc._id);
+            //             const randElo = 995 + Math.round(10 * Math.random());
+            //             emit(randElo, doc._id);
             //         }
             //     }
             // }
