@@ -426,10 +426,15 @@ export function scheduleCardReview(review: {
  *
  * @param user The username whose scheduled cards are of interest
  */
-export async function getScheduledCards(user: string) {
+export async function getScheduledCards(user: string, limit?: number) {
+  const cLimit = limit || 999;
+  const keys = getStartAndEndKeys(REVIEW_PREFIX);
   const now = moment.utc();
   const userDB = getUserDB(user);
-  const allDocs = await userDB.allDocs({});
+  const allDocs = await userDB.allDocs({
+    startkey: keys.startkey,
+    endkey: keys.endkey
+  });
   const ret: PouchDB.Core.DocumentId[] = [];
 
   // todo: future optimization here: saves multiple trips to the db
@@ -445,7 +450,7 @@ export async function getScheduledCards(user: string) {
         row.id.substr(REVIEW_PREFIX.length),
         REVIEW_TIME_FORMAT
       );
-      if (now.isAfter(date)) {
+      if (now.isAfter(date) && ret.length < cLimit) {
         ret.push(row.id);
       }
     }
