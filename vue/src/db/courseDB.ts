@@ -71,11 +71,14 @@ export class CourseDB {
       startkey: elo,
       descending: true
     });
+
+    const aboveLimit = limit - below.rows.length;
+
     above = await this.db.query('elo', {
-      limit: Math.floor(limit / 2),
+      limit: aboveLimit,
       startkey: elo + 1,
     });
-    this.log(JSON.stringify(below));
+    // this.log(JSON.stringify(below));
 
     const cards = below.rows;
     cards.concat(above.rows);
@@ -444,7 +447,7 @@ function addCard(
     id_displayable_data,
     id_view,
     docType: DocType.CARD,
-    elo: elo || 1000
+    elo: elo || 990 + Math.round(20 * Math.random())
   });
 }
 
