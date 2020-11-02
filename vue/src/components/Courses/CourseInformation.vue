@@ -13,6 +13,22 @@
       {{ tagCount }} tags
     </div>
 
+    <!-- <div style='background-color: red; padding: 15px; margin: 10px;'>
+
+      <v-text-field
+        v-model="elo"
+        label="elo"
+        id="id"
+        type='number'
+      ></v-text-field>
+      <v-text-field
+        v-model="num"
+        label="CardCount"
+        id="id"
+        type='number'
+      ></v-text-field>
+      <v-btn color="success" @click="getCards">GetCards!</v-btn>
+    </div> -->
     
     <transition name="component-fade" mode="out-in">
       <div v-if="userIsRegistered" >
@@ -64,7 +80,7 @@ import moment from "moment";
 import { registerUserForClassroom } from '../../db/userDB';
 import TeacherClassroomDB, { getClassroomDB, CLASSROOM_CONFIG, AssignedContent } from '../../db/classroomDB';
 import { Prop, Watch } from 'vue-property-decorator';
-import { getCourseList, getCourseTagStubs, getCourseConfig } from '../../db/courseDB';
+import { getCourseList, getCourseTagStubs, getCourseConfig, CourseDB } from '../../db/courseDB';
 import { Tag, DocType } from '../../db/types';
 import { getQuestions, getCourseDB } from '../../db';
 import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
@@ -81,6 +97,14 @@ export default class CourseInformation extends SkldrVue {
   private get isPianoCourse(): boolean {
     return this._courseConfig.name.toLowerCase().includes('piano');
   }
+
+  // private elo: number = 984;
+  // private num: number = 6;
+
+  // private async getCards() {
+  //   let c = new CourseDB(this._id);
+  //   (await c.getCardsByELO(this.elo, this.num));
+  // }
 
   private nameRules: Array<(value: string) => string | boolean> = [
     value => {
