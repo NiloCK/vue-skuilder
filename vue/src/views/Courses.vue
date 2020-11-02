@@ -102,18 +102,17 @@
       <course-stub-card  v-on:refresh="refreshData" :_id="course._id" />
     </v-flex>
   </v-layout>
-  <v-dialog
-              v-if="false"
-              v-model="newCourseDialog"
-              fullscreen
-              transition="dialog-bottom-transition"
-              :overlay="false"
-            >
-              <v-btn color="primary" dark slot="activator">Start a new Quilt</v-btn>
-                <course-editor 
-                 v-on:CourseEditingComplete="processResponse($event)"
-                />
-            </v-dialog>
+  <v-dialog    
+    v-model="newCourseDialog"
+    fullscreen
+    transition="dialog-bottom-transition"
+    :overlay="false"
+  >
+    <v-btn color="primary" dark slot="activator">Start a new Quilt</v-btn>
+      <course-editor 
+        v-on:CourseEditingComplete="processResponse($event)"
+      />
+  </v-dialog>
   </v-container>
 </template>
 
