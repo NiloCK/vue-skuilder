@@ -57,7 +57,7 @@ import { log } from 'util';
   }
 })
 export default class CourseEditor extends SkldrVue {
-  @Prop() public course: string;
+  @Prop() public course: string = "";
   public registeredDataShapes: DataShape[] = [];
   public dataShapes: DataShape[] = [];
   public selectedShape: string = '';
