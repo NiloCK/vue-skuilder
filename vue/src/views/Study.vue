@@ -169,7 +169,7 @@ import moment from 'moment';
 import { getUserClassrooms, CourseRegistrationDoc, updateUserElo, User } from '../db/userDB';
 import { Watch } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
-import { getCredentialledCourseConfig, getCardDataShape, updateCardElo, getCourseList } from '@/db/courseDB';
+import { getCredentialledCourseConfig, getCardDataShape, updateCardElo, getCourseList, CourseDB } from '@/db/courseDB';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
 import { StudentClassroomDB } from '../db/classroomDB';
 import { alertUser } from '../components/SnackbarService.vue';
@@ -489,6 +489,9 @@ ${this.sessionString}
     if (this.previewCourseID) {
       dueCards = dueCards.filter(c => c.includes(this.previewCourseID!));
     }
+    if (this.focusCourseID) {
+      dueCards = dueCards.filter(c => c.includes(this.focusCourseID!));
+    }
 
     // but cut them off if they are too many for the session
     if (dueCards.length <= this.SessionCount) {
@@ -514,7 +517,17 @@ ${this.sessionString}
     //   cardIDs = cardIDs.concat(await getEloNeighborCards(c.courseID, c.elo))
     // });
     if (this.previewCourseID) {
-      cardIDs.push(await getEloNeighborCards(this.previewCourseID, 1000));
+      let db = await new CourseDB(this.previewCourseID);
+      // cardIDs.push(await getEloNeighborCards(this.previewCourseID, 1000));
+      cardIDs.push(await db.getStudySession(this.SessionCount));
+    } else if (this.focusCourseID) {
+      const courseELO = this.userCourseRegDoc.courses.find(
+        c => c.courseID === this.focusCourseID)!.elo
+      cardIDs.push(await
+        getEloNeighborCards(
+          this.focusCourseID,
+          courseELO
+        ))
     } else {
       for (let i = 0; i < this.userCourseRegDoc.courses.length; i++) {
         cardIDs.push(await getEloNeighborCards(
