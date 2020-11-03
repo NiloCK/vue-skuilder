@@ -57,22 +57,14 @@ import { log } from 'util';
   }
 })
 export default class CourseEditor extends SkldrVue {
-  @Prop() public course: string = "";
+  @Prop({
+    required: true,
+    type: String
+  }) public course: string;
   public registeredDataShapes: DataShape[] = [];
   public dataShapes: DataShape[] = [];
   public selectedShape: string = '';
-  public courseConfig: CourseConfig = {
-    courseID: this.course,
-    name: '',
-    description: '',
-    public: false,
-    deleted: false,
-    creator: '',
-    admins: [],
-    moderators: [],
-    dataShapes: [],
-    questionTypes: []
-  };
+  public courseConfig: CourseConfig;
   private loading: boolean = true; // datashapes are loading on init
   private editingMode: boolean = true;
 
