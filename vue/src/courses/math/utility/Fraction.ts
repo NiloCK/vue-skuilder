@@ -154,3 +154,5 @@ class ProperFraction {
     return canvas;
   }
 }
+
+export default ProperFraction;
