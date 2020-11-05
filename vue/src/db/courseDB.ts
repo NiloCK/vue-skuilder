@@ -119,6 +119,12 @@ function getCourseDB(courseID: string): PouchDB.Database {
 //   })
 // }
 
+export async function getCourseName(courseID: string): Promise<string> {
+  let ret = ((await courseLookupDB.get(courseID)) as any)['name'];
+  console.log(ret);
+  return ret;
+}
+
 export async function removeCourse(courseID: string) {
   return courseLookupDB.get(courseID).then((course) => {
     return courseLookupDB.remove({

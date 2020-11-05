@@ -1,140 +1,145 @@
 <template>
-  <div class="Study" v-if="sessionPrepared">
-    
-    <v-layout v-if="previewMode">
-      <span class="headline">Quilt preview for <em>{{courseConfig.name}}</em></span>
-      <v-btn small @click="registerUserForPreviewCourse" color="primary">Join</v-btn>
-      <router-link :to="`/quilts/${courseConfig.courseID}`"><v-btn small color="secondary">More info</v-btn></router-link>
-       <v-spacer></v-spacer>
-       <SkldrControlsView />
-    </v-layout>
-    <v-layout v-else>
-      <h1  class='display-1'>Study:
-        <v-progress-circular v-if="loading"
-            color="primary"
-            indeterminate
-            rotate="0"
-            size="32"
-            value="0"
-            width="4"
-        ></v-progress-circular>
-      </h1>
-      <v-spacer></v-spacer>
-      <SkldrControlsView />
-    </v-layout>
-    
-    <br>
-
-    <div v-if='!checkLoggedIn' class='display-1'>
-      <p>Sign up to get to work!</p>
-    </div>
-   
-    <div v-else-if='noRegistrations' class='display-1'>
-      <p>You don't have anything to study!</p>
-      <p>Head over to the <router-link to="/quilts">Quilts</router-link> page to find something for you.</p>
-    </div>
-
-    <div v-else-if='sessionFinished' class='display-1'>
-      <p>Study session finished! Great job!</p>
-      <p>Start <a @click="refreshRoute">another study session</a>, or try 
-      <router-link :to="`/edit/${courseID}`">adding some new content</router-link> to challenge yourself and others!
-      </p>
-    </div>
-
-    <div v-else ref="shadowWrapper">
-      <card-viewer
-          v-bind:class="loading ? 'muted' : ''"
-          v-bind:view="view"
-          v-bind:data="data"
-          v-bind:card_id="cardID"
-          v-bind:course_id="courseID"
-          v-bind:sessionOrder="cardCount"
-          v-on:emitResponse="processResponse($event)"
-      />
+  <div v-if="!$store.state.views.study.inSession">
+    <SessionConfiguration :startFcn="startStudySession"/>
+  </div>
+  <div v-else>
+    <div class="Study" v-if="sessionPrepared">
       
-    </div>
-    <br>
-    <div v-if="!sessionFinished && !noRegistrations">
-      <p>Add tags to this card:</p>
-      <sk-tags-input
-          v-if='!sessionFinished'
-          :courseID="courseID"
-          :cardID="cardID"
-      />
-    </div>
+      <v-layout v-if="previewMode">
+        <span class="headline">Quilt preview for <em>{{previewCourseConfig.name}}</em></span>
+        <v-btn small @click="registerUserForPreviewCourse" color="primary">Join</v-btn>
+        <router-link :to="`/quilts/${previewCourseConfig.courseID}`"><v-btn small color="secondary">More info</v-btn></router-link>
+        <v-spacer></v-spacer>
+        <SkldrControlsView />
+      </v-layout>
+      <v-layout v-else>
+        <h1  class='display-1'>Study:
+          <v-progress-circular v-if="loading"
+              color="primary"
+              indeterminate
+              rotate="0"
+              size="32"
+              value="0"
+              width="4"
+          ></v-progress-circular>
+        </h1>
+        <v-spacer></v-spacer>
+        <SkldrControlsView />
+      </v-layout>
+      
+      <br>
+
+      <div v-if='!checkLoggedIn' class='display-1'>
+        <p>Sign up to get to work!</p>
+      </div>
     
-    <v-bottom-nav
-      v-if="!noRegistrations"
-      absolute
-      value="true"
-    >
-      <v-flex xs12
-        class="headline teal darken-2 white--text text-sm-center text-align-center align-content-center align-center">
-          Cards Remaining: {{ session.length }}
-      </v-flex>
-    </v-bottom-nav>
-    <router-link
-      :to='`/edit/${courseID}`'
-    >
-      <v-btn
+      <div v-else-if='noRegistrations' class='display-1'>
+        <p>You don't have anything to study!</p>
+        <p>Head over to the <router-link to="/quilts">Quilts</router-link> page to find something for you.</p>
+      </div>
+
+      <div v-else-if='sessionFinished' class='display-1'>
+        <p>Study session finished! Great job!</p>
+        <p>Start <a @click="refreshRoute">another study session</a>, or try 
+        <router-link :to="`/edit/${courseID}`">adding some new content</router-link> to challenge yourself and others!
+        </p>
+      </div>
+
+      <div v-else ref="shadowWrapper">
+        <card-viewer
+            v-bind:class="loading ? 'muted' : ''"
+            v-bind:view="view"
+            v-bind:data="data"
+            v-bind:card_id="cardID"
+            v-bind:course_id="courseID"
+            v-bind:sessionOrder="cardCount"
+            v-on:emitResponse="processResponse($event)"
+        />
+        
+      </div>
+      <br>
+      <div v-if="!sessionFinished && !noRegistrations">
+        <p>Add tags to this card:</p>
+        <sk-tags-input
+            v-if='!sessionFinished'
+            :courseID="courseID"
+            :cardID="cardID"
+        />
+      </div>
+      
+      <v-bottom-nav
         v-if="!noRegistrations"
-        fab
+        absolute
+        value="true"
+      >
+        <v-flex xs12
+          class="headline teal darken-2 white--text text-sm-center text-align-center align-content-center align-center">
+            Cards Remaining: {{ session.length }}
+        </v-flex>
+      </v-bottom-nav>
+      <router-link
+        :to='`/edit/${courseID}`'
+      >
+        <v-btn
+          v-if="!noRegistrations"
+          fab
+          fixed
+          dark
+          bottom
+          right
+          color="blue darken-2"
+          title="Add content to this course"
+        >
+          <v-icon dark>add</v-icon>
+        </v-btn>
+      </router-link>
+      <!-- <v-speed-dial
+        v-model="fab"
         fixed
-        dark
         bottom
         right
-        color="blue darken-2"
-        title="Add content to this course"
+        transition='scale-transition'
       >
-        <v-icon dark>add</v-icon>
-      </v-btn>
-    </router-link>
-    <!-- <v-speed-dial
-      v-model="fab"
-      fixed
-      bottom
-      right
-      transition='scale-transition'
-    >
-      <template v-slot:activator>
+        <template v-slot:activator>
+          <v-btn
+            v-model="fab"
+            color="blue darken-2"
+            dark
+            fab
+          >
+            <v-icon v-if='fab'>close</v-icon>
+            <v-icon v-else>edit</v-icon>
+          </v-btn>
+        </template>
+        <router-link
+        :to='`/edit/${courseID}`'
+      >
         <v-btn
-          v-model="fab"
-          color="blue darken-2"
-          dark
           fab
+          small
+          dark
+          color='indigo'
+          title="Add content to this course"
         >
-          <v-icon v-if='fab'>close</v-icon>
-          <v-icon v-else>edit</v-icon>
+          <v-icon>add</v-icon>
         </v-btn>
-      </template>
-      <router-link
-      :to='`/edit/${courseID}`'
-    >
+      </router-link>
       <v-btn
         fab
-        small
         dark
-        color='indigo'
-        title="Add content to this course"
+        small
+        color="orange darken-2"
+        title="Edit tags on this card"
+        @click="editTags = !editTags"
+        :loading='editCard'
       >
-        <v-icon>add</v-icon>
-      </v-btn>
-    </router-link>
-    <v-btn
-      fab
-      dark
-      small
-      color="orange darken-2"
-      title="Edit tags on this card"
-      @click="editTags = !editTags"
-      :loading='editCard'
-    >
-      <v-icon>bookmark</v-icon>
-    </v-btn> 
-    
-    </v-speed-dial>-->
-    <br>
-    
+        <v-icon>bookmark</v-icon>
+      </v-btn> 
+      
+      </v-speed-dial>-->
+      <br>
+      
+    </div>
   </div>
 </template>
 
@@ -152,6 +157,7 @@ import {
 import Viewable, { isQuestionView } from '@/base-course/Viewable';
 import { Component, Prop } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
+import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
 import Courses from '@/courses';
 import {
   getScheduledCards,
@@ -243,7 +249,8 @@ final  ${upA}         ${upB}
   components: {
     CardViewer,
     SkldrControlsView,
-    SkTagsInput
+    SkTagsInput,
+    SessionConfiguration
   }
 })
 export default class Study extends SkldrVue {
@@ -254,7 +261,9 @@ export default class Study extends SkldrVue {
   @Prop()
   public focusCourseID?: string;
 
-  public courseConfig?: CourseConfig;
+  public coursesSelected: boolean = false;
+
+  public previewCourseConfig?: CourseConfig;
   public previewMode: boolean = false;
 
 
@@ -354,6 +363,13 @@ export default class Study extends SkldrVue {
   public async created() {
     this.user = this.$store.state._user!;
     this.userCourseRegDoc = await this.user.getCourseRegistrationsDoc();
+
+  }
+
+  private async startStudySession(courses: string[]) {
+    console.log(`starting study session w/ courses: ${courses.toString()}`);
+
+    this.$store.state.views.study.inSession = true;
     this.activeCards = await this.user.getActiveCards();
 
     if (this.randomPreview) {
@@ -377,8 +393,8 @@ export default class Study extends SkldrVue {
       getCourseList().then((courses) => {
         courses.rows.forEach((c) => {
           if (c.id === this.previewCourseID) {
-            this.courseConfig = c.doc!;
-            this.courseConfig.courseID = c.id;
+            this.previewCourseConfig = c.doc!;
+            this.previewCourseConfig.courseID = c.id;
           }
         });
       });
@@ -435,11 +451,12 @@ User classrooms: ${this.userClassroomDBs.map(db => db._id)}
 `);
 
     this.nextCard();
+
   }
 
   private registerUserForPreviewCourse() {
-    this.user.registerForCourse(this.courseConfig!.courseID!).then(() =>
-      this.$router.push(`/quilts/${this.courseConfig!.courseID!}`
+    this.user.registerForCourse(this.previewCourseConfig!.courseID!).then(() =>
+      this.$router.push(`/quilts/${this.previewCourseConfig!.courseID!}`
       )
     )
   }

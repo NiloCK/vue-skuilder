@@ -36,8 +36,13 @@ export interface AppState {
   };
   cardPreviewMode: boolean;
   dataInputForm: DataInputForm;
+  views: {
+    study: {
+      inSession: boolean;
+      courseList: string[];
+    }
+  }
 }
-
 
 const Store = new Vuex.Store<AppState>({
   state: {
@@ -57,6 +62,12 @@ const Store = new Vuex.Store<AppState>({
       localStore: {},
       shapeViews: [],
       uploading: false
+    },
+    views: {
+      study: {
+        inSession: false,
+        courseList: []
+      }
     }
   },
   mutations: {
