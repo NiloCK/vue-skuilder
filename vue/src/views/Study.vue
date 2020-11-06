@@ -1,6 +1,6 @@
 <template>
   <div v-if="!$store.state.views.study.inSession">
-    <SessionConfiguration :startFcn="startStudySession"/>
+    <SessionConfiguration :startFcn="initStudySession"/>
   </div>
   <div v-else>
     <div class="Study" v-if="sessionPrepared">
@@ -158,7 +158,7 @@ import Viewable, { isQuestionView } from '@/base-course/Viewable';
 import { Component, Prop } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
-import Courses from '@/courses';
+import Courses, { NameSpacer } from '@/courses';
 import {
   getScheduledCards,
   getRandomCards,
@@ -166,7 +166,8 @@ import {
   putCardRecord,
   scheduleCardReview,
   getCourseDoc,
-  getEloNeighborCards
+  getEloNeighborCards,
+  removeScheduledCardReview
 } from '@/db';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import { log } from 'util';
@@ -245,6 +246,11 @@ final  ${upA}         ${upB}
   };
 }
 
+export interface StudySessionSource {
+  type: 'course' | 'class';
+  id: string;
+}
+
 @Component({
   components: {
     CardViewer,
@@ -281,7 +287,12 @@ export default class Study extends SkldrVue {
   public cardCount: number = 1;
   public readonly SessionCount: number = 15;
 
-  public session: string[] = [];
+  public session: {
+    qualifiedID: string,
+    cardID: string,
+    courseID: string,
+    reviewID?: string
+  }[] = [];
   public sessionPrepared: boolean = false;
   public sessionFinished: boolean = false;
   public sessionRecord: StudySessionRecord[] = [];
@@ -296,8 +307,8 @@ export default class Study extends SkldrVue {
     shadowWrapper: HTMLDivElement
   };
   private userCourseRegDoc: CourseRegistrationDoc;
-  private userCourseIDs: string[] = [];
-  private userClassroomDBs: StudentClassroomDB[] = [];
+  private sessionCourseIDs: string[] = [];
+  private sessionClassroomDBs: StudentClassroomDB[] = [];
 
 
   public checkLoggedIn(): boolean {
@@ -364,13 +375,8 @@ export default class Study extends SkldrVue {
     this.user = this.$store.state._user!;
     this.userCourseRegDoc = await this.user.getCourseRegistrationsDoc();
 
-  }
-
-  private async startStudySession(courses: string[]) {
-    console.log(`starting study session w/ courses: ${courses.toString()}`);
-
-    this.$store.state.views.study.inSession = true;
-    this.activeCards = await this.user.getActiveCards();
+    // handle special cases from the router:
+    // preview, randomPreview, focusCourse / focusClass
 
     if (this.randomPreview) {
       // set a .previewCourseID 
@@ -400,41 +406,46 @@ export default class Study extends SkldrVue {
       });
       log(`COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
       // this.activeCards = [];
-      this.userCourseIDs = [this.previewCourseID];
-      this.userClassroomDBs = [];
+      this.sessionCourseIDs = [this.previewCourseID];
+      this.sessionClassroomDBs = [];
       this.courseID = this.previewCourseID;
       await this.user.registerForCourse(this.previewCourseID, true);
-    } else {
-      this.user.getActiveCourses()
 
-      if (this.focusCourseID) {
-        log(`FOCUS study session: ${this.focusCourseID}`);
-        this.userCourseIDs = [this.focusCourseID];
-        this.userClassroomDBs = [];
-      } else {
+      this.initStudySession([{ type: "course", id: this.previewCourseID }]);
+    }
 
+    if (this.focusCourseID) {
+      log(`FOCUS study session: ${this.focusCourseID}`);
+      this.sessionCourseIDs = [this.focusCourseID];
+      this.sessionClassroomDBs = [];
 
-        this.userCourseIDs = this.userCourseRegDoc
-          .courses
-          .filter(c => c.status === undefined || c.status === 'active' || c.status === 'maintenance-mode')
-          .map(course => course.courseID);
+      this.initStudySession([
+        { type: 'course', id: this.focusCourseID }
+      ]);
+    }
 
-        const classRoomPromises = (await getUserClassrooms(this.$store.state._user!.username))
-          .registrations
-          .filter(reg => reg.registeredAs === 'student')
-          .map(reg => reg.classID)
-          .map(id => StudentClassroomDB.factory(id));
-        this.userClassroomDBs = await Promise.all(classRoomPromises);
-        this.userClassroomDBs.forEach((db) => {
-          db.setChangeFcn(this.handleClassroomMessage())
-        });
+  }
 
-        if (this.userCourseIDs.length === 0
-          && this.userClassroomDBs.length === 0
-          && this.activeCards.length === 0) {
-          this.noRegistrations = true;
-        }
-      }
+  private async initStudySession(sources: StudySessionSource[]) {
+    console.log(`starting study session w/ sources: ${JSON.stringify(sources)}`);
+    this.sessionCourseIDs = sources.filter(s => s.type === 'course').map(c => c.id);
+
+    this.activeCards = await this.user.getActiveCards();
+
+    const classRoomPromises = (await getUserClassrooms(this.$store.state._user!.username))
+      .registrations
+      .filter(reg => reg.registeredAs === 'student')
+      .map(reg => reg.classID)
+      .map(id => StudentClassroomDB.factory(id));
+    this.sessionClassroomDBs = await Promise.all(classRoomPromises);
+    this.sessionClassroomDBs.forEach((db) => {
+      db.setChangeFcn(this.handleClassroomMessage())
+    });
+
+    if (this.sessionCourseIDs.length === 0
+      && this.sessionClassroomDBs.length === 0
+      && this.activeCards.length === 0) {
+      this.noRegistrations = true;
     }
 
     await this.getSessionCards();
@@ -444,14 +455,14 @@ export default class Study extends SkldrVue {
 
 ${this.sessionString}
 
-User courses: ${this.userCourseIDs.toString()}
+User courses: ${this.sessionCourseIDs.toString()}
 
-User classrooms: ${this.userClassroomDBs.map(db => db._id)}
+User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
 
 `);
 
+    this.$store.state.views.study.inSession = true;
     this.nextCard();
-
   }
 
   private registerUserForPreviewCourse() {
@@ -464,7 +475,11 @@ User classrooms: ${this.userClassroomDBs.map(db => db._id)}
   private get sessionString() {
     let ret = '';
     for (let i = 0; i < this.session.length; i++) {
-      ret += `${i}: ${this.session[i]}` + '\n';
+      ret += `${i}: ${this.session[i].qualifiedID}`;
+      if (this.session[i].reviewID) {
+        ret += ' (review)';
+      }
+      ret += '\n';
     }
     return ret;
   }
@@ -477,11 +492,18 @@ User classrooms: ${this.userClassroomDBs.map(db => db._id)}
     if (_id) {
       // const index = this.session.indexOf(_id);
       const index = this.session.findIndex((card) => {
-        const card_split = card.split('-');
+        const card_split = card.qualifiedID.split('-');
         const _id_split = _id.split('-');
         return _id_split[0] === card_split[0] && _id_split[1] === card_split[1];
       })
       log(`Dismissing card ${_id} (index ${index})`);
+
+      if (this.session[index].reviewID) {
+        removeScheduledCardReview(
+          this.user.username,
+          this.session[index].reviewID!
+        )
+      }
 
       this.session.splice(index, 1);
     }
@@ -492,10 +514,11 @@ ${this.sessionString}
 
     if (this.session.length === 0) {
       this.sessionFinished = true;
+      // this.$store.state.views.study.inSession = false;
     } else {
       this.loadCard(this.session[
         randInt(this.session.length)
-      ]);
+      ].qualifiedID);
     }
   }
 
@@ -503,19 +526,29 @@ ${this.sessionString}
     // start with the review cards that are 'due'
     let dueCards = await getScheduledCards(this.$store.state._user!.username);
 
-    if (this.previewCourseID) {
-      dueCards = dueCards.filter(c => c.includes(this.previewCourseID!));
-    }
-    if (this.focusCourseID) {
-      dueCards = dueCards.filter(c => c.includes(this.focusCourseID!));
-    }
+    // and filter them for the current session
+    dueCards = dueCards.filter(c => {
+      return this.sessionCourseIDs.some(crs => crs === c.courseId)
+    });
 
     // but cut them off if they are too many for the session
     if (dueCards.length <= this.SessionCount) {
-      this.session = this.session.concat(dueCards);
+      this.session = this.session.concat(dueCards.map(c => {
+        return {
+          cardID: c.cardId,
+          courseID: c.courseId,
+          qualifiedID: `${c.courseId}-${c.cardId}`,
+          reviewID: c._id
+        }
+      }));
     } else {
       for (let index = 0; index < this.SessionCount; index++) {
-        this.session.push(dueCards[index]);
+        this.session.push({
+          cardID: dueCards[index].cardId,
+          courseID: dueCards[index].courseId,
+          qualifiedID: `${dueCards[index].courseId}-${dueCards[index].cardId}`,
+          reviewID: dueCards[index]._id
+        });
       }
     }
 
@@ -528,7 +561,7 @@ ${this.sessionString}
       )
     );
 
-    // const cardIDs = await getRandomCards(this.userCourseIDs);
+    // const cardIDs = await getRandomCards(this.sessionCourseIDs);
     let cardIDs: string[][] = [];
     // this.userCourseRegDoc.courses.forEach(async c => {
     //   cardIDs = cardIDs.concat(await getEloNeighborCards(c.courseID, c.elo))
@@ -585,7 +618,12 @@ ${this.sessionString}
 
 
         const index = randIntWeightedTowardZero(newCourseCards.length);
-        this.session.push(newCourseCards.splice(index, 1)[0]);
+        const card = newCourseCards.splice(index, 1)[0].split('-');
+        this.session.push({
+          courseID: card[0],
+          cardID: card[1],
+          qualifiedID: card[0] + '-' + card[1]
+        });
 
         newCardCount--;
       }

@@ -460,20 +460,24 @@ export async function getScheduledCards(user: string, limit?: number) {
     keys: ret
   });
 
+  return reviewDocs.rows.map(r => r.doc!);
+
   // todo: remove this! this deletion should occur
   //       AFTER the card is successfully dealt with
   //       in the session
-  reviewDocs.rows.forEach((row) => {
-    userDB.remove(row.doc!);
-  });
+  // reviewDocs.rows.forEach((row) => {
+  //   userDB.remove(row.doc!);
+  // });
 
-  return reviewDocs.rows.map((row) => {
-    return `${row.doc!.courseId}-${row.doc!.cardId}`;
-  });
+  // return reviewDocs.rows.map((row) => {
+  //   return `${row.doc!.courseId}-${row.doc!.cardId}`;
+  // });
 }
 
-export async function removeScheduledCardReview(user: string, doc: ScheduledCard & PouchDB.Core.GetMeta) {
-  getUserDB(user).remove(doc);
+export async function removeScheduledCardReview(user: string, reviewDocID: string) {
+  const db = getUserDB(user);
+  let reviewDoc = await db.get(reviewDocID);
+  db.remove(reviewDoc);
 }
 
 export function filterAlldocsByPrefix<T>(db: PouchDB.Database, prefix: string, opts?: PouchDB.Core.AllDocsOptions) {
