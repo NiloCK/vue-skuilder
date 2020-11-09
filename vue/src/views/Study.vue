@@ -392,36 +392,29 @@ export default class Study extends SkldrVue {
       } else {
         this.previewCourseID = allCourses[randomInt(0, allCourses.length)];
       }
-    }
+    } else if (this.previewCourseID) {
 
-    if (this.previewCourseID) {
-      this.previewMode = true;
-      getCourseList().then((courses) => {
-        courses.rows.forEach((c) => {
-          if (c.id === this.previewCourseID) {
-            this.previewCourseConfig = c.doc!;
-            this.previewCourseConfig.courseID = c.id;
-          }
+      { // set metadata for displaying a signup CTA
+
+        this.previewMode = true;
+        getCourseList().then((courses) => {
+          courses.rows.forEach((c) => {
+            if (c.id === this.previewCourseID) {
+              this.previewCourseConfig = c.doc!;
+              this.previewCourseConfig.courseID = c.id;
+            }
+          });
         });
-      });
+      }
+
       log(`COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
-      // this.activeCards = [];
-      this.sessionCourseIDs = [this.previewCourseID];
-      this.sessionClassroomDBs = [];
-      this.courseID = this.previewCourseID;
       await this.user.registerForCourse(this.previewCourseID, true);
 
       this.initStudySession([{ type: "course", id: this.previewCourseID }]);
-    }
-
-    if (this.focusCourseID) {
+    } else if (this.focusCourseID) {
       log(`FOCUS study session: ${this.focusCourseID}`);
-      this.sessionCourseIDs = [this.focusCourseID];
-      this.sessionClassroomDBs = [];
 
-      this.initStudySession([
-        { type: 'course', id: this.focusCourseID }
-      ]);
+      this.initStudySession([{ type: "course", id: this.focusCourseID }]);
     }
 
   }
