@@ -550,26 +550,26 @@ ${this.sessionString}
     let cardIDs: string[][] = [];
 
     for (let i = 0; i < this.sessionCourseIDs.length; i++) {
+      // get elo neighbor cards for each course in session
+      const courseID = this.sessionCourseIDs[i];
+      let courseELO = this.userCourseRegDoc.courses.find(
+        c => c.courseID === this.sessionCourseIDs[i])!.elo
+
+      if (!courseELO) { courseELO = 1000; }
+
       cardIDs.push(await getEloNeighborCards(
-        this.sessionCourseIDs[i],
-        this.userCourseRegDoc.courses.find(
-          c => c.courseID === this.sessionCourseIDs[i])!
-          .elo ? this.userCourseRegDoc.courses[i].elo : 1000
+        courseID,
+        courseELO
       ));
     }
 
-    // todo: this is not correctly handling new-card picking when more
-    //       than one course is involved.
-
+    // cards previously seen are filtered out
     const newCards = cardIDs.map((cardList) => {
       return cardList.filter(
         (card) => {
           return this.activeCards.indexOf(card) === -1;
         });
     });
-    // cardIDs.filter((cardID) => {
-    //   return this.activeCards.indexOf(cardID) === -1;
-    // });
 
     let courseIndex = randInt(newCards.length);
 
@@ -585,7 +585,6 @@ ${this.sessionString}
     while (newCardCount > 0 && hasElements(newCards)) {
       const newCourseCards = newCards[courseIndex % newCards.length];
       if (newCourseCards.length > 0) {
-
 
         const index = randIntWeightedTowardZero(newCourseCards.length);
         const card = newCourseCards.splice(index, 1)[0].split('-');
