@@ -531,26 +531,20 @@ ${this.sessionString}
       return this.sessionCourseIDs.some(crs => crs === c.courseId)
     });
 
-    // but cut them off if they are too many for the session
-    if (dueCards.length <= this.SessionCount) {
-      this.session = this.session.concat(dueCards.map(c => {
-        return {
-          cardID: c.cardId,
-          courseID: c.courseId,
-          qualifiedID: `${c.courseId}-${c.cardId}`,
-          reviewID: c._id
-        }
-      }));
-    } else {
-      for (let index = 0; index < this.SessionCount; index++) {
-        this.session.push({
-          cardID: dueCards[index].cardId,
-          courseID: dueCards[index].courseId,
-          qualifiedID: `${dueCards[index].courseId}-${dueCards[index].cardId}`,
-          reviewID: dueCards[index]._id
-        });
-      }
-    }
+    this.session = this.session.concat(
+      // slice w/ min here in case there are more cards due
+      // than the configured session length
+      dueCards.slice(0, Math.min(this.SessionCount, dueCards.length))
+        .map(c => {
+          return {
+            cardID: c.cardId,
+            courseID: c.courseId,
+            qualifiedID: `${c.courseId}-${c.cardId}`,
+            reviewID: c._id
+          }
+        })
+    );
+
 
     // # of new cards is at least one, otherwise fills half
     // of the remaining session space
