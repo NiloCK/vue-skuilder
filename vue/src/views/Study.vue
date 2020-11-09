@@ -538,7 +538,6 @@ ${this.sessionString}
         })
     );
 
-
     // # of new cards is at least one, otherwise fills half
     // of the remaining session space
     let newCardCount: number = Math.max(
@@ -548,32 +547,16 @@ ${this.sessionString}
       )
     );
 
-    // const cardIDs = await getRandomCards(this.sessionCourseIDs);
     let cardIDs: string[][] = [];
-    // this.userCourseRegDoc.courses.forEach(async c => {
-    //   cardIDs = cardIDs.concat(await getEloNeighborCards(c.courseID, c.elo))
-    // });
-    if (this.previewCourseID) {
-      let db = await new CourseDB(this.previewCourseID);
-      // cardIDs.push(await getEloNeighborCards(this.previewCourseID, 1000));
-      cardIDs.push(await db.getStudySession(this.SessionCount));
-    } else if (this.focusCourseID) {
-      const courseELO = this.userCourseRegDoc.courses.find(
-        c => c.courseID === this.focusCourseID)!.elo
-      cardIDs.push(await
-        getEloNeighborCards(
-          this.focusCourseID,
-          courseELO
-        ))
-    } else {
-      for (let i = 0; i < this.userCourseRegDoc.courses.length; i++) {
-        cardIDs.push(await getEloNeighborCards(
-          this.userCourseRegDoc.courses[i].courseID,
-          this.userCourseRegDoc.courses[i].elo ? this.userCourseRegDoc.courses[i].elo : 1000
-        ));
-      }
+
+    for (let i = 0; i < this.sessionCourseIDs.length; i++) {
+      cardIDs.push(await getEloNeighborCards(
+        this.sessionCourseIDs[i],
+        this.userCourseRegDoc.courses.find(
+          c => c.courseID === this.sessionCourseIDs[i])!
+          .elo ? this.userCourseRegDoc.courses[i].elo : 1000
+      ));
     }
-    // console.log(`Cards: ${cardIDs.toString()}`);
 
     // todo: this is not correctly handling new-card picking when more
     //       than one course is involved.
