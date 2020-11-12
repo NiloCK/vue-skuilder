@@ -2,12 +2,12 @@
   <div>
     <div class="display-1">Select your quilts</div>
     <table width="100%">
-      <th><v-checkbox label="Select All" @click="toggleAll" v-model="allSelected"></v-checkbox></th>
+      <th><v-checkbox label="Select All" @click.capture="toggleAll" v-model="allSelected"></v-checkbox></th>
       
       <th>Status <v-icon>info</v-icon></th>
 
       <tr v-for="course in activeCourses" :key="course.courseID">
-        <td><v-checkbox :label="course.name" @click="update" v-model="course.selected"></v-checkbox></td>
+        <td><v-checkbox :label="course.name" @click.capture="update" v-model="course.selected"></v-checkbox></td>
         <td>4</td>
       </tr>
     </table>
