@@ -6,6 +6,7 @@ import { EqualityTest } from './questions/equalityTest';
 import { OneStepEquation } from './questions/oneStepEqn';
 import { AngleCategorize } from './questions/angleCategorize';
 import { SupplementaryAngles } from './questions/supplementaryAngles';
+import { CountBy } from './questions/countBy';
 
 const math: Course = new Course('math',
     [
@@ -15,7 +16,8 @@ const math: Course = new Course('math',
         EqualityTest,
         OneStepEquation,
         AngleCategorize,
-        SupplementaryAngles
+        SupplementaryAngles,
+        CountBy
     ]);
 
 export default math;

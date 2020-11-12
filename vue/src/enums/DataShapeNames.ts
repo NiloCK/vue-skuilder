@@ -13,6 +13,7 @@ export enum DataShapeName {
     MATH_OneStepEquation = 'OneStepEquation',
     MATH_AngleCategorize = 'AngleCategorize',
     MATH_SupplimentaryAngles = 'SupplimentaryAngles',
+    MATH_CountBy = 'CountBy',
 
 
     // French
