@@ -6,9 +6,15 @@ import {
   hexEncode,
   pouchDBincludeCredentialsConfig,
   updateGuestAccountExpirationDate,
+  filterAlldocsByPrefix,
+  getStartAndEndKeys,
+  REVIEW_PREFIX,
+  REVIEW_TIME_FORMAT
 } from './index';
 import { getCourseConfigs } from './courseDB';
 import { Status } from '@/enums/Status';
+import moment from 'moment';
+import { ScheduledCard } from './User';
 
 const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' +
   ENV.COUCHDB_SERVER_URL + 'skuilder';
@@ -105,6 +111,7 @@ Currently logged-in as ${this._username}.`);
     if (loginResult.ok) {
       log(`Logged in as ${username}`);
       this._username = username;
+      localStorage.removeItem('dbUUID');
       await this.init();
     } else {
       log(`Login ERROR as ${username}`);
@@ -155,11 +162,44 @@ Currently logged-in as ${this._username}.`);
     });
   }
 
+  public async getPendingReviews(course_id: string) {
+    const keys = getStartAndEndKeys(REVIEW_PREFIX);
+    const now = moment.utc();
+    log(`Fetching scheduled reviews for course: ${course_id}`);
+
+    const reviews = await this.remoteDB.allDocs<ScheduledCard>({
+      startkey: keys.startkey,
+      endkey: keys.endkey,
+      include_docs: true
+    });
+
+    return reviews.rows.filter((r) => {
+      if (r.id.startsWith(REVIEW_PREFIX)) {
+        const date = moment.utc(
+          r.id.substr(REVIEW_PREFIX.length),
+          REVIEW_TIME_FORMAT
+        );
+        if (now.isAfter(date) && r.doc!.courseId === course_id) {
+          return true;
+        }
+      }
+    }).map(r => r.doc!);
+  }
+
+  public async getScheduledReviewCount(course_id: string): Promise<number> {
+    return (await this.getPendingReviews(course_id)).length;
+  }
+
   public async getRegisteredCourses() {
     const regDoc = await this.getCourseRegistrationsDoc();
     return regDoc.courses.filter((c) => {
       return !c.status || c.status === 'active' || c.status === 'maintenance-mode'
     });
+  }
+
+  public async getCourseRegDoc(courseID: string) {
+    const regDocs = (await this.getCourseRegistrationsDoc());
+    return regDocs.courses.find(c => c.courseID === courseID);
   }
 
   public async registerForCourse(course_id: string, previewMode: boolean = false) {
@@ -243,6 +283,7 @@ Currently logged-in as ${this._username}.`);
       await User._instance.init();
       return User._instance;
     } else if (User._instance && User._initialized) {
+      log(`USER.instance() returning user ${User._instance._username}`);
       return User._instance;
     } else if (User._instance) {
       return new Promise((resolve, reject) => {
@@ -268,6 +309,14 @@ Currently logged-in as ${this._username}.`);
 
   private async init() {
     User._initialized = false;
+    if (this._username === GuestUsername) {
+      const acc = accomodateGuest();
+      this._username = acc.username;
+      if (acc.firstVisit) {
+        await this.createAccount(this._username, this._username);
+      }
+      await this.login(this._username, this._username);
+    }
     this.localDB = getLocalUserDB(this._username);
     this.remoteDB = getUserDB(this._username);
 
@@ -278,16 +327,25 @@ Currently logged-in as ${this._username}.`);
     User._initialized = true;
   }
 
-  public courseRegistrations: string[];
 
   /**
-  * Returns a promise of the card IDs that the user has
-  * previously studied
-  */
-  async getActiveCards() {
-    const docs = await this.localDB.allDocs({});
+   * Returns a promise of the card IDs that the user has
+   * previously studied
+   * 
+   * @param course_id optional specification of individual course
+   */
+  async getActiveCards(course_id?: string) {
+    let prefix = 'cardH-';
+    if (course_id) {
+      prefix += course_id
+    }
+    const docs = await filterAlldocsByPrefix(this.localDB, prefix, {
+      include_docs: false
+    });
+    // const docs = await this.localDB.allDocs({});
     const ret: PouchDB.Core.DocumentId[] = [];
     docs.rows.forEach((row) => {
+
       if (row.id.startsWith('cardH-')) {
         ret.push(row.id.substr('cardH-'.length));
       }
@@ -340,19 +398,12 @@ async function clearLocalGuestDB() {
     log(`CREATEACCOUNT: Deleting ${r.id}`);
     getLocalUserDB(GuestUsername).remove(r.doc!);
   });
-
+  delete localStorage.dbUUID;
 }
 
 export function getUserDB(username: string): PouchDB.Database {
   let guestAccount: boolean = false;
   console.log(`Getting user db: ${username}`);
-
-  if (username === GuestUsername ||
-    username === '') {
-    // username = accomodateGuest();
-    // guestAccount = true;
-    return getLocalUserDB(GuestUsername);
-  }
 
   const hexName = hexEncode(username);
   const dbName = `userdb-${hexName}`;
@@ -368,28 +419,30 @@ export function getUserDB(username: string): PouchDB.Database {
     updateGuestAccountExpirationDate(ret);
   }
 
-  pouch.replicate(ret, getLocalUserDB(username));
   return ret;
 }
 
-function accomodateGuest() {
+function accomodateGuest(): {
+  username: string;
+  firstVisit: boolean;
+} {
   const dbUUID = 'dbUUID';
-  let username: string;
+  let firstVisit: boolean;
 
   if (localStorage.getItem(dbUUID) !== null) {
-    username = GuestUsername + localStorage.getItem(dbUUID);
-    console.log(`Returning guest ${username} "logging in".`);
-    // remoteDBLogin(username, localStorage.getItem(dbUUID)!);
+    firstVisit = false;
+    console.log(`Returning guest ${localStorage.getItem(dbUUID)} "logging in".`);
   } else {
+    firstVisit = true;
     const uuid = generateUUID();
     localStorage.setItem(dbUUID, uuid);
-    username = GuestUsername + uuid;
-    console.log(`Accommodating a new guest with account: ${username}`);
-    // remoteDBSignup(username, uuid);
-    // remoteDBLogin(username, uuid);
+    console.log(`Accommodating a new guest with account: ${uuid}`);
   }
 
-  return username;
+  return {
+    username: GuestUsername + localStorage.getItem(dbUUID),
+    firstVisit: firstVisit
+  };
 
   // pilfered from https://stackoverflow.com/a/8809472/1252649
   function generateUUID() {
@@ -414,7 +467,7 @@ interface TaggedElo {
   [tag: string]: number;
 }
 
-interface CourseRegistration {
+export interface CourseRegistration {
   status?: 'active' | 'dropped' | 'maintenance-mode' | 'preview';
   courseID: string;
   admin: boolean;

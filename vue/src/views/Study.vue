@@ -160,7 +160,6 @@ import CardViewer from '@/components/Study/CardViewer.vue';
 import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
 import Courses, { NameSpacer } from '@/courses';
 import {
-  getScheduledCards,
   getRandomCards,
   getDoc,
   putCardRecord,
@@ -185,6 +184,7 @@ import { randomInt } from '../courses/math/utility';
 import { GuestUsername } from '@/store';
 import { CourseConfig } from '../server/types';
 import SkldrControlsView from '../components/SkMouseTrap.vue';
+import { ScheduledCard } from '@/db/User';
 // import CardCache from '@/db/cardCache';
 
 function randInt(n: number) {
@@ -372,7 +372,7 @@ export default class Study extends SkldrVue {
   }
 
   public async created() {
-    this.user = this.$store.state._user!;
+    this.user = await User.instance();
     this.userCourseRegDoc = await this.user.getCourseRegistrationsDoc();
 
     // handle special cases from the router:
@@ -517,14 +517,13 @@ ${this.sessionString}
 
   private async getSessionCards() {
     // start with the review cards that are 'due'
-    let dueCards = await getScheduledCards(this.$store.state._user!.username);
-    console.log(`${dueCards.length} reviews available`);
+    // let dueCards = await getScheduledCards(this.$store.state._user!.username);
+    let dueCards: ScheduledCard[] = [];
 
-    // and filter them for the current session
-    dueCards = dueCards.filter(c => {
-      return this.sessionCourseIDs.some(crs => crs === c.courseId)
-    });
-    console.log(`${dueCards.length} reviews available after filtering`);
+    for (let i = 0; i < this.sessionCourseIDs.length; i++) {
+      dueCards = dueCards.concat(await this.user.getPendingReviews(this.sessionCourseIDs[i]))
+    }
+    console.log(`${dueCards.length} reviews available`);
 
     this.session = this.session.concat(
       // slice w/ min here in case there are more cards due

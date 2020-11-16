@@ -397,8 +397,8 @@ function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>)
   });
 }
 
-const REVIEW_PREFIX: string = 'card_review_';
-const REVIEW_TIME_FORMAT: string = 'YYYY-MM-DD--kk:mm:ss-SSS';
+export const REVIEW_PREFIX: string = 'card_review_';
+export const REVIEW_TIME_FORMAT: string = 'YYYY-MM-DD--kk:mm:ss-SSS';
 
 export function scheduleCardReview(review: {
   user: string,
@@ -421,63 +421,16 @@ export function scheduleCardReview(review: {
   });
 }
 
-/**
- * Returns a promise of all cardReview IDs which are due for review.
- *
- * @param user The username whose scheduled cards are of interest
- */
-export async function getScheduledCards(user: string, limit?: number) {
-  const cLimit = limit || 999;
-  const keys = getStartAndEndKeys(REVIEW_PREFIX);
-  const now = moment.utc();
-  const userDB = getUserDB(user);
-  const allDocs = await userDB.allDocs({
-    startkey: keys.startkey,
-    endkey: keys.endkey
-  });
-  const ret: PouchDB.Core.DocumentId[] = [];
-
-  // todo: future optimization here: saves multiple trips to the db
-  //       for relevant doc IDs -> docs. Needs a little time to test...
-  // const allDocs = await userDB.allDocs<ScheduledCard>({
-  //   startkey: REVIEW_PREFIX,
-  //   endkey: REVIEW_PREFIX + moment.utc().format(REVIEW_TIME_FORMAT)
-  // });
-
-  allDocs.rows.forEach((row) => {
-    if (row.id.startsWith(REVIEW_PREFIX)) {
-      const date = moment.utc(
-        row.id.substr(REVIEW_PREFIX.length),
-        REVIEW_TIME_FORMAT
-      );
-      if (now.isAfter(date) && ret.length < cLimit) {
-        ret.push(row.id);
-      }
-    }
-  });
-  const reviewDocs = await userDB.allDocs<ScheduledCard>({
-    include_docs: true,
-    keys: ret
-  });
-
-  return reviewDocs.rows.map(r => r.doc!);
-
-  // todo: remove this! this deletion should occur
-  //       AFTER the card is successfully dealt with
-  //       in the session
-  // reviewDocs.rows.forEach((row) => {
-  //   userDB.remove(row.doc!);
-  // });
-
-  // return reviewDocs.rows.map((row) => {
-  //   return `${row.doc!.courseId}-${row.doc!.cardId}`;
-  // });
-}
-
 export async function removeScheduledCardReview(user: string, reviewDocID: string) {
   const db = getUserDB(user);
   let reviewDoc = await db.get(reviewDocID);
-  db.remove(reviewDoc);
+  db.remove(reviewDoc).then((res) => {
+    if (res.ok) {
+      log(`Removed Review Doc: ${reviewDocID}`);
+    }
+  }).catch((err) => {
+    log(`Failed to remove Review Doc: ${reviewDocID},\n${JSON.stringify(err)}`);
+  });
 }
 
 export function filterAlldocsByPrefix<T>(db: PouchDB.Database, prefix: string, opts?: PouchDB.Core.AllDocsOptions) {
