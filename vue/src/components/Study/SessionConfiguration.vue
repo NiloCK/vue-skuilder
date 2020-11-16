@@ -4,11 +4,13 @@
     <table width="100%">
       <th><v-checkbox label="Select All" @click.capture="toggleAll" v-model="allSelected"></v-checkbox></th>
       
-      <th>Status <v-icon>info</v-icon></th>
+      <th>Reviews
+         <!-- <v-icon>info</v-icon> -->
+      </th>
 
       <tr v-for="course in activeCourses" :key="course.courseID">
         <td><v-checkbox :label="course.name" @click.capture="update" v-model="course.selected"></v-checkbox></td>
-        <td>4</td>
+        <td>{{course.reviews}}</td>
       </tr>
     </table>
     <!-- Repeat below for classrooms -->
@@ -17,8 +19,8 @@
 </template>
 
 <script lang="ts">
-import { CourseRegistration, CourseRegistrationDoc } from '@/db/userDB';
-import { getCourseName } from '@/db/courseDB';
+import { CourseRegistration, CourseRegistrationDoc, User } from '@/db/userDB';
+import { CourseDB, getCourseName } from '@/db/courseDB';
 import SkldrVue from '@/SkldrVue';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
@@ -27,7 +29,7 @@ import { StudySessionSource } from '@/views/Study.vue';
 @Component({})
 export default class SessionConfiguration extends SkldrVue {
   public allSelected: boolean = false;
-  public activeCourses: (CourseRegistration & { selected: boolean, name: string })[] = [];
+  public activeCourses: (CourseRegistration & { selected: boolean, name: string, reviews: number })[] = [];
   @Prop({
     required: true
   })
@@ -59,11 +61,15 @@ export default class SessionConfiguration extends SkldrVue {
       return {
         selected: false,
         name: "",
-        ...c
+        ...c,
+        reviews: 0
       }
     });
     for (let i = 0; i < this.activeCourses.length; i++) {
+
       this.activeCourses[i].name = await getCourseName(this.activeCourses[i].courseID);
+      this.activeCourses[i].reviews = await
+        (await User.instance()).getScheduledReviewCount(this.activeCourses[i].courseID);
     };
   }
 };

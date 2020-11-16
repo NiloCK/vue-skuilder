@@ -43,13 +43,14 @@ export class CourseDB {
     this.db = getCourseDB(this.id);
   }
 
-  public async getStudySession(cardLimit?: number) {
+  public async getStudySession(cardLimit: number = 99) {
+    // cardLimit = cardLimit ? cardLimit : 999;
     const u = await User.instance();
     const userCrsdoc = await u.getCourseRegDoc(this.id);
     const activeCards = await u.getActiveCards(this.id);
 
     // this.log()
-    const newCards = (await this.getCardsByELO(userCrsdoc!.elo))
+    const newCards = (await this.getCardsByELO(userCrsdoc!.elo, cardLimit))
       .filter((card) => {
 
         return activeCards.indexOf(card) === -1;
