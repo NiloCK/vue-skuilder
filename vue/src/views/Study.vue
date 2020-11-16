@@ -372,6 +372,9 @@ export default class Study extends SkldrVue {
   }
 
   public async created() {
+    this.sessionPrepared = false;
+    this.$store.state.views.study.inSession = false;
+
     this.user = await User.instance();
     this.userCourseRegDoc = await this.user.getCourseRegistrationsDoc();
 
@@ -517,7 +520,6 @@ ${this.sessionString}
 
   private async getSessionCards() {
     // start with the review cards that are 'due'
-    // let dueCards = await getScheduledCards(this.$store.state._user!.username);
     let dueCards: ScheduledCard[] = [];
 
     for (let i = 0; i < this.sessionCourseIDs.length; i++) {
