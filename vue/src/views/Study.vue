@@ -518,11 +518,13 @@ ${this.sessionString}
   private async getSessionCards() {
     // start with the review cards that are 'due'
     let dueCards = await getScheduledCards(this.$store.state._user!.username);
+    console.log(`${dueCards.length} reviews available`);
 
     // and filter them for the current session
     dueCards = dueCards.filter(c => {
       return this.sessionCourseIDs.some(crs => crs === c.courseId)
     });
+    console.log(`${dueCards.length} reviews available after filtering`);
 
     this.session = this.session.concat(
       // slice w/ min here in case there are more cards due
@@ -609,16 +611,15 @@ ${this.sessionString}
    */
   private deDuplicateSession() {
     const priorCount: number = this.session.length;
-
-    this.session.forEach((c, i) => {
-      if (this.session.lastIndexOf(c) !== i || this.session.indexOf(c) !== i) {
-        log(`Removing duplicate session card: ${c}`);
-        this.session.splice(i, 1);
+    for (let i = 0; i < this.session.length; i++) {
+      for (let j = i + 1; j < this.session.length; j++) {
+        if (this.session[i].qualifiedID === this.session[j].qualifiedID) {
+          log(`Removing duplicate session card: ${JSON.stringify(this.session[j])}`);
+          this.session.splice(j, 1);
+          // start over!
+          this.deDuplicateSession();
+        }
       }
-    });
-
-    if (this.session.length !== priorCount) {
-      this.deDuplicateSession();
     }
   }
 
