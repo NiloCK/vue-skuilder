@@ -123,10 +123,8 @@ export class SyllableSequence {
     this.syllables.forEach((s, i) => {
       ret += `Syllable ${i + 1}: {\n`
       s.notes.forEach((n) => {
-        ret += `\t${n.note.name}\t${n.note.number}\t${n.timestamp} ${
-          n.isCorrect ? "" : '(incorrect)'
-          } ${
-          n.isMissing ? "(missing)" : ''
+        ret += `\t${n.note.name}\t${n.note.number}\t${n.timestamp} ${n.isCorrect ? "" : '(incorrect)'
+          } ${n.isMissing ? "(missing)" : ''
           }\n`
       });
       ret += `} - ${s.timestamp}, correct: ${s.isCorrect}\n`
@@ -432,7 +430,7 @@ class SkMidi {
         if (this.recording.length === 0) {
           initTimestamp = e.timestamp;
         }
-        console.log(`${e.note.name} - time: ${e.timestamp}`);
+        // console.log(`${e.note.name} - time: ${e.timestamp}`);
         this.recording.push({
           note: e.note,
           type: e.type,
@@ -444,7 +442,7 @@ class SkMidi {
         if (this.recording.length === 0) {
           initTimestamp = e.timestamp;
         }
-        console.log(e.note.name + ' off');
+        // console.log(e.note.name + ' off');
         this.recording.push({
           note: e.note,
           velocity: e.velocity,
