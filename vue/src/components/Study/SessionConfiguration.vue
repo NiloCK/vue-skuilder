@@ -14,6 +14,7 @@
       </tr>
     </table>
     <!-- Repeat below for classrooms -->
+    <v-text-field label="Cards" type="number" v-model="$store.state.views.study.sessionCardCount"></v-text-field>
     <v-btn color="success" @click="startSession">Start Studying!</v-btn>
   </div>
 </template>

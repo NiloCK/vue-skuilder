@@ -285,7 +285,6 @@ export default class Study extends SkldrVue {
   public courseID: string = '';
 
   public cardCount: number = 1;
-  public readonly SessionCount: number = 15;
 
   public session: {
     qualifiedID: string,
@@ -530,7 +529,7 @@ ${this.sessionString}
     this.session = this.session.concat(
       // slice w/ min here in case there are more cards due
       // than the configured session length
-      dueCards.slice(0, Math.min(this.SessionCount, dueCards.length))
+      dueCards.slice(0, Math.min(this.$store.state.views.study.sessionCardCount, dueCards.length))
         .map(c => {
           return {
             cardID: c.cardId,
@@ -546,7 +545,7 @@ ${this.sessionString}
     let newCardCount: number = Math.max(
       1,
       Math.ceil(
-        (this.SessionCount - this.session.length) / 2
+        (this.$store.state.views.study.sessionCardCount - this.session.length) / 2
       )
     );
 

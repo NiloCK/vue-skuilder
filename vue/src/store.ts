@@ -40,6 +40,7 @@ export interface AppState {
     study: {
       inSession: boolean;
       courseList: string[];
+      sessionCardCount: number;
     }
   }
 }
@@ -66,7 +67,8 @@ const Store = new Vuex.Store<AppState>({
     views: {
       study: {
         inSession: false,
-        courseList: []
+        courseList: [],
+        sessionCardCount: 15
       }
     }
   },
