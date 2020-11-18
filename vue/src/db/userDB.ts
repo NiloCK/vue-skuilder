@@ -324,7 +324,60 @@ Currently logged-in as ${this._username}.`);
       live: true,
       retry: true
     });
+    this.applyDesignDocs();
+    this.deduplicateReviews();
     User._initialized = true;
+  }
+
+  private static designDocs = [
+    {
+      _id: '_design/reviewCards',
+      views: {
+        'reviewCards': {
+          map: (function (doc: PouchDB.Core.Document<{}>) {
+            if (doc._id.indexOf('card_review') === 0) {
+              emit(doc._id, doc.courseId + '-' + doc.cardId);
+            }
+          }).toString()
+        }
+      }
+    }
+  ]
+
+  private async applyDesignDocs() {
+    User.designDocs.forEach((doc) => {
+      this.remoteDB.get(doc._id).catch((e) => {
+        if (e.name === "not_found") {
+          this.remoteDB.put(doc);
+        }
+      }).then((oldDoc) => {
+        this.remoteDB.put({
+          ...doc,
+          _rev: (oldDoc as any)._rev
+        });
+      });
+    })
+  }
+
+  private async deduplicateReviews() {
+    const reviewsMap: { [index: string]: string[] } = {};
+    const scheduledReviews = await this.remoteDB.query<{
+      id: String;
+      value: string
+    }>('reviewCards');
+
+    scheduledReviews.rows.forEach((r) => {
+      if (reviewsMap[r.value]) {
+        // this card is scheduled more than once! delete this scheduled review
+        log(`Removing duplicate scheduled review for card: ${r.value}`);
+        this.remoteDB.get((r.key)).then((doc) => {
+          this.remoteDB.remove(doc);
+        });
+      } else {
+        // note that this card is scheduled for review
+        reviewsMap[r.value] = r.key;
+      }
+    });
   }
 
 
