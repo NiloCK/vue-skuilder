@@ -568,7 +568,13 @@ ${this.sessionString}
     const newCards = cardIDs.map((cardList) => {
       return cardList.filter(
         (card) => {
-          return this.activeCards.indexOf(card) === -1;
+          if (this.activeCards.some(ac => card.includes(ac))) {
+            // console.log(`Card ${card} has been seen before!`);
+            return false;
+          } else {
+            // console.log(`Card ${card} is fresh!`);
+            return true;
+          };
         });
     });
 
