@@ -1,10 +1,10 @@
-import { remote } from './';
+// import { remote } from './';
 import { log } from 'util';
 import pouch from 'pouchdb-browser';
 
 class LocalCache {
   private readonly local = new pouch('localCache');
-  private readonly remote = remote;
+  private readonly remote = new pouch();
   private doc_ids: PouchDB.Core.DocumentId[] = [];
 
   /**
