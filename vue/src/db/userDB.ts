@@ -390,6 +390,7 @@ Currently logged-in as ${this._username}.`);
       if (reviewsMap[r.value]) {
         // this card is scheduled more than once! delete this scheduled review
         log(`Removing duplicate scheduled review for card: ${r.value}`);
+        log(`Replacing review ${reviewsMap[r.value]} with ${r.key}`);
         this.remoteDB.get(reviewsMap[r.value]).then((doc) => {
           // remove the already-hashed review, since it is the earliest one
           // (prevents continual loop of short-scheduled reviews)
