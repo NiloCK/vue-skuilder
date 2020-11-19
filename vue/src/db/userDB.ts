@@ -346,7 +346,12 @@ Currently logged-in as ${this._username}.`);
 
   private async applyDesignDocs() {
     User.designDocs.forEach((doc) => {
-      this.remoteDB.get(doc._id).catch((e) => {
+      this.remoteDB.get(doc._id).then(oldDoc => {
+        this.remoteDB.put({
+          ...doc,
+          _rev: oldDoc._rev
+        });
+      }).catch((e) => {
         if (e.name === "not_found") {
           this.remoteDB.put(doc);
         }
