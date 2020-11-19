@@ -33,7 +33,6 @@ import Vue from 'vue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import Courses, { NameSpacer } from '@/courses';
-import { getDoc } from '@/db';
 import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
 import { DataShapeData } from '@/db/types';
 import ComponentRegistration from '@/components/Edit/ComponentRegistration/ComponentRegistration.vue';

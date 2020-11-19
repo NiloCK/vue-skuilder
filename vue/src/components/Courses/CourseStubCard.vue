@@ -34,7 +34,7 @@ import serverRequest from "../../server";
 import { log } from "util";
 import { Prop, Watch } from 'vue-property-decorator';
 import { getCourseList, getCourseTagStubs, getCourseConfig } from '../../db/courseDB';
-import { getQuestions, getCourseDB } from '../../db';
+import { getCourseDB } from '../../db';
 import { DocType } from '../../db/types';
 
 @Component({})

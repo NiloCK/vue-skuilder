@@ -161,7 +161,6 @@ import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
 import Courses, { NameSpacer } from '@/courses';
 import {
   getRandomCards,
-  getDoc,
   putCardRecord,
   scheduleCardReview,
   getCourseDoc,

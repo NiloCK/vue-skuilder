@@ -42,13 +42,6 @@ const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' +
 
 log(`Remote db: ${remoteStr}`);
 
-export const remote: PouchDB.Database = new pouch(
-  remoteStr,
-  {
-    skip_setup: true
-  }
-);
-
 const GUEST_LOCALDB = `userdb-${GuestUsername}`;
 export const localUserDB: PouchDB.Database = new pouch(GUEST_LOCALDB);
 
@@ -136,174 +129,11 @@ export function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) 
   });
 }
 
-
-//todo USER - this is to be pruned out when GuestAccomodation is
-//            figured out. Moved to class User from userDB.ts.
-export function remoteDBSignup(
-  username: string,
-  password: string,
-  options?: PouchDB.Authentication.PutUserOptions) {
-
-  log(`Signing up to remote db:`);
-
-  const newDBRequest = remote.signUp(username, password);
-
-  newDBRequest.then((resp) => {
-    if (resp.ok) {
-      if (localStorage.dbUUID) {
-        // remoteDBLogout().then(() => {
-        //   remoteDBLogin(username, password).then(() => {
-        //     getLocalUserDB(GuestUsername + localStorage.dbUUID)
-        //       .replicate
-        //       .to(getUserDB(username));
-        //   }).then(() => {
-        //     console.log(`deleting local dbUUID`);
-        //     delete localStorage.dbUUID;
-        //   });
-        // });
-      }
-
-      localUserDB.get(expiryDocID).then((doc) => {
-        return localUserDB.remove(doc._id, doc._rev);
-      });
-    }
-  });
-
-  return newDBRequest;
-}
-
 export function getCourseDoc<T extends SkuilderCourseData>(
   courseID: string,
   docID: PouchDB.Core.DocumentId,
   options: PouchDB.Core.GetOptions = {}): Promise<T> {
   return getCourseDB(courseID).get<T>(docID, options);
-}
-
-export function getDoc
-  <T extends SkuilderCourseData>(id: PouchDB.Core.DocumentId, options: PouchDB.Core.GetOptions = {}): Promise<T> {
-  return remote.get<T>(id, options);
-}
-
-export async function putQuestionType(course: string, question: typeof Displayable) {
-  const questionID = NameSpacer.getQuestionString({
-    course,
-    questionType: question.name
-  });
-
-  const viewList = question.views.map((view) => view.name);
-
-  const dataShapeList = question.dataShapes.map((shape) =>
-    NameSpacer.getDataShapeString({
-      course,
-      dataShape: shape.name
-    })
-  );
-
-  try {
-    await dataShapeList.forEach((id) => {
-      getDoc<DataShapeData>(id).
-        then((doc) => {
-          doc.questionTypes.push(questionID);
-          remote.put(doc);
-        })
-        .catch(() => {
-          throw new Error(
-            `${id} is not registered in the database.
-                    Register dependant dataShapes before registering a question Type.`
-          );
-        });
-    });
-  } catch (err) {
-    throw err;
-  }
-
-  return remote.put<QuestionData>({
-    _id: questionID,
-    course,
-    docType: DocType.QUESTIONTYPE,
-    viewList,
-    dataShapeList
-  });
-}
-
-export function getQuestions(course: string) {
-  return remote.find({
-    selector: {
-      docType: DocType.QUESTIONTYPE,
-      course
-    }
-  });
-}
-
-export function putDataShape(course: string, dataShape: DataShape) {
-
-  const dataShapeId: string = NameSpacer.getDataShapeString({
-    course,
-    dataShape: dataShape.name
-  });
-
-  return remote.put<DataShapeData>({
-    course,
-    docType: DocType.DATASHAPE,
-    _id: dataShapeId,
-    questionTypes: []
-  });
-}
-
-export function putQuestionView(
-  course: string,
-  questionName: string,
-  viewName: string
-) {
-  const questionID = NameSpacer.getQuestionString({
-    course,
-    questionType: questionName
-  });
-
-  getDoc<QuestionData>(questionID).then((question) => {
-    if (question.viewList.indexOf(viewName) === -1) {
-      question.viewList.push(viewName);
-      remote.put(question);
-    } else {
-      throw new Error(
-        `putQuestionView failed: ${course}.${questionName} already contains a view named ${viewName}`
-      );
-    }
-  });
-}
-
-export async function doesUserExist(name: string) {
-  try {
-    const user = await remote.getUser(name);
-    log(`user: ${user._id}`);
-    return true;
-  } catch (err) {
-    log(`User error: ${err}`);
-    return false;
-  }
-}
-
-async function getImplementingQuestions(dataShape: PouchDB.Core.DocumentId) {
-  const shapeResult = await getDoc<DataShapeData>(dataShape);
-  const questions = shapeResult.questionTypes;
-  return questions.map((question) => {
-    return getDoc<QuestionData>(question);
-  });
-}
-
-/**
- * Returns a promise with doc stubs for all notes of the given dataShape
- * @param course The course name.
- * @param shape The datashape of the notes to be returned.
- */
-export function getNotes(course: string, shape: DataShape) {
-  return remote.find({
-    selector: {
-      course,
-      docType: DocType.DISPLAYABLE_DATA,
-      id_datashape: shape.name
-    }
-  });
 }
 
 /**

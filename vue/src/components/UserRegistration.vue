@@ -80,7 +80,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import { doesUserExist } from '@/db';
+import { doesUserExist } from '@/db/userDB';
 import { log } from 'util';
 import { AppState } from '@/store';
 import { Emit } from 'vue-property-decorator';

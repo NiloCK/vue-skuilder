@@ -82,7 +82,7 @@ import TeacherClassroomDB, { getClassroomDB, CLASSROOM_CONFIG, AssignedContent }
 import { Prop, Watch } from 'vue-property-decorator';
 import { getCourseList, getCourseTagStubs, getCourseConfig, CourseDB } from '../../db/courseDB';
 import { Tag, DocType } from '../../db/types';
-import { getQuestions, getCourseDB } from '../../db';
+import { getCourseDB } from '../../db';
 import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
 
 @Component({

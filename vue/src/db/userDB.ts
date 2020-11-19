@@ -25,6 +25,17 @@ const remoteCouchRootDB: PouchDB.Database = new pouch(
   }
 );
 
+export async function doesUserExist(name: string) {
+  try {
+    const user = await remoteCouchRootDB.getUser(name);
+    log(`user: ${user._id}`);
+    return true;
+  } catch (err) {
+    log(`User error: ${err}`);
+    return false;
+  }
+}
+
 /**
  * The current logged-in user
  */
@@ -355,11 +366,6 @@ Currently logged-in as ${this._username}.`);
         if (e.name === "not_found") {
           this.remoteDB.put(doc);
         }
-      }).then((oldDoc) => {
-        this.remoteDB.put({
-          ...doc,
-          _rev: (oldDoc as any)._rev
-        });
       });
     })
   }

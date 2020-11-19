@@ -81,7 +81,6 @@ import ImageInput from './FieldInputs/ImageInput.vue';
 import AudioInput from './FieldInputs/AudioInput.vue';
 import MarkdownInput from './FieldInputs/MarkdownInput.vue';
 import MidiInput from './FieldInputs/MidiInput.vue';
-import { getNotes, getDoc } from '@/db';
 import { DisplayableData, DataShapeData, QuestionData } from '@/db/types';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
 import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue';
@@ -415,21 +414,6 @@ export default class DataInputForm extends SkldrVue {
     });
     this.fieldInputs[0].focus();
     this.convertInput();
-  }
-
-  private getExistingNotesFromDB() {
-    this.existingData = [];
-
-    // pre-#55 /skuilder implementation:
-    // getNotes(this.course, this.dataShape).then((results) => {
-    //   results.docs.forEach((doc) => {
-    //     getDoc<DisplayableData>(doc._id).then((fullDoc) => {
-    //       this.existingData.push(
-    //         displayableDataToViewData(fullDoc)
-    //       );
-    //     });
-    //   });
-    // });
   }
 
   private getImplementingViews() {
