@@ -371,7 +371,16 @@ Currently logged-in as ${this._username}.`);
   }
 
   private async deduplicateReviews() {
-    const reviewsMap: { [index: string]: string[] } = {};
+    /**
+     * Maps the qualified-id of a scheduled review card to
+     * the docId of the same scheduled review.
+     * 
+     * EG: {
+     *  courseId-cardId: 'card_review_2021-06--17:12:165
+     * }
+     */
+    const reviewsMap: { [index: string]: string } = {};
+
     const scheduledReviews = await this.remoteDB.query<{
       id: String;
       value: string
@@ -381,8 +390,13 @@ Currently logged-in as ${this._username}.`);
       if (reviewsMap[r.value]) {
         // this card is scheduled more than once! delete this scheduled review
         log(`Removing duplicate scheduled review for card: ${r.value}`);
-        this.remoteDB.get((r.key)).then((doc) => {
+        this.remoteDB.get(reviewsMap[r.value]).then((doc) => {
+          // remove the already-hashed review, since it is the earliest one
+          // (prevents continual loop of short-scheduled reviews)
           this.remoteDB.remove(doc);
+        }).then(() => {
+          // replace with the later-dated scheduled review
+          reviewsMap[r.value] = r.key;
         });
       } else {
         // note that this card is scheduled for review
