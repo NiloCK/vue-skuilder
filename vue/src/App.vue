@@ -125,7 +125,7 @@ import Component from 'vue-class-component';
 export default class App extends SkldrVue {
   public build: string = '0.0.2';
   public latestBuild: string = '';
-  public drawer: boolean = true;
+  public drawer: boolean = false;
 
   async created() {
     this.latestBuild = await getLatestVersion();
