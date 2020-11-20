@@ -2,7 +2,15 @@
   <div>
     <div class="display-1">Select your quilts</div>
     <table width="100%">
-      <th><v-checkbox label="Select All" @click.capture="toggleAll" v-model="allSelected"></v-checkbox></th>
+      <th>
+        <v-checkbox 
+          ref="selectAll"
+          id="SelectAll"
+          autofocus
+          label="Select All"
+          @change="toggleAll"
+          v-model="allSelected"></v-checkbox>
+        </th>
       
       <th>Reviews
          <!-- <v-icon>info</v-icon> -->
@@ -14,7 +22,13 @@
       </tr>
     </table>
     <!-- Repeat below for classrooms -->
-    <v-text-field label="Cards" type="number" v-model="$store.state.views.study.sessionCardCount"></v-text-field>
+    <v-text-field
+      label="Card Limit for this Session"
+      hint="Study as much or as little as you like by adjusting this"
+      type="number"
+      ref="numberField"
+      v-model="cardCount"
+    />
     <v-btn color="success" @click="startSession">Start Studying!</v-btn>
   </div>
 </template>
@@ -24,13 +38,30 @@ import { CourseRegistration, CourseRegistrationDoc, User } from '@/db/userDB';
 import { CourseDB, getCourseName } from '@/db/courseDB';
 import SkldrVue from '@/SkldrVue';
 import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
+import { Prop, Watch } from 'vue-property-decorator';
 import { StudySessionSource } from '@/views/Study.vue';
+import SkldrMouseTrap from '@/SkldrMouseTrap';
 
 @Component({})
 export default class SessionConfiguration extends SkldrVue {
   public allSelected: boolean = false;
   public activeCourses: (CourseRegistration & { selected: boolean, name: string, reviews: number })[] = [];
+  private cardCount: number = this.$store.state.views.study.sessionCardCount;
+
+  @Watch('cardCount')
+  private rangeCheck() {
+    if (this.cardCount < 0) {
+      this.cardCount = 0;
+    }
+
+    this.$store.state.views.study.sessionCardCount = this.cardCount;
+  }
+
+  public $refs: {
+    numberField: HTMLInputElement;
+    selectAll: HTMLInputElement;
+  }
+
   @Prop({
     required: true
   })
@@ -51,6 +82,7 @@ export default class SessionConfiguration extends SkldrVue {
   }
 
   private startSession() {
+    SkldrMouseTrap.reset();
     this.startFcn(
       this.activeCourses.filter(c => c.selected).map(c => { return { type: 'course', id: c.courseID } })
     );
@@ -72,6 +104,45 @@ export default class SessionConfiguration extends SkldrVue {
       this.activeCourses[i].reviews = await
         (await User.instance()).getScheduledReviewCount(this.activeCourses[i].courseID);
     };
+    SkldrMouseTrap.reset();
+    SkldrMouseTrap.bind([
+      {
+        hotkey: 'up',
+        callback: () => { this.cardCount++ },
+        command: ""
+      },
+      {
+        hotkey: 'down',
+        callback: () => { this.cardCount-- },
+        command: ""
+      },
+      {
+        hotkey: 'enter',
+        callback: this.startSession,
+        command: ""
+      }//,
+      // {
+      //   hotkey: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+      //   callback: (e, c) => {
+      //     if (this.$refs.numberField.getAttributeNode('focus')) {
+      //       return;
+      //     } else {
+      //       let n = this.$store.state.views.study.sessionCardCount;
+      //       n = parseInt(n + e.key);
+      //       this.$store.state.views.study.sessionCardCount = n;
+      //     }
+      //   },
+      //   command: ""
+      // }
+    ]);
+  }
+
+  public destroyed() {
+    SkldrMouseTrap.reset();
+  }
+
+  public async mounted() {
+    document.getElementById('SelectAll')!.focus();
   }
 };
 </script>
