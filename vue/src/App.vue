@@ -36,7 +36,7 @@
             </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <!-- <v-list-tile
+        <v-list-tile
           v-if='true'
           value="true"          
           :to="{path: '/classrooms'}"
@@ -49,7 +49,7 @@
               Classrooms
             </v-list-tile-title>
           </v-list-tile-content>
-        </v-list-tile> -->
+        </v-list-tile>
         <v-list-tile
           v-if='true'
           value="true"          
@@ -100,11 +100,11 @@
         </v-slide-y-transition>
       </v-container>
     </v-content>
-    <v-footer fixed app>
+    <!-- <v-footer fixed app>
       <span>
        v: <router-link to='/notes'>{{build}}</router-link>
       </span>
-    </v-footer>
+    </v-footer> -->
     <snackbar-service id="SnackbarService" />
   </v-app>
 </template>
