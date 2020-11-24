@@ -44,6 +44,7 @@ export default class SkldrMouseTrap {
   public static reset() {
     MouseTrap.reset();
     SkldrMouseTrap.instance().mouseTrap.reset();
+    SkldrMouseTrap.instance().hotkeys = [];
   }
 
   private static instance(): SkldrMouseTrap {
