@@ -7,6 +7,7 @@ import CourseEditor from './components/Edit/CourseEditor.vue';
 import Study from './views/Study.vue';
 import Classrooms from './views/Classrooms.vue';
 import ClassroomCtrlPanel from './components/Classrooms/ClassroomCtrlPanel.vue';
+import JoinCode from './components/Classrooms/JoinCode.vue';
 import Courses from './views/Courses.vue';
 import CourseInformation from './components/Courses/CourseInformation.vue';
 import Admin from './views/Admin.vue';
