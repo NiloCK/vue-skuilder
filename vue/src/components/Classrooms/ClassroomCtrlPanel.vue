@@ -4,7 +4,15 @@
     
         <h1><router-link to="/classrooms">My Classrooms</router-link> / {{_classroomCfg.name}}</h1>
 
-        <h3>Join code: {{_classroomCfg.joinCode}}</h3>
+        <h3>Join code: {{_classroomCfg.joinCode}} 
+          <router-link
+            :to="`/classrooms/${_id}/code`"
+          >
+          <v-btn small dark icon color="accent" alt="Make Fullscreen">
+            <v-icon>fullscreen</v-icon>
+          </v-btn>
+          </router-link>
+        </h3>
         <v-layout wrap column>
           
           <v-flex xs12 sm6 md4>

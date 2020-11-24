@@ -77,6 +77,12 @@ export default new Router({
       component: ClassroomCtrlPanel
     },
     {
+      path: '/classrooms/:_id/code',
+      props: true,
+      alias: '/c/:_id',
+      component: JoinCode
+    },
+    {
       path: '/courses',
       alias: ['/quilts', '/q'],
       component: Courses
