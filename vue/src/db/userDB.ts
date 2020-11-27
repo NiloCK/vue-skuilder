@@ -461,6 +461,37 @@ Currently logged-in as ${this._username}.`);
       User is not registered for course ${course_id}`)
     }
   }
+
+  private async getOrCreateClassroomRegistrationsDoc():
+    Promise<ClassroomRegistrationDoc & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta> {
+    let ret;
+
+    try {
+      ret = await getUserDB(this._username).get<ClassroomRegistrationDoc>(userClassroomsDoc);
+    } catch (e) {
+
+      if (e.status === 404) {
+        // doc does not exist. Create it and then run this fcn again.
+        await getUserDB(this._username).put<ClassroomRegistrationDoc>({
+          _id: userClassroomsDoc,
+          registrations: []
+        });
+        ret = await this.getOrCreateClassroomRegistrationsDoc();
+      } else {
+        throw new Error(`Unexpected error ${JSON.stringify(e)} in getOrCreateClassroomRegistrationDoc...`);
+      }
+
+    }
+
+    return ret;
+  }
+
+  public async getActiveClasses(): Promise<string[]> {
+    return (await this.getOrCreateClassroomRegistrationsDoc())
+      .registrations
+      .filter(c => c.registeredAs === 'student')
+      .map(c => c.classID);
+  }
 }
 
 export function getLocalUserDB(username: string): PouchDB.Database {

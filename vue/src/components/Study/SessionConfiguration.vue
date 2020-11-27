@@ -16,12 +16,27 @@
          <!-- <v-icon>info</v-icon> -->
       </th>
 
+      <tr v-for="classroom in activeClasses" :key="classroom.classID">
+        <td>
+          <v-checkbox
+            :label="`Class: ${classroom.name}`"
+            @click.capture="update"
+            v-model="classroom.selected"
+          />
+        </td>
+        <td>-</td>
+      </tr>
       <tr v-for="course in activeCourses" :key="course.courseID">
-        <td><v-checkbox :label="course.name" @click.capture="update" v-model="course.selected"></v-checkbox></td>
+        <td>
+          <v-checkbox
+            :label="`Quilt: ${course.name}`"
+            @click.capture="update"
+            v-model="course.selected"
+          />
+        </td>
         <td>{{course.reviews}}</td>
       </tr>
     </table>
-    <!-- Repeat below for classrooms -->
     <v-text-field
       label="Card Limit for this Session"
       hint="Study as much or as little as you like by adjusting this"
@@ -41,11 +56,19 @@ import Component from 'vue-class-component';
 import { Prop, Watch } from 'vue-property-decorator';
 import { StudySessionSource } from '@/views/Study.vue';
 import SkldrMouseTrap from '@/SkldrMouseTrap';
+import { StudentClassroomDB } from '@/db/classroomDB';
+
+interface SessionConfigMetaData {
+  selected: boolean;
+  name: string;
+  reviews: number;
+}
 
 @Component({})
 export default class SessionConfiguration extends SkldrVue {
   public allSelected: boolean = false;
-  public activeCourses: (CourseRegistration & { selected: boolean, name: string, reviews: number })[] = [];
+  public activeCourses: (CourseRegistration & SessionConfigMetaData)[] = [];
+  public activeClasses: ({ classID: string } & SessionConfigMetaData)[] = [];
   private cardCount: number = this.$store.state.views.study.sessionCardCount;
 
   @Watch('cardCount')
@@ -74,66 +97,90 @@ export default class SessionConfiguration extends SkldrVue {
   private toggleAll(): void {
     console.log(`Toggling all courses`);
 
-    this.activeCourses.forEach(c => {
-      c.selected = this.allSelected;
+    this.activeCourses.forEach(crs => {
+      crs.selected = this.allSelected;
     });
+    this.activeClasses.forEach(cl => {
+      cl.selected = this.allSelected;
+    })
 
     console.log(JSON.stringify(this.activeCourses));
   }
 
   private startSession() {
     SkldrMouseTrap.reset();
+    const selectedCourses: StudySessionSource[] = this.activeCourses
+      .filter(c => c.selected)
+      .map(c => { return { type: "course", id: c.courseID } });
+    const selectedClassrooms: StudySessionSource[] = this.activeClasses
+      .filter(cl => cl.selected)
+      .map(cl => { return { type: 'class', id: cl.classID } });
+
     this.startFcn(
-      this.activeCourses.filter(c => c.selected).map(c => { return { type: 'course', id: c.courseID } })
+      selectedCourses.concat(selectedClassrooms)
     );
     // + classroom sources
   }
 
   public async created() {
+    this.setHotkeys();
+
+    await Promise.all([
+      this.getActiveCourses(),
+      this.getActiveClassrooms()
+    ]);
+  }
+
+  private async getActiveClassrooms() {
+    const classes = await (await User.instance()).getActiveClasses();
+
+    Promise.all(
+      classes.map(c =>
+        (async (classID: string) => {
+          const classDb = await StudentClassroomDB.factory(classID);
+          this.activeClasses.push({
+            classID,
+            name: classDb.getConfig().name,
+            selected: false,
+            reviews: 0
+          });
+        })(c)
+      ));
+  }
+
+  private async getActiveCourses() {
     this.activeCourses = (await this.$store.state._user!.getActiveCourses()).map(c => {
       return {
         selected: false,
         name: "",
         ...c,
         reviews: 0
-      }
+      };
     });
     for (let i = 0; i < this.activeCourses.length; i++) {
-
       this.activeCourses[i].name = await getCourseName(this.activeCourses[i].courseID);
-      this.activeCourses[i].reviews = await
-        (await User.instance()).getScheduledReviewCount(this.activeCourses[i].courseID);
+      this.activeCourses[i].reviews = await (await User.instance()).getScheduledReviewCount(this.activeCourses[i].courseID);
     };
+  }
+
+  private setHotkeys() {
     SkldrMouseTrap.reset();
     SkldrMouseTrap.bind([
       {
         hotkey: 'up',
-        callback: () => { this.cardCount++ },
+        callback: () => { this.cardCount++; },
         command: ""
       },
       {
         hotkey: 'down',
-        callback: () => { this.cardCount-- },
+        callback: () => { this.cardCount--; },
         command: ""
       },
       {
         hotkey: 'enter',
         callback: this.startSession,
         command: ""
-      }//,
-      // {
-      //   hotkey: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
-      //   callback: (e, c) => {
-      //     if (this.$refs.numberField.getAttributeNode('focus')) {
-      //       return;
-      //     } else {
-      //       let n = this.$store.state.views.study.sessionCardCount;
-      //       n = parseInt(n + e.key);
-      //       this.$store.state.views.study.sessionCardCount = n;
-      //     }
-      //   },
-      //   command: ""
-      // }
+      }
     ]);
   }
 
