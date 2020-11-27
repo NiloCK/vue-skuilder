@@ -102,23 +102,16 @@ export class StudentClassroomDB extends ClassroomDBBase {
     const dbName = `classdb-student-${this._id}`;
     this._db = new pouch(ENV.COUCHDB_SERVER_PROTOCOL + '://' +
       ENV.COUCHDB_SERVER_URL + dbName, pouchDBincludeCredentialsConfig);
-    this._db.query({
-      map: (doc: any) => {
-        return doc._id === 'test'
-      }
-    });
     try {
-      this._db.get<ClassroomConfig>(CLASSROOM_CONFIG).then((cfg) => {
-
-        this._cfg = cfg;
-        this._initComplete = true;
-        return;
-      });
+      const cfg = await this._db.get<ClassroomConfig>(CLASSROOM_CONFIG);
+      this._cfg = cfg;
       this.userMessages = this._db.changes({
         since: 'now',
         live: true,
         include_docs: true
       });
+      this._initComplete = true;
+      return;
     }
     catch (e) {
       throw new Error(
