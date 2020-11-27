@@ -21,6 +21,9 @@ export abstract class FieldInput extends SkldrVue {
         msg: ''
     };
     @Prop() protected store: any;
+    @Prop({
+        required: true
+    }) protected uiValidationFunction: () => boolean;
 
     public get validators(): ValidatingFunction[] {
         const ret = [];
@@ -94,6 +97,8 @@ export abstract class FieldInput extends SkldrVue {
             // management on this form
             delete this.store[this.field.name];
         }
+        // call the DataInputForm's checkInputs fcn
+        this.uiValidationFunction();
 
         return ret;
     }

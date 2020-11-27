@@ -10,36 +10,43 @@
                 v-if="field.type === str"
                 v-bind:store="store"
                 v-bind:field="field"
+                :uiValidationFunction="checkInput"
             />
             <number-input
                 v-else-if="field.type === num"
                 v-bind:store="store"
                 v-bind:field="field"
+                :uiValidationFunction="checkInput"
             />
             <integer-input
                 v-else-if="field.type === int"
                 v-bind:store="store"
                 v-bind:field="field"
+                :uiValidationFunction="checkInput"
             />
             <image-input
                 v-else-if="field.type === img"
                 v-bind:store="store"
                 v-bind:field="field"
+                :uiValidationFunction="checkInput"
             />
             <markdown-input
                 v-else-if="field.type === mkd"
                 v-bind:store="store"
                 v-bind:field="field"
+                :uiValidationFunction="checkInput"
             />
             <audio-input
                 v-else-if="field.type === audio"
                 v-bind:store="store"
                 v-bind:field="field" 
+                :uiValidationFunction="checkInput"
             />
             <midi-input 
                 v-else-if="field.type === midi"
                 v-bind:store="store"
                 v-bind:field="field" 
+                :uiValidationFunction="checkInput"
             />
       </div>
 
@@ -48,7 +55,7 @@
           color="primary"
           :loading="uploading"
           @click.native.prevent="submit"
-          :disabled="!userInputIsValid"
+          :disabled="!allowSumbit"
       >
           Add data
           <v-icon right dark>add_circle</v-icon> <!-- Remove if don't want to use icon. -->
@@ -56,15 +63,15 @@
 
     </v-form>
     <card-browser
-      v-if="userInputIsValid"
+      v-if="allowSubmit"
       v-bind:views="shapeViews"
       v-bind:data="[previewInput]"
     />
 
-    <data-shape-table
+    <!-- <data-shape-table
       v-bind:dataShape="dataShape"
       v-bind:data="existingData"
-    />
+    /> -->
   </div>
 </template>
 
@@ -112,6 +119,7 @@ type StringIndexable = { [x: string]: any };
   }
 })
 export default class DataInputForm extends SkldrVue {
+  private timer: NodeJS.Timeout;
   public $refs: {
     fieldInputWraps: HTMLDivElement[]
   };
@@ -216,8 +224,8 @@ export default class DataInputForm extends SkldrVue {
       };
     });
   }
-
-  public get userInputIsValid(): boolean {
+  public allowSumbit: boolean = false;
+  private checkInput(): boolean {
     let ret: boolean =
       Object.getOwnPropertyNames(this.store.validation).length ===
       this.dataShape.fields.length + 1; // +1 here b/c of the validation key
@@ -231,8 +239,13 @@ export default class DataInputForm extends SkldrVue {
     if (ret) {
       this.convertInput();
     }
-    //   alert(ret);
+    this.allowSumbit = ret;
+    console.log(`Form data is valid: ${ret}`);
     return ret;
+  }
+
+  public get allowSubmit(): boolean {
+    return this.checkInput();
   }
 
   @Watch('dataShape')
@@ -360,7 +373,7 @@ export default class DataInputForm extends SkldrVue {
   }
 
   public async submit() {
-    if (this.userInputIsValid) {
+    if (this.checkInput()) {
       log(`Store: ${JSON.stringify(this.store)}`)
       log(`ConvertedStore: ${JSON.stringify(this.convertedInput)}`);
       this.uploading = true;
