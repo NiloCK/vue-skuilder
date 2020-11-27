@@ -151,16 +151,25 @@ export default class SessionConfiguration extends SkldrVue {
   private async getActiveCourses() {
     this.activeCourses = (await this.$store.state._user!.getActiveCourses()).map(c => {
       return {
+        ...c,
         selected: false,
         name: "",
         ...c,
         reviews: 0
       };
     });
-    for (let i = 0; i < this.activeCourses.length; i++) {
-      this.activeCourses[i].name = await getCourseName(this.activeCourses[i].courseID);
-      this.activeCourses[i].reviews = await (await User.instance()).getScheduledReviewCount(this.activeCourses[i].courseID);
-    };
+
+    Promise.all(this.activeCourses.map((c, i) =>
+
+      (async (courseID: string) => {
+        console.log(`test ${courseID}`);
+        return Promise.all([
+          this.activeCourses[i].name = await getCourseName(c.courseID),
+          this.activeCourses[i].reviews =
+          await (await User.instance()).getScheduledReviewCount(c.courseID)
+        ])
+      })(c.courseID)
+    ));
   }
 
   private setHotkeys() {
