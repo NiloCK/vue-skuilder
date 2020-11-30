@@ -171,7 +171,7 @@ import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/Vi
 import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
 import moment from 'moment';
-import { getUserClassrooms, CourseRegistrationDoc, updateUserElo, User } from '../db/userDB';
+import { ScheduledCard, getUserClassrooms, CourseRegistrationDoc, updateUserElo, User } from '../db/userDB';
 import { Watch } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
 import { getCredentialledCourseConfig, getCardDataShape, updateCardElo, getCourseList, CourseDB } from '@/db/courseDB';

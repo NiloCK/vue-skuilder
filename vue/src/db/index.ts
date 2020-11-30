@@ -21,7 +21,7 @@ import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
 import { log } from 'util';
-import { ScheduledCard } from './User';
+import { ScheduledCard } from './UserDB';
 import { getUserDB, getLocalUserDB } from './userDB';
 import _ from 'lodash';
 
