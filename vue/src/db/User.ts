@@ -1,14 +1,5 @@
 import { Moment } from 'moment';
 
-export class User {
-  public email: string;
-  public username: string;
-
-  public courseRegistrations: string[];
-
-  public scheduledCards: ScheduledCard[];
-}
-
 export interface ScheduledCard {
   _id: PouchDB.Core.DocumentId;
 
