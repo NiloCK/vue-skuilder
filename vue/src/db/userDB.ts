@@ -173,7 +173,7 @@ Currently logged-in as ${this._username}.`);
     });
   }
 
-  public async getPendingReviews(course_id: string) {
+  public async getPendingReviews(course_id?: string) {
     const keys = getStartAndEndKeys(REVIEW_PREFIX);
     const now = moment.utc();
     log(`Fetching scheduled reviews for course: ${course_id}`);
@@ -184,14 +184,17 @@ Currently logged-in as ${this._username}.`);
       include_docs: true
     });
 
+    log(`Fetching ${this._username}'s scheduled reviews${course_id ? ` for course ${course_id}` : ''}.`);
     return reviews.rows.filter((r) => {
       if (r.id.startsWith(REVIEW_PREFIX)) {
         const date = moment.utc(
           r.id.substr(REVIEW_PREFIX.length),
           REVIEW_TIME_FORMAT
         );
-        if (now.isAfter(date) && r.doc!.courseId === course_id) {
-          return true;
+        if (now.isAfter(date)) {
+          if (course_id === undefined || r.doc!.courseId === course_id) {
+            return true;
+          }
         }
       }
     }).map(r => r.doc!);
