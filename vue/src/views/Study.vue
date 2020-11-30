@@ -420,6 +420,14 @@ export default class Study extends SkldrVue {
 
   }
 
+  /**
+   * Pulls scheduled reviews, prescribes new cards, and 
+   * declares session to be started (activating card-viewer
+   * and main flow).
+   * 
+   * NB: This function is passed to and called by the SessionConfiguration
+   *     component
+   */
   private async initStudySession(sources: StudySessionSource[]) {
     console.log(`starting study session w/ sources: ${JSON.stringify(sources)}`);
     this.sessionCourseIDs = sources.filter(s => s.type === 'course').map(c => c.id);
