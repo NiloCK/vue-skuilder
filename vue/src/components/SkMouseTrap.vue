@@ -19,16 +19,6 @@
       
     </v-toolbar>
       <v-list>
-        <!-- <v-list-tile>
-          <v-btn outline disabled color='grey' text>Key</v-btn>
-          <v-spacer></v-spacer>
-          <span justify-end>
-            Action
-          </span>
-        </v-list-tile> -->
-        <!-- <v-divider ></v-divider>
-        <v-divider ></v-divider>
-        <v-divider ></v-divider> -->
         <v-list-tile v-for="hk in commands" :key="hk.hotkey">
         <v-btn outline color="black">
           {{hk.hotkey}}
@@ -64,7 +54,6 @@ export default class SkldrControlsView extends SkldrVue {
     // console.log(`this.display: ${this.display}`);
     this.commands = SkldrMouseTrap.commands;
     this.display = this.commands.length > 0;
-    this.commands = SkldrMouseTrap.commands;
   }
 
 }
