@@ -528,51 +528,7 @@ ${this.sessionString}
   private async getSessionCards() {
     // start with the review cards that are 'due'
 
-    let dueCards: (ScheduledCard & {
-      contentSourceType: 'course' | 'classroom';
-      contentSourceID: string;
-    })[] = [];
-
-    for (let i = 0; i < this.sessionCourseIDs.length; i++) {
-      const cards = await this.user.getPendingReviews(this.sessionCourseIDs[i]);
-      dueCards = dueCards.concat(cards.map(c => {
-        return {
-          ...c,
-          contentSourceID: this.sessionCourseIDs[i],
-          contentSourceType: 'course'
-        };
-      }));
-    }
-
-    for (let i = 0; i < this.sessionClassroomDBs.length; i++) {
-      dueCards = dueCards.concat(
-        (await this.sessionClassroomDBs[i].getPendingReviews()).map(c => {
-          return {
-            ...c,
-            contentSourceType: 'classroom',
-            contentSourceID: this.sessionClassroomDBs[i]._id
-          }
-        })
-      );
-    }
-
-    console.log(`${dueCards.length} reviews available`);
-
-    this.session = this.session.concat(
-      // slice w/ min here in case there are more cards due
-      // than the configured session length
-      dueCards.slice(0, Math.min(this.$store.state.views.study.sessionCardCount, dueCards.length))
-        .map(c => {
-          return {
-            cardID: c.cardId,
-            courseID: c.courseId,
-            qualifiedID: `${c.courseId}-${c.cardId}`,
-            reviewID: c._id,
-            contentSourceType: c.contentSourceType,
-            contentSourceID: c.contentSourceID
-          }
-        })
-    );
+    let dueCards = await this.getScheduledReviews();
 
     // # of new cards is at least one, otherwise fills half
     // of the remaining session space
@@ -645,6 +601,56 @@ ${this.sessionString}
     this.deDuplicateSession();
   }
 
+
+  private async getScheduledReviews() {
+    let dueCards: (ScheduledCard & {
+      contentSourceType: 'course' | 'classroom';
+      contentSourceID: string;
+    })[] = [];
+
+    for (let i = 0; i < this.sessionCourseIDs.length; i++) {
+      const cards = await this.user.getPendingReviews(this.sessionCourseIDs[i]);
+      dueCards = dueCards.concat(cards.map(c => {
+        return {
+          ...c,
+          contentSourceID: this.sessionCourseIDs[i],
+          contentSourceType: 'course'
+        };
+      }));
+    }
+
+    for (let i = 0; i < this.sessionClassroomDBs.length; i++) {
+      dueCards = dueCards.concat(
+        (await this.sessionClassroomDBs[i].getPendingReviews()).map(c => {
+          return {
+            ...c,
+            contentSourceType: 'classroom',
+            contentSourceID: this.sessionClassroomDBs[i]._id
+          };
+        })
+      );
+    }
+
+    console.log(`${dueCards.length} reviews available`);
+
+    this.session = this.session.concat(
+      // slice w/ min here in case there are more cards due
+      // than the configured session length
+      dueCards.slice(0, Math.min(this.$store.state.views.study.sessionCardCount, dueCards.length))
+        .map(c => {
+          return {
+            cardID: c.cardId,
+            courseID: c.courseId,
+            qualifiedID: `${c.courseId}-${c.cardId}`,
+            reviewID: c._id,
+            contentSourceType: c.contentSourceType,
+            contentSourceID: c.contentSourceID
+          };
+        })
+    );
+
+    return dueCards;
+  }
 
   /**
    * Remove duplicate cards from a session. This is a debug step -
