@@ -554,6 +554,9 @@ ${this.sessionString}
         courseELO
       ));
     }
+    for (let i = 0; i < this.sessionClassroomDBs.length; i++) {
+      cardIDs.push(await this.sessionClassroomDBs[i].getNewCards());
+    }
 
     // cards previously seen are filtered out
     const newCards = cardIDs.map((cardList) => {

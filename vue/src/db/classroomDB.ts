@@ -139,6 +139,31 @@ export class StudentClassroomDB extends ClassroomDBBase {
         r.schedulingAgentId === this._id);
   }
 
+  public async getNewCards() {
+    const now = moment.utc();
+    const assigned = (await this.getAssignedContent()).filter(c => {
+      now.isAfter(c.activeOn);
+    });
+    let ret: string[] = [];
+
+    assigned.forEach(async (content) => {
+      if (content.type === 'course') {
+        ret = ret.concat(
+          await getEloNeighborCards(content.courseID, 1000)
+        );
+      } else if (content.type === 'tag') {
+        // not returning qualified IDs?
+        ret = ret.concat(
+          (await getTag(content.courseID, content.tagID)).taggedCards
+        );
+      } else if (content.type === 'card') {
+        // returning card docs - not IDs
+        ret.push(await getCourseDB(content.courseID).get(content.cardID));
+      }
+    });
+
+    return ret;
+  }
 }
 
 
