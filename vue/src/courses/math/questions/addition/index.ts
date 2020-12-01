@@ -17,6 +17,19 @@ const fields: FieldDefinition[] = [
     }
 ];
 
+const data = function () {
+    let ret: { a: number, b: number }[] = [];
+    for (let i = 0; i < 10; i++) {
+        for (let j = 0; j < 10; j++) {
+            ret.push({
+                a: i,
+                b: j
+            });
+        }
+    }
+    return ret;
+}
+
 export class SingleDigitAdditionQuestion extends Question {
     public static dataShapes = [{
         name: DataShapeName.MATH_SingleDigitAddition,
@@ -30,6 +43,9 @@ export class SingleDigitAdditionQuestion extends Question {
 
     public a: number;
     public b: number;
+
+    public static seedData = data();
+    public static acceptsUserData = false;
 
     constructor(data: ViewData[]) {
         super(data);
