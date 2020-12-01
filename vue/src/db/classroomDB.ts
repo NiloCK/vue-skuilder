@@ -131,6 +131,14 @@ export class StudentClassroomDB extends ClassroomDBBase {
     // todo: requires creating the view doc on classroom create in /express
     this.userMessages.on('change', f);
   }
+
+  public async getPendingReviews() {
+    const u = await User.instance();
+    return await (await (u.getPendingReviews()))
+      .filter(r => r.scheduledFor === 'classroom' &&
+        r.schedulingAgentId === this._id);
+  }
+
 }
 
 

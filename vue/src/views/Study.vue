@@ -183,7 +183,6 @@ import { randomInt } from '../courses/math/utility';
 import { GuestUsername } from '@/store';
 import { CourseConfig } from '../server/types';
 import SkldrControlsView from '../components/SkMouseTrap.vue';
-import { ScheduledCard } from '@/db/User';
 // import CardCache from '@/db/cardCache';
 
 function randInt(n: number) {
@@ -288,6 +287,8 @@ export default class Study extends SkldrVue {
   public session: {
     qualifiedID: string,
     cardID: string,
+    contentSourceType: 'course' | 'classroom',
+    contentSourceID: string,
     courseID: string,
     reviewID?: string
   }[] = [];
@@ -526,11 +527,35 @@ ${this.sessionString}
 
   private async getSessionCards() {
     // start with the review cards that are 'due'
-    let dueCards: ScheduledCard[] = [];
+
+    let dueCards: (ScheduledCard & {
+      contentSourceType: 'course' | 'classroom';
+      contentSourceID: string;
+    })[] = [];
 
     for (let i = 0; i < this.sessionCourseIDs.length; i++) {
-      dueCards = dueCards.concat(await this.user.getPendingReviews(this.sessionCourseIDs[i]))
+      const cards = await this.user.getPendingReviews(this.sessionCourseIDs[i]);
+      dueCards = dueCards.concat(cards.map(c => {
+        return {
+          ...c,
+          contentSourceID: this.sessionCourseIDs[i],
+          contentSourceType: 'course'
+        };
+      }));
     }
+
+    for (let i = 0; i < this.sessionClassroomDBs.length; i++) {
+      dueCards = dueCards.concat(
+        (await this.sessionClassroomDBs[i].getPendingReviews()).map(c => {
+          return {
+            ...c,
+            contentSourceType: 'classroom',
+            contentSourceID: this.sessionClassroomDBs[i]._id
+          }
+        })
+      );
+    }
+
     console.log(`${dueCards.length} reviews available`);
 
     this.session = this.session.concat(
@@ -542,7 +567,9 @@ ${this.sessionString}
             cardID: c.cardId,
             courseID: c.courseId,
             qualifiedID: `${c.courseId}-${c.cardId}`,
-            reviewID: c._id
+            reviewID: c._id,
+            contentSourceType: c.contentSourceType,
+            contentSourceID: c.contentSourceID
           }
         })
     );
@@ -606,7 +633,9 @@ ${this.sessionString}
         this.session.push({
           courseID: card[0],
           cardID: card[1],
-          qualifiedID: card[0] + '-' + card[1]
+          qualifiedID: card[0] + '-' + card[1],
+          contentSourceType: 'course',
+          contentSourceID: card[0]
         });
 
         newCardCount--;
