@@ -314,6 +314,12 @@ export async function createTag(courseID: string, tagName: string) {
   return resp;
 }
 
+export async function getTag(courseID: string, tagName: string) {
+  const tagID = getTagID(tagName);
+  const courseDB = await getCourseDB(courseID);
+  return courseDB.get<Tag>(tagID);
+}
+
 export async function addTagToCard(courseID: string, cardID: string, tagID: string):
   Promise<PouchDB.Core.Response> {
   // todo: possible future perf. hit if tags have large #s of taggedCards.
