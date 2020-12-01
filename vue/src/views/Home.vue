@@ -10,7 +10,7 @@
           <div class="display-1">An experiment in community-driven learning and teaching</div>
           <br><br><br>
           <div class="headline">(get cozy)</div>
-        
+
         </v-flex>
         <!-- <div class="section"></div> -->
         <!-- <div class="section step1">
@@ -36,22 +36,15 @@
 <script lang="ts">
 import UserLogin from '../components/UserLogin.vue';
 import { Status } from '@/enums/Status';
+import SkldrVue from '../SkldrVue';
+import { Prop, Component } from 'vue-property-decorator';
 
-
-export default {
-  name: 'eduQuilt',
-  props: {
-    msg: String
-  },
+@Component({
   components: {
     UserLogin
-  },
-  computed: {
-    'asof': () => {
-
-    }
   }
-};
+})
+export default class Home extends SkldrVue { };
 </script>
 
 <style scoped>
