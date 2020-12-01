@@ -61,6 +61,10 @@ export const fieldConverters:
     midi: {
         databaseConverter: (value) => value,
         previewConverter: (value) => value
+    },
+    markdown: {
+        databaseConverter: (value) => value,
+        previewConverter: (value) => value
     }
 };
 
