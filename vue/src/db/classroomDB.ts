@@ -1,8 +1,10 @@
 import ENV from '@/ENVIRONMENT_VARS';
 import { ClassroomConfig } from '@/server/types';
-import pouch from 'pouchdb-browser';
-import { pouchDBincludeCredentialsConfig, getStartAndEndKeys } from '.';
 import moment from 'moment';
+import pouch from 'pouchdb-browser';
+import { getCourseDB, getEloNeighborCards, getStartAndEndKeys, pouchDBincludeCredentialsConfig, REVIEW_TIME_FORMAT } from '.';
+import { getTag } from './courseDB';
+import { User } from './userDB';
 
 const classroomLookupDBTitle = 'classdb-lookup';
 export const CLASSROOM_CONFIG = 'ClassroomConfig';
@@ -11,7 +13,7 @@ export type ClassroomMessage = {
 
 }
 
-export type AssignedContent = AssignedCourse | AssignedTag;
+export type AssignedContent = AssignedCourse | AssignedTag | AssignedCard;
 
 interface AssignedTag extends ContentBase {
   type: 'tag';
@@ -20,9 +22,13 @@ interface AssignedTag extends ContentBase {
 interface AssignedCourse extends ContentBase {
   type: 'course';
 }
+interface AssignedCard extends ContentBase {
+  type: 'card';
+  cardID: string;
+}
 
 interface ContentBase {
-  type: 'course' | 'tag';
+  type: 'course' | 'tag' | 'card';
   /**
    * Username of the assigning teacher.
    */
@@ -30,13 +36,13 @@ interface ContentBase {
   /**
    * Date the content was assigned.
    */
-  assignedOn?: moment.Moment;
+  assignedOn: moment.Moment;
   /**
    * A 'due' date for this assigned content, for scheduling content
    * in advance. Content will not be actively pushed to students until
    * this date.
    */
-  activeOn?: moment.Moment;
+  activeOn: moment.Moment;
   courseID: string;
 }
 
@@ -66,7 +72,7 @@ abstract class ClassroomDBBase {
     let ret = docRows.rows.map((row) => {
       return row.doc!;
     });
-    console.log(`Assigned content: ${JSON.stringify(ret)}`);
+    // console.log(`Assigned content: ${JSON.stringify(ret)}`);
 
     return ret;
   }
@@ -141,26 +147,37 @@ export class StudentClassroomDB extends ClassroomDBBase {
 
   public async getNewCards() {
     const now = moment.utc();
-    const assigned = (await this.getAssignedContent()).filter(c => {
-      now.isAfter(c.activeOn);
-    });
+    const assigned = await this.getAssignedContent();
+    const due = assigned.filter(
+      c => now.isAfter(moment.utc(c.activeOn, REVIEW_TIME_FORMAT))
+    );
+
+    console.log(`Due content: ${JSON.stringify(due)}`);
+
     let ret: string[] = [];
 
-    assigned.forEach(async (content) => {
+    for (let i = 0; i < due.length; i++) {
+      const content = due[i];
+
       if (content.type === 'course') {
         ret = ret.concat(
           await getEloNeighborCards(content.courseID, 1000)
         );
       } else if (content.type === 'tag') {
-        // not returning qualified IDs?
+        const tagDoc = await getTag(content.courseID, content.tagID);
+
         ret = ret.concat(
-          (await getTag(content.courseID, content.tagID)).taggedCards
+          tagDoc
+            .taggedCards
+            .map(c => `${content.courseID}-${c}`)
         );
       } else if (content.type === 'card') {
         // returning card docs - not IDs
         ret.push(await getCourseDB(content.courseID).get(content.cardID));
       }
-    });
+    }
+
+    console.log(`New Cards from classroom ${this._cfg.name}: ${ret}`);
 
     return ret;
   }
