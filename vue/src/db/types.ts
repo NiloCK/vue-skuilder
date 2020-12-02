@@ -117,6 +117,18 @@ export interface CardHistory<T extends CardRecord> {
      */
     courseID: string;
 
+    /**
+     * The to-date largest interval between successful
+     * card reviews. `0` indicates no successful reviews.
+     */
+    bestInterval: number;
+
+    /**
+     * The number of times that a card has been
+     * failed in review
+     */
+    lapses: number;
+
     records: T[];
 }
 
