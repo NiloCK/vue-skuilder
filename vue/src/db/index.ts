@@ -202,7 +202,9 @@ export async function putCardRecord<T extends CardRecord>(record: T, user: strin
         _id: cardHistoryID,
         cardID: record.cardID,
         courseID: record.courseID,
-        records: [record]
+        records: [record],
+        lapses: 0,
+        bestInterval: 0
       };
       momentifyCardHistory<T>(initCardHistory);
       userDB.put<CardHistory<T>>(initCardHistory);
