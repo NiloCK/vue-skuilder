@@ -183,6 +183,7 @@ import { randomInt } from '../courses/math/utility';
 import { GuestUsername } from '@/store';
 import { CourseConfig } from '../server/types';
 import SkldrControlsView from '../components/SkMouseTrap.vue';
+import { StudyContentSource } from '@/db/contentSource';
 // import CardCache from '@/db/cardCache';
 
 function randInt(n: number) {
@@ -198,8 +199,9 @@ interface StudySessionRecord {
     course_id: string,
     card_id: string,
     card_elo: number
-  },
-  records: CardRecord[]
+  };
+  item: StudySessionItem;
+  records: CardRecord[];
 }
 
 class EloRank {
@@ -245,9 +247,18 @@ final  ${upA}         ${upB}
 }
 
 export interface StudySessionSource {
-  type: 'course' | 'class';
+  type: 'course' | 'classroom';
   id: string;
 }
+
+interface StudySessionItem {
+  qualifiedID: string;
+  cardID: string;
+  contentSourceType: 'course' | 'classroom';
+  contentSourceID: string;
+  courseID: string;
+  reviewID?: string;
+};
 
 @Component({
   components: {
@@ -284,14 +295,7 @@ export default class Study extends SkldrVue {
 
   public cardCount: number = 1;
 
-  public session: {
-    qualifiedID: string,
-    cardID: string,
-    contentSourceType: 'course' | 'classroom',
-    contentSourceID: string,
-    courseID: string,
-    reviewID?: string
-  }[] = [];
+  public session: StudySessionItem[] = [];
   public sessionPrepared: boolean = false;
   public sessionFinished: boolean = false;
   public sessionRecord: StudySessionRecord[] = [];
@@ -432,7 +436,7 @@ export default class Study extends SkldrVue {
   private async initStudySession(sources: StudySessionSource[]) {
     console.log(`starting study session w/ sources: ${JSON.stringify(sources)}`);
     this.sessionCourseIDs = sources.filter(s => s.type === 'course').map(c => c.id);
-    this.sessionClassroomDBs = await Promise.all(sources.filter(s => s.type === 'class')
+    this.sessionClassroomDBs = await Promise.all(sources.filter(s => s.type === 'classroom')
       .map(async c => { return StudentClassroomDB.factory(c.id); })
     );
     this.activeCards = await this.user.getActiveCards();
@@ -517,13 +521,12 @@ ${this.sessionString}
     } else {
       this.loadCard(this.session[
         randInt(this.session.length)
-      ].qualifiedID);
+      ]);
     }
   }
 
   private async getSessionCards() {
     // start with the review cards that are 'due'
-
     let dueCards = await this.getScheduledReviews();
 
     // # of new cards is at least one, otherwise fills half
@@ -535,7 +538,10 @@ ${this.sessionString}
       )
     );
 
-    let cardIDs: string[][] = [];
+    let cardIDs: {
+      qualifiedID: string;
+      source: StudySessionSource
+    }[][] = [];
 
     for (let i = 0; i < this.sessionCourseIDs.length; i++) {
       // get elo neighbor cards for each course in session
@@ -545,20 +551,42 @@ ${this.sessionString}
 
       if (!courseELO) { courseELO = 1000; }
 
-      cardIDs.push(await getEloNeighborCards(
+      const newCourseCards = await getEloNeighborCards(
         courseID,
         courseELO
-      ));
+      );
+
+      cardIDs.push(newCourseCards.map(c => {
+        return {
+          qualifiedID: c,
+          source: {
+            type: 'course',
+            id: courseID
+          }
+        };
+      }));
     }
     for (let i = 0; i < this.sessionClassroomDBs.length; i++) {
-      cardIDs.push(await this.sessionClassroomDBs[i].getNewCards());
+      console.log(`Getting cards for: ${this.sessionClassroomDBs[i]}`)
+
+      const newClassCards = await this.sessionClassroomDBs[i].getNewCards();
+
+      cardIDs.push(newClassCards.map(c => {
+        return {
+          qualifiedID: c,
+          source: {
+            type: 'classroom',
+            id: this.sessionClassroomDBs[i]._id
+          }
+        };
+      }));
     }
 
     // cards previously seen are filtered out
     const newCards = cardIDs.map((cardList) => {
       return cardList.filter(
         (card) => {
-          if (this.activeCards.some(ac => card.includes(ac))) {
+          if (this.activeCards.some(ac => card.qualifiedID.includes(ac))) {
             // console.log(`Card ${card} has been seen before!`);
             return false;
           } else {
@@ -584,13 +612,16 @@ ${this.sessionString}
       if (newCourseCards.length > 0) {
 
         const index = randIntWeightedTowardZero(newCourseCards.length);
-        const card = newCourseCards.splice(index, 1)[0].split('-');
+        const card = newCourseCards.splice(index, 1)[0];
+        const courseID = card.qualifiedID.split('-')[0];
+        const cardID = card.qualifiedID.split('-')[1];
+
         this.session.push({
-          courseID: card[0],
-          cardID: card[1],
-          qualifiedID: card[0] + '-' + card[1],
-          contentSourceType: 'course',
-          contentSourceID: card[0]
+          courseID,
+          cardID,
+          qualifiedID: courseID + '-' + cardID,
+          contentSourceType: card.source.type,
+          contentSourceID: card.source.id
         });
 
         newCardCount--;
@@ -700,7 +731,7 @@ ${this.sessionString}
 
           // elo win for the user
           cardHistory.then((history) => {
-            this.scheduleReview(history);
+            this.scheduleReview(history, this.currentCard.item);
             if (history.records.length === 1) {
               // correct answer on first sight: elo win for student
               this.updateUserAndCardElo(1, this.courseID, this.cardID);
@@ -793,7 +824,7 @@ ${this.sessionString}
     return await putCardRecord(r, this.$store.state._user!.username);
   }
 
-  private async scheduleReview(history: CardHistory<CardRecord>) {
+  private async scheduleReview(history: CardHistory<CardRecord>, item: StudySessionItem) {
     const nextInterval = newInterval(history.records);
     const nextReviewTime = moment.utc().add(nextInterval, 'seconds');
 
@@ -803,8 +834,8 @@ ${this.sessionString}
         course_id: history.courseID,
         card_id: history.cardID,
         time: nextReviewTime,
-        scheduledFor: 'course',
-        schedulingAgentId: 'asof' //todo
+        scheduledFor: item.contentSourceType,
+        schedulingAgentId: item.contentSourceID //todo
       }
     );
   }
@@ -814,7 +845,9 @@ ${this.sessionString}
    * for the given qualified card id ("courseid-cardid-elo"),
    * and then display the card to the user.
    */
-  private async loadCard(qualified_id: string) {
+  private async loadCard(item: StudySessionItem) {
+    const qualified_id = item.qualifiedID;
+
     this.loading = true;
     const _courseID = qualified_id.split('-')[0];
     const _cardID = qualified_id.split('-')[1];
@@ -858,6 +891,7 @@ ${this.sessionString}
           card_id: _cardID,
           card_elo: parseInt(_cardElo)
         },
+        item: item,
         records: []
       });
     } catch (e) {

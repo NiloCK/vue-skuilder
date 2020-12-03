@@ -92,6 +92,7 @@ export default class SessionConfiguration extends SkldrVue {
 
   private update() {
     console.log(JSON.stringify(this.activeCourses));
+    console.log(JSON.stringify(this.activeClasses));
   }
 
   private toggleAll(): void {
@@ -114,7 +115,7 @@ export default class SessionConfiguration extends SkldrVue {
       .map(c => { return { type: "course", id: c.courseID } });
     const selectedClassrooms: StudySessionSource[] = this.activeClasses
       .filter(cl => cl.selected)
-      .map(cl => { return { type: 'class', id: cl.classID } });
+      .map(cl => { return { type: 'classroom', id: cl.classID } });
 
     this.startFcn(
       selectedCourses.concat(selectedClassrooms)
@@ -154,7 +155,6 @@ export default class SessionConfiguration extends SkldrVue {
         ...c,
         selected: false,
         name: "",
-        ...c,
         reviews: 0
       };
     });
