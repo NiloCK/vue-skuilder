@@ -1,24 +1,15 @@
-import pouch from 'pouchdb-browser';
+import { DataShape } from '@/base-course/Interfaces/DataShape';
+import Courses, { NameSpacer, ShapeDescriptor } from '@/courses';
+import { FieldType } from '@/enums/FieldType';
 import ENV from '@/ENVIRONMENT_VARS';
 import { CourseConfig } from '@/server/types';
-import { pouchDBincludeCredentialsConfig, filterAlldocsByPrefix } from '.';
-import { log } from 'util';
-import { DataShape } from '@/base-course/Interfaces/DataShape';
-import { NameSpacer, ShapeDescriptor } from '@/courses';
-import { FieldType } from '@/enums/FieldType';
-import { DisplayableData, DocType, CardData, Tag, TagStub } from './types';
-import Courses from '@/courses';
 import _ from 'lodash';
-import { User } from './userDB';
-
-
-// *someday...*
-// class CourseDB implements PouchDB.Database {
-//   private db: PouchDB.Database;
-//   id: string;
-//
-//   config(): CourseConfig { ... }
-// }
+import pouch from 'pouchdb-browser';
+import { log } from 'util';
+import { filterAlldocsByPrefix, pouchDBincludeCredentialsConfig } from '.';
+import { StudyContentSource, StudySessionItem } from './contentSource';
+import { CardData, DisplayableData, DocType, Tag, TagStub } from './types';
+import { ScheduledCard, User } from './userDB';
 
 const courseLookupDBTitle = 'coursedb-lookup';
 
@@ -30,7 +21,7 @@ const courseLookupDB: PouchDB.Database = new pouch(
   }
 );
 
-export class CourseDB {
+export class CourseDB implements StudyContentSource {
   private log(msg: string): void {
     log(`CourseLog: ${this.id}\n  ${msg}`);
   }
@@ -60,6 +51,36 @@ export class CourseDB {
     // get scheduled reviews ... .... .....
     return newCards;
   }
+  public async getPendingReviews(): Promise<(StudySessionItem & ScheduledCard)[]> {
+    const u = await User.instance();
+    return (await u.getPendingReviews(this.id)).map(r => {
+      return {
+        ...r,
+        contentSourceType: 'course',
+        contentSourceID: this.id,
+        cardID: r.cardId,
+        courseID: r.courseId,
+        qualifiedID: r.courseId + '-' + r.cardId,
+      };
+    });
+  }
+  public async getNewCards(limit: number = 99): Promise<StudySessionItem[]> {
+    const u = await User.instance();
+    const elo = (await u.getCourseRegistrationsDoc()).courses.find(c => {
+      return c.courseID === this.id
+    })!.elo;
+    const cards = await this.getCardsByELO(elo, limit);
+    return cards.map(c => {
+      const split = c.split('-');
+      return {
+        courseID: this.id,
+        cardID: split[1],
+        qualifiedID: c,
+        contentSourceType: 'course',
+        contentSourceID: this.id
+      };
+    });
+  }
 
   private async getCardsByELO(elo: number, cardLimit?: number) {
     elo = parseInt(elo as any);
@@ -81,15 +102,15 @@ export class CourseDB {
     });
     // this.log(JSON.stringify(below));
 
-    const cards = below.rows;
-    cards.concat(above.rows);
+    let cards = below.rows;
+    cards = cards.concat(above.rows);
 
     let ret = cards.sort((a, b) => {
       let s = Math.abs(a.key - elo) - Math.abs(b.key - elo);
-      if (s !== 0) {
-        return s;
+      if (s === 0) {
+        return Math.random() - 0.5;
       } else {
-        return -1 + 2 * Math.round(Math.random());
+        return s;
       }
     }).map(c => `${this.id}-${c.id}-${c.key}`);
 

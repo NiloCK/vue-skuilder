@@ -2,9 +2,10 @@ import ENV from '@/ENVIRONMENT_VARS';
 import { ClassroomConfig } from '@/server/types';
 import moment from 'moment';
 import pouch from 'pouchdb-browser';
-import { getCourseDB, getEloNeighborCards, getStartAndEndKeys, pouchDBincludeCredentialsConfig, REVIEW_TIME_FORMAT } from '.';
-import { getTag } from './courseDB';
-import { User } from './userDB';
+import { getCourseDB, getStartAndEndKeys, pouchDBincludeCredentialsConfig, REVIEW_TIME_FORMAT } from '.';
+import { StudyContentSource, StudySessionItem } from './contentSource';
+import { CourseDB, getTag } from './courseDB';
+import { ScheduledCard, User } from './userDB';
 
 const classroomLookupDBTitle = 'classdb-lookup';
 export const CLASSROOM_CONFIG = 'ClassroomConfig';
@@ -94,7 +95,7 @@ abstract class ClassroomDBBase {
 
 }
 
-export class StudentClassroomDB extends ClassroomDBBase {
+export class StudentClassroomDB extends ClassroomDBBase implements StudyContentSource {
   private readonly _prefix: string = 'content';
   private userMessages: PouchDB.Core.Changes<{}>;
 
@@ -138,14 +139,26 @@ export class StudentClassroomDB extends ClassroomDBBase {
     this.userMessages.on('change', f);
   }
 
-  public async getPendingReviews() {
+  public async getPendingReviews(): Promise<(StudySessionItem & ScheduledCard)[]> {
     const u = await User.instance();
-    return await (await (u.getPendingReviews()))
+    return (await (u.getPendingReviews()))
       .filter(r => r.scheduledFor === 'classroom' &&
-        r.schedulingAgentId === this._id);
+        r.schedulingAgentId === this._id)
+      .map(r => {
+
+        return {
+          ...r,
+          qualifiedID: r.courseId + '-' + r.cardId,
+          courseID: r.courseId,
+          cardID: r.cardId,
+          contentSourceType: 'classroom',
+          contentSourceID: this._id,
+          reviewID: r._id
+        }
+      });
   }
 
-  public async getNewCards() {
+  public async getNewCards(): Promise<StudySessionItem[]> {
     const now = moment.utc();
     const assigned = await this.getAssignedContent();
     const due = assigned.filter(
@@ -154,14 +167,15 @@ export class StudentClassroomDB extends ClassroomDBBase {
 
     console.log(`Due content: ${JSON.stringify(due)}`);
 
-    let ret: string[] = [];
+    let ret: StudySessionItem[] = [];
 
     for (let i = 0; i < due.length; i++) {
       const content = due[i];
 
       if (content.type === 'course') {
+        const db = new CourseDB(content.courseID);
         ret = ret.concat(
-          await getEloNeighborCards(content.courseID, 1000)
+          await db.getNewCards()
         );
       } else if (content.type === 'tag') {
         const tagDoc = await getTag(content.courseID, content.tagID);
@@ -169,7 +183,15 @@ export class StudentClassroomDB extends ClassroomDBBase {
         ret = ret.concat(
           tagDoc
             .taggedCards
-            .map(c => `${content.courseID}-${c}`)
+            .map(c => {
+              return {
+                courseID: content.courseID,
+                cardID: c,
+                qualifiedID: `${content.courseID}-${c}`,
+                contentSourceType: 'classroom',
+                contentSourceID: this._id,
+              };
+            })
         );
       } else if (content.type === 'card') {
         // returning card docs - not IDs
