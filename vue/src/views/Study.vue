@@ -432,15 +432,11 @@ export default class Study extends SkldrVue {
   private async initStudySession(sources: StudySessionSource[]) {
     console.log(`starting study session w/ sources: ${JSON.stringify(sources)}`);
     this.sessionCourseIDs = sources.filter(s => s.type === 'course').map(c => c.id);
-
+    this.sessionClassroomDBs = await Promise.all(sources.filter(s => s.type === 'class')
+      .map(async c => { return StudentClassroomDB.factory(c.id); })
+    );
     this.activeCards = await this.user.getActiveCards();
 
-    const classRoomPromises = (await getUserClassrooms(this.$store.state._user!.username))
-      .registrations
-      .filter(reg => reg.registeredAs === 'student')
-      .map(reg => reg.classID)
-      .map(id => StudentClassroomDB.factory(id));
-    this.sessionClassroomDBs = await Promise.all(classRoomPromises);
     this.sessionClassroomDBs.forEach((db) => {
       db.setChangeFcn(this.handleClassroomMessage())
     });
