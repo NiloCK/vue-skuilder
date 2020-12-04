@@ -310,6 +310,8 @@ export default class Study extends SkldrVue {
     shadowWrapper: HTMLDivElement
   };
   private userCourseRegDoc: CourseRegistrationDoc;
+
+  private sessionContentSources: StudyContentSource[] = [];
   private sessionCourseIDs: string[] = [];
   private sessionClassroomDBs: StudentClassroomDB[] = [];
 
@@ -433,8 +435,11 @@ export default class Study extends SkldrVue {
    * NB: This function is passed to and called by the SessionConfiguration
    *     component
    */
-  private async initStudySession(sources: StudySessionSource[]) {
+  private async initStudySession(sources: ContentSourceID[]) {
     console.log(`starting study session w/ sources: ${JSON.stringify(sources)}`);
+
+    this.sessionContentSources = await Promise.all(sources.map(s => getStudySource(s)));
+
     this.sessionCourseIDs = sources.filter(s => s.type === 'course').map(c => c.id);
     this.sessionClassroomDBs = await Promise.all(sources.filter(s => s.type === 'classroom')
       .map(async c => { return StudentClassroomDB.factory(c.id); })
@@ -633,51 +638,28 @@ ${this.sessionString}
 
 
   private async getScheduledReviews() {
-    let dueCards: (ScheduledCard & {
-      contentSourceType: 'course' | 'classroom';
-      contentSourceID: string;
-    })[] = [];
-
-    for (let i = 0; i < this.sessionCourseIDs.length; i++) {
-      const cards = await this.user.getPendingReviews(this.sessionCourseIDs[i]);
-      dueCards = dueCards.concat(cards.map(c => {
-        return {
-          ...c,
-          contentSourceID: this.sessionCourseIDs[i],
-          contentSourceType: 'course'
-        };
-      }));
+    for (let i = 0; i < this.sessionContentSources.length; i++) {
+      const reviews = this.sessionContentSources[i].getPendingReviews();
     }
 
-    for (let i = 0; i < this.sessionClassroomDBs.length; i++) {
-      dueCards = dueCards.concat(
-        (await this.sessionClassroomDBs[i].getPendingReviews()).map(c => {
-          return {
-            ...c,
-            contentSourceType: 'classroom',
-            contentSourceID: this.sessionClassroomDBs[i]._id
-          };
-        })
-      );
-    }
-
-    console.log(`${dueCards.length} reviews available`);
-
-    this.session = this.session.concat(
-      // slice w/ min here in case there are more cards due
-      // than the configured session length
-      dueCards.slice(0, Math.min(this.$store.state.views.study.sessionCardCount, dueCards.length))
-        .map(c => {
-          return {
-            cardID: c.cardId,
-            courseID: c.courseId,
-            qualifiedID: `${c.courseId}-${c.cardId}`,
-            reviewID: c._id,
-            contentSourceType: c.contentSourceType,
-            contentSourceID: c.contentSourceID
-          };
-        })
+    const reviews = await Promise.all(
+      this.sessionContentSources.map(c => c.getPendingReviews())
     );
+    let dueCards: (StudySessionItem & ScheduledCard)[] = [];
+    for (let i = 0; i < reviews.length; i++) {
+      dueCards = dueCards.concat(reviews[i]);
+    }
+
+    while (this.session.length < this.$store.state.views.study.sessionCardCount
+      && dueCards.length > 0
+    ) {
+      // pull random elements from due reviews
+      const index = randomInt(0, dueCards.length - 1);
+      const item = dueCards.splice(index, 1)[0];
+      console.log(`Adding review: ${JSON.stringify(item)}`);
+      this.session.push(item);
+    }
+
 
     return dueCards;
   }
