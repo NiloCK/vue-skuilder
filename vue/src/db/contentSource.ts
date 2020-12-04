@@ -2,6 +2,9 @@ import { StudentClassroomDB } from './classroomDB';
 import { CourseDB } from './courseDB';
 import { ScheduledCard } from './userDB';
 
+export interface StudySessionReviewItem extends StudySessionItem {
+  reviewID: string;
+}
 // todo
 export interface StudySessionItem {
   qualifiedID: string;
@@ -12,13 +15,13 @@ export interface StudySessionItem {
   reviewID?: string;
 };
 
-interface ContentSourceID {
+export interface ContentSourceID {
   type: 'course' | 'classroom';
   id: string;
 }
 
 export interface StudyContentSource {
-  getPendingReviews(): Promise<(StudySessionItem & ScheduledCard)[]>;
+  getPendingReviews(): Promise<(StudySessionReviewItem & ScheduledCard)[]>;
   getNewCards(n?: number): Promise<StudySessionItem[]>;
 }
 

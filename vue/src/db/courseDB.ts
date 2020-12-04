@@ -51,7 +51,7 @@ export class CourseDB implements StudyContentSource {
     // get scheduled reviews ... .... .....
     return newCards;
   }
-  public async getPendingReviews(): Promise<(StudySessionItem & ScheduledCard)[]> {
+  public async getPendingReviews(): Promise<(StudySessionReviewItem & ScheduledCard)[]> {
     const u = await User.instance();
     return (await u.getPendingReviews(this.id)).map(r => {
       return {

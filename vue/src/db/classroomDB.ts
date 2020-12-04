@@ -139,7 +139,7 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
     this.userMessages.on('change', f);
   }
 
-  public async getPendingReviews(): Promise<(StudySessionItem & ScheduledCard)[]> {
+  public async getPendingReviews(): Promise<(StudySessionReviewItem & ScheduledCard)[]> {
     const u = await User.instance();
     return (await (u.getPendingReviews()))
       .filter(r => r.scheduledFor === 'classroom' &&
