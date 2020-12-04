@@ -61,11 +61,14 @@ export class CourseDB implements StudyContentSource {
         cardID: r.cardId,
         courseID: r.courseId,
         qualifiedID: r.courseId + '-' + r.cardId,
+        reviewID: r._id
       };
     });
   }
   public async getNewCards(limit: number = 99): Promise<StudySessionItem[]> {
     const u = await User.instance();
+    const activeCards = await u.getActiveCards(this.id);
+
     let elo = -1;
     try {
       elo = (await u.getCourseRegistrationsDoc()).courses.find(c => {
@@ -76,16 +79,24 @@ export class CourseDB implements StudyContentSource {
     }
 
     const cards = await this.getCardsByELO(elo, limit);
-    return cards.map(c => {
-      const split = c.split('-');
-      return {
-        courseID: this.id,
-        cardID: split[1],
-        qualifiedID: c,
-        contentSourceType: 'course',
-        contentSourceID: this.id
-      };
-    });
+    return cards
+      .filter(c => {
+        if (activeCards.some(ac => c.includes(ac))) {
+          return false;
+        } else {
+          return true;
+        }
+      })
+      .map(c => {
+        const split = c.split('-');
+        return {
+          courseID: this.id,
+          cardID: split[1],
+          qualifiedID: c,
+          contentSourceType: 'course',
+          contentSourceID: this.id
+        };
+      });
   }
 
   private async getCardsByELO(elo: number, cardLimit?: number) {

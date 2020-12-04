@@ -159,6 +159,7 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
   }
 
   public async getNewCards(): Promise<StudySessionItem[]> {
+    const activeCards = await (await User.instance()).getActiveCards();
     const now = moment.utc();
     const assigned = await this.getAssignedContent();
     const due = assigned.filter(
@@ -201,7 +202,13 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
 
     console.log(`New Cards from classroom ${this._cfg.name}: ${ret}`);
 
-    return ret;
+    return ret.filter(c => {
+      if (activeCards.some(ac => c.qualifiedID.includes(ac))) {
+        return false;
+      } else {
+        return true;
+      }
+    });
   }
 }
 
