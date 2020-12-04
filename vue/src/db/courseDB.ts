@@ -66,9 +66,15 @@ export class CourseDB implements StudyContentSource {
   }
   public async getNewCards(limit: number = 99): Promise<StudySessionItem[]> {
     const u = await User.instance();
-    const elo = (await u.getCourseRegistrationsDoc()).courses.find(c => {
-      return c.courseID === this.id
-    })!.elo;
+    let elo = -1;
+    try {
+      elo = (await u.getCourseRegistrationsDoc()).courses.find(c => {
+        return c.courseID === this.id
+      })!.elo;
+    } catch {
+      elo = 1000;
+    }
+
     const cards = await this.getCardsByELO(elo, limit);
     return cards.map(c => {
       const split = c.split('-');
