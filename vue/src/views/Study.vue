@@ -190,10 +190,6 @@ function randInt(n: number) {
   return Math.floor(Math.random() * n);
 }
 
-function randIntWeightedTowardZero(n: number) {
-  return Math.floor(Math.random() * Math.random() * Math.random() * n);
-}
-
 interface StudySessionRecord {
   card: {
     course_id: string,
@@ -530,7 +526,6 @@ ${this.sessionString}
     this.deDuplicateSession();
   }
 
-
   private async getNewCards(newCardCount: number) {
     const newContent = await Promise.all(
       this.sessionContentSources.map(c => c.getNewCards(newCardCount))
@@ -546,99 +541,6 @@ ${this.sessionString}
         }
       }
     }
-
-    // let cardIDs: {
-    //   qualifiedID: string;
-    //   source: ContentSourceID;
-    // }[][] = [];
-
-    // for (let i = 0; i < this.sessionCourseIDs.length; i++) {
-    //   // get elo neighbor cards for each course in session
-    //   const courseID = this.sessionCourseIDs[i];
-    //   let courseELO = -1;
-    //   try {
-    //     courseELO = this.userCourseRegDoc.courses.find(
-    //       c => c.courseID === this.sessionCourseIDs[i])!.elo;
-    //   } catch { }
-    //   if (courseELO === -1) { courseELO = 1000; }
-
-    //   const newCourseCards = (await (new CourseDB(this.sessionCourseIDs[i]))
-    //     .getNewCards())
-    //     .map(c => c.qualifiedID);
-
-    //   cardIDs.push(newCourseCards.map(c => {
-    //     return {
-    //       qualifiedID: c,
-    //       source: {
-    //         type: 'course',
-    //         id: courseID
-    //       }
-    //     };
-    //   }));
-    // }
-
-    // for (let i = 0; i < this.sessionClassroomDBs.length; i++) {
-    //   console.log(`Getting cards for: ${this.sessionClassroomDBs[i]}`);
-
-    //   const newClassCards = await this.sessionClassroomDBs[i].getNewCards();
-
-    //   cardIDs.push(newClassCards.map(c => {
-    //     return {
-    //       qualifiedID: c.qualifiedID,
-    //       source: {
-    //         type: 'classroom',
-    //         id: this.sessionClassroomDBs[i]._id
-    //       }
-    //     };
-    //   }));
-    // }
-
-    // // cards previously seen are filtered out
-    // const newCards = cardIDs.map((cardList) => {
-    //   return cardList.filter(
-    //     (card) => {
-    //       if (this.activeCards.some(ac => card.qualifiedID.includes(ac))) {
-    //         // console.log(`Card ${card} has been seen before!`);
-    //         return false;
-    //       } else {
-    //         // console.log(`Card ${card} is fresh!`);
-    //         return true;
-    //       };
-    //     });
-    // });
-
-    // let courseIndex = randInt(newCards.length);
-
-    // function hasElements(arr: any[][]): boolean {
-    //   for (let i = 0; i < arr.length; i++) {
-    //     if (arr[i].length > 0) {
-    //       return true;
-    //     }
-    //   }
-    //   return false;
-    // }
-
-    // while (newCardCount > 0 && hasElements(newCards)) {
-    //   const newCourseCards = newCards[courseIndex % newCards.length];
-    //   if (newCourseCards.length > 0) {
-
-    //     const index = randIntWeightedTowardZero(newCourseCards.length);
-    //     const card = newCourseCards.splice(index, 1)[0];
-    //     const courseID = card.qualifiedID.split('-')[0];
-    //     const cardID = card.qualifiedID.split('-')[1];
-
-    //     this.session.push({
-    //       courseID,
-    //       cardID,
-    //       qualifiedID: courseID + '-' + cardID,
-    //       contentSourceType: card.source.type,
-    //       contentSourceID: card.source.id
-    //     });
-
-    //     newCardCount--;
-    //   }
-    //   courseIndex++;
-    // }
   }
 
   private async getScheduledReviews() {
