@@ -7,7 +7,7 @@ import _ from 'lodash';
 import pouch from 'pouchdb-browser';
 import { log } from 'util';
 import { filterAlldocsByPrefix, pouchDBincludeCredentialsConfig } from '.';
-import { StudyContentSource, StudySessionItem } from './contentSource';
+import { StudyContentSource, StudySessionItem, StudySessionReviewItem } from './contentSource';
 import { CardData, DisplayableData, DocType, Tag, TagStub } from './types';
 import { ScheduledCard, User } from './userDB';
 
@@ -20,6 +20,10 @@ const courseLookupDB: PouchDB.Database = new pouch(
     skip_setup: true
   }
 );
+
+function randIntWeightedTowardZero(n: number) {
+  return Math.floor(Math.random() * Math.random() * Math.random() * n);
+}
 
 export class CourseDB implements StudyContentSource {
   private log(msg: string): void {
@@ -78,15 +82,33 @@ export class CourseDB implements StudyContentSource {
       elo = 1000;
     }
 
-    const cards = await this.getCardsByELO(elo, limit);
-    return cards
-      .filter(c => {
+    let cards: string[] = [];
+    let mult: number = 2;
+
+    while (cards.length < limit && mult <= 16) {
+      cards = await this.getCardsByELO(elo, mult * limit);
+
+      cards = cards.filter(c => {
         if (activeCards.some(ac => c.includes(ac))) {
           return false;
         } else {
           return true;
         }
-      })
+      });
+      console.log(`Returned ${cards.length} cards...`)
+
+      mult *= 2;
+    }
+
+    const selectedCards: string[] = [];
+
+    while (selectedCards.length < limit && cards.length > 0) {
+      const index = randIntWeightedTowardZero(cards.length);
+      const card = cards.splice(index, 1)[0];
+      selectedCards.push(card);
+    }
+
+    return selectedCards
       .map(c => {
         const split = c.split('-');
         return {

@@ -58,10 +58,9 @@
         
       </div>
       <br>
-      <div v-if="!sessionFinished && !noRegistrations">
+      <div v-if="!sessionFinished && !noRegistrations && editTags">
         <p>Add tags to this card:</p>
         <sk-tags-input
-            v-if='!sessionFinished'
             :courseID="courseID"
             :cardID="cardID"
         />
@@ -71,10 +70,11 @@
         v-if="!noRegistrations"
         absolute
         value="true"
+        align-center
       >
-        <v-flex xs12
+        <v-flex xs12 pa-2
           class="headline teal darken-2 white--text text-sm-center text-align-center align-content-center align-center">
-            Cards Remaining: {{ session.length }}
+            {{ session.length }} cards left
         </v-flex>
       </v-bottom-nav>
       <router-link
@@ -93,7 +93,7 @@
           <v-icon dark>add</v-icon>
         </v-btn>
       </router-link>
-      <!-- <v-speed-dial
+      <v-speed-dial
         v-model="fab"
         fixed
         bottom
@@ -136,7 +136,7 @@
         <v-icon>bookmark</v-icon>
       </v-btn> 
       
-      </v-speed-dial>-->
+      </v-speed-dial>
       <br>
       
     </div>
@@ -164,7 +164,7 @@ import {
   putCardRecord,
   scheduleCardReview,
   getCourseDoc,
-  getEloNeighborCards,
+  // getEloNeighborCards,
   removeScheduledCardReview
 } from '@/db';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
@@ -183,7 +183,7 @@ import { randomInt } from '../courses/math/utility';
 import { GuestUsername } from '@/store';
 import { CourseConfig } from '../server/types';
 import SkldrControlsView from '../components/SkMouseTrap.vue';
-import { StudyContentSource } from '@/db/contentSource';
+import { ContentSourceID, getStudySource, StudyContentSource, StudySessionItem } from '@/db/contentSource';
 // import CardCache from '@/db/cardCache';
 
 function randInt(n: number) {
@@ -246,20 +246,6 @@ final  ${upA}         ${upB}
   };
 }
 
-export interface StudySessionSource {
-  type: 'course' | 'classroom';
-  id: string;
-}
-
-interface StudySessionItem {
-  qualifiedID: string;
-  cardID: string;
-  contentSourceType: 'course' | 'classroom';
-  contentSourceID: string;
-  courseID: string;
-  reviewID?: string;
-};
-
 @Component({
   components: {
     CardViewer,
@@ -275,8 +261,6 @@ export default class Study extends SkldrVue {
   public randomPreview?: boolean;
   @Prop()
   public focusCourseID?: string;
-
-  public coursesSelected: boolean = false;
 
   public previewCourseConfig?: CourseConfig;
   public previewMode: boolean = false;
@@ -531,8 +515,7 @@ ${this.sessionString}
   }
 
   private async getSessionCards() {
-    // start with the review cards that are 'due'
-    let dueCards = await this.getScheduledReviews();
+    await this.getScheduledReviews();
 
     // # of new cards is at least one, otherwise fills half
     // of the remaining session space
@@ -542,109 +525,127 @@ ${this.sessionString}
         (this.$store.state.views.study.sessionCardCount - this.session.length) / 2
       )
     );
+    await this.getNewCards(newCardCount);
 
-    let cardIDs: {
-      qualifiedID: string;
-      source: StudySessionSource
-    }[][] = [];
-
-    for (let i = 0; i < this.sessionCourseIDs.length; i++) {
-      // get elo neighbor cards for each course in session
-      const courseID = this.sessionCourseIDs[i];
-      let courseELO = this.userCourseRegDoc.courses.find(
-        c => c.courseID === this.sessionCourseIDs[i])!.elo
-
-      if (!courseELO) { courseELO = 1000; }
-
-      const newCourseCards = await getEloNeighborCards(
-        courseID,
-        courseELO
-      );
-
-      cardIDs.push(newCourseCards.map(c => {
-        return {
-          qualifiedID: c,
-          source: {
-            type: 'course',
-            id: courseID
-          }
-        };
-      }));
-    }
-    for (let i = 0; i < this.sessionClassroomDBs.length; i++) {
-      console.log(`Getting cards for: ${this.sessionClassroomDBs[i]}`)
-
-      const newClassCards = await this.sessionClassroomDBs[i].getNewCards();
-
-      cardIDs.push(newClassCards.map(c => {
-        return {
-          qualifiedID: c,
-          source: {
-            type: 'classroom',
-            id: this.sessionClassroomDBs[i]._id
-          }
-        };
-      }));
-    }
-
-    // cards previously seen are filtered out
-    const newCards = cardIDs.map((cardList) => {
-      return cardList.filter(
-        (card) => {
-          if (this.activeCards.some(ac => card.qualifiedID.includes(ac))) {
-            // console.log(`Card ${card} has been seen before!`);
-            return false;
-          } else {
-            // console.log(`Card ${card} is fresh!`);
-            return true;
-          };
-        });
-    });
-
-    let courseIndex = randInt(newCards.length);
-
-    function hasElements(arr: any[][]): boolean {
-      for (let i = 0; i < arr.length; i++) {
-        if (arr[i].length > 0) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    while (newCardCount > 0 && hasElements(newCards)) {
-      const newCourseCards = newCards[courseIndex % newCards.length];
-      if (newCourseCards.length > 0) {
-
-        const index = randIntWeightedTowardZero(newCourseCards.length);
-        const card = newCourseCards.splice(index, 1)[0];
-        const courseID = card.qualifiedID.split('-')[0];
-        const cardID = card.qualifiedID.split('-')[1];
-
-        this.session.push({
-          courseID,
-          cardID,
-          qualifiedID: courseID + '-' + cardID,
-          contentSourceType: card.source.type,
-          contentSourceID: card.source.id
-        });
-
-        newCardCount--;
-      }
-      courseIndex++;
-    }
     this.deDuplicateSession();
   }
 
 
-  private async getScheduledReviews() {
-    for (let i = 0; i < this.sessionContentSources.length; i++) {
-      const reviews = this.sessionContentSources[i].getPendingReviews();
+  private async getNewCards(newCardCount: number) {
+    const newContent = await Promise.all(
+      this.sessionContentSources.map(c => c.getNewCards(newCardCount))
+    );
+
+    while (newCardCount > 0 && newContent.some(nc => nc.length > 0)) {
+      for (let i = 0; i < newContent.length; i++) {
+        if (newContent[i].length > 0) {
+          const item = newContent[i].splice(0, 1)[0];
+          console.log(`Adding new card: ${item.qualifiedID}`);
+          this.session.push(item);
+          newCardCount--;
+        }
+      }
     }
 
+    // let cardIDs: {
+    //   qualifiedID: string;
+    //   source: ContentSourceID;
+    // }[][] = [];
+
+    // for (let i = 0; i < this.sessionCourseIDs.length; i++) {
+    //   // get elo neighbor cards for each course in session
+    //   const courseID = this.sessionCourseIDs[i];
+    //   let courseELO = -1;
+    //   try {
+    //     courseELO = this.userCourseRegDoc.courses.find(
+    //       c => c.courseID === this.sessionCourseIDs[i])!.elo;
+    //   } catch { }
+    //   if (courseELO === -1) { courseELO = 1000; }
+
+    //   const newCourseCards = (await (new CourseDB(this.sessionCourseIDs[i]))
+    //     .getNewCards())
+    //     .map(c => c.qualifiedID);
+
+    //   cardIDs.push(newCourseCards.map(c => {
+    //     return {
+    //       qualifiedID: c,
+    //       source: {
+    //         type: 'course',
+    //         id: courseID
+    //       }
+    //     };
+    //   }));
+    // }
+
+    // for (let i = 0; i < this.sessionClassroomDBs.length; i++) {
+    //   console.log(`Getting cards for: ${this.sessionClassroomDBs[i]}`);
+
+    //   const newClassCards = await this.sessionClassroomDBs[i].getNewCards();
+
+    //   cardIDs.push(newClassCards.map(c => {
+    //     return {
+    //       qualifiedID: c.qualifiedID,
+    //       source: {
+    //         type: 'classroom',
+    //         id: this.sessionClassroomDBs[i]._id
+    //       }
+    //     };
+    //   }));
+    // }
+
+    // // cards previously seen are filtered out
+    // const newCards = cardIDs.map((cardList) => {
+    //   return cardList.filter(
+    //     (card) => {
+    //       if (this.activeCards.some(ac => card.qualifiedID.includes(ac))) {
+    //         // console.log(`Card ${card} has been seen before!`);
+    //         return false;
+    //       } else {
+    //         // console.log(`Card ${card} is fresh!`);
+    //         return true;
+    //       };
+    //     });
+    // });
+
+    // let courseIndex = randInt(newCards.length);
+
+    // function hasElements(arr: any[][]): boolean {
+    //   for (let i = 0; i < arr.length; i++) {
+    //     if (arr[i].length > 0) {
+    //       return true;
+    //     }
+    //   }
+    //   return false;
+    // }
+
+    // while (newCardCount > 0 && hasElements(newCards)) {
+    //   const newCourseCards = newCards[courseIndex % newCards.length];
+    //   if (newCourseCards.length > 0) {
+
+    //     const index = randIntWeightedTowardZero(newCourseCards.length);
+    //     const card = newCourseCards.splice(index, 1)[0];
+    //     const courseID = card.qualifiedID.split('-')[0];
+    //     const cardID = card.qualifiedID.split('-')[1];
+
+    //     this.session.push({
+    //       courseID,
+    //       cardID,
+    //       qualifiedID: courseID + '-' + cardID,
+    //       contentSourceType: card.source.type,
+    //       contentSourceID: card.source.id
+    //     });
+
+    //     newCardCount--;
+    //   }
+    //   courseIndex++;
+    // }
+  }
+
+  private async getScheduledReviews() {
     const reviews = await Promise.all(
       this.sessionContentSources.map(c => c.getPendingReviews())
     );
+
     let dueCards: (StudySessionItem & ScheduledCard)[] = [];
     for (let i = 0; i < reviews.length; i++) {
       dueCards = dueCards.concat(reviews[i]);
@@ -656,7 +657,7 @@ ${this.sessionString}
       // pull random elements from due reviews
       const index = randomInt(0, dueCards.length - 1);
       const item = dueCards.splice(index, 1)[0];
-      console.log(`Adding review: ${JSON.stringify(item)}`);
+      console.log(`Adding review: ${item.qualifiedID}`);
       this.session.push(item);
     }
 
