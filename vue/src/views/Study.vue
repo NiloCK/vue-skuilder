@@ -636,6 +636,15 @@ ${this.sessionString}
         }
       } else {
         this.$refs.shadowWrapper.classList.add('incorrect');
+        // elo loss for the user
+        cardHistory.then((history) => {
+          this.scheduleReview(history, this.currentCard.item);
+          if (history.records.length !== 1 && r.priorAttemps === 0) {
+            // incorrect answer on a scheduled review: elo win for card
+            this.updateUserAndCardElo(0, this.courseID, this.cardID);
+          }
+        });
+
         if (isQuestionView(this.constructedView)) {
           if (this.currentCard.records.length >=
             this.constructedView.maxAttemptsPerView) {
