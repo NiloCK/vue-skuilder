@@ -74,7 +74,7 @@
       >
         <v-flex xs12 pa-2
           class="headline teal darken-2 white--text text-sm-center text-align-center align-content-center align-center">
-            {{ session.length }} cards left
+            {{ session.length }} card{{ session.length === 1 ? '' : 's' }} left
         </v-flex>
       </v-bottom-nav>
       <router-link
