@@ -83,11 +83,16 @@ export class CourseDB implements StudyContentSource {
     }
 
     let cards: string[] = [];
-    let mult: number = 2;
+    let mult: number = 4;
+    let previousCount: number = -1;
+    let newCount: number = 0;
 
-    while (cards.length < limit && mult <= 16) {
+    while (cards.length < limit && newCount !== previousCount) {
       cards = await this.getCardsByELO(elo, mult * limit);
+      previousCount = newCount;
+      newCount = cards.length;
 
+      console.log(`Found ${cards.length} elo neighbor cards...`);
       cards = cards.filter(c => {
         if (activeCards.some(ac => c.includes(ac))) {
           return false;
@@ -95,7 +100,7 @@ export class CourseDB implements StudyContentSource {
           return true;
         }
       });
-      console.log(`Returned ${cards.length} cards...`)
+      console.log(`Filtered to ${cards.length} cards...`)
 
       mult *= 2;
     }
