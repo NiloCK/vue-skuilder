@@ -5,7 +5,6 @@ import { ScheduledCard } from './userDB';
 export interface StudySessionReviewItem extends StudySessionItem {
   reviewID: string;
 }
-// todo
 export interface StudySessionItem {
   qualifiedID: string;
   cardID: string;
