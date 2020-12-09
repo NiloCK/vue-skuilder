@@ -53,7 +53,7 @@
         
       </div>
       <br>
-      <div v-if="!sessionFinished && !noRegistrations && editTags">
+      <div v-if="!sessionFinished && editTags">
         <p>Add tags to this card:</p>
         <sk-tags-input
             :courseID="courseID"
@@ -62,7 +62,6 @@
       </div>
       
       <v-bottom-nav
-        v-if="!noRegistrations"
         absolute
         value="true"
         align-center
@@ -72,22 +71,6 @@
             {{ session.length }} card{{ session.length === 1 ? '' : 's' }} left
         </v-flex>
       </v-bottom-nav>
-      <router-link
-        :to='`/edit/${courseID}`'
-      >
-        <v-btn
-          v-if="!noRegistrations"
-          fab
-          fixed
-          dark
-          bottom
-          right
-          color="blue darken-2"
-          title="Add content to this course"
-        >
-          <v-icon dark>add</v-icon>
-        </v-btn>
-      </router-link>
       <v-speed-dial
         v-model="fab"
         fixed
@@ -276,8 +259,6 @@ export default class Study extends SkldrVue {
   public sessionRecord: StudySessionRecord[] = [];
   public activeCards: string[] = [];
 
-  public noRegistrations: boolean = false;
-
   public loading: boolean = false;
   public user: User;
 
@@ -424,12 +405,6 @@ export default class Study extends SkldrVue {
     this.sessionClassroomDBs.forEach((db) => {
       db.setChangeFcn(this.handleClassroomMessage())
     });
-
-    if (this.sessionCourseIDs.length === 0
-      && this.sessionClassroomDBs.length === 0
-      && this.activeCards.length === 0) {
-      this.noRegistrations = true;
-    }
 
     await this.getSessionCards();
     this.sessionPrepared = true;
