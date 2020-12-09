@@ -33,11 +33,6 @@
         <p>Sign up to get to work!</p>
       </div>
 
-      <div v-else-if='noRegistrations' class='display-1'>
-        <p>You don't have anything to study!</p>
-        <p>Head over to the <router-link to="/quilts">Quilts</router-link> page to find something for you.</p>
-      </div>
-
       <div v-else-if='sessionFinished' class='display-1'>
         <p>Study session finished! Great job!</p>
         <p>Start <a @click="refreshRoute">another study session</a>, or try 
