@@ -32,7 +32,7 @@
       <div v-if='!checkLoggedIn' class='display-1'>
         <p>Sign up to get to work!</p>
       </div>
-    
+
       <div v-else-if='noRegistrations' class='display-1'>
         <p>You don't have anything to study!</p>
         <p>Head over to the <router-link to="/quilts">Quilts</router-link> page to find something for you.</p>

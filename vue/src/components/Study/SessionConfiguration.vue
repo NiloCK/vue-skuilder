@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="hasRegistrations">
     <div class="display-1">Select your quilts</div>
     <table width="100%">
       <th>
@@ -46,6 +46,11 @@
     />
     <v-btn color="success" @click="startSession">Start Studying!</v-btn>
   </div>
+  <div v-else class='display-1'>
+    <p>You don't have anything to study!</p>
+    <p>Head over to the <router-link to="/quilts">Quilts</router-link>
+     page to find something for you.</p>
+  </div>
 </template>
 
 <script lang="ts">
@@ -54,9 +59,9 @@ import { CourseDB, getCourseName } from '@/db/courseDB';
 import SkldrVue from '@/SkldrVue';
 import Component from 'vue-class-component';
 import { Prop, Watch } from 'vue-property-decorator';
-import { StudySessionSource } from '@/views/Study.vue';
 import SkldrMouseTrap from '@/SkldrMouseTrap';
 import { StudentClassroomDB } from '@/db/classroomDB';
+import { ContentSourceID } from '@/db/contentSource';
 
 interface SessionConfigMetaData {
   selected: boolean;
@@ -70,6 +75,8 @@ export default class SessionConfiguration extends SkldrVue {
   public activeCourses: (CourseRegistration & SessionConfigMetaData)[] = [];
   public activeClasses: ({ classID: string } & SessionConfigMetaData)[] = [];
   private cardCount: number = this.$store.state.views.study.sessionCardCount;
+
+  private hasRegistrations: boolean = true;
 
   @Watch('cardCount')
   private rangeCheck() {
@@ -88,7 +95,7 @@ export default class SessionConfiguration extends SkldrVue {
   @Prop({
     required: true
   })
-  public startFcn: (sources: StudySessionSource[]) => void;
+  public startFcn: (sources: ContentSourceID[]) => void;
 
   private update() {
     console.log(JSON.stringify(this.activeCourses));
@@ -110,10 +117,10 @@ export default class SessionConfiguration extends SkldrVue {
 
   private startSession() {
     SkldrMouseTrap.reset();
-    const selectedCourses: StudySessionSource[] = this.activeCourses
+    const selectedCourses: ContentSourceID[] = this.activeCourses
       .filter(c => c.selected)
       .map(c => { return { type: "course", id: c.courseID } });
-    const selectedClassrooms: StudySessionSource[] = this.activeClasses
+    const selectedClassrooms: ContentSourceID[] = this.activeClasses
       .filter(cl => cl.selected)
       .map(cl => { return { type: 'classroom', id: cl.classID } });
 
@@ -125,11 +132,15 @@ export default class SessionConfiguration extends SkldrVue {
 
   public async created() {
     this.setHotkeys();
-
     await Promise.all([
       this.getActiveCourses(),
       this.getActiveClassrooms()
     ]);
+
+    if (this.activeCourses.length === 0 &&
+      this.activeClasses.length === 0) {
+      this.hasRegistrations = false;
+    }
   }
 
   private async getActiveClassrooms() {
