@@ -3,7 +3,7 @@ import { ClassroomConfig } from '@/server/types';
 import moment from 'moment';
 import pouch from 'pouchdb-browser';
 import { getCourseDB, getStartAndEndKeys, pouchDBincludeCredentialsConfig, REVIEW_TIME_FORMAT } from '.';
-import { StudyContentSource, StudySessionItem } from './contentSource';
+import { StudyContentSource, StudySessionItem, StudySessionNewItem, StudySessionReviewItem } from './contentSource';
 import { CourseDB, getTag } from './courseDB';
 import { ScheduledCard, User } from './userDB';
 
@@ -153,12 +153,13 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
           cardID: r.cardId,
           contentSourceType: 'classroom',
           contentSourceID: this._id,
-          reviewID: r._id
+          reviewID: r._id,
+          status: 'review'
         }
       });
   }
 
-  public async getNewCards(): Promise<StudySessionItem[]> {
+  public async getNewCards(): Promise<StudySessionNewItem[]> {
     const activeCards = await (await User.instance()).getActiveCards();
     const now = moment.utc();
     const assigned = await this.getAssignedContent();
@@ -168,7 +169,7 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
 
     console.log(`Due content: ${JSON.stringify(due)}`);
 
-    let ret: StudySessionItem[] = [];
+    let ret: StudySessionNewItem[] = [];
 
     for (let i = 0; i < due.length; i++) {
       const content = due[i];
@@ -191,6 +192,7 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
                 qualifiedID: `${content.courseID}-${c}`,
                 contentSourceType: 'classroom',
                 contentSourceID: this._id,
+                status: 'new'
               };
             })
         );

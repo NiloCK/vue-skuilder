@@ -7,7 +7,7 @@ import _ from 'lodash';
 import pouch from 'pouchdb-browser';
 import { log } from 'util';
 import { filterAlldocsByPrefix, pouchDBincludeCredentialsConfig } from '.';
-import { StudyContentSource, StudySessionItem, StudySessionReviewItem } from './contentSource';
+import { StudyContentSource, StudySessionItem, StudySessionNewItem, StudySessionReviewItem } from './contentSource';
 import { CardData, DisplayableData, DocType, Tag, TagStub } from './types';
 import { ScheduledCard, User } from './userDB';
 
@@ -65,11 +65,12 @@ export class CourseDB implements StudyContentSource {
         cardID: r.cardId,
         courseID: r.courseId,
         qualifiedID: r.courseId + '-' + r.cardId,
-        reviewID: r._id
+        reviewID: r._id,
+        status: 'review'
       };
     });
   }
-  public async getNewCards(limit: number = 99): Promise<StudySessionItem[]> {
+  public async getNewCards(limit: number = 99): Promise<StudySessionNewItem[]> {
     const u = await User.instance();
     const activeCards = await u.getActiveCards(this.id);
 
@@ -121,7 +122,8 @@ export class CourseDB implements StudyContentSource {
           cardID: split[1],
           qualifiedID: c,
           contentSourceType: 'course',
-          contentSourceID: this.id
+          contentSourceID: this.id,
+          status: 'new'
         };
       });
   }

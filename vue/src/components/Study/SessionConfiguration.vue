@@ -37,12 +37,19 @@
         <td>{{course.reviews}}</td>
       </tr>
     </table>
-    <v-text-field
+    <!-- <v-text-field
       label="Card Limit for this Session"
       hint="Study as much or as little as you like by adjusting this"
       type="number"
       ref="numberField"
       v-model="cardCount"
+    /> -->
+    <v-text-field
+      label="Time Limit for this Session"
+      hint="Study as much or as little as you like by adjusting this"
+      type="number"
+      ref="numberField"
+      v-model="timeLimit"
     />
     <v-btn color="success" @click="startSession">Start Studying!</v-btn>
   </div>
@@ -74,17 +81,18 @@ export default class SessionConfiguration extends SkldrVue {
   public allSelected: boolean = false;
   public activeCourses: (CourseRegistration & SessionConfigMetaData)[] = [];
   public activeClasses: ({ classID: string } & SessionConfigMetaData)[] = [];
-  private cardCount: number = this.$store.state.views.study.sessionCardCount;
+  private timeLimit: number = this.$store.state.views.study.sessionTimeLimit;
 
   private hasRegistrations: boolean = true;
 
   @Watch('cardCount')
+  @Watch('timeLimit')
   private rangeCheck() {
-    if (this.cardCount < 0) {
-      this.cardCount = 0;
+    if (this.timeLimit <= 0) {
+      this.timeLimit = 1;
     }
 
-    this.$store.state.views.study.sessionCardCount = this.cardCount;
+    this.$store.state.views.study.sessionTimeLimit = this.timeLimit;
   }
 
   public $refs: {
@@ -188,12 +196,12 @@ export default class SessionConfiguration extends SkldrVue {
     SkldrMouseTrap.bind([
       {
         hotkey: 'up',
-        callback: () => { this.cardCount++; },
+        callback: () => { this.timeLimit++; },
         command: ""
       },
       {
         hotkey: 'down',
-        callback: () => { this.cardCount--; },
+        callback: () => { this.timeLimit--; },
         command: ""
       },
       {

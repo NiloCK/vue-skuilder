@@ -40,7 +40,7 @@ export interface AppState {
     study: {
       inSession: boolean;
       courseList: string[];
-      sessionCardCount: number;
+      sessionTimeLimit: number;
     }
   }
 }
@@ -68,7 +68,7 @@ const Store = new Vuex.Store<AppState>({
       study: {
         inSession: false,
         courseList: [],
-        sessionCardCount: 15
+        sessionTimeLimit: 5
       }
     }
   },
