@@ -45,7 +45,7 @@ class ItemQueue<T extends StudySessionItem> {
 abstract class Loggable {
   protected readonly abstract _className: string;
   protected log(s: string) {
-    console.log(`LOG-${this._className}:
+    console.log(`LOG-${this._className}@${new Date()}:
 \t${s}`);
   }
 }
@@ -121,8 +121,9 @@ export default class SessionController extends Loggable {
       }
     }
 
-    this.log(`Failed card cleanup estimate: ${time}`);
-    return time / 1000;
+    const ret: number = time / 1000;
+    this.log(`Failed card cleanup estimate: ${Math.round(ret)}`);
+    return ret;
   }
 
   /**
@@ -130,7 +131,9 @@ export default class SessionController extends Loggable {
    * all scheduled reviews
    */
   private estimateReviewTime(): number {
-    return 5 * this.reviewQ.length;
+    const ret = 5 * this.reviewQ.length;
+    this.log(`Review card time estimate: ${ret}`);
+    return ret
   }
 
   public async prepareSession() {
@@ -240,7 +243,7 @@ export default class SessionController extends Loggable {
     // if time-remaing vs (reviewQ + failureQ) looks good,
     // lean toward newQ
     if (availableTime > 20) {
-      newBound = 0.65;
+      newBound = 0.5;
       reviewBound = 0.9;
     }
     // else if time-remaining vs failureQ looks good,
@@ -277,7 +280,7 @@ export default class SessionController extends Loggable {
     } else if (this.failedQ.length) {
       this._currentCard = this.failedQ.dequeue();
     } else {
-      console.log(`SessionController: No cards available for the session!`);
+      this.log(`No more cards available for the session!`);
       this._currentCard = null;
     }
 
