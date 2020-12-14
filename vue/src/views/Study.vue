@@ -15,13 +15,15 @@
       <v-layout v-else>
         <h1  class='display-1'>Study:
           <v-progress-circular v-if="loading"
-              color="primary"
-              indeterminate
-              rotate="0"
-              size="32"
-              value="0"
-              width="4"
-          ></v-progress-circular>
+            absolute
+            top
+            color="primary"
+            indeterminate
+            rotate="0"
+            size="32"
+            value="0"
+            width="4"
+          />
         </h1>
         <v-spacer></v-spacer>
         <SkldrControlsView />
@@ -54,12 +56,12 @@
 
       <br>
       <div v-if="sessionController">
-        <span v-for="i in sessionController.failedCount" :key="i">•</span>
-        {{ cardType }}
+        <span class='headline' v-for="i in sessionController.failedCount" :key="i">•</span>
+        <!-- {{ cardType }}
         <br><br><br>
         Session Report: {{ sessionController.reportString()}}
         <br><br><br>
-        Current Queues: {{ sessionController.toString() }}
+        Current Queues: {{ sessionController.toString() }} -->
       </div>
 
       <div v-if="!sessionFinished && editTags">
@@ -69,18 +71,24 @@
             :cardID="cardID"
         />
       </div>
-      
-      <v-bottom-nav
-        absolute
-        value="true"
-        align-center
-      >
-        <v-flex xs12 pa-2 v-if="sessionController"
-          class="headline teal darken-2 white--text text-sm-center text-align-center align-content-center align-center">
-            <!-- {{ session.length }} card{{ session.length === 1 ? '' : 's' }} left -->
-            {{timeRemaining}} seconds remaining
-        </v-flex>
-      </v-bottom-nav>
+      <v-btn
+          fab
+          color="primary"
+          bottom
+          left
+          fixed
+          @click.native.stop="click"
+          :title="`${timeRemaining} seconds left!`"
+        >
+            <v-progress-circular
+            alt="Time remaining in study session"
+            right
+            size='64'
+            width=32
+            rotate="-90"
+            :value="100 - percentageRemaining"
+          />
+        </v-btn>
       <v-speed-dial
         v-model="fab"
         fixed
@@ -125,7 +133,6 @@
       </v-btn> 
       
       </v-speed-dial>
-      <br>
       
     </div>
   </div>
@@ -260,10 +267,12 @@ export default class Study extends SkldrVue {
   public sessionFinished: boolean = false;
   public sessionRecord: StudySessionRecord[] = [];
 
+  private percentageRemaining: number = 100;
   private timeRemaining: number = this.$store.state.views.study.sessionTimeLimit * 60;
   private _intervalHandler: NodeJS.Timeout;
   private tick() {
     this.timeRemaining = this.sessionController.secondsRemaining;
+    this.percentageRemaining = 100 * (this.timeRemaining / (60 * this.$store.state.views.study.sessionTimeLimit));
 
     if (this.timeRemaining === 0) {
       clearInterval(this._intervalHandler);
@@ -678,7 +687,8 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
       });
     } catch (e) {
       log(`Error loading card: ${JSON.stringify(e)}, ${e}`);
-      this.nextCard(qualified_id, 'dismiss-error');
+      // this.nextCard(qualified_id, 'dismiss-error');
+      this.loadCard(this.sessionController.nextCard('dismiss-error'));
     } finally {
       this.loading = false;
     }
