@@ -236,7 +236,7 @@ export default class Playback extends QuestionView<EchoQuestion> {
     this.gradedSeq = qSylSeq.grade(aSylSeq);
     this.inputSeq = eventsToSyllableSequence([]);
 
-    console.log("Graded Sequence:\n" + this.gradedSeq.toString());
+    // console.log("Graded Sequence:\n" + this.gradedSeq.toString());
     console.log("Graded Sequence is correct: " + this.gradedSeq.isCorrect());
 
     if (!this.submitAnswer(this.midi.recording).isCorrect) {

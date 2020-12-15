@@ -111,7 +111,7 @@ export default class MidiInput extends FieldInput {
     this.midi.play();
     // this.SylSeq = eventsToSyllableSequence(this.midi.recording);
     this.display = true;
-    console.log(eventsToSyllableSequence(this.midi.recording).toString());
+    // console.log(eventsToSyllableSequence(this.midi.recording).toString());
     this.validate();
   }
 }

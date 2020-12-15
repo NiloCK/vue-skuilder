@@ -554,7 +554,7 @@ async function clearLocalGuestDB() {
 
 export function getUserDB(username: string): PouchDB.Database {
   let guestAccount: boolean = false;
-  console.log(`Getting user db: ${username}`);
+  // console.log(`Getting user db: ${username}`);
 
   const hexName = hexEncode(username);
   const dbName = `userdb-${hexName}`;

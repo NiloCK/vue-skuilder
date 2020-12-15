@@ -181,7 +181,6 @@ export default class SessionConfiguration extends SkldrVue {
     Promise.all(this.activeCourses.map((c, i) =>
 
       (async (courseID: string) => {
-        console.log(`test ${courseID}`);
         return Promise.all([
           this.activeCourses[i].name = await getCourseName(c.courseID),
           this.activeCourses[i].reviews =
