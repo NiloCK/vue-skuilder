@@ -72,13 +72,13 @@
         />
       </div>
       <v-btn
+          v-if="!sessionFinished"
           fab
-          color="primary"
+          color="white"
           bottom
           left
           fixed
-          @click.native.stop="click"
-          :title="`${timeRemaining} seconds left!`"
+          :title="timeString"
         >
             <v-progress-circular
             alt="Time remaining in study session"
@@ -86,10 +86,14 @@
             size='64'
             width=32
             rotate="-90"
-            :value="100 - percentageRemaining"
-          />
+            :color="timerColor"
+            :value="percentageRemaining"
+            >
+            <!-- {{timeRemaining > 60 ? `${Math.floor(timeRemaining / 60)}:${timeRemaining % 60}` : `${timeRemaining}` }} -->
+            </v-progress-circular>
         </v-btn>
       <v-speed-dial
+      v-if="!sessionFinished"
         v-model="fab"
         fixed
         bottom
@@ -268,15 +272,40 @@ export default class Study extends SkldrVue {
   public sessionRecord: StudySessionRecord[] = [];
 
   private percentageRemaining: number = 100;
+  private get timerColor(): string {
+    if (this.timeRemaining > 60) {
+      return 'primary';
+    } else {
+      return 'orange darken-3';
+    }
+  }
+
+  private timeString: string = "";
   private timeRemaining: number = this.$store.state.views.study.sessionTimeLimit * 60;
   private _intervalHandler: NodeJS.Timeout;
   private tick() {
     this.timeRemaining = this.sessionController.secondsRemaining;
-    this.percentageRemaining = 100 * (this.timeRemaining / (60 * this.$store.state.views.study.sessionTimeLimit));
+    this.setTimeString();
+
+    this.percentageRemaining = this.timeRemaining > 60 ?
+      100 * (this.timeRemaining / (60 * this.$store.state.views.study.sessionTimeLimit)) :
+      100 * (this.timeRemaining / 60);
 
     if (this.timeRemaining === 0) {
       clearInterval(this._intervalHandler);
     }
+  }
+  private setTimeString() {
+    this.timeString = "";
+    if (this.timeRemaining > 60) {
+      this.timeString = Math.floor(this.timeRemaining / 60).toString() + ":";
+    }
+    const secondsRemaining: number = this.timeRemaining % 60;
+    this.timeString += (secondsRemaining >= 10) ? (secondsRemaining) : '0' + secondsRemaining;
+    if (this.timeRemaining <= 60) {
+      this.timeString += ' seconds';
+    }
+    this.timeString += ' left!';
   }
 
   public loading: boolean = false;
