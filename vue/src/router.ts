@@ -10,6 +10,7 @@ import ClassroomCtrlPanel from './components/Classrooms/ClassroomCtrlPanel.vue';
 import JoinCode from './components/Classrooms/JoinCode.vue';
 import Courses from './views/Courses.vue';
 import CourseInformation from './components/Courses/CourseInformation.vue';
+import ELOModerator from './components/Courses/EloModeration.vue';
 import Admin from './views/Admin.vue';
 import User from './views/User.vue';
 import ReleaseNotes from './views/ReleaseNotes.vue';
@@ -93,6 +94,19 @@ export default new Router({
       props: true,
       alias: ['/quilts/:_id', '/q/:_id'],
       component: CourseInformation,
+      // children: [
+      //   {
+      //     path: 'elo',
+      //     component: ELOModerator,
+      //     props: true
+      //   }
+      // ]
+    },
+    {
+      path: '/courses/:_id/elo',
+      props: true,
+      alias: ['/quilts/:_id/elo', '/q/:_id/elo'],
+      component: ELOModerator,
     },
     {
       path: '/courses/:previewCourseID/preview',
