@@ -1,5 +1,5 @@
 import { randomInt } from '@/courses/math/utility';
-import { StudyContentSource, StudySessionFailedItem, StudySessionItem, StudySessionNewItem, StudySessionReviewItem } from "./contentSource";
+import { isReview, StudyContentSource, StudySessionFailedItem, StudySessionItem, StudySessionNewItem, StudySessionReviewItem } from "./contentSource";
 import { ScheduledCard, User } from './userDB';
 import { CardRecord } from './types';
 import { removeScheduledCardReview } from '.';
@@ -287,29 +287,50 @@ export default class SessionController extends Loggable {
     return this._currentCard;
   }
 
-  private dismissCurrentCard(action: string) {
+  private dismissCurrentCard(action: 'dismiss-success' |
+    'dismiss-failed' |
+    'marked-failed' |
+    'dismiss-error'
+    = 'dismiss-success') {
+
     if (this._currentCard) {
-      if (action.includes('dismiss')) {
-        if (this._currentCard.status === 'review' ||
-          this._currentCard.status === 'failed-review') {
-          removeScheduledCardReview(this.user.username,
-            (this._currentCard as StudySessionReviewItem).reviewID);
-        }
-      }
+      // this.log(`Running dismissCurrentCard on ${this._currentCard!.qualifiedID}`);
+      // if (action.includes('dismiss')) {
+      //   if (this._currentCard.status === 'review' ||
+      //     this._currentCard.status === 'failed-review') {
+      //     removeScheduledCardReview(this.user.username,
+      //       (this._currentCard as StudySessionReviewItem).reviewID);
+      //     this.log(`Dismissed review card: ${this._currentCard.qualifiedID}`)
+      //   }
+      // }
 
       if (action === 'dismiss-success') {
         // schedule a review - currently done in Study.vue
       } else if (action === 'marked-failed') {
-        const status = this._currentCard.status.includes('new') ? 'failed-new' : 'failed-review';
 
-        const failedItem: StudySessionFailedItem = {
-          cardID: this._currentCard.cardID,
-          courseID: this._currentCard.courseID,
-          qualifiedID: this._currentCard.qualifiedID,
-          contentSourceID: this._currentCard.contentSourceID,
-          contentSourceType: this._currentCard.contentSourceType,
-          status
-        };
+        let failedItem: StudySessionFailedItem;
+
+        if (isReview(this._currentCard)) {
+          failedItem = {
+            cardID: this._currentCard.cardID,
+            courseID: this._currentCard.courseID,
+            qualifiedID: this._currentCard.qualifiedID,
+            contentSourceID: this._currentCard.contentSourceID,
+            contentSourceType: this._currentCard.contentSourceType,
+            status: 'failed-review',
+            reviewID: this._currentCard.reviewID
+          };
+        } else {
+          failedItem = {
+            cardID: this._currentCard.cardID,
+            courseID: this._currentCard.courseID,
+            qualifiedID: this._currentCard.qualifiedID,
+            contentSourceID: this._currentCard.contentSourceID,
+            contentSourceType: this._currentCard.contentSourceType,
+            status: 'failed-new',
+          };
+        }
+
         this.failedQ.add(failedItem);
       } else if (action === 'dismiss-error') {
         // some error logging?

@@ -2,8 +2,13 @@ import { StudentClassroomDB } from './classroomDB';
 import { CourseDB } from './courseDB';
 import { ScheduledCard } from './userDB';
 
-export interface StudySessionFailedItem extends StudySessionItem {
-  status: 'failed-new' | 'failed-review';
+export type StudySessionFailedItem = StudySessionFailedNewItem | StudySessionFailedReviewItem;
+
+export interface StudySessionFailedNewItem extends StudySessionItem {
+  status: 'failed-new';
+}
+export interface StudySessionFailedReviewItem extends StudySessionReviewItem {
+  status: 'failed-review';
 }
 
 export interface StudySessionNewItem extends StudySessionItem {
@@ -12,7 +17,15 @@ export interface StudySessionNewItem extends StudySessionItem {
 
 export interface StudySessionReviewItem extends StudySessionItem {
   reviewID: string;
-  status: 'review';
+  status: 'review' | 'failed-review';
+}
+export function isReview(item: StudySessionItem): item is StudySessionReviewItem {
+  const ret = item.status === 'review' || item.status === 'failed-review' || (item as any).reviewID;
+
+  // console.log(`itemIsReview: ${ret}
+  // \t${JSON.stringify(item)}`);
+
+  return ret;
 }
 
 export interface StudySessionItem {

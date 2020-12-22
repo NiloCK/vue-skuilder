@@ -52,16 +52,24 @@
             v-bind:sessionOrder="cardCount"
             v-on:emitResponse="processResponse($event)"
         />
+        <!-- <card-loader
+          :class="loading ? 'muted' : ''"
+          :qualified_id="`${courseID}-${cardID}`"
+          :sessionOrder="cardCount"
+          v-on:emitResponse="processResponse($event)"
+        /> -->
       </div>
 
       <br>
       <div v-if="sessionController">
         <span class='headline' v-for="i in sessionController.failedCount" :key="i">•</span>
-        <!-- {{ cardType }}
+        <!-- {{ cardType }} -->
+        <!-- 
         <br><br><br>
         Session Report: {{ sessionController.reportString()}}
         <br><br><br>
-        Current Queues: {{ sessionController.toString() }} -->
+        Current Queues: {{ sessionController.toString() }}
+         -->
       </div>
 
       <div v-if="!sessionFinished && editTags">
@@ -156,6 +164,7 @@ import {
 import Viewable, { isQuestionView } from '@/base-course/Viewable';
 import { Component, Prop } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
+import CardLoader from '@/components/Study/CardLoader.vue';
 import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
 import Courses, { NameSpacer } from '@/courses';
 import {
@@ -163,7 +172,6 @@ import {
   putCardRecord,
   scheduleCardReview,
   getCourseDoc,
-  // getEloNeighborCards,
   removeScheduledCardReview
 } from '@/db';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
@@ -182,9 +190,8 @@ import { randomInt } from '../courses/math/utility';
 import { GuestUsername } from '@/store';
 import { CourseConfig } from '../server/types';
 import SkldrControlsView from '../components/SkMouseTrap.vue';
-import { ContentSourceID, getStudySource, StudyContentSource, StudySessionFailedItem, StudySessionItem, StudySessionNewItem, StudySessionReviewItem } from '@/db/contentSource';
+import { ContentSourceID, getStudySource, isReview, StudyContentSource, StudySessionFailedItem, StudySessionItem, StudySessionNewItem, StudySessionReviewItem } from '@/db/contentSource';
 import SessionController, { StudySessionRecord } from '@/db/SessionController';
-// import CardCache from '@/db/cardCache';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
@@ -235,6 +242,7 @@ final  ${upA}         ${upB}
 @Component({
   components: {
     CardViewer,
+    CardLoader,
     SkldrControlsView,
     SkTagsInput,
     SessionConfiguration
@@ -519,6 +527,9 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
       if (r.isCorrect) {
         this.$refs.shadowWrapper.classList.add('correct');
         if (r.priorAttemps === 0) {
+          const item: StudySessionItem = {
+            ...this.currentCard.item
+          }
           // user got the question right on 'the first try'.
           // dismiss the card from this study session, and
           // schedule its review in the future.
@@ -527,7 +538,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
 
           // elo win for the user
           cardHistory.then((history) => {
-            this.scheduleReview(history, this.currentCard.item);
+            this.scheduleReview(history, item);
             if (history.records.length === 1) {
               // correct answer on first sight: elo win for student
               this.updateUserAndCardElo(1, this.courseID, this.cardID);
@@ -551,7 +562,6 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
         this.$refs.shadowWrapper.classList.add('incorrect');
         // elo loss for the user
         cardHistory.then((history) => {
-          this.scheduleReview(history, this.currentCard.item);
           if (history.records.length !== 1 && r.priorAttemps === 0) {
             // incorrect answer on a scheduled review: elo win for card
             this.updateUserAndCardElo(0, this.courseID, this.cardID);
@@ -638,6 +648,11 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
   private async scheduleReview(history: CardHistory<CardRecord>, item: StudySessionItem) {
     const nextInterval = newInterval(history.records);
     const nextReviewTime = moment.utc().add(nextInterval, 'seconds');
+
+    if (isReview(item)) {
+      log(`Removing previously scheduled review for: ${item.cardID}`);
+      removeScheduledCardReview(this.user.username, item.reviewID);
+    }
 
     scheduleCardReview(
       {
