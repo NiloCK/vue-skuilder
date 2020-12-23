@@ -15,6 +15,7 @@ import { getCourseConfigs } from './courseDB';
 import { Status } from '@/enums/Status';
 import moment from 'moment';
 import { Moment } from 'moment';
+import { CardHistory, CardRecord, getCardHistoryID } from './types';
 
 const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' +
   ENV.COUCHDB_SERVER_URL + 'skuilder';
@@ -177,6 +178,27 @@ Currently logged-in as ${this._username}.`);
     return ret;
   }
 
+  public async updateCardHistory(courseID: string,
+    cardID: string,
+    h: Partial<CardHistory<CardRecord>>,
+    attempt: number = 0
+  ) {
+    this.remoteDB.get<CardHistory<CardRecord>>(getCardHistoryID(courseID, cardID)).then(dbh => {
+      dbh = {
+        ...dbh,
+        ...h
+      }
+
+      this.remoteDB.put(dbh).catch(err => {
+        if (err.name === 'conflict' && attempt <= 3) {
+          this.updateCardHistory(courseID, cardID, h, attempt + 1);
+        } else {
+          throw err;
+        }
+      });
+    });
+  }
+
   public async getCourseRegistrationsDoc():
     Promise<CourseRegistrationDoc & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta> {
     console.log(`Fetching courseRegistrations for ${this.username}`);
@@ -214,7 +236,6 @@ Currently logged-in as ${this._username}.`);
   public async getPendingReviews(course_id?: string) {
     const keys = getStartAndEndKeys(REVIEW_PREFIX);
     const now = moment.utc();
-    log(`Fetching scheduled reviews for course: ${course_id}`);
 
     const reviews = await this.remoteDB.allDocs<ScheduledCard>({
       startkey: keys.startkey,
@@ -335,7 +356,7 @@ Currently logged-in as ${this._username}.`);
       await User._instance.init();
       return User._instance;
     } else if (User._instance && User._initialized) {
-      log(`USER.instance() returning user ${User._instance._username}`);
+      // log(`USER.instance() returning user ${User._instance._username}`);
       return User._instance;
     } else if (User._instance) {
       return new Promise((resolve, reject) => {

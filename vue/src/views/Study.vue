@@ -646,7 +646,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
   }
 
   private async scheduleReview(history: CardHistory<CardRecord>, item: StudySessionItem) {
-    const nextInterval = newInterval(history.records);
+    const nextInterval = newInterval(history);
     const nextReviewTime = moment.utc().add(nextInterval, 'seconds');
 
     if (isReview(item)) {

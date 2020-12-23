@@ -1,7 +1,9 @@
-import { QuestionRecord, CardRecord, isQuestionRecord } from '@/db/types';
+import { QuestionRecord, CardRecord, isQuestionRecord, CardHistory, areQuestionRecords } from '@/db/types';
 import { duration, Moment } from 'moment';
 import { log } from 'util';
 import Store from '@/store';
+import cardCache from './cardCache';
+import { updateUserElo, User } from './userDB';
 
 /**
  * Returns the minimum number of seconds that should pass before a
@@ -9,22 +11,49 @@ import Store from '@/store';
  *
  * @param cardHistory The user's history working with the given card
  */
-export function newInterval<T extends CardRecord>(cardHistory: T[]): number {
-    if (isQuestionRecord(cardHistory[0])) {
-        return newQuestionInterval(cardHistory as unknown as QuestionRecord[]);
+export function newInterval(cardHistory: CardHistory<CardRecord>): number {
+    const records = cardHistory.records;
+    if (areQuestionRecords(cardHistory)) {
+        return newQuestionInterval(cardHistory);
     } else {
         return 100000; // random - replace
     }
 }
 
-function newQuestionInterval(cardHistory: QuestionRecord[]) {
-    const currentAttempt = cardHistory[cardHistory.length - 1];
-    const lastInterval: number = lastSuccessfulInterval(cardHistory);
+function newQuestionInterval(cardHistory: CardHistory<QuestionRecord>) {
+    const records = cardHistory.records;
+    const currentAttempt = records[records.length - 1];
+    const lastInterval: number = lastSuccessfulInterval(records);
+
+    if (lastInterval > cardHistory.bestInterval) {
+        cardHistory.bestInterval = lastInterval;
+        // update bestInterval on cardHistory in db
+        User.instance().then((u) => {
+            u.updateCardHistory(cardHistory.courseID, cardHistory.cardID, {
+                bestInterval: lastInterval
+            });
+        });
+    }
 
     if (currentAttempt.isCorrect) {
         const skill = demonstratedSkill(currentAttempt);
         log(`Demontrated skill: \t${skill}`);
-        return lastInterval * (0.5 + skill);
+        const interval: number = lastInterval * (0.75 + skill);
+        cardHistory.lapses = getLapses(cardHistory.records);
+        cardHistory.streak = getStreak(cardHistory.records);
+
+        if (cardHistory.lapses && cardHistory.streak && cardHistory.bestInterval &&
+            (cardHistory.lapses >= 0 || cardHistory.streak >= 0)) {
+            // weighted average of best-ever performance vs current performance, based
+            // on how often the card has been failed, and the current streak of success
+            const ret = (cardHistory.lapses * interval + cardHistory.streak * cardHistory.bestInterval) /
+                (cardHistory.lapses + cardHistory.streak);
+            console.log(`Weighted average interval calculation:
+\t(${cardHistory.lapses} * ${interval} + ${cardHistory.streak} * ${cardHistory.bestInterval}) / (${cardHistory.lapses} + ${cardHistory.streak}) = ${ret}`);
+            return ret;
+        } else {
+            return interval;
+        }
     } else {
         return 0;
     }
@@ -51,6 +80,21 @@ function lastSuccessfulInterval(cardHistory: QuestionRecord[]): number {
     }
 
     return getInitialInterval(cardHistory); // used as a magic number here - indicates no prior intervals
+}
+
+function getStreak(records: QuestionRecord[]): number {
+    let streak = 0;
+    let index = records.length - 1;
+
+    while (index >= 0 && records[index].isCorrect) {
+        index--;
+        streak++;
+    }
+
+    return streak;
+}
+function getLapses(records: QuestionRecord[]): number {
+    return records.filter(r => r.isCorrect === false).length;
 }
 
 function getInitialInterval(cardHistory: QuestionRecord[]): number {

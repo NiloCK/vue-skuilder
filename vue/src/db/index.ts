@@ -21,8 +21,7 @@ import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
 import { log } from 'util';
-import { ScheduledCard } from './UserDB';
-import { getUserDB, getLocalUserDB } from './userDB';
+import { ScheduledCard, getUserDB, User } from './userDB';
 import _ from 'lodash';
 
 (window as any).process = process; // required as a fix for pouchdb - see #18
@@ -170,15 +169,22 @@ export async function getRandomCards(courseIDs: string[]) {
   }
 }
 
-export async function putCardRecord<T extends CardRecord>(record: T, user: string) {
+export async function putCardRecord<T extends CardRecord>(record: T, user: string): Promise<CardHistory<CardRecord>> {
   const userDB = getUserDB(user);
   const cardHistoryID = getCardHistoryID(record.courseID, record.cardID);
 
   try {
     const cardHistory = await userDB.get<CardHistory<T>>(cardHistoryID);
     cardHistory.records.push(record);
-    userDB.put(cardHistory);
+    User.instance().then((u) => {
+      u.updateCardHistory(cardHistory.courseID, cardHistory.cardID, cardHistory)
+    });
+
+    // userDB.put(cardHistory);
     momentifyCardHistory<T>(cardHistory);
+    if (cardHistory.bestInterval === undefined) {
+      cardHistory.bestInterval = 0;
+    }
     return cardHistory;
   } catch (reason) {
     if (reason.status === 404) {
@@ -188,6 +194,7 @@ export async function putCardRecord<T extends CardRecord>(record: T, user: strin
         courseID: record.courseID,
         records: [record],
         lapses: 0,
+        streak: 0,
         bestInterval: 0
       };
       momentifyCardHistory<T>(initCardHistory);

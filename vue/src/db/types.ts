@@ -129,6 +129,12 @@ export interface CardHistory<T extends CardRecord> {
      */
     lapses: number;
 
+    /**
+     * The number of consecutive successful impressions
+     * on this card
+     */
+    streak: number;
+
     records: T[];
 }
 
@@ -163,6 +169,10 @@ export interface QuestionRecord extends CardRecord {
      * records being created having 0, 1, and 2 as their
      */
     priorAttemps: number;
+}
+
+export function areQuestionRecords(h: CardHistory<CardRecord>): h is CardHistory<QuestionRecord> {
+    return isQuestionRecord(h.records[0]);
 }
 
 export function isQuestionRecord(c: CardRecord): c is QuestionRecord {

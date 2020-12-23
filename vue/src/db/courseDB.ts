@@ -70,17 +70,32 @@ export class CourseDB implements StudyContentSource {
       };
     });
   }
-  public async getNewCards(limit: number = 99): Promise<StudySessionNewItem[]> {
-    const u = await User.instance();
-    const activeCards = await u.getActiveCards(this.id);
+  public async getCardsCenteredAtELO(options:
+    {
+      limit: number,
+      elo: 'user' | 'random' | number
+    } = {
+      limit: 99,
+      elo: 'user'
+    }, filter?: (a: string) => boolean): Promise<StudySessionItem[]> {
+    let elo: number;
 
-    let elo = -1;
-    try {
-      elo = (await u.getCourseRegistrationsDoc()).courses.find(c => {
-        return c.courseID === this.id
-      })!.elo;
-    } catch {
-      elo = 1000;
+    if (options.elo === 'user') {
+
+      const u = await User.instance();
+
+      elo = -1;
+      try {
+        elo = (await u.getCourseRegistrationsDoc()).courses.find(c => {
+          return c.courseID === this.id
+        })!.elo;
+      } catch {
+        elo = 1000;
+      }
+    } else if (options.elo === 'random') {
+      elo = Math.round(Math.random() * 2000);
+    } else {
+      elo = options.elo;
     }
 
     let cards: string[] = [];
@@ -88,27 +103,24 @@ export class CourseDB implements StudyContentSource {
     let previousCount: number = -1;
     let newCount: number = 0;
 
-    while (cards.length < limit && newCount !== previousCount) {
-      cards = await this.getCardsByELO(elo, mult * limit);
+    while (cards.length < options.limit && newCount !== previousCount) {
+      cards = await this.getCardsByELO(elo, mult * options.limit);
       previousCount = newCount;
       newCount = cards.length;
 
       console.log(`Found ${cards.length} elo neighbor cards...`);
-      cards = cards.filter(c => {
-        if (activeCards.some(ac => c.includes(ac))) {
-          return false;
-        } else {
-          return true;
-        }
-      });
-      console.log(`Filtered to ${cards.length} cards...`)
+
+      if (filter) {
+        cards = cards.filter(filter);
+        console.log(`Filtered to ${cards.length} cards...`)
+      }
 
       mult *= 2;
     }
 
     const selectedCards: string[] = [];
 
-    while (selectedCards.length < limit && cards.length > 0) {
+    while (selectedCards.length < options.limit && cards.length > 0) {
       const index = randIntWeightedTowardZero(cards.length);
       const card = cards.splice(index, 1)[0];
       selectedCards.push(card);
@@ -126,6 +138,24 @@ export class CourseDB implements StudyContentSource {
           status: 'new'
         };
       });
+
+  }
+  public async getNewCards(limit: number = 99): Promise<StudySessionNewItem[]> {
+    const u = await User.instance();
+
+    const activeCards = await u.getActiveCards(this.id);
+    return (await this.getCardsCenteredAtELO({ limit: limit, elo: 'user' }, (c: string) => {
+      if (activeCards.some(ac => c.includes(ac))) {
+        return false;
+      } else {
+        return true;
+      }
+    })).map(c => {
+      return {
+        ...c,
+        status: 'new'
+      }
+    });
   }
 
   private async getCardsByELO(elo: number, cardLimit?: number) {
@@ -189,7 +219,7 @@ function getCourseDB(courseID: string): PouchDB.Database {
 
 export async function getCourseName(courseID: string): Promise<string> {
   let ret = ((await courseLookupDB.get(courseID)) as any)['name'];
-  console.log(ret);
+  // console.log(ret);
   return ret;
 }
 
