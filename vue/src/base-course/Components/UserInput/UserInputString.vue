@@ -4,11 +4,14 @@
         :prepend-icon="prependIcon"
         @keyup.enter="submitAnswer(answer)"
         :autofocus="autofocus"
-        row-height="24"
         toggle-keys="[13,32]"
         type="text"
         class='headline'
 
+        single-line
+        hide-details
+        hide-headers
+        hide-overlay
     ></v-text-field>
 </template>
 
@@ -35,4 +38,10 @@ export default class UserInputString extends UserInput {
 </script>
 
 <style scoped>
+.v-text-field {
+  padding: 0;
+}
+input {
+  text-align: center !important;
+}
 </style>

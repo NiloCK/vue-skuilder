@@ -1,6 +1,6 @@
 <template>
   <span
-   v-if='inputType === "radio"'
+   v-if='radioType'
    class='headline underline'
   >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
   <user-input-string
@@ -29,9 +29,15 @@ export default class FillInInput extends FillInBase {
 
   public inputType: 'text' | 'radio';
 
+  private get radioType() {
+    return this.text.split('||').length > 1;
+  }
+
   private created() {
+    console.log(`fillinCreated w/ text: ${this.text}`);
     this.text = this.text.substring(2);
     this.text = this.text.substring(0, this.text.length - 2);
+    console.log(`fillin text trimmed to: ${this.text}`);
 
     const split = this.text.split('||');
     if (split.length > 1) {

@@ -1,6 +1,6 @@
 <template>
     <div
-        :class='className'
+        :class="`${className} headline`"
         @mouseover="select"
         @click="submitThisOption"
     >
@@ -57,8 +57,8 @@ export default class MultipleChoiceOption extends Vue {
 .choice {
   display: inline-block;
   border-radius: 4px;
-  padding: 15px;
-  margin: 10px;
+  padding: 10px;
+  margin: 8px;
 }
 
 .selected {

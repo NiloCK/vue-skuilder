@@ -26,7 +26,9 @@ import { Answer } from '../Displayable';
   }
 })
 export default class RadioSelect extends UserInput {
-  @Prop() public choiceList: string[];
+  @Prop({
+    required: true
+  }) public choiceList: string[];
   @Prop() public MouseTrap: MousetrapInstance;
   // @Prop() public submit: (selection: number) => void;
 
