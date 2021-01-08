@@ -66,6 +66,9 @@ export default class SessionController extends Loggable {
   private endTime: Date;
   private _secondsRemaining: number;
   public get secondsRemaining(): number { return this._secondsRemaining; }
+  public get report(): string {
+    return `${this.reviewQ.dequeueCount} reviews, ${this.newQ.dequeueCount} new cards`;
+  }
   private _intervalHandle: NodeJS.Timeout;
 
   /**
@@ -219,6 +222,7 @@ export default class SessionController extends Loggable {
       && this.failedQ.length === 0
       && this.newQ.length === 0
     ) {
+      // all queues empty - session is over (and course is complete?)
       this._currentCard = null;
       return this._currentCard;
     }
