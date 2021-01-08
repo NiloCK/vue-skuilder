@@ -37,6 +37,7 @@
 
       <div v-else-if='sessionFinished' class='display-1'>
         <p>Study session finished! Great job!</p>
+        <p>{{sessionController.report}}</p>
         <p>Start <a @click="refreshRoute">another study session</a>, or try 
         <router-link :to="`/edit/${courseID}`">adding some new content</router-link> to challenge yourself and others!
         </p>
