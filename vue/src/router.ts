@@ -122,7 +122,13 @@ export default new Router({
       path: '/user/:_id',
       alias: '/u/:_id',
       props: true,
-      component: User
+      component: User,
+      children: [
+        {
+          path: 'new',
+          component: User
+        }
+      ]
     }
   ]
 });

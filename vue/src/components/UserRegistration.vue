@@ -80,7 +80,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import { doesUserExist } from '@/db/userDB';
+import { doesUserExist, User } from '@/db/userDB';
 import { log } from 'util';
 import { AppState } from '@/store';
 import { Emit } from 'vue-property-decorator';
@@ -147,15 +147,15 @@ Teacher: ${this.teacher}
 Author: ${this.author}
 `);
     if (true) {
-
-
       if (this.password === this.retypedPassword) {
-        this.$store.state._user!.createAccount(this.username, this.password).then((resp) => {
+        this.$store.state._user!.createAccount(this.username, this.password).then(async (resp) => {
           if (resp.status === Status.ok) {
 
             this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
             this.$store.state.userLoginAndRegistrationContainer.init = false;
             this.$store.state.userLoginAndRegistrationContainer.init = true;
+
+            this.$router.push(`/u/${(await User.instance()).username}/new`);
           } else {
             if (resp.error === "This username is taken!") {
               this.usernameError = true;

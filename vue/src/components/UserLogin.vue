@@ -82,6 +82,7 @@ export default class UserLogin extends SkldrVue {
     try {
       const res = await this.$store.state._user!.login(this.username, this.password);
       this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
+      this.$router.push('/study')
     } catch (e) {
       this.initBadLogin();
     }

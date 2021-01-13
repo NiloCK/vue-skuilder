@@ -24,11 +24,20 @@
         </v-chip>
         
         <v-list>
+          <!-- eventual notifications bar -->
           <v-list-tile v-for="item in items" :key="item.key" @click="dismiss(item)">
             <v-list-tile-title>{{ item }}</v-list-tile-title>
           </v-list-tile>
-          <v-divider />
+
+          <v-divider v-if="items.length" />
+
+          <v-list-tile @click="gotoSettings">
+            <v-icon left>settings</v-icon>
+            <v-list-tile-title>Settings</v-list-tile-title>
+          </v-list-tile>
+
           <v-list-tile @click="logout">
+            <v-icon left>launch</v-icon>
             <v-list-tile-title>Log out</v-list-tile-title>
           </v-list-tile>
         </v-list>
@@ -59,6 +68,9 @@ export default class UserChip extends SkldrVue {
     User.instance().then((u) => {
       this.username = u.username;
     });
+  }
+  public async gotoSettings() {
+    this.$router.push(`/u/${(await User.instance()).username}`);
   }
 
   private dismiss(item: string) {
