@@ -1,5 +1,5 @@
 <template>
-  <v-app >
+  <v-app :dark="dark">
   <!-- class="blue darken-2 grey--text text--lighten-5" dark> -->
     <v-navigation-drawer
       clipped
@@ -126,6 +126,10 @@ export default class App extends SkldrVue {
   public build: string = '0.0.2';
   public latestBuild: string = '';
   public drawer: boolean = false;
+
+  public get dark() {
+    return this.$store.state.config.darkMode; // User.config.darkMode
+  }
 
   async created() {
     this.latestBuild = await getLatestVersion();
