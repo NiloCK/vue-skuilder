@@ -208,6 +208,7 @@ import { CourseConfig } from '../server/types';
 import SkldrControlsView from '../components/SkMouseTrap.vue';
 import { ContentSourceID, getStudySource, isReview, StudyContentSource, StudySessionFailedItem, StudySessionItem, StudySessionNewItem, StudySessionReviewItem } from '@/db/contentSource';
 import SessionController, { StudySessionRecord } from '@/db/SessionController';
+import confetti from 'canvas-confetti';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
@@ -551,6 +552,18 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
       log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
       if (r.isCorrect) {
         this.$refs.shadowWrapper.classList.add('correct');
+
+        if (this.$store.state.config.likesConfetti) {
+          confetti({
+            origin: {
+              y: 1,
+              x: 0.25 + 0.5 * Math.random()
+            },
+            disableForReducedMotion: true,
+            angle: 60 + 60 * Math.random(),
+          });
+        }
+
         if (r.priorAttemps === 0) {
           const item: StudySessionItem = {
             ...this.currentCard.item
