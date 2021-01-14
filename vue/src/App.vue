@@ -1,5 +1,5 @@
 <template>
-  <v-app :dark="dark">
+  <v-app v-if="$store.state.onLoadComplete" :dark="dark">
   <!-- class="blue darken-2 grey--text text--lighten-5" dark> -->
     <v-navigation-drawer
       clipped
@@ -24,7 +24,7 @@
         </v-list-tile>
         <v-list-tile
           v-if='true'
-          value="true"          
+          value="true"
           :to="{path: '/study'}"
         >
           <v-list-tile-action>

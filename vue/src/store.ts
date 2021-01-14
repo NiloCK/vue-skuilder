@@ -26,6 +26,11 @@ interface DataInputForm {
   uploading: boolean;
 }
 
+export interface UserConfig {
+  darkMode: boolean;
+  likesConfetti: boolean;
+}
+
 export interface AppState {
   _user?: User;
   userLoginAndRegistrationContainer: {
@@ -43,46 +48,56 @@ export interface AppState {
       sessionTimeLimit: number;
     }
   }
+  config: UserConfig;
+  onLoadComplete: boolean;
 }
 
-const Store = new Vuex.Store<AppState>({
-  state: {
-    _user: undefined,
-    userLoginAndRegistrationContainer: {
-      init: false,
-      loggedIn: false,
-      regDialogOpen: false,
-      loginDialogOpen: false
-    },
-    cardPreviewMode: false,
-    dataInputForm: {
-      course: null,
-      dataShape: null,
-      existingData: [],
-      fields: [],
-      localStore: {},
-      shapeViews: [],
-      uploading: false
-    },
-    views: {
-      study: {
-        inSession: false,
-        courseList: [],
-        sessionTimeLimit: 5
-      }
+export const defaultState: AppState = {
+  _user: undefined,
+  userLoginAndRegistrationContainer: {
+    init: false,
+    loggedIn: false,
+    regDialogOpen: false,
+    loginDialogOpen: false
+  },
+  cardPreviewMode: false,
+  dataInputForm: {
+    course: null,
+    dataShape: null,
+    existingData: [],
+    fields: [],
+    localStore: {},
+    shapeViews: [],
+    uploading: false
+  },
+  views: {
+    study: {
+      inSession: false,
+      courseList: [],
+      sessionTimeLimit: 5
     }
   },
-  mutations: {
-
+  config: {
+    darkMode: false,
+    likesConfetti: false
   },
-  actions: {
+  onLoadComplete: false
+};
 
-  }
+const Store = new Vuex.Store<AppState>({
+  state: defaultState,
+  mutations: {},
+  actions: {}
 });
-
 
 export default Store;
 
+export function setDefaultState() {
+  // console.log(`fweatifvzweatzvifwteazvifweta`);
+  // Store.state._user = defaultState._user;
+  Store.state.config = defaultState.config;
+  // Store.replaceState(defaultState);
+}
 
 checkAuthCookie();
 
@@ -104,12 +119,14 @@ function checkAuthCookie() {
     if (resp.userCtx.name !== undefined &&
       resp.userCtx.name !== '' &&
       resp.userCtx.name !== null) {
-      Store.state._user = (await User.instance(resp.userCtx.name))!;
+      Store.state._user = (await User.instance(resp.userCtx.name));
+      Store.state.config = await Store.state._user!.getConfig();
       Store.state.userLoginAndRegistrationContainer.loggedIn = true;
     } else {
       Store.state._user = (await User.instance(GuestUsername))!;
       Store.state.userLoginAndRegistrationContainer.loggedIn = false;
     }
+    Store.state.onLoadComplete = true;
     Store.state.userLoginAndRegistrationContainer.init = true;
   });
   authXML.open(

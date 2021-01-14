@@ -49,7 +49,6 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import { GuestUsername } from '@/store';
 import { log } from 'util';
 import { setTimeout } from 'timers';
 import SkldrVue from '../SkldrVue';
@@ -86,6 +85,10 @@ export default class UserChip extends SkldrVue {
         regDialogOpen: false,
         loginDialogOpen: false
       };
+
+      this.$store.state.config.darkMode = false;
+      this.$store.state.config.likesConfetti = false;
+
       this.$router.push('/home');
     }
   }
