@@ -13,12 +13,13 @@
 
       <v-checkbox
         label="I like confetti"
-        v-model="$store.state.config.likesConfetti"
+        v-model="confetti"
         @click.capture="updateConfetti"
       />
       <v-checkbox
         label="I like the dark"
-        v-model="$store.state.config.darkMode"
+        v-model="darkMode"
+        @click.capture="updateDark"
       />
       <h2 class='display-1'>Languages:</h2>
       I am near-fluent or better in the following languages:
@@ -52,8 +53,11 @@ export default class User extends SkldrVue {
   @Prop({
     required: true
   }) public _id: string;
+  private u = this.$store.state._user!;
 
-  public confetti: boolean = false;
+  public confetti: boolean = this.$store.state.config.likesConfetti;
+  public darkMode: boolean = this.$store.state.config.darkMode;
+
   public configLanguages: {
     name: string,
     code: string
@@ -69,8 +73,19 @@ export default class User extends SkldrVue {
     ];
   public selectedLanguages: string[] = [];
 
+  updateDark() {
+    this.u.setConfig({
+      darkMode: this.darkMode
+    })
+    this.$store.state.config.darkMode = this.darkMode;
+  }
+
   updateConfetti() {
     console.log(`Confetti updated...`);
+    this.u.setConfig({
+      likesConfetti: this.confetti
+    });
+    this.$store.state.config.likesConfetti = this.confetti;
 
     if (this.$store.state.config.likesConfetti) {
       confetti({
