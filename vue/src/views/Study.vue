@@ -80,27 +80,42 @@
             :cardID="cardID"
         />
       </div>
-      <v-btn
+      <v-tooltip
+        fixed
+        activator
+        right
+        open-delay="0"
+        close-delay="200"
+        color="secondary"
+        content-class="subheading"
+        transition="slide-x-transition"
+        v-model="timerIsActive"
+      >
+        <v-btn
+          slot="activator"
           v-if="!sessionFinished"
           fab
-          color="white"
+          color='transparent'
           bottom
           left
           fixed
           :title="timeString"
+          @click="if (timerIsActive) incrementSessionClock()"
         >
-            <v-progress-circular
+          <v-progress-circular
             alt="Time remaining in study session"
-            right
+            centered
             size='64'
-            width=32
-            rotate="-90"
+            width='8'
+            rotate='-90'
             :color="timerColor"
             :value="percentageRemaining"
-            >
-            <!-- {{timeRemaining > 60 ? `${Math.floor(timeRemaining / 60)}:${timeRemaining % 60}` : `${timeRemaining}` }} -->
-            </v-progress-circular>
+          >
+            <v-icon v-if='timerIsActive' large dark>add</v-icon>
+          </v-progress-circular>
         </v-btn>
+        {{timeString}}
+      </v-tooltip>
       <v-speed-dial
       v-if="!sessionFinished"
         v-model="fab"
@@ -289,9 +304,16 @@ export default class Study extends SkldrVue {
     }
   }
 
+  private timerIsActive: boolean = false;
   private timeString: string = "";
   private timeRemaining: number = this.$store.state.views.study.sessionTimeLimit * 60;
   private _intervalHandler: NodeJS.Timeout;
+  private incrementSessionClock() {
+    let max = (60 * this.$store.state.views.study.sessionTimeLimit) - this.timeRemaining;
+
+    this.sessionController.addTime(Math.min(max, 60));
+    this.tick();
+  }
   private tick() {
     this.timeRemaining = this.sessionController.secondsRemaining;
     this.setTimeString();
@@ -515,6 +537,8 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
 
   private processResponse(r: CardRecord) {
     // alert(JSON.stringify(r))
+    // clear the timer state
+    this.timerIsActive = false;
 
     r.cardID = this.cardID;
     r.courseID = this.courseID;
