@@ -1,24 +1,30 @@
+import MarkdownRenderer from '@/base-course/Components/MarkdownRenderer.vue';
+import UserLogin from '@/components/UserLogin.vue';
 import Vue from 'vue';
 import Router from 'vue-router';
-import Home from './views/Home.vue';
-import About from './views/About.vue';
-import Edit from './views/Edit.vue';
-import CourseEditor from './components/Edit/CourseEditor.vue';
-import Study from './views/Study.vue';
-import Classrooms from './views/Classrooms.vue';
 import ClassroomCtrlPanel from './components/Classrooms/ClassroomCtrlPanel.vue';
 import JoinCode from './components/Classrooms/JoinCode.vue';
-import Courses from './views/Courses.vue';
 import CourseInformation from './components/Courses/CourseInformation.vue';
 import ELOModerator from './components/Courses/EloModeration.vue';
+import CourseEditor from './components/Edit/CourseEditor.vue';
+import About from './views/About.vue';
 import Admin from './views/Admin.vue';
-import User from './views/User.vue';
+import Classrooms from './views/Classrooms.vue';
+import Courses from './views/Courses.vue';
+import Edit from './views/Edit.vue';
+import Home from './views/Home.vue';
 import ReleaseNotes from './views/ReleaseNotes.vue';
+import Study from './views/Study.vue';
+import User from './views/User.vue';
 
 Vue.use(Router);
 
 export default new Router({
   routes: [
+    {
+      path: '/md',
+      component: MarkdownRenderer
+    },
     {
       path: '/',
       alias: [
@@ -31,6 +37,11 @@ export default new Router({
       path: '/about',
       name: 'about',
       component: About
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: UserLogin
     },
     {
       path: '/edit',

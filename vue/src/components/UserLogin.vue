@@ -1,6 +1,9 @@
 <template>
-  <v-card>
+  <v-flex align-center>
+    
+  <v-card class='login'>
       <v-card-title
+        v-if="!loginRoute"
           class="headline grey lighten-2"
           primary-title
       >
@@ -41,6 +44,7 @@
       </v-form>
       </v-card-text>
   </v-card>
+  </v-flex>
 </template>
 
 <script lang="ts">
@@ -63,6 +67,9 @@ export default class UserLogin extends SkldrVue {
   private awaitingResponse: boolean = false;
   private badLoginAttempt: boolean = false;
   private readonly errorTimeout: number = 5000;
+  private get loginRoute(): boolean {
+    return this.$router.currentRoute.name! === 'login';
+  }
 
   private initBadLogin() {
     this.badLoginAttempt = true;
@@ -106,3 +113,9 @@ export default class UserLogin extends SkldrVue {
   }
 }
 </script>
+
+<style lang="css" scoped>
+.login {
+  max-width: 650px;
+}
+</style>
