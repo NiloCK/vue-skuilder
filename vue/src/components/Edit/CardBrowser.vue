@@ -1,12 +1,22 @@
 <template>
     <v-layout column wrap align-center justify-center>
-        <div>
-            <v-btn @click="decrementView" icon color="accent" >
-                <v-icon>chevron_left</v-icon>
+        <div class='subheading pa-2'>
+            <v-btn 
+              v-if="spinner"
+              @click="decrementView"
+              icon
+              color="accent"
+            >
+             <v-icon>chevron_left</v-icon>
             </v-btn>
             {{ views[viewIndex].name }}
-            <v-btn @click="incrementView" icon color="accent" >
-                <v-icon>chevron_right</v-icon>
+            <v-btn
+              v-if="spinner"
+              @click="incrementView"
+              icon
+              color="accent"
+            >
+                <v-icon alt='Hello'>chevron_right</v-icon>
             </v-btn>
         </div>
         <br><br>
@@ -33,6 +43,9 @@ export default class CardBrowser extends SkldrVue {
   @Prop() public views: Array<VueConstructor<Viewable>>;
   @Prop() public data: ViewData[];
   public viewIndex: number = 0;
+  public get spinner(): boolean {
+    return this.views.length > 1;
+  }
 
   private created() {
     log(`Card browser created. Cards now in 'prewviewMode'`);
