@@ -42,4 +42,11 @@ if (process.env.VUE_APP_DEBUG !== undefined) {
     ENV.DEBUG = process.env.VUE_APP_DEBUG === 'true';
 }
 
+if (ENV.DEBUG) {
+    console.log(`ENV init:`);
+    for (let s in ENV) {
+        console.log(`${s}:\n  ${(ENV as any)[s]}`)
+    }
+}
+
 export default ENV;
