@@ -1,6 +1,7 @@
 <template>
     <v-card>
         <v-card-title
+            v-if="!registrationRoute"
             class="headline grey lighten-2"
             primary-title
         >
@@ -69,7 +70,17 @@
                 <v-icon left dark>lock_open</v-icon>
                 Create Account
             </v-btn>
-            <v-btn @click="toggle" flat >
+            <router-link
+              v-if="registrationRoute"
+              to="login"
+            >
+              <v-btn flat>Log In</v-btn>
+            </router-link>
+            <v-btn
+             v-else
+             flat
+             @click="toggle"
+            >
                 Log In
             </v-btn>        
         </v-form>
@@ -107,6 +118,9 @@ export default class UserRegistration extends SkldrVue {
 
   private userSecret: string = '';
   private secret: string = 'goons';
+  private get registrationRoute(): boolean {
+    return this.$route.name!.toLowerCase() === 'signup';
+  }
 
   private readonly roles: string[] = [
     'Student',

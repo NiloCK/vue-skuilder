@@ -1,7 +1,11 @@
 <template>
-  <v-flex align-center>
+<!-- <v-container grid-list-xs align-center class='login'> -->
+  
+  <v-layout row wrap align-center>
     
-  <v-card class='login'>
+  <v-flex >
+    
+  <v-card>
       <v-card-title
         v-if="!loginRoute"
           class="headline grey lighten-2"
@@ -38,13 +42,25 @@
               <v-icon left dark>lock_open</v-icon>
               Log In
           </v-btn>
-          <v-btn @click="toggle" flat >
+          <router-link
+            v-if="loginRoute"
+            to="signup"
+          >
+            <v-btn flat>Create New Account</v-btn>
+          </router-link>
+          <v-btn
+            v-else
+            @click="toggle"
+            flat
+          >
               Create New Account
           </v-btn>        
       </v-form>
       </v-card-text>
   </v-card>
   </v-flex>
+  </v-layout>
+<!-- </v-container> -->
 </template>
 
 <script lang="ts">

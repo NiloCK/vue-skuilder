@@ -1,5 +1,5 @@
 <template>
-<transition v-if="$store.state._user" name="component-fade" mode="out-in">
+<transition v-if="$store.state._user && display" name="component-fade" mode="out-in">
   <div v-if="guestMode">
       <v-dialog
           v-model="regDialog"
@@ -54,6 +54,15 @@ import { User } from '../db/userDB';
 })
 export default class UserLoginAndRegistrationContainer extends SkldrVue {
   private readonly GuestUsername: string = GuestUsername;
+
+  private get display(): boolean {
+    if (this.$route.name!.toLowerCase() === 'login'
+      || this.$route.name!.toLowerCase() === 'signup') {
+      return false;
+    } else {
+      return true;
+    }
+  }
 
   private get guestMode(): boolean {
     if (this.$store.state._user) {
