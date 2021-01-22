@@ -29,7 +29,7 @@
       <tr v-for="course in activeCourses" :key="course.courseID">
         <td>
           <v-checkbox
-            :label="`Quilt: ${course.name}`"
+            :label="`q/${course.name}`"
             @click.capture="update"
             v-model="course.selected"
           />
@@ -45,13 +45,22 @@
       v-model="cardCount"
     /> -->
     <v-text-field
-      label="Time Limit for this Session"
-      hint="Study as much or as little as you like by adjusting this"
-      type="number"
+      class='flex xs12 sm6 md4 lg3 headline'
+      solo
+      prepend-inner-icon="access_time"
+      prepend-icon="remove"
+      append-outer-icon="add"
+      :suffix="timeLimit > 1 ? '(minutes)' : '(minute)'"
+      hint="Time Limit for this Session"
+      
       ref="numberField"
       v-model="timeLimit"
+      mask="##"
+      type='number'
+      @click:prepend='timeLimit--;'
+      @click:append-outer='timeLimit++;'
     />
-    <v-btn color="success" @click="startSession">Start Studying!</v-btn>
+    <v-btn class='flex ' color="success" @click="startSession">Start Studying!</v-btn>
   </div>
   <div v-else class='display-1'>
     <p>You don't have anything to study!</p>
@@ -78,7 +87,7 @@ interface SessionConfigMetaData {
 
 @Component({})
 export default class SessionConfiguration extends SkldrVue {
-  public allSelected: boolean = false;
+  public allSelected: boolean = true;
   public activeCourses: (CourseRegistration & SessionConfigMetaData)[] = [];
   public activeClasses: ({ classID: string } & SessionConfigMetaData)[] = [];
   private timeLimit: number = this.$store.state.views.study.sessionTimeLimit;
@@ -161,7 +170,7 @@ export default class SessionConfiguration extends SkldrVue {
           this.activeClasses.push({
             classID,
             name: classDb.getConfig().name,
-            selected: false,
+            selected: true,
             reviews: 0
           });
         })(c)
@@ -172,7 +181,7 @@ export default class SessionConfiguration extends SkldrVue {
     this.activeCourses = (await this.$store.state._user!.getActiveCourses()).map(c => {
       return {
         ...c,
-        selected: false,
+        selected: true,
         name: "",
         reviews: 0
       };
