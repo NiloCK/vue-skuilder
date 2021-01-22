@@ -1,5 +1,4 @@
 import MarkdownRenderer from '@/base-course/Components/MarkdownRenderer.vue';
-import UserLogin from '@/components/UserLogin.vue';
 import Vue from 'vue';
 import Router from 'vue-router';
 import ClassroomCtrlPanel from './components/Classrooms/ClassroomCtrlPanel.vue';
@@ -13,6 +12,8 @@ import Classrooms from './views/Classrooms.vue';
 import Courses from './views/Courses.vue';
 import Edit from './views/Edit.vue';
 import Home from './views/Home.vue';
+import Login from './views/Login.vue';
+import SignUp from './views/SignUp.vue';
 import ReleaseNotes from './views/ReleaseNotes.vue';
 import Study from './views/Study.vue';
 import User from './views/User.vue';
@@ -42,7 +43,12 @@ export default new Router({
     {
       path: '/login',
       name: 'login',
-      component: UserLogin
+      component: Login
+    },
+    {
+      path: '/signup',
+      name: 'signup',
+      component: SignUp
     },
     {
       path: '/edit',
