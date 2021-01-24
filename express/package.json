@@ -18,7 +18,7 @@
     "ffmpeg-static": "^2.4.0",
     "hashids": "^1.2.2",
     "nano": "^8.0.0",
-    "pouchdb": "^7.0.0"
+    "pouchdb": "7.2.2"
   },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",
