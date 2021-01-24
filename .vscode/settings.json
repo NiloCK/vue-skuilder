@@ -1,0 +1,7 @@
+{
+    "eslint.codeAction.showDocumentation": {
+        "enable": true
+    },
+    "eslint.packageManager": "yarn",
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
