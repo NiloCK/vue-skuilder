@@ -1,39 +1,39 @@
 {
-  "name": "sk-server",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Colin Kennedy",
-  "license": "GPL-3.0-or-later",
-  "dependencies": {
-    "body-parser": "^1.18.3",
-    "child-process-promise": "^2.2.1",
-    "cookie-parser": "^1.4.4",
-    "cors": "^2.8.5",
-    "dotenv": "^6.2.0",
-    "express": "^4.16.4",
-    "ffmpeg-static": "^2.4.0",
-    "hashids": "^1.2.2",
-    "nano": "^8.0.0",
-    "pouchdb": "7.2.2"
-  },
-  "devDependencies": {
-    "@types/body-parser": "^1.17.0",
-    "@types/child-process-promise": "^2.2.1",
-    "@types/cookie-parser": "^1.4.1",
-    "@types/cors": "^2.8.4",
-    "@types/dotenv": "^6.1.0",
-    "@types/express": "^4.16.0",
-    "@types/ffmpeg-static": "^2.0.0",
-    "@types/hashids": "^1.0.30",
-    "@types/node": "^10.12.18",
-    "@types/pouchdb": "^6.3.2",
-    "eslint": "^7.18.0",
-    "eslint-config-prettier": "^7.2.0",
-    "eslint-plugin-prettier": "^3.3.1",
-    "prettier": "^2.2.1"
-  }
+    "name": "sk-server",
+    "version": "1.0.0",
+    "description": "",
+    "main": "app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Colin Kennedy",
+    "license": "GPL-3.0-or-later",
+    "dependencies": {
+        "body-parser": "^1.18.3",
+        "child-process-promise": "^2.2.1",
+        "cookie-parser": "^1.4.4",
+        "cors": "^2.8.5",
+        "dotenv": "^6.2.0",
+        "express": "^4.16.4",
+        "ffmpeg-static": "^2.4.0",
+        "hashids": "^1.2.2",
+        "nano": "^8.0.0",
+        "pouchdb": "7.2.2"
+    },
+    "devDependencies": {
+        "@types/body-parser": "^1.17.0",
+        "@types/child-process-promise": "^2.2.1",
+        "@types/cookie-parser": "^1.4.1",
+        "@types/cors": "^2.8.4",
+        "@types/dotenv": "^6.1.0",
+        "@types/express": "^4.16.0",
+        "@types/ffmpeg-static": "^2.0.0",
+        "@types/hashids": "^1.0.30",
+        "@types/node": "^10.12.18",
+        "@types/pouchdb": "^6.3.2",
+        "eslint": "^7.18.0",
+        "eslint-config-prettier": "^7.2.0",
+        "eslint-plugin-prettier": "^3.3.1",
+        "prettier": "^2.2.1"
+    }
 }
