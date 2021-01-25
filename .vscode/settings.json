@@ -3,5 +3,6 @@
         "enable": true
     },
     "eslint.packageManager": "yarn",
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
 }
