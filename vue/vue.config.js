@@ -23,7 +23,7 @@ module.exports = {
   // },
   configureWebpack:
     process.env.NODE_ENV === 'production'
-      ? (config) => {
+      ? config => {
           // get current options
           // const options = config.optimization.minimizer[0].options
           // console.log(`Options: ${JSON.stringify(options)}
@@ -43,7 +43,7 @@ module.exports = {
   pwa: {
     name: 'Skuilder',
   },
-}
+};
 
 const options = {
   terserOptions: {
@@ -87,7 +87,7 @@ const options = {
   //         "safari10": true
   //     }
   // }
-}
+};
 
 const schema = {
   additionalProperties: false,
