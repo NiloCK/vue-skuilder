@@ -26,7 +26,7 @@ console.log(
     `
 );
 
-let CouchDB = Nano(credentialCouchURL);
+const CouchDB = Nano(credentialCouchURL);
 
 export const COUCH_URL_WITH_PROTOCOL = protocol + '://' + process.env.VUE_APP_COUCHDB_SERVER;
 

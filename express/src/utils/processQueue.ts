@@ -32,8 +32,8 @@ export default class AsyncProcessQueue<T extends Request, R extends Result> {
   private errors: FailedRequest<T>[] = [];
   private completed: CompletedRequest<T>[] = [];
 
-  private processing: boolean = false;
-  private nextID: number = 0;
+  private processing = false;
+  private nextID = 0;
 
   /**
    * Returns 'complete' if the job is complete, 'error' if the
@@ -97,7 +97,7 @@ export default class AsyncProcessQueue<T extends Request, R extends Result> {
       });
   }
 
-  public async getResult(jobID: number, depth: number = 0): Promise<R> {
+  public async getResult(jobID: number, depth = 0): Promise<R> {
     const status = this.jobStatus(jobID);
 
     if (status === 'complete') {

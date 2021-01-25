@@ -37,8 +37,8 @@ async function getClassroomConfig(id: string): Promise<ClassroomConfig> {
 async function writeClassroomConfig(config: ClassroomConfig, classID: string) {
   console.log(`Writing config for class: ${classID}`);
   const dbNames = getClassDBNames(classID);
-  let studentDB = await useOrCreateDB(dbNames.studentDB);
-  let teacherDB = await useOrCreateDB(dbNames.teacherDB);
+  const studentDB = await useOrCreateDB(dbNames.studentDB);
+  const teacherDB = await useOrCreateDB(dbNames.teacherDB);
 
   return Promise.all([
     studentDB
@@ -93,8 +93,8 @@ async function createClassroom(config: ClassroomConfig) {
   const num = (await docCount(CLASSROOM_DB_LOOKUP)) + 1; //
   const uuid = (await CouchDB.uuids(1)).uuids[0];
   const hasher = new hashids('', 6, 'abcdefghijklmnopqrstuvwxyz123456789');
-  const studentDbName: string = `classdb-student-${uuid}`;
-  const teacherDbName: string = `classdb-teacher-${uuid}`;
+  const studentDbName = `classdb-student-${uuid}`;
+  const teacherDbName = `classdb-teacher-${uuid}`;
   config.joinCode = hasher.encode(num);
 
   const security: SecurityObject = {
@@ -109,7 +109,7 @@ async function createClassroom(config: ClassroomConfig) {
     },
   };
 
-  let [studentdb, teacherdb, lookup] = await Promise.all([
+  const [studentdb, teacherdb, lookup] = await Promise.all([
     useOrCreateDB(studentDbName),
     useOrCreateDB(teacherDbName),
     useOrCreateDB('classdb-lookup'),
@@ -133,11 +133,11 @@ async function createClassroom(config: ClassroomConfig) {
     writeClassroomConfig(config, uuid),
   ]);
 
-  let res: Result = {
+  const res: Result = {
     ok: true,
     status: 'ok',
   };
-  let ret = {
+  const ret = {
     joincode: config.joinCode,
     uuid: uuid,
     ...res,
@@ -149,9 +149,9 @@ async function createClassroom(config: ClassroomConfig) {
 }
 
 async function leaveClassroom(req: LeaveClassroom['data'] & { username: string }) {
-  let cfg: ClassroomConfig = await getClassroomConfig(req.classID);
+  const cfg: ClassroomConfig = await getClassroomConfig(req.classID);
   if (cfg) {
-    let index = cfg.students.indexOf(req.username);
+    const index = cfg.students.indexOf(req.username);
     if (index !== -1) {
       cfg.students.splice(index, 1);
     }
@@ -181,7 +181,7 @@ async function joinClassroom(req: JoinClassroom['data']) {
     console.log(`joinClassroom running...
         \tRequest: ${JSON.stringify(req)}`);
 
-    let cfg: ClassroomConfig = (await getClassroomConfig(classID))!;
+    const cfg: ClassroomConfig = (await getClassroomConfig(classID))!;
 
     if (req.registerAs === 'student') {
       if (cfg.students.indexOf(req.user) === -1) {
@@ -191,7 +191,7 @@ async function joinClassroom(req: JoinClassroom['data']) {
 
     writeClassroomConfig(cfg, classID);
 
-    let res: JoinClassroom['response'] = {
+    const res: JoinClassroom['response'] = {
       ok: true,
       status: Status.ok,
       id_course: classID,

@@ -3,7 +3,6 @@ import { DataShapeName } from '@/enums/DataShapeNames';
 import { FieldType } from '@/enums/FieldType';
 // import { BlanksCardDataShapes } from './FillInTheBlank';
 
-
 export default {
   dataShapes: [
     {
@@ -11,15 +10,15 @@ export default {
       fields: [
         {
           name: 'Front',
-          type: FieldType.MARKDOWN
+          type: FieldType.MARKDOWN,
         },
         {
           name: 'Back',
-          type: FieldType.MARKDOWN
-        }
-      ]
-    }
+          type: FieldType.MARKDOWN,
+        },
+      ],
+    },
     // BlanksCardDataShapes
   ],
-  views: BasicCard.views
+  views: BasicCard.views,
 };

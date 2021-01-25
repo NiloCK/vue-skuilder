@@ -56,7 +56,7 @@ function filterFactory(courseID: string) {
         fields: [],
       };
       const atts = response.doc._attachments;
-      for (let attachment in atts) {
+      for (const attachment in atts) {
         const content_type: string = atts[attachment]['content_type'];
         console.log(`Course: ${courseID}`);
         console.log(`\tAttachment ${attachment} in:`);
@@ -109,7 +109,7 @@ async function processDocAttachments(request: AttachmentProcessingRequest): Prom
     doc._attachments[field.name].data = field.returnData;
   });
 
-  let resp: any = await courseDatabase.insert(doc);
+  const resp: any = await courseDatabase.insert(doc);
   resp.status = 'ok';
 
   console.log(`Processing request reinsert result: ${JSON.stringify(resp)}`);
