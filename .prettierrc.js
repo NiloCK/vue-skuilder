@@ -11,6 +11,12 @@ module.exports = {
             },
         },
         {
+            files: '*.vue',
+            options: {
+                printWidth: 120,
+            },
+        },
+        {
             files: '.prettierrc.js',
             options: {
                 tabWidth: 4,
