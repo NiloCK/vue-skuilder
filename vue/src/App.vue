@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="$store.state.onLoadComplete" :dark="dark">
+  <v-app v-if="$store.state.onLoadComplete" :dark="dark" >
   <!-- class="blue darken-2 grey--text text--lighten-5" dark> -->
     <v-navigation-drawer
       clipped
@@ -86,15 +86,15 @@
       clipped-left
     >
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title class="text-uppercase">
+      <!-- <v-toolbar-title class="text-uppercase">
         <span class="font-weight-thin grey--text text--darken-1">edu</span>
         <span class="grey--text text--darken-2">Quilt</span>
-      </v-toolbar-title>
+      </v-toolbar-title> -->
       <v-spacer></v-spacer>
       <user-login-and-registration-container />
     </v-toolbar>
     <v-content>
-      <v-container fluid>
+      <v-container>
         <v-slide-y-transition mode="out-in">
           <router-view v-if="$store.state._user" />
         </v-slide-y-transition>
