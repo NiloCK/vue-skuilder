@@ -345,6 +345,35 @@ Currently logged-in as ${this._username}.`);
     return getCourseConfigs(courseIDs);
   }
 
+  public async getConfig(): Promise<UserConfig> {
+    const defaultConfig: PouchDB.Core.Document<UserConfig> = {
+      _id: User.DOC_IDS.CONFIG,
+      darkMode: false,
+      likesConfetti: false
+    }
+
+    try {
+      return await this.localDB.get<UserConfig>(User.DOC_IDS.CONFIG);
+    } catch (e) {
+      if (e.name && e.name === 'not_found') {
+        await this.localDB.put<UserConfig>(defaultConfig);
+        return defaultConfig;
+      } else {
+        throw new Error(`Error returning the user's configuration: ${JSON.stringify(e)}`);
+      }
+    }
+  }
+
+  public async setConfig(items: Partial<UserConfig>) {
+    console.log(`Setting Config items ${JSON.stringify(items)}`);
+
+    const c = await this.getConfig();
+    return this.localDB.put<UserConfig>({
+      ...c,
+      ...items
+    });
+  }
+
   /**
    * Returns the current user.
    * 
