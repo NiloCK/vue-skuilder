@@ -147,6 +147,10 @@ export default class SessionController extends Loggable {
     this._intervalHandle = setInterval(() => { this.tick() }, 1000);
   }
 
+  public addTime(seconds: number) {
+    this.endTime = new Date(this.endTime.valueOf() + 1000 * seconds);
+  }
+
   public get failedCount(): number { return this.failedQ.length; }
 
   public toString() {
