@@ -56,8 +56,8 @@ export default class UserLoginAndRegistrationContainer extends SkldrVue {
   private readonly GuestUsername: string = GuestUsername;
 
   private get display(): boolean {
-    if (this.$route.name!.toLowerCase() === 'login'
-      || this.$route.name!.toLowerCase() === 'signup') {
+    if (this.$route.name && this.$route.name.toLowerCase() === 'login'
+      || this.$route.name && this.$route.name.toLowerCase() === 'signup') {
       return false;
     } else {
       return true;
