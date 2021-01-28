@@ -1,6 +1,7 @@
 # Skuilder
 
 A platform for collaborative authoring of interactive tutoring systems. Wikipedia for Duolingo, Anki, etc, with emphasis on:
+
 - one-click participation as a learner
 - rapid convergence on appropriately challenging content
 - low barriers to participation as authors (eg, easy content authoring / editing / tranlation / sorting)
@@ -41,12 +42,12 @@ This project is scaffolded with [vue-cli 3](https://cli.vuejs.org/). See the vue
 
 The project can be debugged inside of VSCode using the existing settings from `./vscode/launch.json`. After starting a development server with `yarn serve` / `npm run serve`, hitting F5 will launch VSCode's debugger and attach to the process. Launch configurations for Firefox and Chrome are present. They need the VSCode [debugger for firefox](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-firefox-debug) and [debugger for chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) exensions, respectively.
 
-The debugger respects hot-reloads of the project, but note that `.env` files are only read on the initial run of `yarn serve`  / `npm run serve`, so any changes to these files will require a restart of the development server.
+The debugger respects hot-reloads of the project, but note that `.env` files are only read on the initial run of `yarn serve` / `npm run serve`, so any changes to these files will require a restart of the development server.
 
 Component state / props / virtual DOM exploration is also available in the browser via [vue-devtools](https://github.com/vuejs/vue-devtools).
 
- - [Firefox Addon](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
- - [Chrome Extension](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+- [Firefox Addon](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
+- [Chrome Extension](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
 
 ### Production Build
 
