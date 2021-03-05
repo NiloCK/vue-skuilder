@@ -25,44 +25,46 @@ export default new Router({
   routes: [
     {
       path: '/md',
-      component: MarkdownRenderer
+      component: MarkdownRenderer,
     },
     {
       path: '/',
-      alias: [
-        '/home'
-      ],
+      alias: ['/home'],
       name: 'home',
-      component: Home
+      component: Home,
     },
     {
       path: '/about',
       name: 'about',
-      component: About
+      component: About,
     },
     {
       path: '/login',
       name: 'login',
+<<<<<<< HEAD
       component: Login
     },
     {
       path: '/signup',
       name: 'signup',
       component: SignUp
+======= 
+      component: UserLogin,
+>>>>>>> 1f78d111e4726b08d8df7d6f69608872b46dfae8
     },
     {
       path: '/edit',
       name: 'edit',
-      component: Edit
+      component: Edit,
     },
     {
       path: '/notes',
-      component: ReleaseNotes
+      component: ReleaseNotes,
     },
     {
       path: '/edit/:course',
       props: true,
-      component: CourseEditor
+      component: CourseEditor,
     },
     {
       path: '/study',
@@ -72,14 +74,12 @@ export default new Router({
     {
       path: '/study/:focusCourseID',
       component: Study,
-      props: true
+      props: true,
     },
     {
       path: '/random',
       name: 'random',
-      alias: [
-        '/r'
-      ],
+      alias: ['/r'],
       props: {
         randomPreview: true,
       },
@@ -88,24 +88,24 @@ export default new Router({
     {
       path: '/classrooms',
       name: 'classrooms',
-      component: Classrooms
+      component: Classrooms,
     },
     {
       path: '/classrooms/:_id',
       props: true,
       alias: '/c/:_id',
-      component: ClassroomCtrlPanel
+      component: ClassroomCtrlPanel,
     },
     {
       path: '/classrooms/:_id/code',
       props: true,
       alias: '/c/:_id',
-      component: JoinCode
+      component: JoinCode,
     },
     {
       path: '/courses',
       alias: ['/quilts', '/q'],
-      component: Courses
+      component: Courses,
     },
     {
       path: '/courses/:_id',
@@ -134,7 +134,7 @@ export default new Router({
     },
     {
       path: '/admin',
-      component: Admin
+      component: Admin,
     },
     {
       path: '/user/:_id',
@@ -144,9 +144,9 @@ export default new Router({
       children: [
         {
           path: 'new',
-          component: User
-        }
-      ]
-    }
-  ]
+          component: User,
+        },
+      ],
+    },
+  ],
 });

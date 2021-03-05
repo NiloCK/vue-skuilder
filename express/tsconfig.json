@@ -1,14 +1,10 @@
 {
     "compileOnSave": true,
-    "files": [
-        "src/app.ts"
-    ],
+    "files": ["src/app.ts"],
     "compilerOptions": {
         "module": "commonjs",
         "outDir": "dist",
         "sourceMap": true,
-        "lib": [
-            "es2015"
-        ]
+        "lib": ["es2015"]
     }
 }

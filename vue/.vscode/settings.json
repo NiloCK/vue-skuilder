@@ -1,6 +1,5 @@
 {
     "editor.formatOnSave": true,
-    "vetur.format.defaultFormatter.ts": "vscode-typescript",
     "vetur.format.defaultFormatter.html": "none",
     "typescript.tsdk": "node_modules\\typescript\\lib",
     "editor.tabSize": 2,
