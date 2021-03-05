@@ -1,14 +1,21 @@
 import { randomInt } from '@/courses/math/utility';
-import { isReview, StudyContentSource, StudySessionFailedItem, StudySessionItem, StudySessionNewItem, StudySessionReviewItem } from "./contentSource";
+import {
+  isReview,
+  StudyContentSource,
+  StudySessionFailedItem,
+  StudySessionItem,
+  StudySessionNewItem,
+  StudySessionReviewItem,
+} from './contentSource';
 import { ScheduledCard, User } from './userDB';
 import { CardRecord } from './types';
 import { removeScheduledCardReview } from '.';
 
 export interface StudySessionRecord {
   card: {
-    course_id: string,
-    card_id: string,
-    card_elo: number
+    course_id: string;
+    card_id: string;
+    card_elo: number;
   };
   item: StudySessionItem;
   records: CardRecord[];
@@ -17,10 +24,12 @@ export interface StudySessionRecord {
 class ItemQueue<T extends StudySessionItem> {
   private q: T[] = [];
   private _dequeueCount: number = 0;
-  public get dequeueCount(): number { return this._dequeueCount; }
+  public get dequeueCount(): number {
+    return this._dequeueCount;
+  }
 
   public add(item: T) {
-    this.q.push(item)
+    this.q.push(item);
   }
   public addAll(items: T[]) {
     this.q = this.q.concat(items);
@@ -43,7 +52,7 @@ class ItemQueue<T extends StudySessionItem> {
 }
 
 abstract class Loggable {
-  protected readonly abstract _className: string;
+  protected abstract readonly _className: string;
   protected log(s: string) {
     console.log(`LOG-${this._className}@${new Date()}:
 \t${s}`);
@@ -55,7 +64,9 @@ export default class SessionController extends Loggable {
   private user: User;
   private sources: StudyContentSource[];
   private _sessionRecord: StudySessionRecord[] = [];
-  public set sessionRecord(r: StudySessionRecord[]) { this._sessionRecord = r; }
+  public set sessionRecord(r: StudySessionRecord[]) {
+    this._sessionRecord = r;
+  }
 
   private reviewQ: ItemQueue<StudySessionReviewItem> = new ItemQueue<StudySessionReviewItem>();
   private newQ: ItemQueue<StudySessionNewItem> = new ItemQueue<StudySessionNewItem>();
@@ -65,7 +76,9 @@ export default class SessionController extends Loggable {
   private startTime: Date;
   private endTime: Date;
   private _secondsRemaining: number;
-  public get secondsRemaining(): number { return this._secondsRemaining; }
+  public get secondsRemaining(): number {
+    return this._secondsRemaining;
+  }
   public get report(): string {
     return `${this.reviewQ.dequeueCount} reviews, ${this.newQ.dequeueCount} new cards`;
   }
@@ -76,7 +89,9 @@ export default class SessionController extends Loggable {
    */
   constructor(sources: StudyContentSource[], time: number) {
     super();
-    User.instance().then((u) => { this.user = u; });
+    User.instance().then((u) => {
+      this.user = u;
+    });
 
     this.sources = sources;
     this.startTime = new Date();
@@ -101,7 +116,7 @@ export default class SessionController extends Loggable {
    * Returns a rough, erring toward conservative, guess at
    * the amount of time the failed cards queue will require
    * to clean up.
-   * 
+   *
    * (seconds)
    */
   private estimateCleanupTime(): number {
@@ -110,8 +125,7 @@ export default class SessionController extends Loggable {
       const c = this.failedQ.peek(i);
       // console.log(`Failed card ${c.qualifiedID} found`)
 
-      const record = this._sessionRecord
-        .find(r => r.item.cardID === c.cardID);
+      const record = this._sessionRecord.find((r) => r.item.cardID === c.cardID);
       let cardTime = 0;
 
       if (record) {
@@ -130,28 +144,29 @@ export default class SessionController extends Loggable {
   }
 
   /**
-   * Extremely rough, conservative, estimate of amound of time to complete 
+   * Extremely rough, conservative, estimate of amound of time to complete
    * all scheduled reviews
    */
   private estimateReviewTime(): number {
     const ret = 5 * this.reviewQ.length;
     this.log(`Review card time estimate: ${ret}`);
-    return ret
+    return ret;
   }
 
   public async prepareSession() {
-    await Promise.all([
-      this.getScheduledReviews(),
-      this.getNewCards()
-    ]);
-    this._intervalHandle = setInterval(() => { this.tick() }, 1000);
+    await Promise.all([this.getScheduledReviews(), this.getNewCards()]);
+    this._intervalHandle = setInterval(() => {
+      this.tick();
+    }, 1000);
   }
 
   public addTime(seconds: number) {
     this.endTime = new Date(this.endTime.valueOf() + 1000 * seconds);
   }
 
-  public get failedCount(): number { return this.failedQ.length; }
+  public get failedCount(): number {
+    return this.failedQ.length;
+  }
 
   public toString() {
     return `Session: ${this.reviewQ.length} Reviews, ${this.newQ.length} New, ${this.failedQ.length} failed`;
@@ -161,9 +176,7 @@ export default class SessionController extends Loggable {
   }
 
   private async getScheduledReviews() {
-    const reviews = await Promise.all(
-      this.sources.map(c => c.getPendingReviews())
-    );
+    const reviews = await Promise.all(this.sources.map((c) => c.getPendingReviews()));
 
     let dueCards: (StudySessionReviewItem & ScheduledCard)[] = [];
     for (let i = 0; i < reviews.length; i++) {
@@ -181,11 +194,9 @@ export default class SessionController extends Loggable {
 
   private async getNewCards(n: number = 10) {
     const perCourse = Math.ceil(n / this.sources.length);
-    const newContent = await Promise.all(
-      this.sources.map(c => c.getNewCards(perCourse))
-    );
+    const newContent = await Promise.all(this.sources.map((c) => c.getNewCards(perCourse)));
 
-    while (n > 0 && newContent.some(nc => nc.length > 0)) {
+    while (n > 0 && newContent.some((nc) => nc.length > 0)) {
       for (let i = 0; i < newContent.length; i++) {
         if (newContent[i].length > 0) {
           const item = newContent[i].splice(0, 1)[0];
@@ -208,24 +219,21 @@ export default class SessionController extends Loggable {
     return item;
   }
 
-  public nextCard(action:
-    'dismiss-success' |
-    'dismiss-failed' |
-    'marked-failed' |
-    'dismiss-error'
-    = 'dismiss-success'): StudySessionItem | null {
-
+  public nextCard(
+    action:
+      | 'dismiss-success'
+      | 'dismiss-failed'
+      | 'marked-failed'
+      | 'dismiss-error' = 'dismiss-success'
+  ): StudySessionItem | null {
     // dismiss (or sort to failedQ) the current card
     this.dismissCurrentCard(action);
 
     const choice = Math.random();
-    let newBound: number = .1;
-    let reviewBound: number = .75;
+    let newBound: number = 0.1;
+    let reviewBound: number = 0.75;
 
-    if (this.reviewQ.length === 0
-      && this.failedQ.length === 0
-      && this.newQ.length === 0
-    ) {
+    if (this.reviewQ.length === 0 && this.failedQ.length === 0 && this.newQ.length === 0) {
       // all queues empty - session is over (and course is complete?)
       this._currentCard = null;
       return this._currentCard;
@@ -242,7 +250,6 @@ export default class SessionController extends Loggable {
       this._currentCard = this.nextNewCard();
       return this._currentCard;
     }
-
 
     const cleanupTime = this.estimateCleanupTime();
     const reviewTime = this.estimateReviewTime();
@@ -295,12 +302,13 @@ export default class SessionController extends Loggable {
     return this._currentCard;
   }
 
-  private dismissCurrentCard(action: 'dismiss-success' |
-    'dismiss-failed' |
-    'marked-failed' |
-    'dismiss-error'
-    = 'dismiss-success') {
-
+  private dismissCurrentCard(
+    action:
+      | 'dismiss-success'
+      | 'dismiss-failed'
+      | 'marked-failed'
+      | 'dismiss-error' = 'dismiss-success'
+  ) {
     if (this._currentCard) {
       // this.log(`Running dismissCurrentCard on ${this._currentCard!.qualifiedID}`);
       // if (action.includes('dismiss')) {
@@ -315,7 +323,6 @@ export default class SessionController extends Loggable {
       if (action === 'dismiss-success') {
         // schedule a review - currently done in Study.vue
       } else if (action === 'marked-failed') {
-
         let failedItem: StudySessionFailedItem;
 
         if (isReview(this._currentCard)) {
@@ -326,7 +333,7 @@ export default class SessionController extends Loggable {
             contentSourceID: this._currentCard.contentSourceID,
             contentSourceType: this._currentCard.contentSourceType,
             status: 'failed-review',
-            reviewID: this._currentCard.reviewID
+            reviewID: this._currentCard.reviewID,
           };
         } else {
           failedItem = {

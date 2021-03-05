@@ -11,10 +11,14 @@ import _ from 'lodash';
 import marked from 'marked';
 import FillInView from './fillIn.vue';
 
-function splitText(text: string, leftBound: string, rightBound: string): {
-  left: string,
-  middle: string,
-  right: string
+function splitText(
+  text: string,
+  leftBound: string,
+  rightBound: string
+): {
+  left: string;
+  middle: string;
+  right: string;
 } {
   const leftSplit = text.split(leftBound);
   const left = leftSplit[0];
@@ -37,21 +41,21 @@ export function splitTextToken(token: marked.Tokens.Text): marked.Tokens.Text[] 
       ret.push({
         type: 'text',
         raw: raw.left,
-        text: text.left
+        text: text.left,
       });
     }
     if (raw.middle.length > 0) {
       ret.push({
         type: 'text',
-        raw: "{{" + raw.middle + "}}",
-        text: "{{" + text.middle + "}}"
-      })
+        raw: '{{' + raw.middle + '}}',
+        text: '{{' + text.middle + '}}',
+      });
     }
     if (raw.right.length > 0) {
       ret.push({
         type: 'text',
         raw: raw.right,
-        text: text.right
+        text: text.right,
       });
     }
 
@@ -66,8 +70,7 @@ export function containsComponent(token: marked.Token) {
     let opening = token.raw.indexOf('{{');
     let closing = token.raw.indexOf('}}');
 
-    if (opening !== -1 && closing !== -1
-      && closing > opening) {
+    if (opening !== -1 && closing !== -1 && closing > opening) {
       return true;
     }
   } else {
@@ -76,9 +79,7 @@ export function containsComponent(token: marked.Token) {
 }
 
 export function isComponent(token: marked.Token) {
-  return token.type === 'text' &&
-    token.text.startsWith('{{') &&
-    token.text.endsWith('}}');
+  return token.type === 'text' && token.text.startsWith('{{') && token.text.endsWith('}}');
 }
 
 export const BlanksCardDataShapes: DataShape[] = [
@@ -87,10 +88,10 @@ export const BlanksCardDataShapes: DataShape[] = [
     fields: [
       {
         name: 'Input',
-        type: FieldType.MARKDOWN
-      }
-    ]
-  }
+        type: FieldType.MARKDOWN,
+      },
+    ],
+  },
 ];
 
 const val: Validator = {
@@ -107,7 +108,7 @@ const val: Validator = {
     // if (blanksCount === 1) {
     return {
       status: Status.ok,
-      msg: ''
+      msg: '',
     };
     // } else {
     //   return {
@@ -115,8 +116,7 @@ const val: Validator = {
     //     msg: 'There must be exactly one blank of the form {{answer}} in the question'
     //   };
     // }
-
-  }
+  },
 };
 
 type fillInSectionType = 'text' | 'blank';
@@ -128,9 +128,7 @@ export interface FillInSection {
 
 export class BlanksCard extends Question {
   public static dataShapes = BlanksCardDataShapes;
-  public static views = [
-    FillInView
-  ];
+  public static views = [FillInView];
   public mdText: string = '';
 
   public answers: string[] | null = null;
@@ -147,21 +145,21 @@ export class BlanksCard extends Question {
         ret.push({
           type: 'text',
           raw: raw.left,
-          text: text.left
+          text: text.left,
         });
       }
       if (raw.middle.length > 0) {
         ret.push({
           type: 'text',
-          raw: "{{" + raw.middle + "}}",
-          text: "{{" + text.middle + "}}"
-        })
+          raw: '{{' + raw.middle + '}}',
+          text: '{{' + text.middle + '}}',
+        });
       }
       if (raw.right.length > 0) {
         ret.push({
           type: 'text',
           raw: raw.right,
-          text: text.right
+          text: text.right,
         });
       }
 
@@ -171,9 +169,11 @@ export class BlanksCard extends Question {
     }
   }
 
-  recurseToken(tok: marked.Token): {
-    answers: string[] | null,
-    options: string[] | null
+  recurseToken(
+    tok: marked.Token
+  ): {
+    answers: string[] | null;
+    options: string[] | null;
   } | null {
     if (tok.type === 'text') {
       if (isComponent(tok)) {
@@ -188,12 +188,12 @@ export class BlanksCard extends Question {
           distractors.push(answers[randomInt(0, answers.length - 1)]);
           return {
             answers,
-            options: _.shuffle(distractors)
-          }
+            options: _.shuffle(distractors),
+          };
         } else {
           return {
             answers: [optsStr],
-            options: null
+            options: null,
           };
         }
       }
@@ -222,7 +222,7 @@ export class BlanksCard extends Question {
 
   constructor(data: ViewData[]) {
     super(data);
-    this.mdText = data[0].Input as any as string;
+    this.mdText = (data[0].Input as any) as string;
     const tokens = marked.lexer(this.mdText);
     for (let i = 0; i < tokens.length; i++) {
       const parsedOptions = this.recurseToken(tokens[i]);

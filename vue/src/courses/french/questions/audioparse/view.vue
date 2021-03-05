@@ -1,9 +1,9 @@
 <template>
   <div>
-      <!-- <audio autoplay :src="getURL('audio')" /> -->
-      <AudioAutoPlayer :src="getURL('audio')" />
-      <br><br>
-      {{ question.text }}
+    <!-- <audio autoplay :src="getURL('audio')" /> -->
+    <AudioAutoPlayer :src="getURL('audio')" />
+    <br /><br />
+    {{ question.text }}
   </div>
 </template>
 
@@ -14,20 +14,18 @@ import { AudioParsingQuestion } from './index';
 import AudioAutoPlayer from '@/base-course/Components/AudioAutoPlayer.vue';
 
 @Component({
-    components: {
-        AudioAutoPlayer
-    }
+  components: {
+    AudioAutoPlayer,
+  },
 })
 export default class AudioParseView extends QuestionView<AudioParsingQuestion> {
-    public answer: string = '';
-    get question() {
-        return new AudioParsingQuestion(this.data);
-    }
+  public answer: string = '';
+  get question() {
+    return new AudioParsingQuestion(this.data);
+  }
 
-
-
-    public submit() {
-        // alert(this.question.isCorrect(parseInt(this.answer, 10)));
-    }
+  public submit() {
+    // alert(this.question.isCorrect(parseInt(this.answer, 10)));
+  }
 }
 </script>

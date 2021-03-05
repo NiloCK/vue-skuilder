@@ -12,39 +12,37 @@ import { randomInt } from '../../utility';
 const validator = {
   instructions: 'Must be 2 or 3.',
   test: (value: string) => {
-    if (
-      value === '2' || value === '3'
-    ) {
+    if (value === '2' || value === '3') {
       return {
         status: Status.ok,
-        msg: ''
+        msg: '',
       };
     } else {
       return {
         status: Status.error,
-        msg: 'Must be 2 or 3.'
+        msg: 'Must be 2 or 3.',
       };
     }
-  }
+  },
 };
 
 const fields: FieldDefinition[] = [
   {
     name: 'AngleCount',
     type: FieldType.INT,
-    validator
-  }
+    validator,
+  },
 ];
 
 export class SupplementaryAngles extends Question {
-  public static dataShapes = [{
-    name: DataShapeName.MATH_SupplimentaryAngles,
-    fields
-  }];
-
-  public static views = [
-    CalculateSupplementaryAngles
+  public static dataShapes = [
+    {
+      name: DataShapeName.MATH_SupplimentaryAngles,
+      fields,
+    },
   ];
+
+  public static views = [CalculateSupplementaryAngles];
 
   public angles: number[] = [];
   public targetAngleIndex: number;

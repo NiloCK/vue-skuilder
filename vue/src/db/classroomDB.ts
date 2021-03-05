@@ -2,17 +2,25 @@ import ENV from '@/ENVIRONMENT_VARS';
 import { ClassroomConfig } from '@/server/types';
 import moment from 'moment';
 import pouch from 'pouchdb-browser';
-import { getCourseDB, getStartAndEndKeys, pouchDBincludeCredentialsConfig, REVIEW_TIME_FORMAT } from '.';
-import { StudyContentSource, StudySessionItem, StudySessionNewItem, StudySessionReviewItem } from './contentSource';
+import {
+  getCourseDB,
+  getStartAndEndKeys,
+  pouchDBincludeCredentialsConfig,
+  REVIEW_TIME_FORMAT,
+} from '.';
+import {
+  StudyContentSource,
+  StudySessionItem,
+  StudySessionNewItem,
+  StudySessionReviewItem,
+} from './contentSource';
 import { CourseDB, getTag } from './courseDB';
 import { ScheduledCard, User } from './userDB';
 
 const classroomLookupDBTitle = 'classdb-lookup';
 export const CLASSROOM_CONFIG = 'ClassroomConfig';
 
-export type ClassroomMessage = {
-
-}
+export type ClassroomMessage = {};
 
 export type AssignedContent = AssignedCourse | AssignedTag | AssignedCard;
 
@@ -67,7 +75,7 @@ abstract class ClassroomDBBase {
     let docRows = await this._db.allDocs<AssignedContent>({
       startkey: this._content_prefix,
       endkey: this._content_prefix + `\ufff0`,
-      include_docs: true
+      include_docs: true,
     });
 
     let ret = docRows.rows.map((row) => {
@@ -92,7 +100,6 @@ abstract class ClassroomDBBase {
   public getConfig(): ClassroomConfig {
     return this._cfg;
   }
-
 }
 
 export class StudentClassroomDB extends ClassroomDBBase implements StudyContentSource {
@@ -107,23 +114,22 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
 
   async init() {
     const dbName = `classdb-student-${this._id}`;
-    this._db = new pouch(ENV.COUCHDB_SERVER_PROTOCOL + '://' +
-      ENV.COUCHDB_SERVER_URL + dbName, pouchDBincludeCredentialsConfig);
+    this._db = new pouch(
+      ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + dbName,
+      pouchDBincludeCredentialsConfig
+    );
     try {
       const cfg = await this._db.get<ClassroomConfig>(CLASSROOM_CONFIG);
       this._cfg = cfg;
       this.userMessages = this._db.changes({
         since: 'now',
         live: true,
-        include_docs: true
+        include_docs: true,
       });
       this._initComplete = true;
       return;
-    }
-    catch (e) {
-      throw new Error(
-        `Error in StudentClassroomDB constructor: ${JSON.stringify(e)}`
-      );
+    } catch (e) {
+      throw new Error(`Error in StudentClassroomDB constructor: ${JSON.stringify(e)}`);
     }
   }
 
@@ -141,11 +147,9 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
 
   public async getPendingReviews(): Promise<(StudySessionReviewItem & ScheduledCard)[]> {
     const u = await User.instance();
-    return (await (u.getPendingReviews()))
-      .filter(r => r.scheduledFor === 'classroom' &&
-        r.schedulingAgentId === this._id)
-      .map(r => {
-
+    return (await u.getPendingReviews())
+      .filter((r) => r.scheduledFor === 'classroom' && r.schedulingAgentId === this._id)
+      .map((r) => {
         return {
           ...r,
           qualifiedID: r.courseId + '-' + r.cardId,
@@ -154,8 +158,8 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
           contentSourceType: 'classroom',
           contentSourceID: this._id,
           reviewID: r._id,
-          status: 'review'
-        }
+          status: 'review',
+        };
       });
   }
 
@@ -163,9 +167,7 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
     const activeCards = await (await User.instance()).getActiveCards();
     const now = moment.utc();
     const assigned = await this.getAssignedContent();
-    const due = assigned.filter(
-      c => now.isAfter(moment.utc(c.activeOn, REVIEW_TIME_FORMAT))
-    );
+    const due = assigned.filter((c) => now.isAfter(moment.utc(c.activeOn, REVIEW_TIME_FORMAT)));
 
     console.log(`Due content: ${JSON.stringify(due)}`);
 
@@ -176,25 +178,21 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
 
       if (content.type === 'course') {
         const db = new CourseDB(content.courseID);
-        ret = ret.concat(
-          await db.getNewCards()
-        );
+        ret = ret.concat(await db.getNewCards());
       } else if (content.type === 'tag') {
         const tagDoc = await getTag(content.courseID, content.tagID);
 
         ret = ret.concat(
-          tagDoc
-            .taggedCards
-            .map(c => {
-              return {
-                courseID: content.courseID,
-                cardID: c,
-                qualifiedID: `${content.courseID}-${c}`,
-                contentSourceType: 'classroom',
-                contentSourceID: this._id,
-                status: 'new'
-              };
-            })
+          tagDoc.taggedCards.map((c) => {
+            return {
+              courseID: content.courseID,
+              cardID: c,
+              qualifiedID: `${content.courseID}-${c}`,
+              contentSourceType: 'classroom',
+              contentSourceID: this._id,
+              status: 'new',
+            };
+          })
         );
       } else if (content.type === 'card') {
         // returning card docs - not IDs
@@ -204,8 +202,8 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
 
     console.log(`New Cards from classroom ${this._cfg.name}: ${ret}`);
 
-    return ret.filter(c => {
-      if (activeCards.some(ac => c.qualifiedID.includes(ac))) {
+    return ret.filter((c) => {
+      if (activeCards.some((ac) => c.qualifiedID.includes(ac))) {
         return false;
       } else {
         return true;
@@ -213,7 +211,6 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
     });
   }
 }
-
 
 /**
  * Interface for managing a classroom.
@@ -229,19 +226,25 @@ export default class TeacherClassroomDB extends ClassroomDBBase {
   async init() {
     const dbName = `classdb-teacher-${this._id}`;
     const stuDbName = `classdb-student-${this._id}`;
-    this._db = new pouch(ENV.COUCHDB_SERVER_PROTOCOL + '://' +
-      ENV.COUCHDB_SERVER_URL + dbName, pouchDBincludeCredentialsConfig);
-    this._stuDb = new pouch(ENV.COUCHDB_SERVER_PROTOCOL + '://' +
-      ENV.COUCHDB_SERVER_URL + stuDbName, pouchDBincludeCredentialsConfig);
+    this._db = new pouch(
+      ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + dbName,
+      pouchDBincludeCredentialsConfig
+    );
+    this._stuDb = new pouch(
+      ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + stuDbName,
+      pouchDBincludeCredentialsConfig
+    );
     try {
-      return this._db.get<ClassroomConfig>(CLASSROOM_CONFIG).then((cfg) => {
-        this._cfg = cfg;
-        this._initComplete = true;
-      }).then(() => {
-        return;
-      });
-    }
-    catch (e) {
+      return this._db
+        .get<ClassroomConfig>(CLASSROOM_CONFIG)
+        .then((cfg) => {
+          this._cfg = cfg;
+          this._initComplete = true;
+        })
+        .then(() => {
+          return;
+        });
+    } catch (e) {
       throw new Error(`Error in TeacherClassroomDB constructor: ${JSON.stringify(e)}`);
     }
   }
@@ -255,17 +258,19 @@ export default class TeacherClassroomDB extends ClassroomDBBase {
   public async removeContent(content: AssignedContent) {
     const contentID = this.getContentId(content);
 
-    this._db.get(contentID).then((doc) => {
-      this._db.remove(doc)
-    }).then(() => {
-      this._db.replicate.to(this._stuDb, {
-        doc_ids: [contentID]
+    this._db
+      .get(contentID)
+      .then((doc) => {
+        this._db.remove(doc);
+      })
+      .then(() => {
+        this._db.replicate.to(this._stuDb, {
+          doc_ids: [contentID],
+        });
       });
-    });
   }
 
   public async assignContent(content: AssignedContent) {
-
     let put: PouchDB.Core.Response;
     let id: string = this.getContentId(content);
 
@@ -277,7 +282,7 @@ export default class TeacherClassroomDB extends ClassroomDBBase {
         _id: id,
         assignedBy: content.assignedBy,
         assignedOn: moment.utc(),
-        activeOn: content.activeOn || moment.utc()
+        activeOn: content.activeOn || moment.utc(),
       });
     } else {
       put = await this._db.put<AssignedCourse>({
@@ -286,13 +291,13 @@ export default class TeacherClassroomDB extends ClassroomDBBase {
         _id: id,
         assignedBy: content.assignedBy,
         assignedOn: moment.utc(),
-        activeOn: content.activeOn || moment.utc()
+        activeOn: content.activeOn || moment.utc(),
       });
     }
 
     if (put.ok) {
       this._db.replicate.to(this._stuDb, {
-        doc_ids: [id]
+        doc_ids: [id],
       });
       return true;
     } else {
@@ -302,10 +307,9 @@ export default class TeacherClassroomDB extends ClassroomDBBase {
 }
 
 export const ClassroomLookupDB: PouchDB.Database = new pouch(
-  ENV.COUCHDB_SERVER_PROTOCOL + '://' +
-  ENV.COUCHDB_SERVER_URL + classroomLookupDBTitle,
+  ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + classroomLookupDBTitle,
   {
-    skip_setup: true
+    skip_setup: true,
   }
 );
 
@@ -314,12 +318,11 @@ export function getClassroomDB(classID: string, version: 'student' | 'teacher'):
   console.log(`Retrieving classroom db: ${dbName}`);
 
   return new pouch(
-    ENV.COUCHDB_SERVER_PROTOCOL + '://' +
-    ENV.COUCHDB_SERVER_URL + dbName,
+    ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + dbName,
     pouchDBincludeCredentialsConfig
   );
 }
 
 export async function getClassroomConfig(classID: string): Promise<ClassroomConfig> {
-  return await getClassroomDB(classID, "student").get<ClassroomConfig>(CLASSROOM_CONFIG);
+  return await getClassroomDB(classID, 'student').get<ClassroomConfig>(CLASSROOM_CONFIG);
 }

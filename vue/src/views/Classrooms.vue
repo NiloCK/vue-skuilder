@@ -1,118 +1,75 @@
 <template>
   <v-container fluid>
-      <v-layout row wrap justify-space-around>
+    <v-layout row wrap justify-space-around>
+      <v-flex md4 sm12 xs12>
+        <v-card>
+          <v-toolbar>
+            <v-toolbar-title>My Classes</v-toolbar-title>
+          </v-toolbar>
 
-    <v-flex md4 sm12 xs12>
-      <v-card>
-        <v-toolbar >
-          <v-toolbar-title>My Classes</v-toolbar-title>
-        </v-toolbar>
+          <v-list>
+            <transition-group name="component-fade" mode="out-in" key="registered">
+              <template v-for="classroom in studentClasses">
+                <v-list-tile :key="classroom._id" avatar>
+                  <v-list-tile-content>
+                    <v-list-tile-title>
+                      {{ classroom.name }}
+                    </v-list-tile-title>
+                  </v-list-tile-content>
+                  <v-list-tile-action>
+                    <v-btn
+                      small
+                      color="secondary"
+                      @click="leaveClass(classroom._id)"
+                      :loading="spinnerMap[classroom._id] !== undefined"
+                    >
+                      Leave this class
+                    </v-btn>
+                  </v-list-tile-action>
+                </v-list-tile>
+              </template>
+            </transition-group>
+          </v-list>
+        </v-card>
+      </v-flex>
 
-        <v-list>
-          <transition-group
-              name='component-fade'
-              mode='out-in'
-              key='registered'
-          >
-          <template v-for="classroom in studentClasses">
-            
-            <v-list-tile
-              :key="classroom._id"
-              avatar
-            >
+      <v-flex v-if="teacherClasses.length > 0" md4 sm12 xs12>
+        <v-card>
+          <v-toolbar>
+            <v-toolbar-title>Classes I Teach</v-toolbar-title>
+          </v-toolbar>
 
-              <v-list-tile-content>
-                <v-list-tile-title>
-                  {{ classroom.name }}
-                </v-list-tile-title>
-              </v-list-tile-content>
-              <v-list-tile-action>
-                <v-btn 
-                 small
-                 color="secondary"
-                 @click="leaveClass(classroom._id)"
-                 :loading="spinnerMap[classroom._id] !== undefined"
-                >
-                  Leave this class
-                </v-btn>
-              </v-list-tile-action>
-            </v-list-tile>
-          </template>
-          </transition-group>
-        </v-list>
-      </v-card>
-      
-      
-    </v-flex>
-
-    <v-flex v-if="teacherClasses.length > 0" md4 sm12 xs12>
-      <v-card>
-        <v-toolbar >
-          <v-toolbar-title>Classes I Teach</v-toolbar-title>
-        </v-toolbar>
-
-        <v-list>
-          <transition-group
-              name='component-fade'
-              mode='out-in'
-              key='registered'
-          >
-          <template v-for="classroom in teacherClasses">
-            
-            <v-list-tile
-              :key="classroom._id"
-              avatar
-            >
-
-              <v-list-tile-content>
-                <v-list-tile-title>
-                  {{ classroom.name }}
-                </v-list-tile-title>
-              </v-list-tile-content>
-              <v-list-tile-action>
-                <router-link
-                  :to="`/classrooms/${classroom._id}`">
-                  <v-btn
-                  small
-                  color="secondary"
-                  :loading="spinnerMap[classroom._id] !== undefined"
-                  >
-                    Open
-                  </v-btn>
-                </router-link>
-              </v-list-tile-action>
-            </v-list-tile>
-          </template>
-          </transition-group>
-        </v-list>
-      </v-card>
-      
-      
-    </v-flex>
-
+          <v-list>
+            <transition-group name="component-fade" mode="out-in" key="registered">
+              <template v-for="classroom in teacherClasses">
+                <v-list-tile :key="classroom._id" avatar>
+                  <v-list-tile-content>
+                    <v-list-tile-title>
+                      {{ classroom.name }}
+                    </v-list-tile-title>
+                  </v-list-tile-content>
+                  <v-list-tile-action>
+                    <router-link :to="`/classrooms/${classroom._id}`">
+                      <v-btn small color="secondary" :loading="spinnerMap[classroom._id] !== undefined"> Open </v-btn>
+                    </router-link>
+                  </v-list-tile-action>
+                </v-list-tile>
+              </template>
+            </transition-group>
+          </v-list>
+        </v-card>
+      </v-flex>
     </v-layout>
 
     <v-form>
-      <label for="joinCode">Class Code</label> 
-      <v-text-field
-        name="joinCode"
-        label=""
-        id="joinCode"
-        v-model="joinCode"
-      ></v-text-field>
-      <v-btn @click='joinClass'>Join a class </v-btn>
+      <label for="joinCode">Class Code</label>
+      <v-text-field name="joinCode" label="" id="joinCode" v-model="joinCode"></v-text-field>
+      <v-btn @click="joinClass">Join a class </v-btn>
     </v-form>
 
-    <v-dialog
-              v-model="newClassDialog"
-              fullscreen
-              transition="dialog-bottom-transition"
-              :overlay="false"
-            >
-              <v-btn color="primary" dark slot="activator">Start a new Class</v-btn>
-                <classroom-editor 
-                 v-on:ClassroomEditingComplete="processResponse($event)"
-                />
+    <v-dialog v-model="newClassDialog" fullscreen transition="dialog-bottom-transition" :overlay="false">
+      <v-btn color="primary" dark slot="activator">Start a new Class</v-btn>
+      <classroom-editor v-on:ClassroomEditingComplete="processResponse($event)" />
     </v-dialog>
   </v-container>
 </template>
@@ -136,20 +93,18 @@ interface CourseReg {
 
 @Component({
   components: {
-    ClassroomEditor
-  }
+    ClassroomEditor,
+  },
 })
 export default class Classroom extends SkldrVue {
   public classes: string[] = [];
   private joinCode: string = '';
 
-
-
   private studentClasses: CourseReg[] = [];
   private teacherClasses: CourseReg[] = [];
 
   private spinnerMap: {
-    [index: string]: boolean
+    [index: string]: boolean;
   } = {};
 
   private newClassDialog: boolean = false;
@@ -161,12 +116,10 @@ export default class Classroom extends SkldrVue {
   public beforeRouteEnter(to: any, from: any, next: () => {}) {
     // todo ?
     // See https://router.vuejs.org/guide/advanced/data-fetching.html#fetching-before-navigation
-
     // this.refreshData().then(() => {
     //   next();
     // });
   }
-
 
   private async refreshData() {
     const registrations = (await getUserClassrooms(this.$store.state._user!.username)).registrations;
@@ -178,7 +131,7 @@ export default class Classroom extends SkldrVue {
       log(`Registered class: ${JSON.stringify(cfg)}`);
       const regItem = {
         _id: reg.classID,
-        name: cfg.name
+        name: cfg.name,
       };
 
       if (reg.registeredAs === 'student') {
@@ -197,7 +150,7 @@ export default class Classroom extends SkldrVue {
       type: ServerRequestType.DELETE_CLASSROOM,
       user: this.$store.state._user!.username,
       classID: classId,
-      response: null
+      response: null,
     });
   }
 
@@ -208,10 +161,10 @@ export default class Classroom extends SkldrVue {
     const result = await serverRequest<LeaveClassroom>({
       type: ServerRequestType.LEAVE_CLASSROOM,
       data: {
-        classID: classID
+        classID: classID,
       },
       user: this.$store.state._user!.username,
-      response: null
+      response: null,
     });
     if (result.response && result.response.ok) {
       await dropUserFromClassroom(this.$store.state._user!.username, classID);
@@ -227,10 +180,10 @@ export default class Classroom extends SkldrVue {
       data: {
         joinCode: this.joinCode,
         registerAs: 'student',
-        user: this.$store.state._user!.username
+        user: this.$store.state._user!.username,
       },
       user: this.$store.state._user!.username,
-      response: null
+      response: null,
     });
 
     if (result.response && result.response.ok) {
@@ -238,13 +191,13 @@ export default class Classroom extends SkldrVue {
       await registerUserForClassroom(this.$store.state._user!.username, result.response!.id_course, 'student');
       alertUser({
         text: `Successfully joined class: ${result.response.course_name}.`,
-        status: Status.ok
-      })
+        status: Status.ok,
+      });
     } else {
       if (result.response) {
         alertUser({
           text: result.response.errorText!,
-          status: Status.error
+          status: Status.error,
         });
       }
     }
@@ -253,6 +206,5 @@ export default class Classroom extends SkldrVue {
   private async processResponse() {
     this.newClassDialog = !this.newClassDialog;
   }
-
 }
 </script>

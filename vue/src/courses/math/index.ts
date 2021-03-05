@@ -8,16 +8,15 @@ import { AngleCategorize } from './questions/angleCategorize';
 import { SupplementaryAngles } from './questions/supplementaryAngles';
 import { CountBy } from './questions/countBy';
 
-const math: Course = new Course('math',
-    [
-        SingleDigitDivisionQuestion,
-        SingleDigitMultiplicationQuestion,
-        SingleDigitAdditionQuestion,
-        EqualityTest,
-        OneStepEquation,
-        AngleCategorize,
-        SupplementaryAngles,
-        CountBy
-    ]);
+const math: Course = new Course('math', [
+  SingleDigitDivisionQuestion,
+  SingleDigitMultiplicationQuestion,
+  SingleDigitAdditionQuestion,
+  EqualityTest,
+  OneStepEquation,
+  AngleCategorize,
+  SupplementaryAngles,
+  CountBy,
+]);
 
 export default math;

@@ -1,31 +1,26 @@
 <template>
   <div class="courseEditor" v-if="course">
-    <div v-if='loading'>
+    <div v-if="loading">
       <v-progress-circular indeterminate color="secondary"></v-progress-circular>
     </div>
     <div v-else>
       <!-- <v-btn @click='toggleComponent' color="success">Content Editing / Component Registration</v-btn> -->
-      <div v-if='editingMode'>
-
+      <div v-if="editingMode">
         <!-- <div>
           {{`There ${registeredDataShapes.length !== 1 ? 'are' : 'is'} ${registeredDataShapes.length} registered data shape${registeredDataShapes.length === 1 ? '' : 's'} in the course.`}}
         </div> -->
         <v-select
           v-model="selectedShape"
           label="What kind of content are you adding?"
-          :items="registeredDataShapes.map( (shape) => shape.name )"
+          :items="registeredDataShapes.map((shape) => shape.name)"
         />
 
-        <data-input-form
-          v-if="selectedShape !== ''"
-        />
+        <data-input-form v-if="selectedShape !== ''" />
       </div>
       <component-registration v-else :course="course" />
-
     </div>
   </div>
 </template>
-
 
 <script lang="ts">
 import SkldrVue from '@/SkldrVue';
@@ -45,21 +40,22 @@ import {
   getCourseConfig,
   getCourseDataShapes,
   getCredentialledCourseConfig,
-  getCourseTagStubs
+  getCourseTagStubs,
 } from '../../db/courseDB';
 import { log } from 'util';
 
 @Component({
   components: {
     DataInputForm,
-    ComponentRegistration
-  }
+    ComponentRegistration,
+  },
 })
 export default class CourseEditor extends SkldrVue {
   @Prop({
     required: true,
-    type: String
-  }) public course: string;
+    type: String,
+  })
+  public course: string;
   public registeredDataShapes: DataShape[] = [];
   public dataShapes: DataShape[] = [];
   public selectedShape: string = '';

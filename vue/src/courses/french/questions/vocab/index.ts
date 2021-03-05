@@ -11,29 +11,27 @@ const fields: FieldDefinition[] = [
   {
     name: 'word',
     type: FieldType.STRING,
-    validator: NonEmptyString
+    validator: NonEmptyString,
   },
   {
     name: 'image',
-    type: FieldType.IMAGE
+    type: FieldType.IMAGE,
   },
   {
     name: 'audio',
-    type: FieldType.AUDIO
-  }
+    type: FieldType.AUDIO,
+  },
 ];
 
 export class VocabQuestion extends Question {
   public static dataShapes: DataShape[] = [
     {
       fields,
-      name: DataShapeName.FRENCH_Vocab
-    }
+      name: DataShapeName.FRENCH_Vocab,
+    },
   ];
 
-  public static views = [
-    IdentifyVocab
-  ];
+  public static views = [IdentifyVocab];
 
   public isCorrect(answer: Answer): boolean {
     throw new Error('Method not implemented.');

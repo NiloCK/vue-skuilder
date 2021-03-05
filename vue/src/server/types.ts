@@ -5,8 +5,8 @@ export interface IServerRequest {
   user: string;
   response: {
     errorText?: string;
-    status: Status,
-    ok: boolean
+    status: Status;
+    ok: boolean;
   } | null;
 }
 
@@ -34,17 +34,17 @@ export interface JoinClassroom extends IServerRequest {
   };
   response: {
     errorText?: string;
-    status: Status,
-    ok: boolean,
-    id_course: string,
-    course_name: string
+    status: Status;
+    ok: boolean;
+    id_course: string;
+    course_name: string;
   } | null;
 }
 export interface LeaveClassroom extends IServerRequest {
   type: ServerRequestType.LEAVE_CLASSROOM;
   data: {
     classID: string;
-  }
+  };
 }
 
 type NamespacedDatashape = string; // ${course}.datashape.${datashape}
@@ -99,12 +99,12 @@ export interface DeleteCourse extends IServerRequest {
 }
 
 export type ServerRequest =
-  CreateClassroom |
-  DeleteClassroom |
-  JoinClassroom |
-  LeaveClassroom |
-  CreateCourse |
-  DeleteCourse;
+  | CreateClassroom
+  | DeleteClassroom
+  | JoinClassroom
+  | LeaveClassroom
+  | CreateCourse
+  | DeleteCourse;
 
 export enum ServerRequestType {
   CREATE_CLASSROOM = 'CREATE_CLASSROOM',
@@ -112,5 +112,5 @@ export enum ServerRequestType {
   JOIN_CLASSROOM = 'JOIN_CLASSROOM',
   LEAVE_CLASSROOM = 'LEAVE_CLASSROOM',
   CREATE_COURSE = 'CREATE_COURSE',
-  DELETE_COURSE = 'DELETE_COURSE'
+  DELETE_COURSE = 'DELETE_COURSE',
 }

@@ -60,7 +60,7 @@ var data = {
     s: ['fr', '_'],
     t: ['m', 'c'],
   },
-}
+};
 
 generateCards(data, 'a');
 
@@ -69,8 +69,8 @@ function generateCards(vowelData) {
   Object.keys(vowelData).forEach(function (vowel) {
     // for each vowel...
     // console.log(vowel);
-    generateCardsForTrailingConsonant(vowelData[vowel], vowel)
-  })
+    generateCardsForTrailingConsonant(vowelData[vowel], vowel);
+  });
 }
 
 function generateCardsForTrailingConsonant(trailingConsonantData, vowel) {
@@ -78,26 +78,26 @@ function generateCardsForTrailingConsonant(trailingConsonantData, vowel) {
   Object.keys(trailingConsonantData).forEach(function (trailingConsonant) {
     // console.log('\t' + trailingConsonant);
     //console.log('\t\t' + trailingConsonantData[trailingConsonant]);
-    splitLeadingConsonantData(trailingConsonantData[trailingConsonant], vowel, trailingConsonant)
-  })
+    splitLeadingConsonantData(trailingConsonantData[trailingConsonant], vowel, trailingConsonant);
+  });
 }
 
 function splitLeadingConsonantData(leadingData, vowel, trailingConsonant) {
   if (leadingData[0]) {
-    generateConsonantWords(leadingData[0], vowel, trailingConsonant)
+    generateConsonantWords(leadingData[0], vowel, trailingConsonant);
   }
 
   if (leadingData[1]) {
-    generateConsonantWords(leadingData[1], vowel, trailingConsonant, true)
+    generateConsonantWords(leadingData[1], vowel, trailingConsonant, true);
   }
 
   if (leadingData[2]) {
-    generateExceptions(leadingData[2], vowel, trailingConsonant)
+    generateExceptions(leadingData[2], vowel, trailingConsonant);
   }
 
   if (leadingData[3]) {
     if (leadingData[3][0]) {
-      generateConsonantWords(leadingData[3][0], vowel, trailingConsonant, false)
+      generateConsonantWords(leadingData[3][0], vowel, trailingConsonant, false);
     }
     if (leadingData[3][1]) {
       generateConsonantWords(leadingData[3][1], vowel, trailingConsonant, true);
@@ -106,65 +106,65 @@ function splitLeadingConsonantData(leadingData, vowel, trailingConsonant) {
 }
 
 function generateExceptions(leadingConsonants, vowel, trailingConsonant) {
-  generateConsonantWords(leadingConsonants, vowel, trailingConsonant)
+  generateConsonantWords(leadingConsonants, vowel, trailingConsonant);
 }
 
 function generateConsonantWords(leadingConsonants, vowel, finalConsonant, double) {
   for (var i = 0; i < leadingConsonants.length; i++) {
-    console.log(consonantWord(leadingConsonants[i], vowel, finalConsonant, double))
+    console.log(consonantWord(leadingConsonants[i], vowel, finalConsonant, double));
   }
 }
 
 function consonantWord(openingConsonant, vowel, finalConsonant, double) {
-  var ret = ''
+  var ret = '';
 
   if (openingConsonant === '_') {
-    openingConsonant = ''
+    openingConsonant = '';
   }
 
   ret += openingConsonant + vowel + finalConsonant + 'e';
   if (double) {
-    ret += ',' + openingConsonant + vowel + finalConsonant
+    ret += ',' + openingConsonant + vowel + finalConsonant;
   }
-  return ret
+  return ret;
 }
 
 function blendedConsonantWord(blend, vowel, finalConsonant, double) {
-  var ret = ''
+  var ret = '';
 
-  ret += blend + vowel + finalConsonant + 'e\n'
+  ret += blend + vowel + finalConsonant + 'e\n';
   if (double) {
-    ret += blend + vowel + finalConsonant + '\n'
+    ret += blend + vowel + finalConsonant + '\n';
   }
-  return ret
+  return ret;
 }
 
 function init() {
   var div = document.getElementById('words');
-  var words = div.innerText.split(',')
+  var words = div.innerText.split(',');
 
   div.innerHTML = '';
-  shuffle(words)
+  shuffle(words);
   words = words.slice(0, 4); // display a max of 5 words on each card
-  div.innerHTML = words.join('<br><br>')
+  div.innerHTML = words.join('<br><br>');
 
   function shuffle(array) {
     var currentIndex = array.length,
       temporaryValue,
-      randomIndex
+      randomIndex;
 
     // While there remain elements to shuffle...
     while (0 !== currentIndex) {
       // Pick a remaining element...
-      randomIndex = Math.floor(Math.random() * currentIndex)
-      currentIndex -= 1
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
 
       // And swap it with the current element.
-      temporaryValue = array[currentIndex]
-      array[currentIndex] = array[randomIndex]
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
       array[randomIndex] = temporaryValue;
     }
 
-    return array
+    return array;
   }
 }

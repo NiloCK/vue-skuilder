@@ -1,7 +1,7 @@
 <template>
   <div>
-      {{question.a * question.b}} &divide; {{question.b}} = 
-       <UserInputNumber />
+    {{ question.a * question.b }} &divide; {{ question.b }} =
+    <UserInputNumber />
   </div>
 </template>
 
@@ -13,8 +13,8 @@ import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.
 
 @Component({
   components: {
-    UserInputNumber
-  }
+    UserInputNumber,
+  },
 })
 export default class DivisionHorizontal extends QuestionView<SingleDigitDivisionQuestion> {
   public answer: string = '';

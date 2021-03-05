@@ -7,12 +7,11 @@ import TeacherClassroomDB, { ClassroomLookupDB } from './classroomDB';
 export default class AdminDB {
   private usersDB: PouchDB.Database;
 
-  private constructor() { }
+  private constructor() {}
 
   private async init() {
     this.usersDB = new pouch(
-      ENV.COUCHDB_SERVER_PROTOCOL + '://' +
-      ENV.COUCHDB_SERVER_URL + '_users',
+      ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + '_users',
       pouchDBincludeCredentialsConfig
     );
     return;
@@ -25,24 +24,26 @@ export default class AdminDB {
   }
 
   public async getUsers() {
-    return (await this.usersDB.allDocs({
-      include_docs: true,
-      ...getStartAndEndKeys('org.couchdb.user:')
-    })).rows.map(r => r.doc);
+    return (
+      await this.usersDB.allDocs({
+        include_docs: true,
+        ...getStartAndEndKeys('org.couchdb.user:'),
+      })
+    ).rows.map((r) => r.doc);
   }
   public async getCourses() {
-    return (await getCourseList()).rows.map(r => r.doc);
+    return (await getCourseList()).rows.map((r) => r.doc);
   }
   public async removeCourse(id: string) {
     return await removeCourse(id);
   }
   public async getClassrooms() {
-    // const joincodes = 
-    const uuids = (await ClassroomLookupDB.allDocs<{ uuid: string }>({
-      include_docs: true
-    }))
-      .rows
-      .map(r => r.doc!.uuid);
+    // const joincodes =
+    const uuids = (
+      await ClassroomLookupDB.allDocs<{ uuid: string }>({
+        include_docs: true,
+      })
+    ).rows.map((r) => r.doc!.uuid);
     console.log(uuids);
 
     const promisedCRDbs: TeacherClassroomDB[] = [];
@@ -58,11 +59,11 @@ export default class AdminDB {
     }
 
     const dbs = await Promise.all(promisedCRDbs);
-    return dbs.map(db => {
+    return dbs.map((db) => {
       return {
         ...db.getConfig(),
-        _id: db._id
-      }
+        _id: db._id,
+      };
     });
   }
 }

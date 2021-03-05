@@ -13,53 +13,51 @@ import { log } from 'util';
 const fields: FieldDefinition[] = [
   {
     name: 'Note',
-    type: FieldType.STRING
-  }
+    type: FieldType.STRING,
+  },
 ];
 
 export const inputs: string[] = [
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "A♯", // sharps
-  "C♯",
-  "D♯",
-  "F♯",
-  "G♯",
-  "D♭", // flats
-  "E♭",
-  "G♭",
-  "A♭",
-  "B♭"
+  'A',
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'A♯', // sharps
+  'C♯',
+  'D♯',
+  'F♯',
+  'G♯',
+  'D♭', // flats
+  'E♭',
+  'G♭',
+  'A♭',
+  'B♭',
 ];
 
 export class PlayNote extends Question {
   public static dataShapes: DataShape[] = [
     {
       fields,
-      name: DataShapeName.PIANO_PlayNote
-    }
+      name: DataShapeName.PIANO_PlayNote,
+    },
   ];
 
   public static seedData = inputs.map((n) => {
     return {
-      "Note": n
-    }
+      Note: n,
+    };
   });
 
-  public static views = [
-    NotePlayback
-  ] as VueConstructor<Viewable>[];
+  public static views = [NotePlayback] as VueConstructor<Viewable>[];
 
   public note: string;
 
   constructor(data: ViewData[]) {
     super(data);
-    this.note = data[0].Note as any as string;
+    this.note = (data[0].Note as any) as string;
   }
 
   public isCorrect(answer: NoteEvent[]): boolean {

@@ -1,27 +1,17 @@
 <template>
-    <v-layout column wrap align-center justify-center>
-        <div class='subheading pa-2'>
-            <v-btn 
-              v-if="spinner"
-              @click="decrementView"
-              icon
-              color="accent"
-            >
-             <v-icon>chevron_left</v-icon>
-            </v-btn>
-            {{ views[viewIndex].name }}
-            <v-btn
-              v-if="spinner"
-              @click="incrementView"
-              icon
-              color="accent"
-            >
-                <v-icon alt='Hello'>chevron_right</v-icon>
-            </v-btn>
-        </div>
-        <br><br>
-        <CardViewer :view='views[viewIndex]' :data='data' />
-    </v-layout>
+  <v-layout column wrap align-center justify-center>
+    <div class="subheading pa-2">
+      <v-btn v-if="spinner" @click="decrementView" icon color="accent">
+        <v-icon>chevron_left</v-icon>
+      </v-btn>
+      {{ views[viewIndex].name }}
+      <v-btn v-if="spinner" @click="incrementView" icon color="accent">
+        <v-icon alt="Hello">chevron_right</v-icon>
+      </v-btn>
+    </div>
+    <br /><br />
+    <CardViewer :view="views[viewIndex]" :data="data" />
+  </v-layout>
 </template>
 
 <script lang="ts">
@@ -36,8 +26,8 @@ import { log } from 'util';
 
 @Component({
   components: {
-    CardViewer
-  }
+    CardViewer,
+  },
 })
 export default class CardBrowser extends SkldrVue {
   @Prop() public views: Array<VueConstructor<Viewable>>;

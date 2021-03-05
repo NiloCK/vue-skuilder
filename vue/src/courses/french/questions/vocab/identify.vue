@@ -1,8 +1,5 @@
 <template>
-  <div>
-    This is a vocabulary question.
-    
-  </div>
+  <div>This is a vocabulary question.</div>
 </template>
 
 <script lang="ts">
@@ -16,8 +13,8 @@ import UserInputString from '@/base-course/Components/UserInput/UserInputString.
 @Component({
   components: {
     AudioAutoPlayer,
-    UserInputString
-  }
+    UserInputString,
+  },
 })
 export default class IdentifyVocab extends QuestionView<VocabQuestion> {
   get question() {

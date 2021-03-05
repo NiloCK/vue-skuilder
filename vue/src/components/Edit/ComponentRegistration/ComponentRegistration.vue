@@ -2,44 +2,30 @@
   <div>
     <h3>DataShapes</h3>
     <ul>
-      <li v-for="dataShape in dataShapes" :key="dataShape.name" >
-       {{ dataShape.name }}
-        <button
-          v-if="!dataShape.registered"
-          @click="registerShape(dataShape.name)">
-          Register
-        </button>
-        <span class="inset" v-else>
-          (Registered)
-        </span>
-       <ul>
-         <div v-for="view in dataShape.dataShape.views" :key="view.name">
-          <li v-if="view">
-            {{ view.name }}
-          </li>
-         </div>
-       </ul>
-      </li>  
+      <li v-for="dataShape in dataShapes" :key="dataShape.name">
+        {{ dataShape.name }}
+        <button v-if="!dataShape.registered" @click="registerShape(dataShape.name)">Register</button>
+        <span class="inset" v-else> (Registered) </span>
+        <ul>
+          <div v-for="view in dataShape.dataShape.views" :key="view.name">
+            <li v-if="view">
+              {{ view.name }}
+            </li>
+          </div>
+        </ul>
+      </li>
     </ul>
 
     <h3>Questions</h3>
     <ul>
       <li v-for="question in questions" :key="question.name">
         {{ question.name }}
-        <button
-          v-if="!question.registered"
-          @click="registerQuestionView(question.name)">
-          Register
-        </button>
-        <span class="inset" v-else>
-          (Registered)
-        </span>
+        <button v-if="!question.registered" @click="registerQuestionView(question.name)">Register</button>
+        <span class="inset" v-else> (Registered) </span>
       </li>
     </ul>
-      
   </div>
 </template>
-
 
 <script lang="ts">
 import Vue from 'vue';
@@ -49,11 +35,7 @@ import Courses, { NameSpacer, QuestionDescriptor } from '@/courses';
 import * as _ from 'lodash';
 import { Question, Displayable } from '@/base-course/Displayable';
 import { QuestionData, QuestionRecord } from '@/db/types';
-import {
-  getCredentialledCourseConfig,
-  updateCredentialledCourseConfig,
-  addNote55
-} from '../../../db/courseDB';
+import { getCredentialledCourseConfig, updateCredentialledCourseConfig, addNote55 } from '../../../db/courseDB';
 import { DataShape55, QuestionType55, CourseConfig } from '../../../server/types';
 import SkldrVue from '../../../SkldrVue';
 
@@ -72,8 +54,7 @@ interface QuestionRegistrationStatus {
 }
 
 @Component({
-  components: {
-  }
+  components: {},
 })
 export default class ComponentRegistration extends SkldrVue {
   @Prop() public course: string;
@@ -101,7 +82,7 @@ export default class ComponentRegistration extends SkldrVue {
         course: shape.course,
         dataShape: Courses.getDataShape(shape),
         registered: index !== undefined,
-        displayable: shape.displayable
+        displayable: shape.displayable,
       });
     });
 
@@ -114,11 +95,12 @@ export default class ComponentRegistration extends SkldrVue {
       const courseQs = Courses.getCourse(course)!.questions;
 
       courseQs.forEach((courseQ) => {
-        questionData.push([{
-          course,
-          questionType: courseQ.name
-        },
-          courseQ
+        questionData.push([
+          {
+            course,
+            questionType: courseQ.name,
+          },
+          courseQ,
         ]);
       });
     });
@@ -132,10 +114,9 @@ export default class ComponentRegistration extends SkldrVue {
         course: question[0].course,
         name: question[1].name,
         registered: index !== undefined,
-        question: question[1]
+        question: question[1],
       });
     });
-
   }
 
   private async registerShape(shapeName: string) {
@@ -146,9 +127,9 @@ export default class ComponentRegistration extends SkldrVue {
     this.courseConfig!.dataShapes.push({
       name: NameSpacer.getDataShapeString({
         dataShape: shape.name,
-        course: shape.course
+        course: shape.course,
       }),
-      questionTypes: []
+      questionTypes: [],
     });
 
     const update = await updateCredentialledCourseConfig(this.course, this.courseConfig!);
@@ -183,23 +164,25 @@ export default class ComponentRegistration extends SkldrVue {
 
     const nsQuestionName = NameSpacer.getQuestionString({
       course: question.course,
-      questionType: question.name
+      questionType: question.name,
     });
 
     this.courseConfig!.questionTypes.push({
       name: nsQuestionName,
       viewList: question.question.views.map((v) => v.name),
-      dataShapeList: question.question.dataShapes.map((d) => NameSpacer.getDataShapeString({
-        course: question.course,
-        dataShape: d.name
-      }))
+      dataShapeList: question.question.dataShapes.map((d) =>
+        NameSpacer.getDataShapeString({
+          course: question.course,
+          dataShape: d.name,
+        })
+      ),
     });
 
     // associate the question type with existing registered dataTypes
     question.question.dataShapes.forEach((ds) => {
       const nsDatashapeName = NameSpacer.getDataShapeString({
         course: question.course,
-        dataShape: ds.name
+        dataShape: ds.name,
       });
 
       for (const db of this.courseConfig!.dataShapes) {
@@ -211,13 +194,12 @@ export default class ComponentRegistration extends SkldrVue {
 
     const update = await updateCredentialledCourseConfig(this.course, this.courseConfig!);
 
-
     if (update.ok) {
       question.registered = true;
       console.log(`
 Question: ${JSON.stringify(question)}
 CourseID: ${this.course}
-      `)
+      `);
       if (question.question.seedData) {
         console.log(`Question has seed data!`);
         question.question.seedData.forEach((d) => {
@@ -232,11 +214,8 @@ CourseID: ${this.course}
       } else {
         console.log(`Question has NO seed data!`);
       }
-
     }
-
   }
-
 }
 </script>
 

@@ -27,7 +27,7 @@ class ProperFraction {
     }
 
     // todo: replace or suppliment w/ a lcm
-    return new ProperFraction((a.num * b.den + b.num * a.den), a.den * b.den);
+    return new ProperFraction(a.num * b.den + b.num * a.den, a.den * b.den);
   }
 
   reduce(): ProperFraction {
@@ -61,7 +61,7 @@ class ProperFraction {
 
   getCanvasDrawing(size: number): HTMLCanvasElement {
     if (size === undefined) {
-      console.log("Fraction defaulting to 100 px");
+      console.log('Fraction defaulting to 100 px');
       size = 100;
     }
 
@@ -72,7 +72,7 @@ class ProperFraction {
 
     var mid = size / 2;
     var radius = mid * 0.9;
-    var angle = 2 * Math.PI / this.den;
+    var angle = (2 * Math.PI) / this.den;
 
     con.fillStyle = 'orange';
 
@@ -91,8 +91,7 @@ class ProperFraction {
     con.beginPath();
     con.moveTo(mid, mid);
     for (var i = 0; i <= this.num; i++) {
-      con.lineTo(mid + radius * Math.cos(angle * i),
-        mid + radius * Math.sin(angle * i));
+      con.lineTo(mid + radius * Math.cos(angle * i), mid + radius * Math.sin(angle * i));
     }
     con.moveTo(mid, mid);
     con.fill();
@@ -103,8 +102,7 @@ class ProperFraction {
       for (var i = 0; i < this.den; i++) {
         con.beginPath();
         con.moveTo(mid, mid);
-        con.lineTo(mid + radius * Math.cos(i * angle),
-          mid + radius * Math.sin(i * angle));
+        con.lineTo(mid + radius * Math.cos(i * angle), mid + radius * Math.sin(i * angle));
         con.stroke();
       }
     }
@@ -124,7 +122,9 @@ class ProperFraction {
     // todo: must be rotatable (by 90)
 
     // todo: prime check on the den, followed by horiz + vertically cut 'whole'.
-    if (!size) { size = 100 }
+    if (!size) {
+      size = 100;
+    }
 
     var canvas = document.createElement('canvas');
     canvas.height = size;
@@ -137,14 +137,14 @@ class ProperFraction {
     // The 'filled in' bits
     con.fillStyle = 'orange';
     for (var i = 0; i < this.num; i++) {
-      con.fillRect(i * size / this.den, 0, size / this.den, size);
+      con.fillRect((i * size) / this.den, 0, size / this.den, size);
     }
 
     // The vertical bars
     for (var i = 1; i < this.den; i++) {
       con.beginPath();
-      con.moveTo(i * size / this.den, 0);
-      con.lineTo(i * size / this.den, size);
+      con.moveTo((i * size) / this.den, 0);
+      con.lineTo((i * size) / this.den, size);
       con.stroke();
     }
 

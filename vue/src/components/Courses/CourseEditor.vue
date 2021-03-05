@@ -1,70 +1,55 @@
 <template>
   <v-card>
-    
-  <v-toolbar
-  card
-  dark
-  flat
-  color="primary">
-
-    <v-card-title class='title font-weight-regular' primary-title>
-      Start a New Quilt
-    </v-card-title>
-    <v-spacer></v-spacer>
-    <v-btn icon @click="clearFormAndDismiss">
-      <v-icon>close</v-icon>
-    </v-btn>
-
-  </v-toolbar>
-  <v-form>
-    <v-container grid-list-md>
-            <v-layout wrap column>
-
-              <v-flex xs12 sm6 md4>
-                <v-text-field
-                 v-model="name"
-                 counter="30"
-                 :rules="nameRules"
-                 label="Quilt Name"
-                 required
-                 hint="Short and descriptive"></v-text-field>
-              </v-flex>
-              <v-flex xs12 sm6 md4>
-
-                <v-textarea
-                  v-model="description"
-                  outline
-                  counter="300"
-                  :auto-grow="true"
-                  label="Quilt Description"
-                  hint="Describe the course. What subject is covered? Who might be interested?">
-                </v-textarea>
-              </v-flex>
-              <v-flex xs12 sm6 md4>
-                <label for="">Public or private quilt?</label>
-                <v-radio-group
-                  required
-                  hint="Private quilts can be shared and collaborated on with other individual users, but will not be accessable without an invitation. A private quilt can be made public later."
-                  persistent-hint
-                  row
-                  v-model="publicCourse"
-                >
-                  <v-radio label="Public" :value="true" ></v-radio>
-                  <v-radio label="Private" :value="false"></v-radio>
-                </v-radio-group>
-              </v-flex>
-              <v-flex xs12 sm6 md4>
-                <v-btn
-                  :loading="updatePending"
-                  color="primary"
-                  @click="submit"
-                >
-                  Save Course Changes
-                </v-btn>
-              </v-flex>            
-            </v-layout>
-          </v-container>
-  </v-form>
+    <v-toolbar card dark flat color="primary">
+      <v-card-title class="title font-weight-regular" primary-title> Start a New Quilt </v-card-title>
+      <v-spacer></v-spacer>
+      <v-btn icon @click="clearFormAndDismiss">
+        <v-icon>close</v-icon>
+      </v-btn>
+    </v-toolbar>
+    <v-form>
+      <v-container grid-list-md>
+        <v-layout wrap column>
+          <v-flex xs12 sm6 md4>
+            <v-text-field
+              v-model="name"
+              counter="30"
+              :rules="nameRules"
+              label="Quilt Name"
+              required
+              hint="Short and descriptive"
+            ></v-text-field>
+          </v-flex>
+          <v-flex xs12 sm6 md4>
+            <v-textarea
+              v-model="description"
+              outline
+              counter="300"
+              :auto-grow="true"
+              label="Quilt Description"
+              hint="Describe the course. What subject is covered? Who might be interested?"
+            >
+            </v-textarea>
+          </v-flex>
+          <v-flex xs12 sm6 md4>
+            <label for="">Public or private quilt?</label>
+            <v-radio-group
+              required
+              hint="Private quilts can be shared and collaborated on with other individual users, but will not be accessable without an invitation. A private quilt can be made public later."
+              persistent-hint
+              row
+              v-model="publicCourse"
+            >
+              <v-radio label="Public" :value="true"></v-radio>
+              <v-radio label="Private" :value="false"></v-radio>
+            </v-radio-group>
+          </v-flex>
+          <v-flex xs12 sm6 md4>
+            <v-btn :loading="updatePending" color="primary" @click="submit"> Save Course Changes </v-btn>
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </v-form>
   </v-card>
 </template>
 
@@ -92,7 +77,7 @@ export default class CourseEditor extends SkldrVue {
       } else {
         return true;
       }
-    }
+    },
   ];
   private description: string = '';
   private publicCourse: boolean = false;
@@ -123,20 +108,20 @@ export default class CourseEditor extends SkldrVue {
       admins: this.admins,
       moderators: this.moderators,
       dataShapes: this.dataShapes,
-      questionTypes: this.questionTypes
+      questionTypes: this.questionTypes,
     };
 
     const result = await serverRequest<CreateCourse>({
       data: config,
       type: ServerRequestType.CREATE_COURSE,
       response: null,
-      user: this.$store.state._user!.username
+      user: this.$store.state._user!.username,
     });
 
     if (result.response) {
       alertUser({
         text: `Course ${this.name} created.`,
-        status: result.response!.status
+        status: result.response!.status,
       });
     }
 

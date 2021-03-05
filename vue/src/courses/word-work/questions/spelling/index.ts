@@ -12,33 +12,31 @@ const fields: FieldDefinition[] = [
   {
     name: 'Word',
     type: FieldType.STRING,
-    validator: NonEmptyString
+    validator: NonEmptyString,
   },
   {
     name: 'ExampleSentence',
-    type: FieldType.STRING
+    type: FieldType.STRING,
   },
   {
     name: 'WordAudio',
-    type: FieldType.AUDIO
+    type: FieldType.AUDIO,
   },
   {
     name: 'SentenceAudio',
-    type: FieldType.AUDIO
-  }
+    type: FieldType.AUDIO,
+  },
 ];
 
 export class SpellingQuestion extends Question {
   public static dataShapes: DataShape[] = [
     {
       fields,
-      name: DataShapeName.WORDWORK_Spelling
-    }
+      name: DataShapeName.WORDWORK_Spelling,
+    },
   ];
 
-  public static views = [
-    TextBox
-  ];
+  public static views = [TextBox];
 
   public word: string;
   public sentence: string;
@@ -52,7 +50,6 @@ export class SpellingQuestion extends Question {
     this.audio_word = data[0].WordAudio as Blob;
     this.audio_sentence = data[0].SentenceAudio as Blob;
   }
-
 
   public isCorrect(answer: Answer): boolean {
     return answer === this.word;

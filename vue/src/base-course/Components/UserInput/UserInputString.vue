@@ -1,18 +1,17 @@
 <template>
-    <v-text-field
-        v-model="answer"
-        :prepend-icon="prependIcon"
-        @keyup.enter="submitAnswer(answer)"
-        :autofocus="autofocus"
-        toggle-keys="[13,32]"
-        type="text"
-        class='headline'
-
-        single-line
-        hide-details
-        hide-headers
-        hide-overlay
-    ></v-text-field>
+  <v-text-field
+    v-model="answer"
+    :prepend-icon="prependIcon"
+    @keyup.enter="submitAnswer(answer)"
+    :autofocus="autofocus"
+    toggle-keys="[13,32]"
+    type="text"
+    class="headline"
+    single-line
+    hide-details
+    hide-headers
+    hide-overlay
+  ></v-text-field>
 </template>
 
 <script lang="ts">
@@ -23,8 +22,9 @@ import UserInput from './UserInput';
 export default class UserInputString extends UserInput {
   @Prop({
     required: false,
-    default: true
-  }) public icon: boolean;
+    default: true,
+  })
+  public icon: boolean;
 
   private get prependIcon(): string {
     return this.icon ? 'edit' : '';
@@ -33,7 +33,6 @@ export default class UserInputString extends UserInput {
   public mounted() {
     this.$el.focus();
   }
-
 }
 </script>
 

@@ -7,13 +7,13 @@ export const NonEmptyString: Validator = {
     if (input.length !== 0) {
       return {
         status: Status.ok,
-        msg: ''
+        msg: '',
       };
     } else {
       return {
         status: Status.error,
-        msg: 'Input cannot be empty'
+        msg: 'Input cannot be empty',
       };
     }
-  }
+  },
 };

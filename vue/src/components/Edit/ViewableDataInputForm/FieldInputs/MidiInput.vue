@@ -3,21 +3,16 @@
     <div v-if="recording">
       <span class="headline">
         Now Recording from device:
-        <span class="font-weight-black">{{midi.configuredInput}}</span>
+        <span class="font-weight-black">{{ midi.configuredInput }}</span>
       </span>
     </div>
-    <syllable-seq-vis 
-      ref="inputVis"
-      v-if="true"
-      :seq="SylSeq"
-      lastTSsuggestion=5000
-    />
+    <syllable-seq-vis ref="inputVis" v-if="true" :seq="SylSeq" lastTSsuggestion="5000" />
     <v-btn color="primary" @click="play" :disabled="hasRecording()">
       Preview
       <v-icon right>volume_up</v-icon>
     </v-btn>
     <v-btn color="error" @click="reset" :disabled="hasRecording()">
-      Clear and try again 
+      Clear and try again
       <v-icon right>close</v-icon>
     </v-btn>
     <v-checkbox @click.capture="resetInput" label="Include Transpositions" v-model="transpositions"></v-checkbox>
@@ -25,15 +20,19 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
-import { FieldInput } from "../FieldInput";
-import SkMidi, { eventsToSyllableSequence, SyllableSequence, transposeSyllableSeq } from "../../../../courses/piano/utility/midi";
-import SyllableSeqVis from "../../../../courses/piano/utility/SyllableSeqVis.vue";
+import { Component } from 'vue-property-decorator';
+import { FieldInput } from '../FieldInput';
+import SkMidi, {
+  eventsToSyllableSequence,
+  SyllableSequence,
+  transposeSyllableSeq,
+} from '../../../../courses/piano/utility/midi';
+import SyllableSeqVis from '../../../../courses/piano/utility/SyllableSeqVis.vue';
 
 @Component({
   components: {
-    SyllableSeqVis
-  }
+    SyllableSeqVis,
+  },
 })
 export default class MidiInput extends FieldInput {
   public midi: SkMidi;
@@ -43,8 +42,8 @@ export default class MidiInput extends FieldInput {
   public transpositions: boolean = false;
 
   public $refs: {
-    inputVis: SyllableSeqVis,
-    inputField: HTMLInputElement
+    inputVis: SyllableSeqVis;
+    inputField: HTMLInputElement;
   };
 
   async created() {
@@ -64,7 +63,7 @@ export default class MidiInput extends FieldInput {
     this.midi.addNoteonListenter((e) => {
       this.SylSeq.append(e);
       this.$refs.inputVis.updateBounds();
-    })
+    });
     this.recording = true;
   }
 
@@ -116,4 +115,3 @@ export default class MidiInput extends FieldInput {
   }
 }
 </script>
- 

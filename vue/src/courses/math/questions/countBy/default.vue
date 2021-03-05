@@ -1,23 +1,23 @@
 <template>
   <div class="headline">
-    <div class="headline"> Count by <strong>{{question.n}}</strong>s: </div>
+    <div class="headline">
+      Count by <strong>{{ question.n }}</strong
+      >s:
+    </div>
 
-    <input type="text" disabled class="correct" :value="question.answer[0] - question.n">, 
+    <input type="text" disabled class="correct" :value="question.answer[0] - question.n" />,
 
     <span v-for="(a, i) in question.answer" :key="i">
-
-      <input 
+      <input
         type="text"
-        
         :id="`input${i}`"
-        :ref="`input${i}`"        
+        :ref="`input${i}`"
         @keyup="track(i)"
         v-model="answer[i]"
         :autofocus="i === 0"
-      >
+      />
       <span v-if="i !== question.answer.length - 1">, </span>
     </span>
-      
   </div>
 </template>
 
@@ -29,11 +29,11 @@ import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.
 
 @Component({
   components: {
-    UserInputNumber
-  }
+    UserInputNumber,
+  },
 })
 export default class VerbalAddition extends QuestionView<CountBy> {
-  public answer: string[] = ["", "", "", "", ""];
+  public answer: string[] = ['', '', '', '', ''];
   get question() {
     return new CountBy(this.data);
   }
@@ -71,16 +71,14 @@ export default class VerbalAddition extends QuestionView<CountBy> {
     input4: HTMLInputElement[];
 
     // [index: string]: HTMLInputElement;
-  }
+  };
 
   public mounted() {
     console.log('focusingb...');
     this.$refs.input0[0].focus();
   }
 
-
   public submit() {
-
     // alert(this.question.isCorrect(parseInt(this.answer, 10)));'
   }
 }

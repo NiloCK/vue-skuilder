@@ -1,7 +1,7 @@
 <template>
   <div>
-      {{question.a}} times {{question.b}} is 
-      <UserInputNumber />
+    {{ question.a }} times {{ question.b }} is
+    <UserInputNumber />
   </div>
 </template>
 
@@ -13,8 +13,8 @@ import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.
 
 @Component({
   components: {
-    UserInputNumber
-  }
+    UserInputNumber,
+  },
 })
 export default class VerbalMultiplication extends QuestionView<SingleDigitMultiplicationQuestion> {
   public answer: string = '';

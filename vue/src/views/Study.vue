@@ -1,20 +1,25 @@
 <template>
   <div v-if="!$store.state.views.study.inSession">
-    <SessionConfiguration :startFcn="initStudySession"/>
+    <SessionConfiguration :startFcn="initStudySession" />
   </div>
   <div v-else>
     <div class="Study" v-if="sessionPrepared">
-      
       <v-layout v-if="previewMode">
-        <span class="headline">Quilt preview for <em>{{previewCourseConfig.name}}</em></span>
+        <span class="headline"
+          >Quilt preview for <em>{{ previewCourseConfig.name }}</em></span
+        >
         <v-btn small @click="registerUserForPreviewCourse" color="primary">Join</v-btn>
-        <router-link :to="`/quilts/${previewCourseConfig.courseID}`"><v-btn small color="secondary">More info</v-btn></router-link>
+        <router-link :to="`/quilts/${previewCourseConfig.courseID}`"
+          ><v-btn small color="secondary">More info</v-btn></router-link
+        >
         <v-spacer></v-spacer>
         <SkldrControlsView />
       </v-layout>
       <v-layout v-else>
-        <h1  class='display-1'>Study:
-          <v-progress-circular v-if="loading"
+        <h1 class="display-1">
+          Study:
+          <v-progress-circular
+            v-if="loading"
             absolute
             top
             color="primary"
@@ -28,30 +33,31 @@
         <v-spacer></v-spacer>
         <SkldrControlsView />
       </v-layout>
-      
-      <br>
 
-      <div v-if='!checkLoggedIn' class='display-1'>
+      <br />
+
+      <div v-if="!checkLoggedIn" class="display-1">
         <p>Sign up to get to work!</p>
       </div>
 
-      <div v-else-if='sessionFinished' class='display-1'>
+      <div v-else-if="sessionFinished" class="display-1">
         <p>Study session finished! Great job!</p>
-        <p>{{sessionController.report}}</p>
-        <p>Start <a @click="refreshRoute">another study session</a>, or try 
-        <router-link :to="`/edit/${courseID}`">adding some new content</router-link> to challenge yourself and others!
+        <p>{{ sessionController.report }}</p>
+        <p>
+          Start <a @click="refreshRoute">another study session</a>, or try
+          <router-link :to="`/edit/${courseID}`">adding some new content</router-link> to challenge yourself and others!
         </p>
       </div>
 
       <div v-else ref="shadowWrapper">
         <card-viewer
-            v-bind:class="loading ? 'muted' : ''"
-            v-bind:view="view"
-            v-bind:data="data"
-            v-bind:card_id="cardID"
-            v-bind:course_id="courseID"
-            v-bind:sessionOrder="cardCount"
-            v-on:emitResponse="processResponse($event)"
+          v-bind:class="loading ? 'muted' : ''"
+          v-bind:view="view"
+          v-bind:data="data"
+          v-bind:card_id="cardID"
+          v-bind:course_id="courseID"
+          v-bind:sessionOrder="cardCount"
+          v-on:emitResponse="processResponse($event)"
         />
         <!-- <card-loader
           :class="loading ? 'muted' : ''"
@@ -61,9 +67,9 @@
         /> -->
       </div>
 
-      <br>
+      <br />
       <div v-if="sessionController">
-        <span class='headline' v-for="i in sessionController.failedCount" :key="i">•</span>
+        <span class="headline" v-for="i in sessionController.failedCount" :key="i">•</span>
         <!-- {{ cardType }} -->
         <!-- 
         <br><br><br>
@@ -75,10 +81,7 @@
 
       <div v-if="!sessionFinished && editTags">
         <p>Add tags to this card:</p>
-        <sk-tags-input
-            :courseID="courseID"
-            :cardID="cardID"
-        />
+        <sk-tags-input :courseID="courseID" :cardID="cardID" />
       </div>
       <v-tooltip
         fixed
@@ -95,73 +98,51 @@
           slot="activator"
           v-if="!sessionFinished"
           fab
-          color='transparent'
+          color="transparent"
           bottom
           left
           fixed
           :title="timeString"
-          @click="if (timerIsActive) incrementSessionClock()"
+          @click="if (timerIsActive) incrementSessionClock();"
         >
           <v-progress-circular
             alt="Time remaining in study session"
             centered
-            size='64'
-            width='8'
-            rotate='-90'
+            size="64"
+            width="8"
+            rotate="-90"
             :color="timerColor"
             :value="percentageRemaining"
           >
-            <v-icon v-if='timerIsActive' large dark>add</v-icon>
+            <v-icon v-if="timerIsActive" large dark>add</v-icon>
           </v-progress-circular>
         </v-btn>
-        {{timeString}}
+        {{ timeString }}
       </v-tooltip>
-      <v-speed-dial
-      v-if="!sessionFinished"
-        v-model="fab"
-        fixed
-        bottom
-        right
-        transition='scale-transition'
-      >
+      <v-speed-dial v-if="!sessionFinished" v-model="fab" fixed bottom right transition="scale-transition">
         <template v-slot:activator>
-          <v-btn
-            v-model="fab"
-            color="blue darken-2"
-            dark
-            fab
-          >
-            <v-icon v-if='fab'>close</v-icon>
+          <v-btn v-model="fab" color="blue darken-2" dark fab>
+            <v-icon v-if="fab">close</v-icon>
             <v-icon v-else>edit</v-icon>
           </v-btn>
         </template>
-        <router-link
-        :to='`/edit/${courseID}`'
-      >
+        <router-link :to="`/edit/${courseID}`">
+          <v-btn fab small dark color="indigo" title="Add content to this course">
+            <v-icon>add</v-icon>
+          </v-btn>
+        </router-link>
         <v-btn
           fab
-          small
           dark
-          color='indigo'
-          title="Add content to this course"
+          small
+          color="orange darken-2"
+          title="Edit tags on this card"
+          @click="editTags = !editTags"
+          :loading="editCard"
         >
-          <v-icon>add</v-icon>
+          <v-icon>bookmark</v-icon>
         </v-btn>
-      </router-link>
-      <v-btn
-        fab
-        dark
-        small
-        color="orange darken-2"
-        title="Edit tags on this card"
-        @click="editTags = !editTags"
-        :loading='editCard'
-      >
-        <v-icon>bookmark</v-icon>
-      </v-btn> 
-      
       </v-speed-dial>
-      
     </div>
   </div>
 </template>
@@ -175,7 +156,7 @@ import {
   CardRecord,
   QuestionRecord,
   isQuestionRecord,
-  CardHistory
+  CardHistory,
 } from '@/db/types';
 import Viewable, { isQuestionView } from '@/base-course/Viewable';
 import { Component, Prop } from 'vue-property-decorator';
@@ -183,13 +164,7 @@ import CardViewer from '@/components/Study/CardViewer.vue';
 import CardLoader from '@/components/Study/CardLoader.vue';
 import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
 import Courses, { NameSpacer } from '@/courses';
-import {
-  getRandomCards,
-  putCardRecord,
-  scheduleCardReview,
-  getCourseDoc,
-  removeScheduledCardReview
-} from '@/db';
+import { getRandomCards, putCardRecord, scheduleCardReview, getCourseDoc, removeScheduledCardReview } from '@/db';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
@@ -206,7 +181,16 @@ import { randomInt } from '../courses/math/utility';
 import { GuestUsername } from '@/store';
 import { CourseConfig } from '../server/types';
 import SkldrControlsView from '../components/SkMouseTrap.vue';
-import { ContentSourceID, getStudySource, isReview, StudyContentSource, StudySessionFailedItem, StudySessionItem, StudySessionNewItem, StudySessionReviewItem } from '@/db/contentSource';
+import {
+  ContentSourceID,
+  getStudySource,
+  isReview,
+  StudyContentSource,
+  StudySessionFailedItem,
+  StudySessionItem,
+  StudySessionNewItem,
+  StudySessionReviewItem,
+} from '@/db/contentSource';
 import SessionController, { StudySessionRecord } from '@/db/SessionController';
 import confetti from 'canvas-confetti';
 
@@ -228,16 +212,21 @@ class EloRank {
   }
 
   getExpected(a: number, b: number) {
-    return 1 / (1 + Math.pow(10, ((b - a) / 400)));
+    return 1 / (1 + Math.pow(10, (b - a) / 400));
   }
   updateRating(expected: number, actual: number, current: number) {
     return Math.round(current + this.k * (actual - expected));
   }
 }
 
-function adjustScores(userElo: number, cardElo: number, userScore: number, k?: number): {
+function adjustScores(
   userElo: number,
-  cardElo: number
+  cardElo: number,
+  userScore: number,
+  k?: number
+): {
+  userElo: number;
+  cardElo: number;
 } {
   const elo = new EloRank(k);
   const exp = elo.getExpected(userElo, cardElo);
@@ -248,11 +237,11 @@ function adjustScores(userElo: number, cardElo: number, userScore: number, k?: n
        user  |  card
 init   ${userElo}         ${cardElo}
 final  ${upA}         ${upB}
-  `)
+  `);
 
   return {
     userElo: upA,
-    cardElo: upB
+    cardElo: upB,
   };
 }
 
@@ -262,8 +251,8 @@ final  ${upA}         ${upB}
     CardLoader,
     SkldrControlsView,
     SkTagsInput,
-    SessionConfiguration
-  }
+    SessionConfiguration,
+  },
 })
 export default class Study extends SkldrVue {
   @Prop()
@@ -275,7 +264,6 @@ export default class Study extends SkldrVue {
 
   public previewCourseConfig?: CourseConfig;
   public previewMode: boolean = false;
-
 
   public fab: boolean = false; // open the speed-dial fab
   public editTags: boolean = false; // open the tagsInput for this card
@@ -306,11 +294,11 @@ export default class Study extends SkldrVue {
   }
 
   private timerIsActive: boolean = false;
-  private timeString: string = "";
+  private timeString: string = '';
   private timeRemaining: number = this.$store.state.views.study.sessionTimeLimit * 60;
   private _intervalHandler: NodeJS.Timeout;
   private incrementSessionClock() {
-    let max = (60 * this.$store.state.views.study.sessionTimeLimit) - this.timeRemaining;
+    let max = 60 * this.$store.state.views.study.sessionTimeLimit - this.timeRemaining;
 
     this.sessionController.addTime(Math.min(max, 60));
     this.tick();
@@ -319,21 +307,22 @@ export default class Study extends SkldrVue {
     this.timeRemaining = this.sessionController.secondsRemaining;
     this.setTimeString();
 
-    this.percentageRemaining = this.timeRemaining > 60 ?
-      100 * (this.timeRemaining / (60 * this.$store.state.views.study.sessionTimeLimit)) :
-      100 * (this.timeRemaining / 60);
+    this.percentageRemaining =
+      this.timeRemaining > 60
+        ? 100 * (this.timeRemaining / (60 * this.$store.state.views.study.sessionTimeLimit))
+        : 100 * (this.timeRemaining / 60);
 
     if (this.timeRemaining === 0) {
       clearInterval(this._intervalHandler);
     }
   }
   private setTimeString() {
-    this.timeString = "";
+    this.timeString = '';
     if (this.timeRemaining > 60) {
-      this.timeString = Math.floor(this.timeRemaining / 60).toString() + ":";
+      this.timeString = Math.floor(this.timeRemaining / 60).toString() + ':';
     }
     const secondsRemaining: number = this.timeRemaining % 60;
-    this.timeString += (secondsRemaining >= 10) ? (secondsRemaining) : '0' + secondsRemaining;
+    this.timeString += secondsRemaining >= 10 ? secondsRemaining : '0' + secondsRemaining;
     if (this.timeRemaining <= 60) {
       this.timeString += ' seconds';
     }
@@ -344,13 +333,12 @@ export default class Study extends SkldrVue {
   public user: User;
 
   public $refs: {
-    shadowWrapper: HTMLDivElement
+    shadowWrapper: HTMLDivElement;
   };
   private userCourseRegDoc: CourseRegistrationDoc;
 
   private sessionContentSources: StudyContentSource[] = [];
   private sessionClassroomDBs: StudentClassroomDB[] = [];
-
 
   public checkLoggedIn(): boolean {
     // return !this.$store.state._user!.username.startsWith(GuestUsername);
@@ -362,8 +350,7 @@ export default class Study extends SkldrVue {
     // this section was wip for editing cards w/ dataInputForm (defunct plan)
     // Refactor to a different location for future use...
     if (value) {
-      this.$store.state.dataInputForm.dataShape =
-        await getCardDataShape(this.courseID, this.cardID);
+      this.$store.state.dataInputForm.dataShape = await getCardDataShape(this.courseID, this.cardID);
 
       const cfg = await getCredentialledCourseConfig(this.courseID);
       this.$store.state.dataInputForm.course = cfg!;
@@ -396,16 +383,15 @@ export default class Study extends SkldrVue {
 
   public handleClassroomMessage(): (v: any) => {} {
     return (v: any) => {
-
       alertUser({
         text: this.$store.state._user!.username,
-        status: Status.ok
-      })
+        status: Status.ok,
+      });
       log(`There was a change in the classroom DB:`);
       log(`change: ${v}`);
       log(`Stringified change: ${JSON.stringify(v)}`);
       return {};
-    }
+    };
   }
 
   public refreshRoute() {
@@ -423,12 +409,12 @@ export default class Study extends SkldrVue {
     // preview, randomPreview, focusCourse / focusClass
 
     if (this.randomPreview) {
-      // set a .previewCourseID 
-      const allCourses = (await getCourseList()).rows.map(r => r.id);
+      // set a .previewCourseID
+      const allCourses = (await getCourseList()).rows.map((r) => r.id);
       log(`RANDOMPREVIEW:
       Courses:
       ${allCourses.toString()}`);
-      const unRegisteredCourses = allCourses.filter(c => {
+      const unRegisteredCourses = allCourses.filter((c) => {
         return !this.userCourseRegDoc.courses.some((rc) => rc.courseID === c);
       });
       if (unRegisteredCourses.length > 0) {
@@ -437,8 +423,8 @@ export default class Study extends SkldrVue {
         this.previewCourseID = allCourses[randomInt(0, allCourses.length)];
       }
     } else if (this.previewCourseID) {
-
-      { // set metadata for displaying a signup CTA
+      {
+        // set metadata for displaying a signup CTA
 
         this.previewMode = true;
         getCourseList().then((courses) => {
@@ -454,34 +440,37 @@ export default class Study extends SkldrVue {
       log(`COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
       await this.user.registerForCourse(this.previewCourseID, true);
 
-      this.initStudySession([{ type: "course", id: this.previewCourseID }]);
+      this.initStudySession([{ type: 'course', id: this.previewCourseID }]);
     } else if (this.focusCourseID) {
       log(`FOCUS study session: ${this.focusCourseID}`);
 
-      this.initStudySession([{ type: "course", id: this.focusCourseID }]);
+      this.initStudySession([{ type: 'course', id: this.focusCourseID }]);
     }
-
   }
 
   /**
-   * Pulls scheduled reviews, prescribes new cards, and 
+   * Pulls scheduled reviews, prescribes new cards, and
    * declares session to be started (activating card-viewer
    * and main flow).
-   * 
+   *
    * NB: This function is passed to and called by the SessionConfiguration
    *     component
    */
   private async initStudySession(sources: ContentSourceID[]) {
     console.log(`starting study session w/ sources: ${JSON.stringify(sources)}`);
 
-    this.sessionContentSources = await Promise.all(sources.map(s => getStudySource(s)));
+    this.sessionContentSources = await Promise.all(sources.map((s) => getStudySource(s)));
 
-    this.sessionClassroomDBs = await Promise.all(sources.filter(s => s.type === 'classroom')
-      .map(async c => { return StudentClassroomDB.factory(c.id); })
+    this.sessionClassroomDBs = await Promise.all(
+      sources
+        .filter((s) => s.type === 'classroom')
+        .map(async (c) => {
+          return StudentClassroomDB.factory(c.id);
+        })
     );
 
     this.sessionClassroomDBs.forEach((db) => {
-      db.setChangeFcn(this.handleClassroomMessage())
+      db.setChangeFcn(this.handleClassroomMessage());
     });
 
     this.sessionController = new SessionController(
@@ -498,8 +487,11 @@ export default class Study extends SkldrVue {
 
     log(`Session created:
 ${this.sessionController.toString()}
-User courses: ${sources.filter(s => s.type === 'course').map(c => c.id).toString()}
-User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
+User courses: ${sources
+      .filter((s) => s.type === 'course')
+      .map((c) => c.id)
+      .toString()}
+User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
 `);
 
     this.$store.state.views.study.inSession = true;
@@ -508,10 +500,9 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
   }
 
   private registerUserForPreviewCourse() {
-    this.user.registerForCourse(this.previewCourseConfig!.courseID!).then(() =>
-      this.$router.push(`/quilts/${this.previewCourseConfig!.courseID!}`
-      )
-    )
+    this.user
+      .registerForCourse(this.previewCourseConfig!.courseID!)
+      .then(() => this.$router.push(`/quilts/${this.previewCourseConfig!.courseID!}`));
   }
 
   private get sessionString() {
@@ -531,9 +522,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
   }
 
   private countCardViews(course_id: string, card_id: string): number {
-    return this.sessionRecord
-      .filter(r => r.card.course_id === course_id && r.card.card_id === card_id)
-      .length;
+    return this.sessionRecord.filter((r) => r.card.course_id === course_id && r.card.card_id === card_id).length;
   }
 
   private processResponse(r: CardRecord) {
@@ -557,7 +546,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
           confetti({
             origin: {
               y: 1,
-              x: 0.25 + 0.5 * Math.random()
+              x: 0.25 + 0.5 * Math.random(),
             },
             disableForReducedMotion: true,
             angle: 60 + 60 * Math.random(),
@@ -566,8 +555,8 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
 
         if (r.priorAttemps === 0) {
           const item: StudySessionItem = {
-            ...this.currentCard.item
-          }
+            ...this.currentCard.item,
+          };
           // user got the question right on 'the first try'.
           // dismiss the card from this study session, and
           // schedule its review in the future.
@@ -587,7 +576,6 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
               this.updateUserAndCardElo(1, this.courseID, this.cardID, k);
             }
           });
-
         } else {
           // user got the question right, but with multiple
           // attempts. Dismiss it, but don't remove from
@@ -607,12 +595,8 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
         });
 
         if (isQuestionView(this.constructedView)) {
-          if (this.currentCard.records.length >=
-            this.constructedView.maxAttemptsPerView) {
-            const sessionViews: number = this.countCardViews(
-              this.courseID,
-              this.cardID
-            );
+          if (this.currentCard.records.length >= this.constructedView.maxAttemptsPerView) {
+            const sessionViews: number = this.countCardViews(this.courseID, this.cardID);
             if (sessionViews >= this.constructedView.maxSessionViews) {
               // max attempts per view and session have been reached:
               // dismiss the card from the session without scheduling
@@ -646,17 +630,11 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
       user: ${this.$store.state._user!.username}
       card: ${course_id}-${card_id}`);
 
-    const userElo = this.userCourseRegDoc.courses.find(c => c.courseID === course_id)!.elo;
-    const cardElo = this.currentCard.card.card_elo
+    const userElo = this.userCourseRegDoc.courses.find((c) => c.courseID === course_id)!.elo;
+    const cardElo = this.currentCard.card.card_elo;
 
     if (cardElo && userElo) {
-
-      const eloUpdate = adjustScores(
-        userElo,
-        cardElo,
-        userScore,
-        k
-      );
+      const eloUpdate = adjustScores(userElo, cardElo, userScore, k);
       const user = await updateUserElo(this.$store.state._user!.username, course_id, eloUpdate.userElo);
       const card = await updateCardElo(course_id, card_id, eloUpdate.cardElo);
 
@@ -665,11 +643,11 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
   user: ${this.$store.state._user!.username}
   course: ${course_id}
   card: ${card_id}
-      `)
-        this.userCourseRegDoc.courses.find(c => c.courseID === course_id)!.elo = eloUpdate.userElo
+      `);
+        this.userCourseRegDoc.courses.find((c) => c.courseID === course_id)!.elo = eloUpdate.userElo;
       }
 
-      return (user.ok && card && card.ok);
+      return user.ok && card && card.ok;
     }
   }
 
@@ -692,19 +670,17 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
       removeScheduledCardReview(this.user.username, item.reviewID);
     }
 
-    scheduleCardReview(
-      {
-        user: this.$store.state._user!.username,
-        course_id: history.courseID,
-        card_id: history.cardID,
-        time: nextReviewTime,
-        scheduledFor: item.contentSourceType,
-        schedulingAgentId: item.contentSourceID
-      }
-    );
+    scheduleCardReview({
+      user: this.$store.state._user!.username,
+      course_id: history.courseID,
+      card_id: history.cardID,
+      time: nextReviewTime,
+      scheduledFor: item.contentSourceType,
+      schedulingAgentId: item.contentSourceID,
+    });
   }
 
-  public cardType: string = "";
+  public cardType: string = '';
 
   /**
    * async fetch card data and view from the db
@@ -735,7 +711,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
       const tmpDataDocs = await tmpCardData.id_displayable_data.map((id) => {
         return getCourseDoc<DisplayableData>(_courseID, id, {
           attachments: true,
-          binary: true
+          binary: true,
         });
       });
 
@@ -744,9 +720,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
       for (const docPromise of tmpDataDocs) {
         const doc = await docPromise;
 
-        tmpData.unshift(
-          displayableDataToViewData(doc)
-        );
+        tmpData.unshift(displayableDataToViewData(doc));
       }
 
       this.cardCount++;
@@ -762,10 +736,10 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
         card: {
           course_id: _courseID,
           card_id: _cardID,
-          card_elo: parseInt(_cardElo)
+          card_elo: parseInt(_cardElo),
         },
         item: item,
-        records: []
+        records: [],
       });
     } catch (e) {
       log(`Error loading card: ${JSON.stringify(e)}, ${e}`);
@@ -797,8 +771,7 @@ a {
 
 @keyframes greenFade {
   0% {
-    box-shadow: rgba(0, 150, 0, 0.25) 0px 7px 8px -4px,
-      rgba(0, 150, 0, 0.25) 0px 12px 17px 2px,
+    box-shadow: rgba(0, 150, 0, 0.25) 0px 7px 8px -4px, rgba(0, 150, 0, 0.25) 0px 12px 17px 2px,
       rgba(0, 150, 0, 0.25) 0px 5px 22px 4px;
   }
   100% {
@@ -807,8 +780,7 @@ a {
 }
 @keyframes purpleFade {
   0% {
-    box-shadow: rgba(115, 0, 75, 0.25) 0px 7px 8px -4px,
-      rgba(115, 0, 75, 0.25) 0px 12px 17px 2px,
+    box-shadow: rgba(115, 0, 75, 0.25) 0px 7px 8px -4px, rgba(115, 0, 75, 0.25) 0px 12px 17px 2px,
       rgba(115, 0, 75, 0.25) 0px 5px 22px 4px;
   }
   100% {

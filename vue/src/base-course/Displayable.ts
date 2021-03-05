@@ -3,7 +3,7 @@ import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable from './Viewable';
 
-export interface Answer { }
+export interface Answer {}
 
 // tslint:disable-next-line:max-classes-per-file
 export abstract class Displayable {

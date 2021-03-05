@@ -1,37 +1,17 @@
 <template>
-<transition v-if="$store.state._user && display" name="component-fade" mode="out-in">
-  <div v-if="guestMode">
-      <v-dialog
-          v-model="regDialog"
-          width="500px"
-          lazy
-      >
-          <v-btn
-              small
-              slot="activator"
-              color="success"
-          >
-              Sign Up
-          </v-btn>
-          <UserRegistration @toggle="toggle" />
+  <transition v-if="$store.state._user && display" name="component-fade" mode="out-in">
+    <div v-if="guestMode">
+      <v-dialog v-model="regDialog" width="500px" lazy>
+        <v-btn small slot="activator" color="success"> Sign Up </v-btn>
+        <UserRegistration @toggle="toggle" />
       </v-dialog>
-      <v-dialog
-      lazy
-      v-model="loginDialog"
-      width="500px"
-      >
-          <v-btn
-              small
-              slot="activator"
-              color="success"
-          >
-              Log In
-          </v-btn>
-          <UserLogin @toggle="toggle" />
+      <v-dialog lazy v-model="loginDialog" width="500px">
+        <v-btn small slot="activator" color="success"> Log In </v-btn>
+        <UserLogin @toggle="toggle" />
       </v-dialog>
-  </div>
-  <user-chip v-else/>
-</transition>
+    </div>
+    <user-chip v-else />
+  </transition>
 </template>
 
 <script lang="ts">
@@ -43,21 +23,21 @@ import { GuestUsername } from '@/store';
 import SkldrVue from '../SkldrVue';
 import { User } from '../db/userDB';
 
-
-
 @Component({
   components: {
     UserLogin,
     UserRegistration,
-    UserChip
-  }
+    UserChip,
+  },
 })
 export default class UserLoginAndRegistrationContainer extends SkldrVue {
   private readonly GuestUsername: string = GuestUsername;
 
   private get display(): boolean {
-    if (this.$route.name && this.$route.name.toLowerCase() === 'login'
-      || this.$route.name && this.$route.name.toLowerCase() === 'signup') {
+    if (
+      (this.$route.name && this.$route.name.toLowerCase() === 'login') ||
+      (this.$route.name && this.$route.name.toLowerCase() === 'signup')
+    ) {
       return false;
     } else {
       return true;
@@ -73,23 +53,17 @@ export default class UserLoginAndRegistrationContainer extends SkldrVue {
   }
 
   private get regDialog(): boolean {
-    return this.$store.state.
-      userLoginAndRegistrationContainer.regDialogOpen;
+    return this.$store.state.userLoginAndRegistrationContainer.regDialogOpen;
   }
   private set regDialog(value: boolean) {
-    this.$store.state.
-      userLoginAndRegistrationContainer.
-      regDialogOpen = value;
+    this.$store.state.userLoginAndRegistrationContainer.regDialogOpen = value;
   }
 
   private get loginDialog(): boolean {
-    return this.$store.state.
-      userLoginAndRegistrationContainer.loginDialogOpen;
+    return this.$store.state.userLoginAndRegistrationContainer.loginDialogOpen;
   }
   private set loginDialog(value: boolean) {
-    this.$store.state.
-      userLoginAndRegistrationContainer.
-      loginDialogOpen = value;
+    this.$store.state.userLoginAndRegistrationContainer.loginDialogOpen = value;
   }
 
   private toggle() {

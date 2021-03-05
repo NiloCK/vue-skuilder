@@ -1,13 +1,9 @@
 <template>
-<div ref="fillIn">
-  <markdown-renderer :md="question.mdText" />
+  <div ref="fillIn">
+    <markdown-renderer :md="question.mdText" />
 
-  <radio-multiple-choice
-    v-if="question.options"
-    :choiceList="question.options"
-    :MouseTrap="MouseTrap"
-  />
-</div>
+    <radio-multiple-choice v-if="question.options" :choiceList="question.options" :MouseTrap="MouseTrap" />
+  </div>
 </template>
 
 <script lang="ts">
@@ -22,10 +18,10 @@ import { log } from 'util';
 import { type } from 'os';
 
 const typeMap: {
-  [index: string]: string
+  [index: string]: string;
 } = {
   text: 'textType',
-  blank: 'blankType'
+  blank: 'blankType',
 };
 
 @Component({
@@ -33,18 +29,17 @@ const typeMap: {
     MarkdownRenderer,
     RadioMultipleChoice,
     blankType: FillInInput,
-    textType: FillInText
-  }
+    textType: FillInText,
+  },
 })
 export default class FillInView extends QuestionView<BlanksCard> {
-
   get question() {
     return new BlanksCard(this.data);
   }
 
   public $refs: {
-    canvas: HTMLCanvasElement
-    fillIn: HTMLDivElement
+    canvas: HTMLCanvasElement;
+    fillIn: HTMLDivElement;
   };
   private angle: number;
   private _question: BlanksCard;
@@ -52,7 +47,6 @@ export default class FillInView extends QuestionView<BlanksCard> {
   private created() {
     this._question = new BlanksCard(this.data);
   }
-
 }
 </script>
 

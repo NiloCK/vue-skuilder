@@ -1,13 +1,8 @@
 <template>
-    <div
-        :class="`${className} headline`"
-        @mouseover="select"
-        @click="submitThisOption"
-    >
-        {{ content }}
-    </div>
+  <div :class="`${className} headline`" @mouseover="select" @click="submitThisOption">
+    {{ content }}
+  </div>
 </template>
-
 
 <script lang="ts">
 import Vue from 'vue';
@@ -45,9 +40,7 @@ export default class MultipleChoiceOption extends Vue {
     } else if (!this.selected && this.markedWrong) {
       return 'choice wrong';
     } else {
-      throw new Error(
-        `'selected' and 'markedWrong' props in MultipleChoiceOption are in an impossible configuration.`
-      );
+      throw new Error(`'selected' and 'markedWrong' props in MultipleChoiceOption are in an impossible configuration.`);
     }
   }
 }

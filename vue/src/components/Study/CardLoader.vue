@@ -1,14 +1,14 @@
 <template>
-    <card-viewer
-      v-if="!loading"
-      v-bind:class="loading ? 'muted' : ''"
-      v-bind:view="view"
-      v-bind:data="data"
-      v-bind:card_id="cardID"
-      v-bind:course_id="courseID"
-      v-bind:sessionOrder="sessionOrder"
-      v-on:emitResponse="processResponse($event)"
-    />
+  <card-viewer
+    v-if="!loading"
+    v-bind:class="loading ? 'muted' : ''"
+    v-bind:view="view"
+    v-bind:data="data"
+    v-bind:card_id="cardID"
+    v-bind:course_id="courseID"
+    v-bind:sessionOrder="sessionOrder"
+    v-on:emitResponse="processResponse($event)"
+  />
 </template>
 
 <script lang="ts">
@@ -25,16 +25,18 @@ import { getCourseDoc } from '@/db';
 
 @Component({
   components: {
-    CardViewer
-  }
+    CardViewer,
+  },
 })
 export default class CardLoader extends SkldrVue {
   @Prop({
-    required: false
-  }) public sessionOrder: number = 0;
+    required: false,
+  })
+  public sessionOrder: number = 0;
   @Prop({
-    required: true
-  }) public qualified_id: PouchDB.Core.DocumentId;
+    required: true,
+  })
+  public qualified_id: PouchDB.Core.DocumentId;
 
   private loading: boolean = true;
 
@@ -42,8 +44,8 @@ export default class CardLoader extends SkldrVue {
   private view: VueConstructor<Viewable>;
   private data: ViewData[] = [];
   private constructedView: Viewable;
-  private courseID: string = "";
-  private cardID: string = "";
+  private courseID: string = '';
+  private cardID: string = '';
 
   @Emit('emitResponse')
   private processResponse(r: CardRecord) {
@@ -69,7 +71,7 @@ export default class CardLoader extends SkldrVue {
       const tmpDataDocs = await tmpCardData.id_displayable_data.map((id) => {
         return getCourseDoc<DisplayableData>(_courseID, id, {
           attachments: true,
-          binary: true
+          binary: true,
         });
       });
 
@@ -78,9 +80,7 @@ export default class CardLoader extends SkldrVue {
       for (const docPromise of tmpDataDocs) {
         const doc = await docPromise;
 
-        tmpData.unshift(
-          displayableDataToViewData(doc)
-        );
+        tmpData.unshift(displayableDataToViewData(doc));
       }
 
       this.data = tmpData;
@@ -90,7 +90,6 @@ export default class CardLoader extends SkldrVue {
 
       // bleeding memory? Do these get GCd?
       this.constructedView = new this.view();
-
     } catch (e) {
       throw new Error(`Error loading card: ${JSON.stringify(e)}, ${e}`);
     } finally {

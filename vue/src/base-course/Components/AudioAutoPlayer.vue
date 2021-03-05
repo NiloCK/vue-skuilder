@@ -1,7 +1,7 @@
 <template>
-    <v-btn @click="play" large raised icon color="primary">
-        <v-icon>volume_up</v-icon>
-    </v-btn>
+  <v-btn @click="play" large raised icon color="primary">
+    <v-icon>volume_up</v-icon>
+  </v-btn>
 </template>
 
 <script lang="ts">
@@ -14,8 +14,9 @@ import SkldrMouseTrap from '../../SkldrMouseTrap';
 @Component({})
 export default class AudioAutoPlayer extends Vue {
   @Prop({
-    required: true
-  }) public src: string | string[];
+    required: true,
+  })
+  public src: string | string[];
   public audioElems: HTMLAudioElement[] = [];
   private playTimeouts: NodeJS.Timer[] = [];
   private playing: boolean = false;
@@ -29,11 +30,13 @@ export default class AudioAutoPlayer extends Vue {
       });
     }
 
-    SkldrMouseTrap.bind([{
-      hotkey: 'up',
-      callback: this.play,
-      command: 'Replay Audio'
-    }]);
+    SkldrMouseTrap.bind([
+      {
+        hotkey: 'up',
+        callback: this.play,
+        command: 'Replay Audio',
+      },
+    ]);
 
     this.play();
   }
@@ -69,16 +72,17 @@ export default class AudioAutoPlayer extends Vue {
 
   private playByIndex(n: number) {
     if (this.downloadFinished(n)) {
-
       this.audioElems[n].play();
 
       if (n + 1 < this.audioElems.length) {
         const delay = (this.audioElems[n].duration + 0.7) * 1000;
-        this.playTimeouts.push(setTimeout(() => {
-          if (this.playing) {
-            this.playByIndex(n + 1);
-          }
-        }, delay));
+        this.playTimeouts.push(
+          setTimeout(() => {
+            if (this.playing) {
+              this.playByIndex(n + 1);
+            }
+          }, delay)
+        );
       }
     } else {
       setTimeout(this.playByIndex, 100, n);
@@ -89,6 +93,5 @@ export default class AudioAutoPlayer extends Vue {
     SkldrMouseTrap.reset();
     this.stop();
   }
-
 }
 </script>

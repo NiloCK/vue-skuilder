@@ -9,7 +9,7 @@ import {
   filterAlldocsByPrefix,
   getStartAndEndKeys,
   REVIEW_PREFIX,
-  REVIEW_TIME_FORMAT
+  REVIEW_TIME_FORMAT,
 } from './index';
 import { getCourseConfigs } from './courseDB';
 import { Status } from '@/enums/Status';
@@ -18,14 +18,10 @@ import { Moment } from 'moment';
 import { CardHistory, CardRecord, getCardHistoryID } from './types';
 import UpdateQueue, { Update } from './updateQueue';
 
-const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' +
-  ENV.COUCHDB_SERVER_URL + 'skuilder';
-const remoteCouchRootDB: PouchDB.Database = new pouch(
-  remoteStr,
-  {
-    skip_setup: true
-  }
-);
+const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + 'skuilder';
+const remoteCouchRootDB: PouchDB.Database = new pouch(remoteStr, {
+  skip_setup: true,
+});
 
 export async function doesUserExist(name: string) {
   try {
@@ -75,7 +71,6 @@ export interface ScheduledCard {
   schedulingAgentId: string;
 }
 
-
 /**
  * The current logged-in user
  */
@@ -85,12 +80,14 @@ export class User {
   static readonly DOC_IDS = {
     CONFIG: 'CONFIG',
     COURSE_REGISTRATIONS: 'CourseRegistrations',
-    CLASSROOM_REGISTRATIONS: 'ClassroomRegistrations'
-  }
+    CLASSROOM_REGISTRATIONS: 'ClassroomRegistrations',
+  };
 
   private email: string;
   private _username: string;
-  public get username(): string { return this._username; }
+  public get username(): string {
+    return this._username;
+  }
 
   private remoteDB: PouchDB.Database;
   private localDB: PouchDB.Database;
@@ -99,18 +96,16 @@ export class User {
   public async createAccount(username: string, password: string) {
     let ret = {
       status: Status.ok,
-      error: ''
-    }
+      error: '',
+    };
 
     if (!this._username.startsWith(GuestUsername)) {
       throw new Error(
         `Cannot create a new account while logged in:
-Currently logged-in as ${this._username}.`);
+Currently logged-in as ${this._username}.`
+      );
     } else {
-
       try {
-
-
         const oldUsername = this._username;
 
         const signupRequest = await remoteCouchRootDB.signUp(username, password);
@@ -125,30 +120,25 @@ Currently logged-in as ${this._username}.`);
           const newRemote = getUserDB(username);
           this._username = username;
 
-          this.localDB.replicate.to(
-            newLocal
-          ).on('complete', () => {
-            newLocal.replicate.to(
-              newRemote
-            ).on('complete', async () => {
-              log('CREATEACCOUNT: Attempting to destroy guest localDB')
+          this.localDB.replicate.to(newLocal).on('complete', () => {
+            newLocal.replicate.to(newRemote).on('complete', async () => {
+              log('CREATEACCOUNT: Attempting to destroy guest localDB');
               await clearLocalGuestDB();
 
               // reset this.local & this.remote DBs
               this.init();
             });
           });
-
         } else {
           ret.status = Status.error;
-          ret.error = ''
+          ret.error = '';
           console.log(`Signup not OK: ${JSON.stringify(signupRequest)}`);
           // throw signupRequest;
           return ret;
         }
       } catch (e) {
-        if (e.reason === "Document update conflict.") {
-          ret.error = "This username is taken!";
+        if (e.reason === 'Document update conflict.') {
+          ret.error = 'This username is taken!';
           ret.status = Status.error;
         }
         console.log(`Error on signup: ${JSON.stringify(e)}`);
@@ -189,18 +179,19 @@ Currently logged-in as ${this._username}.`);
     this.upadteQueue.update(id, update);
   }
 
-  public async updateCardHistory(courseID: string,
+  public async updateCardHistory(
+    courseID: string,
     cardID: string,
     h: Partial<CardHistory<CardRecord>>,
     attempt: number = 0
   ) {
-    this.remoteDB.get<CardHistory<CardRecord>>(getCardHistoryID(courseID, cardID)).then(dbh => {
+    this.remoteDB.get<CardHistory<CardRecord>>(getCardHistoryID(courseID, cardID)).then((dbh) => {
       dbh = {
         ...dbh,
-        ...h
-      }
+        ...h,
+      };
 
-      this.remoteDB.put(dbh).catch(err => {
+      this.remoteDB.put(dbh).catch((err) => {
         if (err.name === 'conflict' && attempt <= 3) {
           this.updateCardHistory(courseID, cardID, h, attempt + 1);
         } else {
@@ -210,8 +201,9 @@ Currently logged-in as ${this._username}.`);
     });
   }
 
-  public async getCourseRegistrationsDoc():
-    Promise<CourseRegistrationDoc & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta> {
+  public async getCourseRegistrationsDoc(): Promise<
+    CourseRegistrationDoc & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta
+  > {
     console.log(`Fetching courseRegistrations for ${this.username}`);
 
     let ret;
@@ -219,19 +211,19 @@ Currently logged-in as ${this._username}.`);
     try {
       ret = await this.localDB.get<CourseRegistrationDoc>(userCoursesDoc);
     } catch (e) {
-
       if (e.status === 404) {
         // doc does not exist. Create it and then run this fcn again.
         await this.localDB.put<CourseRegistrationDoc>({
           _id: userCoursesDoc,
           courses: [],
-          studyWeight: {}
+          studyWeight: {},
         });
         ret = await this.getCourseRegistrationsDoc();
       } else {
-        throw new Error(`Unexpected error ${JSON.stringify(e)} in getOrCreateCourseRegistrationDoc...`);
+        throw new Error(
+          `Unexpected error ${JSON.stringify(e)} in getOrCreateCourseRegistrationDoc...`
+        );
       }
-
     }
 
     return ret;
@@ -240,7 +232,7 @@ Currently logged-in as ${this._username}.`);
   public async getActiveCourses() {
     const reg = await this.getCourseRegistrationsDoc();
     return reg.courses.filter((c) => {
-      return c.status === undefined || c.status === 'active'
+      return c.status === undefined || c.status === 'active';
     });
   }
 
@@ -251,23 +243,26 @@ Currently logged-in as ${this._username}.`);
     const reviews = await this.remoteDB.allDocs<ScheduledCard>({
       startkey: keys.startkey,
       endkey: keys.endkey,
-      include_docs: true
+      include_docs: true,
     });
 
-    log(`Fetching ${this._username}'s scheduled reviews${course_id ? ` for course ${course_id}` : ''}.`);
-    return reviews.rows.filter((r) => {
-      if (r.id.startsWith(REVIEW_PREFIX)) {
-        const date = moment.utc(
-          r.id.substr(REVIEW_PREFIX.length),
-          REVIEW_TIME_FORMAT
-        );
-        if (now.isAfter(date)) {
-          if (course_id === undefined || r.doc!.courseId === course_id) {
-            return true;
+    log(
+      `Fetching ${this._username}'s scheduled reviews${
+        course_id ? ` for course ${course_id}` : ''
+      }.`
+    );
+    return reviews.rows
+      .filter((r) => {
+        if (r.id.startsWith(REVIEW_PREFIX)) {
+          const date = moment.utc(r.id.substr(REVIEW_PREFIX.length), REVIEW_TIME_FORMAT);
+          if (now.isAfter(date)) {
+            if (course_id === undefined || r.doc!.courseId === course_id) {
+              return true;
+            }
           }
         }
-      }
-    }).map(r => r.doc!);
+      })
+      .map((r) => r.doc!);
   }
 
   public async getScheduledReviewCount(course_id: string): Promise<number> {
@@ -277,50 +272,54 @@ Currently logged-in as ${this._username}.`);
   public async getRegisteredCourses() {
     const regDoc = await this.getCourseRegistrationsDoc();
     return regDoc.courses.filter((c) => {
-      return !c.status || c.status === 'active' || c.status === 'maintenance-mode'
+      return !c.status || c.status === 'active' || c.status === 'maintenance-mode';
     });
   }
 
   public async getCourseRegDoc(courseID: string) {
-    const regDocs = (await this.getCourseRegistrationsDoc());
-    return regDocs.courses.find(c => c.courseID === courseID);
+    const regDocs = await this.getCourseRegistrationsDoc();
+    return regDocs.courses.find((c) => c.courseID === courseID);
   }
 
   public async registerForCourse(course_id: string, previewMode: boolean = false) {
-    return this.getCourseRegistrationsDoc().then((doc: CourseRegistrationDoc) => {
-      const status = previewMode ? 'preview' : 'active';
-      console.log(`Registering for ${course_id} with status: ${status}`);
+    return this.getCourseRegistrationsDoc()
+      .then((doc: CourseRegistrationDoc) => {
+        const status = previewMode ? 'preview' : 'active';
+        console.log(`Registering for ${course_id} with status: ${status}`);
 
-      const regItem: CourseRegistration = {
-        status: status,
-        courseID: course_id,
-        user: true,
-        admin: false,
-        moderator: false,
-        elo: 1000,
-        taggedElo: {}
-      };
+        const regItem: CourseRegistration = {
+          status: status,
+          courseID: course_id,
+          user: true,
+          admin: false,
+          moderator: false,
+          elo: 1000,
+          taggedElo: {},
+        };
 
-      if (doc.courses.filter((course) => {
-        return course.courseID === regItem.courseID;
-      }).length === 0) {
-        log(`It's a new course registration!`);
-        doc.courses.push(regItem);
-        doc.studyWeight[course_id] = 1;
-      } else {
-        doc.courses.forEach((c) => {
-          log(`Found the previously registered course!`);
-          if (c.courseID === course_id) {
-            c.status = status;
-          }
-        });
-      }
+        if (
+          doc.courses.filter((course) => {
+            return course.courseID === regItem.courseID;
+          }).length === 0
+        ) {
+          log(`It's a new course registration!`);
+          doc.courses.push(regItem);
+          doc.studyWeight[course_id] = 1;
+        } else {
+          doc.courses.forEach((c) => {
+            log(`Found the previously registered course!`);
+            if (c.courseID === course_id) {
+              c.status = status;
+            }
+          });
+        }
 
-      return this.localDB.put<CourseRegistrationDoc>(doc);
-    }).catch((e) => {
-      log(`Registration failed because of: ${JSON.stringify(e)}`);
-      throw e;
-    });
+        return this.localDB.put<CourseRegistrationDoc>(doc);
+      })
+      .catch((e) => {
+        log(`Registration failed because of: ${JSON.stringify(e)}`);
+        throw e;
+      });
   }
   public async dropCourse(course_id: string, dropStatus: CourseRegistration['status'] = 'dropped') {
     return this.getCourseRegistrationsDoc().then((doc) => {
@@ -337,7 +336,9 @@ Currently logged-in as ${this._username}.`);
         // set drop status
         doc.courses[index].status = dropStatus;
       } else {
-        throw new Error(`User ${this.username} is not currently registered for course ${course_id}`);
+        throw new Error(
+          `User ${this.username} is not currently registered for course ${course_id}`
+        );
       }
 
       return this.localDB.put<CourseRegistrationDoc>(doc);
@@ -349,9 +350,11 @@ Currently logged-in as ${this._username}.`);
 
     const registeredCourses = await this.getCourseRegistrationsDoc();
 
-    courseIDs = courseIDs.concat(registeredCourses.courses.map((course) => {
-      return course.courseID;
-    }));
+    courseIDs = courseIDs.concat(
+      registeredCourses.courses.map((course) => {
+        return course.courseID;
+      })
+    );
 
     return getCourseConfigs(courseIDs);
   }
@@ -360,8 +363,8 @@ Currently logged-in as ${this._username}.`);
     const defaultConfig: PouchDB.Core.Document<UserConfig> = {
       _id: User.DOC_IDS.CONFIG,
       darkMode: false,
-      likesConfetti: false
-    }
+      likesConfetti: false,
+    };
 
     try {
       return await this.localDB.get<UserConfig>(User.DOC_IDS.CONFIG);
@@ -381,13 +384,13 @@ Currently logged-in as ${this._username}.`);
     const c = await this.getConfig();
     return this.localDB.put<UserConfig>({
       ...c,
-      ...items
+      ...items,
     });
   }
 
   /**
    * Returns the current user.
-   * 
+   *
    * @param username Only supplied on page-load by store.ts - from the cookie authSession response
    */
   public static async instance(username?: string): Promise<User> {
@@ -440,7 +443,7 @@ Currently logged-in as ${this._username}.`);
 
     pouch.sync(this.localDB, this.remoteDB, {
       live: true,
-      retry: true
+      retry: true,
     });
     this.applyDesignDocs();
     this.deduplicateReviews();
@@ -451,37 +454,40 @@ Currently logged-in as ${this._username}.`);
     {
       _id: '_design/reviewCards',
       views: {
-        'reviewCards': {
-          map: (function (doc: PouchDB.Core.Document<{}>) {
+        reviewCards: {
+          map: function (doc: PouchDB.Core.Document<{}>) {
             if (doc._id.indexOf('card_review') === 0) {
               emit(doc._id, doc.courseId + '-' + doc.cardId);
             }
-          }).toString()
-        }
-      }
-    }
-  ]
+          }.toString(),
+        },
+      },
+    },
+  ];
 
   private async applyDesignDocs() {
     User.designDocs.forEach((doc) => {
-      this.remoteDB.get(doc._id).then(oldDoc => {
-        this.remoteDB.put({
-          ...doc,
-          _rev: oldDoc._rev
+      this.remoteDB
+        .get(doc._id)
+        .then((oldDoc) => {
+          this.remoteDB.put({
+            ...doc,
+            _rev: oldDoc._rev,
+          });
+        })
+        .catch((e) => {
+          if (e.name === 'not_found') {
+            this.remoteDB.put(doc);
+          }
         });
-      }).catch((e) => {
-        if (e.name === "not_found") {
-          this.remoteDB.put(doc);
-        }
-      });
-    })
+    });
   }
 
   private async deduplicateReviews() {
     /**
      * Maps the qualified-id of a scheduled review card to
      * the docId of the same scheduled review.
-     * 
+     *
      * EG: {
      *  courseId-cardId: 'card_review_2021-06--17:12:165
      * }
@@ -490,7 +496,7 @@ Currently logged-in as ${this._username}.`);
 
     const scheduledReviews = await this.remoteDB.query<{
       id: String;
-      value: string
+      value: string;
     }>('reviewCards');
 
     scheduledReviews.rows.forEach((r) => {
@@ -498,14 +504,17 @@ Currently logged-in as ${this._username}.`);
         // this card is scheduled more than once! delete this scheduled review
         log(`Removing duplicate scheduled review for card: ${r.value}`);
         log(`Replacing review ${reviewsMap[r.value]} with ${r.key}`);
-        this.remoteDB.get(reviewsMap[r.value]).then((doc) => {
-          // remove the already-hashed review, since it is the earliest one
-          // (prevents continual loop of short-scheduled reviews)
-          this.remoteDB.remove(doc);
-        }).then(() => {
-          // replace with the later-dated scheduled review
-          reviewsMap[r.value] = r.key;
-        });
+        this.remoteDB
+          .get(reviewsMap[r.value])
+          .then((doc) => {
+            // remove the already-hashed review, since it is the earliest one
+            // (prevents continual loop of short-scheduled reviews)
+            this.remoteDB.remove(doc);
+          })
+          .then(() => {
+            // replace with the later-dated scheduled review
+            reviewsMap[r.value] = r.key;
+          });
       } else {
         // note that this card is scheduled for review
         reviewsMap[r.value] = r.key;
@@ -513,25 +522,23 @@ Currently logged-in as ${this._username}.`);
     });
   }
 
-
   /**
    * Returns a promise of the card IDs that the user has
    * previously studied
-   * 
+   *
    * @param course_id optional specification of individual course
    */
   async getActiveCards(course_id?: string) {
     let prefix = 'cardH-';
     if (course_id) {
-      prefix += course_id
+      prefix += course_id;
     }
     const docs = await filterAlldocsByPrefix(this.localDB, prefix, {
-      include_docs: false
+      include_docs: false,
     });
     // const docs = await this.localDB.allDocs({});
     const ret: PouchDB.Core.DocumentId[] = [];
     docs.rows.forEach((row) => {
-
       if (row.id.startsWith('cardH-')) {
         ret.push(row.id.substr('cardH-'.length));
       }
@@ -539,17 +546,20 @@ Currently logged-in as ${this._username}.`);
     return ret;
   }
 
-  async updateCourseSettings(course_id: string, settings: {
-    key: string;
-    value: string | number | boolean;
-  }[]) {
+  async updateCourseSettings(
+    course_id: string,
+    settings: {
+      key: string;
+      value: string | number | boolean;
+    }[]
+  ) {
     this.getCourseRegistrationsDoc().then((doc) => {
-      let crs = doc.courses.find(c => c.courseID === course_id);
+      let crs = doc.courses.find((c) => c.courseID === course_id);
       if (crs) {
         if (crs.settings === null || crs.settings === undefined) {
           crs.settings = {};
         }
-        settings.forEach(setting => {
+        settings.forEach((setting) => {
           crs!.settings![setting.key] = setting.value;
         });
       }
@@ -559,45 +569,45 @@ Currently logged-in as ${this._username}.`);
   }
   async getCourseSettings(course_id: string) {
     const regDoc = await this.getCourseRegistrationsDoc();
-    const crsDoc = regDoc.courses.find(c => c.courseID === course_id);
+    const crsDoc = regDoc.courses.find((c) => c.courseID === course_id);
 
     if (crsDoc) {
       return crsDoc.settings;
     } else {
       throw new Error(`getCourseSettings Failed:
-      User is not registered for course ${course_id}`)
+      User is not registered for course ${course_id}`);
     }
   }
 
-  private async getOrCreateClassroomRegistrationsDoc():
-    Promise<ClassroomRegistrationDoc & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta> {
+  private async getOrCreateClassroomRegistrationsDoc(): Promise<
+    ClassroomRegistrationDoc & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta
+  > {
     let ret;
 
     try {
       ret = await getUserDB(this._username).get<ClassroomRegistrationDoc>(userClassroomsDoc);
     } catch (e) {
-
       if (e.status === 404) {
         // doc does not exist. Create it and then run this fcn again.
         await getUserDB(this._username).put<ClassroomRegistrationDoc>({
           _id: userClassroomsDoc,
-          registrations: []
+          registrations: [],
         });
         ret = await this.getOrCreateClassroomRegistrationsDoc();
       } else {
-        throw new Error(`Unexpected error ${JSON.stringify(e)} in getOrCreateClassroomRegistrationDoc...`);
+        throw new Error(
+          `Unexpected error ${JSON.stringify(e)} in getOrCreateClassroomRegistrationDoc...`
+        );
       }
-
     }
 
     return ret;
   }
 
   public async getActiveClasses(): Promise<string[]> {
-    return (await this.getOrCreateClassroomRegistrationsDoc())
-      .registrations
-      .filter(c => c.registeredAs === 'student')
-      .map(c => c.classID);
+    return (await this.getOrCreateClassroomRegistrationsDoc()).registrations
+      .filter((c) => c.registeredAs === 'student')
+      .map((c) => c.classID);
   }
 }
 
@@ -608,10 +618,10 @@ export function getLocalUserDB(username: string): PouchDB.Database {
 async function clearLocalGuestDB() {
   const docs = await getLocalUserDB(GuestUsername).allDocs({
     limit: 1000,
-    include_docs: true
+    include_docs: true,
   });
 
-  docs.rows.forEach(r => {
+  docs.rows.forEach((r) => {
     log(`CREATEACCOUNT: Deleting ${r.id}`);
     getLocalUserDB(GuestUsername).remove(r.doc!);
   });
@@ -629,9 +639,10 @@ export function getUserDB(username: string): PouchDB.Database {
   // odd construction here the result of a bug in the
   // interaction between pouch, pouch-auth.
   // see: https://github.com/pouchdb-community/pouchdb-authentication/issues/239
-  const ret = new pouch(ENV.COUCHDB_SERVER_PROTOCOL +
-    '://' +
-    ENV.COUCHDB_SERVER_URL + dbName, pouchDBincludeCredentialsConfig);
+  const ret = new pouch(
+    ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + dbName,
+    pouchDBincludeCredentialsConfig
+  );
   if (guestAccount) {
     updateGuestAccountExpirationDate(ret);
   }
@@ -658,7 +669,7 @@ function accomodateGuest(): {
 
   return {
     username: GuestUsername + localStorage.getItem(dbUUID),
-    firstVisit: firstVisit
+    firstVisit: firstVisit,
   };
 
   // pilfered from https://stackoverflow.com/a/8809472/1252649
@@ -672,7 +683,7 @@ function accomodateGuest(): {
       const r = (d + Math.random() * 16) % 16 | 0;
       d = Math.floor(d / 16);
       // tslint:disable-next-line:no-bitwise
-      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
     });
   }
 }
@@ -691,8 +702,8 @@ export interface CourseRegistration {
   moderator: boolean;
   user: boolean;
   settings?: {
-    [setting: string]: string | number | boolean
-  }
+    [setting: string]: string | number | boolean;
+  };
   elo: number;
   taggedElo: TaggedElo;
 }
@@ -706,8 +717,7 @@ export interface CourseRegistrationDoc {
   studyWeight: StudyWeights;
 }
 
-export type ClassroomRegistrationDesignation =
-  'student' | 'teacher' | 'aide' | 'admin';
+export type ClassroomRegistrationDesignation = 'student' | 'teacher' | 'aide' | 'admin';
 
 interface ClassroomRegistration {
   classID: string;
@@ -718,50 +728,52 @@ interface ClassroomRegistrationDoc {
   registrations: ClassroomRegistration[];
 }
 
-async function getOrCreateClassroomRegistrationsDoc(user: string):
-  Promise<ClassroomRegistrationDoc & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta> {
+async function getOrCreateClassroomRegistrationsDoc(
+  user: string
+): Promise<ClassroomRegistrationDoc & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta> {
   let ret;
 
   try {
     ret = await getUserDB(user).get<ClassroomRegistrationDoc>(userClassroomsDoc);
   } catch (e) {
-
     if (e.status === 404) {
       // doc does not exist. Create it and then run this fcn again.
       await getUserDB(user).put<ClassroomRegistrationDoc>({
         _id: userClassroomsDoc,
-        registrations: []
+        registrations: [],
       });
       ret = await getOrCreateClassroomRegistrationsDoc(user);
     } else {
-      throw new Error(`Unexpected error ${JSON.stringify(e)} in getOrCreateClassroomRegistrationDoc...`);
+      throw new Error(
+        `Unexpected error ${JSON.stringify(e)} in getOrCreateClassroomRegistrationDoc...`
+      );
     }
-
   }
 
   return ret;
 }
 
-async function getOrCreateCourseRegistrationsDoc(user: string):
-  Promise<CourseRegistrationDoc & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta> {
+async function getOrCreateCourseRegistrationsDoc(
+  user: string
+): Promise<CourseRegistrationDoc & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta> {
   let ret;
 
   try {
     ret = await getUserDB(user).get<CourseRegistrationDoc>(userCoursesDoc);
   } catch (e) {
-
     if (e.status === 404) {
       // doc does not exist. Create it and then run this fcn again.
       await getUserDB(user).put<CourseRegistrationDoc>({
         _id: userCoursesDoc,
         courses: [],
-        studyWeight: {}
+        studyWeight: {},
       });
       ret = await getOrCreateCourseRegistrationsDoc(user);
     } else {
-      throw new Error(`Unexpected error ${JSON.stringify(e)} in getOrCreateCourseRegistrationDoc...`);
+      throw new Error(
+        `Unexpected error ${JSON.stringify(e)} in getOrCreateCourseRegistrationDoc...`
+      );
     }
-
   }
 
   return ret;
@@ -771,12 +783,10 @@ export async function updateUserElo(user: string, course_id: string, elo: number
   let regDoc = await getOrCreateCourseRegistrationsDoc(user);
   if (isTaggedElo(elo)) {
     for (const tag in elo) {
-      regDoc.courses.find(c => c.courseID === course_id)!
-        .taggedElo[tag] = elo[tag]
+      regDoc.courses.find((c) => c.courseID === course_id)!.taggedElo[tag] = elo[tag];
     }
   } else {
-    regDoc.courses.find(c => c.courseID === course_id)!
-      .elo = elo;
+    regDoc.courses.find((c) => c.courseID === course_id)!.elo = elo;
   }
   return getUserDB(user).put(regDoc);
 }
@@ -785,17 +795,23 @@ function isTaggedElo(e: number | TaggedElo): e is TaggedElo {
   return (e as TaggedElo).length !== undefined;
 }
 
-export async function registerUserForClassroom(user: string, classID: string, registerAs: ClassroomRegistrationDesignation) {
+export async function registerUserForClassroom(
+  user: string,
+  classID: string,
+  registerAs: ClassroomRegistrationDesignation
+) {
   log(`Registering user: ${user} in course: ${classID}`);
   return getOrCreateClassroomRegistrationsDoc(user).then((doc) => {
     const regItem = {
       classID: classID,
-      registeredAs: registerAs
+      registeredAs: registerAs,
     };
 
-    if (doc.registrations.filter((reg) => {
-      return reg.classID === regItem.classID && reg.registeredAs === regItem.registeredAs
-    }).length === 0) {
+    if (
+      doc.registrations.filter((reg) => {
+        return reg.classID === regItem.classID && reg.registeredAs === regItem.registeredAs;
+      }).length === 0
+    ) {
       doc.registrations.push(regItem);
     } else {
       log(`User ${user} is already registered for class ${classID}`);

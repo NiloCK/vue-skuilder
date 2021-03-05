@@ -2,15 +2,15 @@ import { Answer } from '@/base-course/Displayable';
 import { Moment } from 'moment';
 
 export enum DocType {
-    DISPLAYABLE_DATA = 'DISPLAYABLE_DATA',
-    CARD = 'CARD',
-    DATASHAPE = 'DATASHAPE',
-    QUESTIONTYPE = 'QUESTION',
-    VIEW = 'VIEW',
-    PEDAGOGY = 'PEDAGOGY',
-    CARDRECORD = 'CARDRECORD',
-    SCHEDULED_CARD = 'SCHEDULED_CARD',
-    TAG = 'TAG'
+  DISPLAYABLE_DATA = 'DISPLAYABLE_DATA',
+  CARD = 'CARD',
+  DATASHAPE = 'DATASHAPE',
+  QUESTIONTYPE = 'QUESTION',
+  VIEW = 'VIEW',
+  PEDAGOGY = 'PEDAGOGY',
+  CARDRECORD = 'CARDRECORD',
+  SCHEDULED_CARD = 'SCHEDULED_CARD',
+  TAG = 'TAG',
 }
 
 /**
@@ -18,163 +18,160 @@ export enum DocType {
  * in the c/pouch database.
  */
 export interface SkuilderCourseData {
-    course: string;
-    docType: DocType;
+  course: string;
+  docType: DocType;
 }
 
 export interface Tag extends SkuilderCourseData {
-    docType: DocType.TAG;
-    name: string;
-    snippit: string; // 200 char description of the tag
-    wiki: string; // 3000 char md-friendly description
-    taggedCards: PouchDB.Core.DocumentId[];
+  docType: DocType.TAG;
+  name: string;
+  snippit: string; // 200 char description of the tag
+  wiki: string; // 3000 char md-friendly description
+  taggedCards: PouchDB.Core.DocumentId[];
 }
 export interface TagStub {
-    name: string;
-    snippit: string;
-    count: number; // the number of cards that have this tag applied
+  name: string;
+  snippit: string;
+  count: number; // the number of cards that have this tag applied
 }
 
 export interface CardData extends SkuilderCourseData {
-    // DocType.CARD
-    id_displayable_data: PouchDB.Core.DocumentId[];
-    id_view: PouchDB.Core.DocumentId;
-    elo?: number;
+  // DocType.CARD
+  id_displayable_data: PouchDB.Core.DocumentId[];
+  id_view: PouchDB.Core.DocumentId;
+  elo?: number;
 }
 
 /** A list of populated courses in the DB */
 export interface CourseListData extends PouchDB.Core.Response {
-    courses: string[];
+  courses: string[];
 }
 
 /**
  * The data used to hydrate viewable components (questions, info, etc)
  */
 export interface DisplayableData extends SkuilderCourseData {
-    // DocType.DISPLAYABLE_DATA
-    author?: string;
-    id_datashape: PouchDB.Core.DocumentId;
-    data: Field[];
-    _attachments?: { [index: string]: PouchDB.Core.FullAttachment };
+  // DocType.DISPLAYABLE_DATA
+  author?: string;
+  id_datashape: PouchDB.Core.DocumentId;
+  data: Field[];
+  _attachments?: { [index: string]: PouchDB.Core.FullAttachment };
 }
 
 export interface Field {
-    data: any;
-    name: string;
+  data: any;
+  name: string;
 }
 
 export interface DataShapeData extends SkuilderCourseData {
-    _id: PouchDB.Core.DocumentId;
-    questionTypes: PouchDB.Core.DocumentId[];
+  _id: PouchDB.Core.DocumentId;
+  questionTypes: PouchDB.Core.DocumentId[];
 }
 
 export interface QuestionData extends SkuilderCourseData {
-    _id: PouchDB.Core.DocumentId;
-    viewList: string[];
-    dataShapeList: PouchDB.Core.DocumentId[];
+  _id: PouchDB.Core.DocumentId;
+  viewList: string[];
+  dataShapeList: PouchDB.Core.DocumentId[];
 }
 
 const cardHistoryPrefix = 'cardH';
 
-export function getCardHistoryID(courseID: string, cardID: string):
-    PouchDB.Core.DocumentId {
-    return `${cardHistoryPrefix}-${courseID}-${cardID}`;
+export function getCardHistoryID(courseID: string, cardID: string): PouchDB.Core.DocumentId {
+  return `${cardHistoryPrefix}-${courseID}-${cardID}`;
 }
 
-export function parseCardHistoryID(id: string): {
-    courseID: string,
-    cardID: string
+export function parseCardHistoryID(
+  id: string
+): {
+  courseID: string;
+  cardID: string;
 } {
-    const split = id.split('-');
-    let error: string = '';
-    error += split.length === 3 ?
-        '' :
-        `\n\tgiven ID has incorrect number of '-' characters`;
-    error += split[0] === cardHistoryPrefix ?
-        '' :
-        `\n\tgiven ID does not start with ${cardHistoryPrefix}`;
+  const split = id.split('-');
+  let error: string = '';
+  error += split.length === 3 ? '' : `\n\tgiven ID has incorrect number of '-' characters`;
+  error +=
+    split[0] === cardHistoryPrefix ? '' : `\n\tgiven ID does not start with ${cardHistoryPrefix}`;
 
-    if (split.length === 3 &&
-        split[0] === cardHistoryPrefix) {
-        return {
-            courseID: split[1],
-            cardID: split[2]
-        };
-    } else {
-        throw new Error('parseCardHistory Error:' + error);
-    }
+  if (split.length === 3 && split[0] === cardHistoryPrefix) {
+    return {
+      courseID: split[1],
+      cardID: split[2],
+    };
+  } else {
+    throw new Error('parseCardHistory Error:' + error);
+  }
 }
 
 export interface CardHistory<T extends CardRecord> {
-    _id: PouchDB.Core.DocumentId;
-    /**
-     * The CouchDB id of the card
-     */
-    cardID: PouchDB.Core.DocumentId;
+  _id: PouchDB.Core.DocumentId;
+  /**
+   * The CouchDB id of the card
+   */
+  cardID: PouchDB.Core.DocumentId;
 
-    /**
-     * The ID of the course
-     */
-    courseID: string;
+  /**
+   * The ID of the course
+   */
+  courseID: string;
 
-    /**
-     * The to-date largest interval between successful
-     * card reviews. `0` indicates no successful reviews.
-     */
-    bestInterval: number;
+  /**
+   * The to-date largest interval between successful
+   * card reviews. `0` indicates no successful reviews.
+   */
+  bestInterval: number;
 
-    /**
-     * The number of times that a card has been
-     * failed in review
-     */
-    lapses: number;
+  /**
+   * The number of times that a card has been
+   * failed in review
+   */
+  lapses: number;
 
-    /**
-     * The number of consecutive successful impressions
-     * on this card
-     */
-    streak: number;
+  /**
+   * The number of consecutive successful impressions
+   * on this card
+   */
+  streak: number;
 
-    records: T[];
+  records: T[];
 }
 
 export interface CardRecord {
-    /**
-     * The CouchDB id of the card
-     */
-    cardID: string;
-    /**
-     * The ID of the course
-     */
-    courseID: string;
-    /**
-     * Number of milliseconds that the user spent before dismissing
-     * the card (ie, "I've read this" or "here is my answer")
-     */
-    timeSpent: number;
-    /**
-     * The date-time that the card was rendered. timeStamp + timeSpent will give the
-     * time of user submission.
-     */
-    timeStamp: Moment;
+  /**
+   * The CouchDB id of the card
+   */
+  cardID: string;
+  /**
+   * The ID of the course
+   */
+  courseID: string;
+  /**
+   * Number of milliseconds that the user spent before dismissing
+   * the card (ie, "I've read this" or "here is my answer")
+   */
+  timeSpent: number;
+  /**
+   * The date-time that the card was rendered. timeStamp + timeSpent will give the
+   * time of user submission.
+   */
+  timeStamp: Moment;
 }
 
 export interface QuestionRecord extends CardRecord {
-    userAnswer: Answer;
-    isCorrect: boolean;
-    /**
-     * The number of incorrect user submissions prededing this submisstion.
-     *
-     * eg, if a user is asked 7*6=__, submitting 46, 48, 42 will result in three
-     * records being created having 0, 1, and 2 as their
-     */
-    priorAttemps: number;
+  userAnswer: Answer;
+  isCorrect: boolean;
+  /**
+   * The number of incorrect user submissions prededing this submisstion.
+   *
+   * eg, if a user is asked 7*6=__, submitting 46, 48, 42 will result in three
+   * records being created having 0, 1, and 2 as their
+   */
+  priorAttemps: number;
 }
 
 export function areQuestionRecords(h: CardHistory<CardRecord>): h is CardHistory<QuestionRecord> {
-    return isQuestionRecord(h.records[0]);
+  return isQuestionRecord(h.records[0]);
 }
 
 export function isQuestionRecord(c: CardRecord): c is QuestionRecord {
-    return (c as QuestionRecord).userAnswer !== undefined;
+  return (c as QuestionRecord).userAnswer !== undefined;
 }

@@ -1,8 +1,8 @@
 <template>
   <div>
-      {{ card.Front}}
-      <hr>
-      {{ card.Back }}
+    {{ card.Front }}
+    <hr />
+    {{ card.Back }}
   </div>
 </template>
 
@@ -21,31 +21,29 @@ class BasicCard extends Displayable {
       fields: [
         {
           name: 'Front',
-          type: FieldType.STRING
+          type: FieldType.STRING,
         },
         {
           name: 'Back',
-          type: FieldType.STRING
-        }
-      ]
-    }
+          type: FieldType.STRING,
+        },
+      ],
+    },
   ];
 
   public dataShapes() {
     return BasicCard.dataShapes;
   }
   public views() {
-    return [
-      BasicView
-    ];
+    return [BasicView];
   }
 }
 
 // tslint:disable-next-line:max-classes-per-file
 @Component({
   components: {
-    UserInputNumber
-  }
+    UserInputNumber,
+  },
 })
 export default class BasicView extends InformationView<BasicCard> {
   public answer: string = '';

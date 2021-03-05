@@ -1,17 +1,13 @@
 <template>
-  <div v-if='!updatePending'>
-    <h1 class='display-1'><router-link to="/q">Quilts</router-link> / {{_courseConfig.name}}</h1>
-    
-    <p class='body-2'>
-      {{_courseConfig.description}}
+  <div v-if="!updatePending">
+    <h1 class="display-1"><router-link to="/q">Quilts</router-link> / {{ _courseConfig.name }}</h1>
+
+    <p class="body-2">
+      {{ _courseConfig.description }}
     </p>
 
-    <div class="body-2">
-      {{ questionCount }} exercises
-    </div>
-    <div class="body-2">
-      {{ tagCount }} tags
-    </div>
+    <div class="body-2">{{ questionCount }} exercises</div>
+    <div class="body-2">{{ tagCount }} tags</div>
 
     <!-- <div style='background-color: red; padding: 15px; margin: 10px;'>
 
@@ -29,18 +25,14 @@
       ></v-text-field>
       <v-btn color="success" @click="getCards">GetCards!</v-btn>
     </div> -->
-    
+
     <transition name="component-fade" mode="out-in">
-      <div v-if="userIsRegistered" >
+      <div v-if="userIsRegistered">
         <router-link :to="`/study/${_id}`">
           <v-btn color="success">Start a study session</v-btn>
         </router-link>
-        <router-link :to='`/edit/${_id}`'>
-          <v-btn
-            dark
-            color='indigo lighten-1'
-            title="Add content to this course"
-          >
+        <router-link :to="`/edit/${_id}`">
+          <v-btn dark color="indigo lighten-1" title="Add content to this course">
             <v-icon left>add</v-icon>
             Add content
           </v-btn>
@@ -49,19 +41,19 @@
       </div>
       <div v-else>
         <v-btn color="primary" @click="register">Register</v-btn>
-        <router-link :to='`/q/${_id}/preview`'>
+        <router-link :to="`/q/${_id}/preview`">
           <v-btn outline color="primary">Start a trial study session</v-btn>
         </router-link>
       </div>
     </transition>
-    
-    <midi-config v-if="isPianoCourse" :_id='_id' />
-  </div>  
+
+    <midi-config v-if="isPianoCourse" :_id="_id" />
+  </div>
 </template>
 
 <script lang="ts">
-import SkldrVue from "../../SkldrVue";
-import Component from "vue-class-component";
+import SkldrVue from '../../SkldrVue';
+import Component from 'vue-class-component';
 import {
   CourseConfig,
   CreateCourse,
@@ -69,14 +61,14 @@ import {
   DataShape55,
   QuestionType55,
   ClassroomConfig,
-  CreateClassroom
-} from "../../server/types";
-import serverRequest from "../../server";
-import { alertUser } from "../SnackbarService.vue";
-import { Status } from "../../enums/Status";
-import Mousetrap from "mousetrap";
-import { log } from "util";
-import moment from "moment";
+  CreateClassroom,
+} from '../../server/types';
+import serverRequest from '../../server';
+import { alertUser } from '../SnackbarService.vue';
+import { Status } from '../../enums/Status';
+import Mousetrap from 'mousetrap';
+import { log } from 'util';
+import moment from 'moment';
 import { registerUserForClassroom } from '../../db/userDB';
 import TeacherClassroomDB, { getClassroomDB, CLASSROOM_CONFIG, AssignedContent } from '../../db/classroomDB';
 import { Prop, Watch } from 'vue-property-decorator';
@@ -87,8 +79,8 @@ import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
 
 @Component({
   components: {
-    MidiConfig
-  }
+    MidiConfig,
+  },
 })
 export default class CourseInformation extends SkldrVue {
   @Prop({ required: true }) private _id: string;
@@ -107,14 +99,14 @@ export default class CourseInformation extends SkldrVue {
   // }
 
   private nameRules: Array<(value: string) => string | boolean> = [
-    value => {
+    (value) => {
       const max = 30;
       if (value.length > max) {
         return `Course name must be ${max} characters or less`;
       } else {
         return true;
       }
-    }
+    },
   ];
 
   private updatePending: boolean = true;
@@ -130,20 +122,22 @@ export default class CourseInformation extends SkldrVue {
   private questionCount: number;
   private tagCount: number;
 
-
   private async created() {
     const userCourses = await this.$store.state._user!.getCourseRegistrationsDoc();
-    this.userIsRegistered = userCourses.courses.filter((c) => {
-      return c.courseID === this._id && (c.status === 'active' || c.status === undefined)
-    }).length === 1;
+    this.userIsRegistered =
+      userCourses.courses.filter((c) => {
+        return c.courseID === this._id && (c.status === 'active' || c.status === undefined);
+      }).length === 1;
     const db = await getCourseDB(this._id);
     this._courseConfig = (await getCourseConfig(this._id))!;
-    this.questionCount = (await db.find({
-      selector: {
-        docType: DocType.CARD
-      },
-      limit: 1000
-    })).docs.length;
+    this.questionCount = (
+      await db.find({
+        selector: {
+          docType: DocType.CARD,
+        },
+        limit: 1000,
+      })
+    ).docs.length;
     this.tagCount = (await getCourseTagStubs(this._id)).rows.length;
     this.updatePending = false;
   }
@@ -155,10 +149,9 @@ export default class CourseInformation extends SkldrVue {
       this.userIsRegistered = true;
     }
     // this.userIsRegistered = !this.userIsRegistered;
-
   }
   private async drop() {
-    log(`Dropping course ${this._id}`)
+    log(`Dropping course ${this._id}`);
     const res = await this.$store.state._user!.dropCourse(this._id);
     if (res.ok) {
       this.userIsRegistered = false;

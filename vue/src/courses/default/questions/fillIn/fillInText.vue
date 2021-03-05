@@ -1,5 +1,5 @@
 <template>
-  <span class='headline'>{{text}}</span>
+  <span class="headline">{{ text }}</span>
 </template>
 
 <script lang="ts">
@@ -9,7 +9,8 @@ import FillInBase from './fillInBaseClass';
 @Component({})
 export default class FillInText extends FillInBase {
   @Prop({
-    required: true
-  }) private text: string;
+    required: true,
+  })
+  private text: string;
 }
 </script>

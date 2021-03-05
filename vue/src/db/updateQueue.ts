@@ -2,15 +2,18 @@ export type Update<T> = Partial<T> | ((x: T) => T);
 
 export default class UpdateQueue {
   private pendingUpdates: {
-    [index: string]: Update<unknown>[]
+    [index: string]: Update<unknown>[];
   } = {};
   private inprogressUpdates: {
-    [index: string]: true
+    [index: string]: true;
   } = {};
 
   private db: PouchDB.Database;
 
-  public update<T extends PouchDB.Core.Document<{}>>(id: PouchDB.Core.DocumentId, update: Update<T>) {
+  public update<T extends PouchDB.Core.Document<{}>>(
+    id: PouchDB.Core.DocumentId,
+    update: Update<T>
+  ) {
     if (this.pendingUpdates[id]) {
       this.pendingUpdates[id].push(update);
     } else {
@@ -28,7 +31,10 @@ export default class UpdateQueue {
     });
   }
 
-  private async applyUpdates<T extends PouchDB.Core.Document<{}>>(id: string, recurseDepth: number = 0): Promise<void> {
+  private async applyUpdates<T extends PouchDB.Core.Document<{}>>(
+    id: string,
+    recurseDepth: number = 0
+  ): Promise<void> {
     if (this.inprogressUpdates[id]) {
       setTimeout(() => this.applyUpdates(id, recurseDepth + 1), 100 << recurseDepth);
     } else {
@@ -43,7 +49,7 @@ export default class UpdateQueue {
           } else {
             doc = {
               ...doc,
-              ...update
+              ...update,
             };
           }
         }

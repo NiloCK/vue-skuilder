@@ -1,16 +1,12 @@
 <template>
-    <div>
-      
-      <h1 class="display-1">Release Notes</h1>
+  <div>
+    <h1 class="display-1">Release Notes</h1>
 
-      
-
-      <h3 class="headline">0.0.1 - April 21</h3>
-      <ul>
-        <li>Hello world, these are release notes.</li>
-      </ul>
-
-    </div>
+    <h3 class="headline">0.0.1 - April 21</h3>
+    <ul>
+      <li>Hello world, these are release notes.</li>
+    </ul>
+  </div>
 </template>
 
 <script lang="ts">
@@ -20,9 +16,7 @@ import { log } from 'util';
 import SkldrVue from '../SkldrVue';
 
 @Component({})
-export default class User extends SkldrVue {
-}
+export default class User extends SkldrVue {}
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

@@ -14,15 +14,14 @@ import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vu
 
 @Component({
   components: {
-    RadioMultipleChoice
-  }
+    RadioMultipleChoice,
+  },
 })
 export default class IdentifyChroma extends QuestionView<ChromaQuestion> {
   public answer: string = '';
   public ctx: AudioContext = new AudioContext();
   get question() {
     return new ChromaQuestion(this.data);
-
   }
   public octaves(freq: number): number[] {
     let ret: number[] = [];
@@ -41,7 +40,7 @@ export default class IdentifyChroma extends QuestionView<ChromaQuestion> {
     return ret;
   }
   public created() {
-    this.octaves(295).forEach(t => this.tone(t))
+    this.octaves(295).forEach((t) => this.tone(t));
     // this.tone(3520) // audible
     // this.tone(1760) // audible
     // this.tone(880) // audible
@@ -53,11 +52,11 @@ export default class IdentifyChroma extends QuestionView<ChromaQuestion> {
     // const freq: number = 440; // Hz
 
     let osc = this.ctx.createOscillator();
-    osc.type = "sine"
+    osc.type = 'sine';
     osc.frequency.value = freq;
 
     let g = this.ctx.createGain();
-    console.log("Max Gain: " + g.gain.maxValue);
+    console.log('Max Gain: ' + g.gain.maxValue);
     // g.gain.value = 0.01;
     g.gain.setValueAtTime(0, 0);
     // g.gain.setValueAtTime(0.025, 1);

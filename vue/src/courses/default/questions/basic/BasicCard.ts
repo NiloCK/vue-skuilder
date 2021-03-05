@@ -12,21 +12,19 @@ export const BasicCardDataShapes: DataShape[] = [
     fields: [
       {
         name: 'Front',
-        type: FieldType.MARKDOWN
+        type: FieldType.MARKDOWN,
       },
       {
         name: 'Back',
-        type: FieldType.MARKDOWN
-      }
-    ]
-  }
+        type: FieldType.MARKDOWN,
+      },
+    ],
+  },
 ];
 
 export default class BasicCard extends Question {
   public static dataShapes = BasicCardDataShapes;
-  public static views = [
-    BasicView
-  ];
+  public static views = [BasicView];
   constructor(data: ViewData[]) {
     super(data);
   }

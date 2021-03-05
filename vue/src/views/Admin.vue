@@ -1,37 +1,31 @@
 <template>
+  <div>
+    <h1>{{ title }}</h1>
     <div>
-      <h1>{{title}}</h1>
-      <div>
-        <h3>Users - {{registeredUsers.length}}</h3>
-        <ul>
-          <li v-for='u in registeredUsers' :key='u._id'>
-            User: {{ u.name }}
-          </li>
-        </ul>
-      </div>
-      <div>
-        <h3> <router-link to="/courses">
-          Quilts
-        </router-link>
-           - {{courses.length}}</h3>
-        <ul>
-          <li v-for='c in courses' :key='c._id'>
-            <router-link :to='`/q/${c._id}`'>{{c.name}}</router-link>
-            - {{ c._id }}
-            - <a @click='removeCourse(c._id)'>X</a>
-          </li>
-        </ul>
-      </div>
-      <div>
-        <h3>Classrooms - {{classrooms.length}}</h3>
-        <ul>
-          <li v-for='c in classrooms' :key='c._id'>
-            <router-link :to='`/c/${c._id}`'>{{ c.name }}</router-link>
-            {{ c.name }} - {{ c.teachers }} - {{ c.students.length}} students
-          </li>
-        </ul>
-      </div>
+      <h3>Users - {{ registeredUsers.length }}</h3>
+      <ul>
+        <li v-for="u in registeredUsers" :key="u._id">User: {{ u.name }}</li>
+      </ul>
     </div>
+    <div>
+      <h3><router-link to="/courses"> Quilts </router-link> - {{ courses.length }}</h3>
+      <ul>
+        <li v-for="c in courses" :key="c._id">
+          <router-link :to="`/q/${c._id}`">{{ c.name }}</router-link>
+          - {{ c._id }} - <a @click="removeCourse(c._id)">X</a>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <h3>Classrooms - {{ classrooms.length }}</h3>
+      <ul>
+        <li v-for="c in classrooms" :key="c._id">
+          <router-link :to="`/c/${c._id}`">{{ c.name }}</router-link>
+          {{ c.name }} - {{ c.teachers }} - {{ c.students.length }} students
+        </li>
+      </ul>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -59,7 +53,6 @@ export default class Admin extends SkldrVue {
 
   public async created() {
     try {
-
       this.db = await AdminDB.factory();
       this.users = await this.db.getUsers();
       this.courses = await this.db.getCourses();
@@ -77,5 +70,4 @@ export default class Admin extends SkldrVue {
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

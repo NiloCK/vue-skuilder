@@ -1,50 +1,36 @@
 <template>
-  <v-badge
-      overlap
-      color="accent"
-      v-model="hasNewItems"
-    >
-      <span
-        slot="badge"
-        dark
-        small
-      >{{items.length}}</span>
-      
-      <v-menu
-        offset-y
-        transition="scale-transition"
-      >
-        <v-chip
-        slot="activator"
-        >
-                <v-avatar class='primary'>
-                <v-icon dark>school</v-icon>
-                </v-avatar>
-                {{ username }}
-        </v-chip>
-        
-        <v-list>
-          <!-- eventual notifications bar -->
-          <v-list-tile v-for="item in items" :key="item.key" @click="dismiss(item)">
-            <v-list-tile-title>{{ item }}</v-list-tile-title>
-          </v-list-tile>
+  <v-badge overlap color="accent" v-model="hasNewItems">
+    <span slot="badge" dark small>{{ items.length }}</span>
 
-          <v-divider v-if="items.length" />
+    <v-menu offset-y transition="scale-transition">
+      <v-chip slot="activator">
+        <v-avatar class="primary">
+          <v-icon dark>school</v-icon>
+        </v-avatar>
+        {{ username }}
+      </v-chip>
 
-          <v-list-tile @click="gotoSettings">
-            <v-icon left>settings</v-icon>
-            <v-list-tile-title>Settings</v-list-tile-title>
-          </v-list-tile>
+      <v-list>
+        <!-- eventual notifications bar -->
+        <v-list-tile v-for="item in items" :key="item.key" @click="dismiss(item)">
+          <v-list-tile-title>{{ item }}</v-list-tile-title>
+        </v-list-tile>
 
-          <v-list-tile @click="logout">
-            <v-icon left>launch</v-icon>
-            <v-list-tile-title>Log out</v-list-tile-title>
-          </v-list-tile>
-        </v-list>
-      </v-menu>
-    </v-badge>
+        <v-divider v-if="items.length" />
+
+        <v-list-tile @click="gotoSettings">
+          <v-icon left>settings</v-icon>
+          <v-list-tile-title>Settings</v-list-tile-title>
+        </v-list-tile>
+
+        <v-list-tile @click="logout">
+          <v-icon left>launch</v-icon>
+          <v-list-tile-title>Log out</v-list-tile-title>
+        </v-list-tile>
+      </v-list>
+    </v-menu>
+  </v-badge>
 </template>
-
 
 <script lang="ts">
 import Vue from 'vue';
@@ -53,7 +39,6 @@ import { log } from 'util';
 import { setTimeout } from 'timers';
 import SkldrVue from '../SkldrVue';
 import { User } from '../db/userDB';
-
 
 @Component({})
 export default class UserChip extends SkldrVue {
@@ -83,7 +68,7 @@ export default class UserChip extends SkldrVue {
         init: true,
         loggedIn: false,
         regDialogOpen: false,
-        loginDialogOpen: false
+        loginDialogOpen: false,
       };
 
       this.$store.state.config.darkMode = false;

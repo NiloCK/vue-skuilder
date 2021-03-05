@@ -10,7 +10,7 @@ import {
   DocType,
   QuestionData,
   SkuilderCourseData,
-  getCardHistoryID
+  getCardHistoryID,
 } from '@/db/types';
 import { FieldType } from '@/enums/FieldType';
 import ENV from '@/ENVIRONMENT_VARS';
@@ -36,8 +36,7 @@ if (ENV.DEBUG) {
 const expiryDocID: string = 'GuestAccountExpirationDate';
 const dbUUID = 'dbUUID';
 
-const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' +
-  ENV.COUCHDB_SERVER_URL + 'skuilder';
+const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + 'skuilder';
 
 log(`Remote db: ${remoteStr}`);
 
@@ -60,15 +59,12 @@ export const pouchDBincludeCredentialsConfig: PouchDB.Configuration.RemoteDataba
   fetch(url: any, opts: any) {
     opts.credentials = 'include';
     return (pouch as any).fetch(url, opts);
-  }
+  },
 } as PouchDB.Configuration.RemoteDatabaseConfiguration;
 
 function getCouchDB(dbName: string): PouchDB.Database {
   return new pouch(
-    ENV.COUCHDB_SERVER_PROTOCOL +
-    '://' +
-    ENV.COUCHDB_SERVER_URL +
-    dbName,
+    ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + dbName,
     pouchDBincludeCredentialsConfig
   );
 }
@@ -76,11 +72,7 @@ function getCouchDB(dbName: string): PouchDB.Database {
 export function getCourseDB(courseID: string): PouchDB.Database {
   // todo: keep a cache of opened courseDBs? need to benchmark this somehow
   return new pouch(
-    ENV.COUCHDB_SERVER_PROTOCOL +
-    '://' +
-    ENV.COUCHDB_SERVER_URL +
-    'coursedb-' +
-    courseID,
+    ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + 'coursedb-' + courseID,
     pouchDBincludeCredentialsConfig
   );
 }
@@ -88,7 +80,7 @@ export function getCourseDB(courseID: string): PouchDB.Database {
 export async function getLatestVersion() {
   const docs = await getCouchDB('version').allDocs({
     descending: true,
-    limit: 1
+    limit: 1,
   });
   if (docs && docs.rows && docs.rows[0]) {
     return docs.rows[0].id;
@@ -114,24 +106,28 @@ export function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) 
   const currentTime = moment.utc();
   const expirationDate: string = currentTime.add(2, 'months').toISOString();
 
-  guestDB.get(expiryDocID).then((doc) => {
-    guestDB.put({
-      _id: expiryDocID,
-      _rev: doc._rev,
-      date: expirationDate
+  guestDB
+    .get(expiryDocID)
+    .then((doc) => {
+      guestDB.put({
+        _id: expiryDocID,
+        _rev: doc._rev,
+        date: expirationDate,
+      });
+    })
+    .catch((err: PouchDB.Core.Error) => {
+      guestDB.put({
+        _id: expiryDocID,
+        date: expirationDate,
+      });
     });
-  }).catch((err: PouchDB.Core.Error) => {
-    guestDB.put({
-      _id: expiryDocID,
-      date: expirationDate
-    });
-  });
 }
 
 export function getCourseDoc<T extends SkuilderCourseData>(
   courseID: string,
   docID: PouchDB.Core.DocumentId,
-  options: PouchDB.Core.GetOptions = {}): Promise<T> {
+  options: PouchDB.Core.GetOptions = {}
+): Promise<T> {
   return getCourseDB(courseID).get<T>(docID, options);
 }
 
@@ -142,20 +138,18 @@ export function getCourseDoc<T extends SkuilderCourseData>(
  * @param courseIDs A list of all course_ids to get cards from
  */
 export async function getRandomCards(courseIDs: string[]) {
-
   if (courseIDs.length === 0) {
     throw new Error(`getRandomCards:\n\tAttempted to get all cards from no courses!`);
   } else {
-
-
-    const courseResults = await Promise.all(courseIDs.map((course) => {
-      return getCourseDB(course).find({
-        selector: {
-          docType: DocType.CARD
-        },
-        limit: 1000
-      });
-    })
+    const courseResults = await Promise.all(
+      courseIDs.map((course) => {
+        return getCourseDB(course).find({
+          selector: {
+            docType: DocType.CARD,
+          },
+          limit: 1000,
+        });
+      })
     );
 
     const ret: string[] = [];
@@ -169,7 +163,10 @@ export async function getRandomCards(courseIDs: string[]) {
   }
 }
 
-export async function putCardRecord<T extends CardRecord>(record: T, user: string): Promise<CardHistory<CardRecord>> {
+export async function putCardRecord<T extends CardRecord>(
+  record: T,
+  user: string
+): Promise<CardHistory<CardRecord>> {
   const userDB = getUserDB(user);
   const cardHistoryID = getCardHistoryID(record.courseID, record.cardID);
 
@@ -177,7 +174,7 @@ export async function putCardRecord<T extends CardRecord>(record: T, user: strin
     const cardHistory = await userDB.get<CardHistory<T>>(cardHistoryID);
     cardHistory.records.push(record);
     User.instance().then((u) => {
-      u.updateCardHistory(cardHistory.courseID, cardHistory.cardID, cardHistory)
+      u.updateCardHistory(cardHistory.courseID, cardHistory.cardID, cardHistory);
     });
 
     // userDB.put(cardHistory);
@@ -195,7 +192,7 @@ export async function putCardRecord<T extends CardRecord>(record: T, user: strin
         records: [record],
         lapses: 0,
         streak: 0,
-        bestInterval: 0
+        bestInterval: 0,
       };
       momentifyCardHistory<T>(initCardHistory);
       userDB.put<CardHistory<T>>(initCardHistory);
@@ -213,7 +210,7 @@ message: ${reason.message}`);
 function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>) {
   cardHistory.records = cardHistory.records.map<T>((record) => {
     const ret: T = {
-      ...(record as object)
+      ...(record as object),
     } as T;
     ret.timeStamp = moment.utc(record.timeStamp);
     return ret;
@@ -224,12 +221,12 @@ export const REVIEW_PREFIX: string = 'card_review_';
 export const REVIEW_TIME_FORMAT: string = 'YYYY-MM-DD--kk:mm:ss-SSS';
 
 export function scheduleCardReview(review: {
-  user: string,
-  course_id: string,
-  card_id: PouchDB.Core.DocumentId,
-  time: Moment,
-  scheduledFor: ScheduledCard['scheduledFor'],
-  schedulingAgentId: ScheduledCard['schedulingAgentId']
+  user: string;
+  course_id: string;
+  card_id: PouchDB.Core.DocumentId;
+  time: Moment;
+  scheduledFor: ScheduledCard['scheduledFor'];
+  schedulingAgentId: ScheduledCard['schedulingAgentId'];
 }) {
   const now = moment.utc();
   console.log(`Scheduling for review in: ${review.time.diff(now, 'h') / 24} days`);
@@ -240,29 +237,35 @@ export function scheduleCardReview(review: {
     courseId: review.course_id,
     scheduledAt: now,
     scheduledFor: review.scheduledFor,
-    schedulingAgentId: review.schedulingAgentId
+    schedulingAgentId: review.schedulingAgentId,
   });
 }
 
 export async function removeScheduledCardReview(user: string, reviewDocID: string) {
   const db = getUserDB(user);
   let reviewDoc = await db.get(reviewDocID);
-  db.remove(reviewDoc).then((res) => {
-    if (res.ok) {
-      log(`Removed Review Doc: ${reviewDocID}`);
-    }
-  }).catch((err) => {
-    log(`Failed to remove Review Doc: ${reviewDocID},\n${JSON.stringify(err)}`);
-  });
+  db.remove(reviewDoc)
+    .then((res) => {
+      if (res.ok) {
+        log(`Removed Review Doc: ${reviewDocID}`);
+      }
+    })
+    .catch((err) => {
+      log(`Failed to remove Review Doc: ${reviewDocID},\n${JSON.stringify(err)}`);
+    });
 }
 
-export function filterAlldocsByPrefix<T>(db: PouchDB.Database, prefix: string, opts?: PouchDB.Core.AllDocsOptions) {
+export function filterAlldocsByPrefix<T>(
+  db: PouchDB.Database,
+  prefix: string,
+  opts?: PouchDB.Core.AllDocsOptions
+) {
   // see couchdb docs 6.2.2:
   //   Guide to Views -> Views Collation -> String Ranges
   let options: PouchDB.Core.AllDocsWithinRangeOptions = {
     startkey: prefix,
     endkey: prefix + '\ufff0',
-    include_docs: true
+    include_docs: true,
   };
 
   if (opts) {
@@ -274,6 +277,6 @@ export function filterAlldocsByPrefix<T>(db: PouchDB.Database, prefix: string, o
 export function getStartAndEndKeys(key: string) {
   return {
     startkey: key,
-    endkey: key + '\ufff0'
+    endkey: key + '\ufff0',
   };
 }

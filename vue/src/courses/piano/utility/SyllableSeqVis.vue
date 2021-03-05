@@ -1,29 +1,23 @@
 <template>
-<div>
-
-  <svg :width="510" :height="Math.max(3 * (high - low) + 10, 0)">
-    <template
-      v-for="syl in seq.syllables"
-    >
-      <template
-       v-for="note in syl.notes"
-      >
-        <circle
-          @mouseenter="sayNote(note)"
-          :key="syl.timestamp + '-' + note.note.number" 
-          :cx="( (syl.timestamp - firstTS) * 500 / (lastTS - firstTS) ) + 4"
-          :cy="3 * (high - note.note.number) + 4"
-          :alt='note.note.name'
-          r="3"
-          :fill="note.isCorrect ? 'black' :  note.isMissing ? 'none' : 'red'"
-          :stroke="note.isMissing ? 'red' : 'none'"
-        />
+  <div>
+    <svg :width="510" :height="Math.max(3 * (high - low) + 10, 0)">
+      <template v-for="syl in seq.syllables">
+        <template v-for="note in syl.notes">
+          <circle
+            @mouseenter="sayNote(note)"
+            :key="syl.timestamp + '-' + note.note.number"
+            :cx="((syl.timestamp - firstTS) * 500) / (lastTS - firstTS) + 4"
+            :cy="3 * (high - note.note.number) + 4"
+            :alt="note.note.name"
+            r="3"
+            :fill="note.isCorrect ? 'black' : note.isMissing ? 'none' : 'red'"
+            :stroke="note.isMissing ? 'red' : 'none'"
+          />
+        </template>
       </template>
-    </template>
-  </svg>
-</div>
+    </svg>
+  </div>
 </template>
-
 
 <script lang="ts">
 import Component from 'vue-class-component';
@@ -38,12 +32,12 @@ export default class SyllableSeqVis extends SkldrVue {
   public seq: SyllableSequence;
   @Prop({
     required: false,
-    default: 0
+    default: 0,
   })
   public lastTSsuggestion: number;
 
   public firstTS: number = 0; // in ms
-  public lastTS: number = 0;  // in ms
+  public lastTS: number = 0; // in ms
   public high: number = 0;
   public low: number = 500;
 
@@ -60,7 +54,7 @@ export default class SyllableSeqVis extends SkldrVue {
   get getHeight(): number {
     let high = 0;
     let low = 500;
-    this.seq.syllables.forEach(s => {
+    this.seq.syllables.forEach((s) => {
       s.notes.forEach((n) => {
         if (n.note.number > high) {
           high = n.note.number;
@@ -69,19 +63,19 @@ export default class SyllableSeqVis extends SkldrVue {
           low = n.note.number;
         }
       });
-    })
-    return Math.max(3 * (high - low) + 10, 0)
+    });
+    return Math.max(3 * (high - low) + 10, 0);
   }
 
   public updateBounds() {
     try {
-      this.firstTS = this.seq.syllables[0].timestamp
+      this.firstTS = this.seq.syllables[0].timestamp;
       const dataTS = this.seq.syllables[this.seq.syllables.length - 1].timestamp;
       const suggestedTS = this.firstTS + this.lastTSsuggestion;
 
       this.lastTS = Math.max(dataTS, suggestedTS);
-    } catch { }
-    this.seq.syllables.forEach(s => {
+    } catch {}
+    this.seq.syllables.forEach((s) => {
       s.notes.forEach((n) => {
         if (n.note.number > this.high) {
           this.high = n.note.number;

@@ -7,7 +7,7 @@ import { Status } from '@/enums/Status';
  * @param max The largest possible return value
  */
 export function randomInt(min: number, max: number): number {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 /**
@@ -15,7 +15,7 @@ export function randomInt(min: number, max: number): number {
  * @param degrees the angle measure in degrees
  */
 export function cos(degrees: number) {
-    return Math.cos(toRadians(degrees));
+  return Math.cos(toRadians(degrees));
 }
 
 /**
@@ -23,21 +23,21 @@ export function cos(degrees: number) {
  * @param degrees the angle measure in degrees
  */
 export function sin(degrees: number) {
-    return Math.sin(toRadians(degrees));
+  return Math.sin(toRadians(degrees));
 }
 
 function toRadians(degrees: number) {
-    return (degrees / 360) * 2 * Math.PI;
+  return (degrees / 360) * 2 * Math.PI;
 }
 
 export function intValidator(min: number, max: number): Validator {
-    return {
-        instructions: `This input must be an integer between ${min} and ${max}, inclusive.`,
-        test: (value: string) => {
-            return {
-                status: Status.ok,
-                msg: ''
-            };
-        }
-    };
+  return {
+    instructions: `This input must be an integer between ${min} and ${max}, inclusive.`,
+    test: (value: string) => {
+      return {
+        status: Status.ok,
+        msg: '',
+      };
+    },
+  };
 }

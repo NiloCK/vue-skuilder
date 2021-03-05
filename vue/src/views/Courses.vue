@@ -1,55 +1,41 @@
 <template>
   <v-container fluid>
-    
-  <v-layout row wrap justify-space-around>
-    <v-flex md4 sm12 xs12>
-      <v-card>
-        <v-toolbar flat>
-          <v-toolbar-title>My Registered Quilts</v-toolbar-title>
-        </v-toolbar>
+    <v-layout row wrap justify-space-around>
+      <v-flex md4 sm12 xs12>
+        <v-card>
+          <v-toolbar flat>
+            <v-toolbar-title>My Registered Quilts</v-toolbar-title>
+          </v-toolbar>
 
-        <v-list>
-          <transition-group
-              name='component-fade'
-              mode='out-in'
-              key='registered'
-          >
-          <template v-for="course in registeredCourses">
-            
-            <v-list-tile
-              :key="course._id"
-              avatar
-            >
-
-              <v-list-tile-content>
-                <v-list-tile-title>
-                  <router-link
-                   :to="`/quilts/${course._id}`"
-                  >
-                  {{ course.name }}
-                  </router-link>
-                </v-list-tile-title>
-              </v-list-tile-content>
-              <v-list-tile-action>
-                <v-btn 
-                 small
-                 color="secondary"
-                 @click="dropCourse(course._id)"
-                 :loading="spinnerMap[course._id] !== undefined"
-                >
-                  Drop
-                </v-btn>
-              </v-list-tile-action>
-            </v-list-tile>
-          </template>
-          </transition-group>
-        </v-list>
-      </v-card>
-
-      
-    </v-flex>
-    <!-- <v-spacer></v-spacer> -->
-    <!-- <v-flex xs12 md4>
+          <v-list>
+            <transition-group name="component-fade" mode="out-in" key="registered">
+              <template v-for="course in registeredCourses">
+                <v-list-tile :key="course._id" avatar>
+                  <v-list-tile-content>
+                    <v-list-tile-title>
+                      <router-link :to="`/quilts/${course._id}`">
+                        {{ course.name }}
+                      </router-link>
+                    </v-list-tile-title>
+                  </v-list-tile-content>
+                  <v-list-tile-action>
+                    <v-btn
+                      small
+                      color="secondary"
+                      @click="dropCourse(course._id)"
+                      :loading="spinnerMap[course._id] !== undefined"
+                    >
+                      Drop
+                    </v-btn>
+                  </v-list-tile-action>
+                </v-list-tile>
+              </template>
+            </transition-group>
+          </v-list>
+        </v-card>
+      </v-flex>
+      <!-- <v-spacer></v-spacer> -->
+      <!-- <v-flex xs12 md4>
       <v-card>
         <v-toolbar >
           <v-toolbar-title>Available Courses</v-toolbar-title>
@@ -94,25 +80,18 @@
         </v-list>
       </v-card>
     </v-flex> -->
-  </v-layout>
-  
-    <h1 class="display-1">Available Quilts:</h1> 
-  <v-layout align-space-between fill-height wrap >
-    <v-flex fill-height pa-2 xs12 sm6 md4 lg3 v-for="course in availableCourses" :key="course._id">
-      <course-stub-card  v-on:refresh="refreshData" :_id="course._id" />
-    </v-flex>
-  </v-layout>
-  <v-dialog    
-    v-model="newCourseDialog"
-    fullscreen
-    transition="dialog-bottom-transition"
-    :overlay="false"
-  >
-    <v-btn color="primary" dark slot="activator">Start a new Quilt</v-btn>
-      <course-editor 
-        v-on:CourseEditingComplete="processResponse($event)"
-      />
-  </v-dialog>
+    </v-layout>
+
+    <h1 class="display-1">Available Quilts:</h1>
+    <v-layout align-space-between fill-height wrap>
+      <v-flex fill-height pa-2 xs12 sm6 md4 lg3 v-for="course in availableCourses" :key="course._id">
+        <course-stub-card v-on:refresh="refreshData" :_id="course._id" />
+      </v-flex>
+    </v-layout>
+    <v-dialog v-model="newCourseDialog" fullscreen transition="dialog-bottom-transition" :overlay="false">
+      <v-btn color="primary" dark slot="activator">Start a new Quilt</v-btn>
+      <course-editor v-on:CourseEditingComplete="processResponse($event)" />
+    </v-dialog>
   </v-container>
 </template>
 
@@ -134,8 +113,8 @@ import { User } from '../db/userDB';
 @Component({
   components: {
     CourseEditor,
-    CourseStubCard
-  }
+    CourseStubCard,
+  },
 })
 export default class Courses extends SkldrVue {
   public existingCourses: CourseConfig[] = [];
@@ -169,31 +148,35 @@ export default class Courses extends SkldrVue {
   private async refreshData() {
     log(`Pulling user course data...`);
     const userCourseIDs = (await this.$store.state._user!.getRegisteredCourses())
-      .filter(c => {
-        return c.status === 'active' || c.status === 'maintenance-mode' || c.status === undefined
+      .filter((c) => {
+        return c.status === 'active' || c.status === 'maintenance-mode' || c.status === undefined;
       })
-      .map(c => {
+      .map((c) => {
         return c.courseID;
       });
     const courseList = await getCourseList();
 
-    this.existingCourses = courseList.rows.filter((course) => {
-      return course && course.doc;
-    }).map((course) => {
-      return course.doc!;
-    });
-
-    this.registeredCourses = courseList.rows.filter((course) => {
-      let match: boolean = false;
-      userCourseIDs.forEach((id) => {
-        if (course.id === id) {
-          match = true;
-        }
+    this.existingCourses = courseList.rows
+      .filter((course) => {
+        return course && course.doc;
+      })
+      .map((course) => {
+        return course.doc!;
       });
-      return match;
-    }).map((course) => {
-      return course.doc!;
-    });
+
+    this.registeredCourses = courseList.rows
+      .filter((course) => {
+        let match: boolean = false;
+        userCourseIDs.forEach((id) => {
+          if (course.id === id) {
+            match = true;
+          }
+        });
+        return match;
+      })
+      .map((course) => {
+        return course.doc!;
+      });
   }
 
   private async created() {
@@ -216,15 +199,15 @@ export default class Courses extends SkldrVue {
         admins: [this.$store.state._user!.username],
         moderators: [],
         dataShapes: [],
-        questionTypes: []
+        questionTypes: [],
       },
       user: this.$store.state._user!.username,
-      response: null
+      response: null,
     });
 
     alertUser({
       status: resp.response!,
-      text: `Course ${JSON.stringify(resp)} created`
+      text: `Course ${JSON.stringify(resp)} created`,
     });
     this.awaitingCreateCourse = false;
   }

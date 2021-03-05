@@ -1,37 +1,22 @@
 <template>
-<v-layout 
-  row
-  wrap
->
-  <!-- <router-link
+  <v-layout row wrap>
+    <!-- <router-link
    
   > -->
-    <v-btn
-      fab
-      color="red"
-      right
-      dark
-      absolute
-      @click="close"
-    >
+    <v-btn fab color="red" right dark absolute @click="close">
       <v-icon>close</v-icon>
     </v-btn>
-  <!-- </router-link> -->
-  <v-flex
-   pa-5
-   fill-height
-   text-sm-center
-   class="display-4 justify-height"
-   v-if='!updatePending'>
-      {{_classroomCfg.joinCode}}
-  </v-flex>
-</v-layout>
+    <!-- </router-link> -->
+    <v-flex pa-5 fill-height text-sm-center class="display-4 justify-height" v-if="!updatePending">
+      {{ _classroomCfg.joinCode }}
+    </v-flex>
+  </v-layout>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import SkldrVue from "../../SkldrVue";
-import Component from "vue-class-component";
+import Vue from 'vue';
+import SkldrVue from '../../SkldrVue';
+import Component from 'vue-class-component';
 import {
   CourseConfig,
   CreateCourse,
@@ -39,14 +24,14 @@ import {
   DataShape55,
   QuestionType55,
   ClassroomConfig,
-  CreateClassroom
-} from "../../server/types";
-import serverRequest from "../../server";
-import { alertUser } from "../SnackbarService.vue";
-import { Status } from "../../enums/Status";
-import Mousetrap from "mousetrap";
-import { log } from "util";
-import moment from "moment";
+  CreateClassroom,
+} from '../../server/types';
+import serverRequest from '../../server';
+import { alertUser } from '../SnackbarService.vue';
+import { Status } from '../../enums/Status';
+import Mousetrap from 'mousetrap';
+import { log } from 'util';
+import moment from 'moment';
 import { registerUserForClassroom } from '../../db/userDB';
 import TeacherClassroomDB, { getClassroomDB, CLASSROOM_CONFIG, AssignedContent } from '../../db/classroomDB';
 import { Prop, Watch } from 'vue-property-decorator';
@@ -63,9 +48,7 @@ export default class JoinCode extends SkldrVue {
 
   private async created() {
     this.classroomDB = await TeacherClassroomDB.factory(this._id);
-    Promise.all([
-      this._classroomCfg = await this.classroomDB.getConfig()
-    ]);
+    Promise.all([(this._classroomCfg = await this.classroomDB.getConfig())]);
     log(`Route loaded w/ (prop) _id: ${this._id}`);
     log(`Config: 
     ${JSON.stringify(this._classroomCfg)}`);

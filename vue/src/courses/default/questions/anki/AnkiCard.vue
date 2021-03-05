@@ -1,6 +1,5 @@
 <template>
-  <div>
-  </div>
+  <div></div>
 </template>
 
 <script lang="ts">
@@ -48,7 +47,8 @@ const template1 = {
   __type__: 'NoteModel',
   crowdanki_uuid: '383671d6-79af-11e8-94bb-40f02f569107',
   // tslint:disable-next-line:max-line-length
-  css: '.card {\n font-family: arial;\n font-size: 40px;\n text-align: center;\n color: black;\n background-color: white;\n}\n',
+  css:
+    '.card {\n font-family: arial;\n font-size: 40px;\n text-align: center;\n color: black;\n background-color: white;\n}\n',
   flds: [
     {
       font: 'Arial',
@@ -57,7 +57,7 @@ const template1 = {
       ord: 0,
       rtl: false,
       size: 20,
-      sticky: false
+      sticky: false,
     },
     {
       font: 'Arial',
@@ -66,22 +66,15 @@ const template1 = {
       ord: 1,
       rtl: false,
       size: 20,
-      sticky: false
-    }
+      sticky: false,
+    },
   ],
   latexPost: '\\end{document}',
   // tslint:disable-next-line:max-line-length
-  latexPre: '\\documentclass[12pt]{article}\n\\special{papersize=3in,5in}\n\\usepackage[utf8]{inputenc}\n\\usepackage{amssymb,amsmath}\n\\pagestyle{empty}\n\\setlength{\\parindent}{0in}\n\\begin{document}\n',
+  latexPre:
+    '\\documentclass[12pt]{article}\n\\special{papersize=3in,5in}\n\\usepackage[utf8]{inputenc}\n\\usepackage{amssymb,amsmath}\n\\pagestyle{empty}\n\\setlength{\\parindent}{0in}\n\\begin{document}\n',
   name: 'SiteWord-cef25',
-  req: [
-    [
-      0,
-      'all',
-      [
-        0
-      ]
-    ]
-  ],
+  req: [[0, 'all', [0]]],
   sortf: 0,
   tags: [],
   tmpls: [
@@ -93,18 +86,20 @@ const template1 = {
       name: 'Card 1',
       ord: 0,
       // tslint:disable-next-line:max-line-length
-      qfmt: '{{Front}}\n\n<br>\n<br>\n\n<div id=\"pips\"></div>\n\n<script>\nvar div = document.getElementById(\"pips\");\nsetTimeout(function(){\n  //div.innerHTML = div.innerHTML + \"*\";\n}, 3000)<\/script>'
-    }
+      qfmt:
+        '{{Front}}\n\n<br>\n<br>\n\n<div id="pips"></div>\n\n<script>\nvar div = document.getElementById("pips");\nsetTimeout(function(){\n  //div.innerHTML = div.innerHTML + "*";\n}, 3000)<\/script>',
+    },
   ],
   type: 0,
-  vers: []
+  vers: [],
 };
 
 const basicTemplate = {
   __type__: 'NoteModel',
   crowdanki_uuid: '38364ac0-79af-11e8-b58c-40f02f569107',
   // tslint:disable-next-line:max-line-length
-  css: '.card {\n font-family: arial;\n font-size: 20px;\n text-align: center;\n color: black;\n background-color: white;\n}',
+  css:
+    '.card {\n font-family: arial;\n font-size: 20px;\n text-align: center;\n color: black;\n background-color: white;\n}',
   flds: [
     {
       font: 'Arial',
@@ -113,7 +108,7 @@ const basicTemplate = {
       ord: 0,
       rtl: false,
       size: 20,
-      sticky: false
+      sticky: false,
     },
     {
       font: 'Arial',
@@ -122,22 +117,15 @@ const basicTemplate = {
       ord: 1,
       rtl: false,
       size: 20,
-      sticky: false
-    }
+      sticky: false,
+    },
   ],
   latexPost: '\\end{document}',
   // tslint:disable-next-line:max-line-length
-  latexPre: '\\documentclass[12pt]{article}\n\\special{papersize=3in,5in}\n\\usepackage[utf8]{inputenc}\n\\usepackage{amssymb,amsmath}\n\\pagestyle{empty}\n\\setlength{\\parindent}{0in}\n\\begin{document}\n',
+  latexPre:
+    '\\documentclass[12pt]{article}\n\\special{papersize=3in,5in}\n\\usepackage[utf8]{inputenc}\n\\usepackage{amssymb,amsmath}\n\\pagestyle{empty}\n\\setlength{\\parindent}{0in}\n\\begin{document}\n',
   name: 'Basic-cef25',
-  req: [
-    [
-      0,
-      'all',
-      [
-        0
-      ]
-    ]
-  ],
+  req: [[0, 'all', [0]]],
   sortf: 0,
   tags: [],
   tmpls: [
@@ -150,30 +138,23 @@ const basicTemplate = {
       did: null,
       name: 'Card 1',
       ord: 0,
-      qfmt: '{{Front}}'
-    }
+      qfmt: '{{Front}}',
+    },
   ],
   type: 0,
-  vers: []
+  vers: [],
 };
 
 const noteData = {
   __type__: 'Note ',
   data: '',
-  fields: [
-    'the',
-    '[sound:ankidroid_audiorec-2010477767.3gp]'
-  ],
+  fields: ['the', '[sound:ankidroid_audiorec-2010477767.3gp]'],
   flags: 0,
   guid: 'PpaY6',
   note_model_uuid: '38364ac0-79af-11e8-b58c-40f02f569107',
-  tags: [
-    'marked'
-  ]
+  tags: ['marked'],
 };
 
 @Component({})
-export default class AnkiCard extends Viewable {
-
-}
+export default class AnkiCard extends Viewable {}
 </script>

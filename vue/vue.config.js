@@ -23,7 +23,7 @@ module.exports = {
   // },
   configureWebpack:
     process.env.NODE_ENV === 'production'
-      ? config => {
+      ? (config) => {
           // get current options
           // const options = config.optimization.minimizer[0].options
           // console.log(`Options: ${JSON.stringify(options)}

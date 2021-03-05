@@ -1,72 +1,58 @@
 <template>
   <div>
     <v-form autocomplete="off">
-      <div
-        ref="fieldInputWraps"
-        v-for="field in dataShape.fields"
-        :key="dataShape.fields.indexOf(field)">
-        
-            <string-input
-                v-if="field.type === str"
-                v-bind:store="store"
-                v-bind:field="field"
-                :uiValidationFunction="checkInput"
-            />
-            <number-input
-                v-else-if="field.type === num"
-                v-bind:store="store"
-                v-bind:field="field"
-                :uiValidationFunction="checkInput"
-            />
-            <integer-input
-                v-else-if="field.type === int"
-                v-bind:store="store"
-                v-bind:field="field"
-                :uiValidationFunction="checkInput"
-            />
-            <image-input
-                v-else-if="field.type === img"
-                v-bind:store="store"
-                v-bind:field="field"
-                :uiValidationFunction="checkInput"
-            />
-            <markdown-input
-                v-else-if="field.type === mkd"
-                v-bind:store="store"
-                v-bind:field="field"
-                :uiValidationFunction="checkInput"
-            />
-            <audio-input
-                v-else-if="field.type === audio"
-                v-bind:store="store"
-                v-bind:field="field" 
-                :uiValidationFunction="checkInput"
-            />
-            <midi-input 
-                v-else-if="field.type === midi"
-                v-bind:store="store"
-                v-bind:field="field" 
-                :uiValidationFunction="checkInput"
-            />
+      <div ref="fieldInputWraps" v-for="field in dataShape.fields" :key="dataShape.fields.indexOf(field)">
+        <string-input
+          v-if="field.type === str"
+          v-bind:store="store"
+          v-bind:field="field"
+          :uiValidationFunction="checkInput"
+        />
+        <number-input
+          v-else-if="field.type === num"
+          v-bind:store="store"
+          v-bind:field="field"
+          :uiValidationFunction="checkInput"
+        />
+        <integer-input
+          v-else-if="field.type === int"
+          v-bind:store="store"
+          v-bind:field="field"
+          :uiValidationFunction="checkInput"
+        />
+        <image-input
+          v-else-if="field.type === img"
+          v-bind:store="store"
+          v-bind:field="field"
+          :uiValidationFunction="checkInput"
+        />
+        <markdown-input
+          v-else-if="field.type === mkd"
+          v-bind:store="store"
+          v-bind:field="field"
+          :uiValidationFunction="checkInput"
+        />
+        <audio-input
+          v-else-if="field.type === audio"
+          v-bind:store="store"
+          v-bind:field="field"
+          :uiValidationFunction="checkInput"
+        />
+        <midi-input
+          v-else-if="field.type === midi"
+          v-bind:store="store"
+          v-bind:field="field"
+          :uiValidationFunction="checkInput"
+        />
       </div>
 
-      <v-btn
-          type="submit"
-          color="primary"
-          :loading="uploading"
-          @click.native.prevent="submit"
-          :disabled="!allowSumbit"
-      >
-          Add data
-          <v-icon right dark>add_circle</v-icon> <!-- Remove if don't want to use icon. -->
+      <v-btn type="submit" color="primary" :loading="uploading" @click.native.prevent="submit" :disabled="!allowSumbit">
+        Add data
+        <v-icon right dark>add_circle</v-icon>
+        <!-- Remove if don't want to use icon. -->
       </v-btn>
-
     </v-form>
-    <card-browser
-      v-if="allowSubmit"
-      v-bind:views="shapeViews"
-      v-bind:data="[previewInput]"
-    />
+    <card-browser v-if="allowSubmit" v-bind:views="shapeViews" v-bind:data="[previewInput]" />
 
     <!-- <data-shape-table
       v-bind:dataShape="dataShape"
@@ -115,13 +101,13 @@ type StringIndexable = { [x: string]: any };
     MarkdownInput,
     MidiInput,
     CardBrowser,
-    DataShapeTable
-  }
+    DataShapeTable,
+  },
 })
 export default class DataInputForm extends SkldrVue {
   private timer: NodeJS.Timeout;
   public $refs: {
-    fieldInputWraps: HTMLDivElement[]
+    fieldInputWraps: HTMLDivElement[];
   };
   public get fieldInputs(): FieldInput[] {
     return this.$refs.fieldInputWraps.map<FieldInput>((div) => {
@@ -220,15 +206,13 @@ export default class DataInputForm extends SkldrVue {
     const existingTags = await getCourseTagStubs(this.course.courseID!);
     this.autoCompleteSuggestions = existingTags.rows.map((tag) => {
       return {
-        text: tag.doc!.name
+        text: tag.doc!.name,
       };
     });
   }
   public allowSumbit: boolean = false;
   private checkInput(): boolean {
-    let ret: boolean =
-      Object.getOwnPropertyNames(this.store.validation).length ===
-      this.dataShape.fields.length + 1; // +1 here b/c of the validation key
+    let ret: boolean = Object.getOwnPropertyNames(this.store.validation).length === this.dataShape.fields.length + 1; // +1 here b/c of the validation key
 
     Object.getOwnPropertyNames(this.store.validation).forEach((fieldName) => {
       if (this.store.validation[fieldName] === false) {
@@ -269,7 +253,7 @@ export default class DataInputForm extends SkldrVue {
 
     return {
       course: '',
-      dataShape: ''
+      dataShape: '',
     };
   }
 
@@ -279,7 +263,7 @@ export default class DataInputForm extends SkldrVue {
     this.store = {
       validation: {},
       convertedInput: {},
-      previewInput: {}
+      previewInput: {},
     };
     this.uploading = false;
 
@@ -289,10 +273,12 @@ export default class DataInputForm extends SkldrVue {
 
   public convertInput() {
     this.dataShape.fields.forEach((fieldDef) => {
-      this.store.convertedInput[fieldDef.name] =
-        fieldConverters[fieldDef.type].databaseConverter(this.store[fieldDef.name]);
-      this.store.previewInput[fieldDef.name] =
-        fieldConverters[fieldDef.type].previewConverter(this.store[fieldDef.name]);
+      this.store.convertedInput[fieldDef.name] = fieldConverters[fieldDef.type].databaseConverter(
+        this.store[fieldDef.name]
+      );
+      this.store.previewInput[fieldDef.name] = fieldConverters[fieldDef.type].previewConverter(
+        this.store[fieldDef.name]
+      );
     });
     if (this.store.convertedInput.toggle) {
       delete this.store.convertedInput.toggle;
@@ -330,22 +316,18 @@ export default class DataInputForm extends SkldrVue {
     return false;
   }
 
-
-  private expandO(
-    o: StringIndexable
-  ) {
+  private expandO(o: StringIndexable) {
     let ret: StringIndexable[] = [];
 
     if (this.objectContainsFunction(o)) {
       for (let fKey in o) {
         if (typeof o[fKey] === 'function') {
-          console.log(`Key ${fKey} is a function.`)
+          console.log(`Key ${fKey} is a function.`);
           // array of objs w/ the fcn value replaced by
           // one of its outputs
           const replaced: StringIndexable[] = [];
 
           (o[fKey]() as Array<any>).forEach((fcnOutput) => {
-
             let copy: StringIndexable = {};
             copy = _.cloneDeep(o);
             copy[fKey] = fcnOutput;
@@ -357,7 +339,7 @@ export default class DataInputForm extends SkldrVue {
 
           replaced.forEach((obj) => {
             if (this.objectContainsFunction(obj)) {
-              console.log('2nd pass...')
+              console.log('2nd pass...');
               const recursiveExpance = this.expandO(obj);
               ret = ret.concat(recursiveExpance);
             } else {
@@ -374,7 +356,7 @@ export default class DataInputForm extends SkldrVue {
 
   public async submit() {
     if (this.checkInput()) {
-      log(`Store: ${JSON.stringify(this.store)}`)
+      log(`Store: ${JSON.stringify(this.store)}`);
       log(`ConvertedStore: ${JSON.stringify(this.convertedInput)}`);
       this.uploading = true;
 
@@ -389,26 +371,28 @@ export default class DataInputForm extends SkldrVue {
         inputs = [this.convertedInput];
       }
 
-      const result = await Promise.all(inputs.map(async (input) => {
-        return await addNote55(
-          this.course.courseID!,
-          this.datashapeDescriptor.course,
-          this.dataShape,
-          input,
-          this.$store.state._user!.username
-        );
-      }));
+      const result = await Promise.all(
+        inputs.map(async (input) => {
+          return await addNote55(
+            this.course.courseID!,
+            this.datashapeDescriptor.course,
+            this.dataShape,
+            input,
+            this.$store.state._user!.username
+          );
+        })
+      );
 
       if (result[0].ok) {
         alertUser({
           text: `Content added... Thank you!`,
-          status: Status.ok
+          status: Status.ok,
         });
         this.reset();
       } else {
         alertUser({
           text: `A problem occurred. Content has not been added.`,
-          status: Status.error
+          status: Status.error,
         });
         log(`Error in DataInputForm.submit(). Result from addNote:
 
@@ -462,4 +446,3 @@ export default class DataInputForm extends SkldrVue {
   }
 }
 </script>
-

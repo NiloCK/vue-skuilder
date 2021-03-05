@@ -1,37 +1,26 @@
 <template>
-  <v-dialog
-    max-width="500px"
-    transition="dialog-transition"
-    v-if="display"
-  >
-    
-    <v-btn  fab dark color="primary" slot="activator"  >
+  <v-dialog max-width="500px" transition="dialog-transition" v-if="display">
+    <v-btn fab dark color="primary" slot="activator">
       <v-icon dark>keyboard</v-icon>
     </v-btn>
-      
+
     <v-card>
-      <v-toolbar
-      color="teal"
-      dark
-    >
-      <v-toolbar-title>Shortcut keys for this card:</v-toolbar-title>
-      <v-spacer></v-spacer>
-      
-    </v-toolbar>
+      <v-toolbar color="teal" dark>
+        <v-toolbar-title>Shortcut keys for this card:</v-toolbar-title>
+        <v-spacer></v-spacer>
+      </v-toolbar>
       <v-list>
         <v-list-tile v-for="hk in commands" :key="hk.hotkey">
-        <v-btn outline color="black">
-          {{hk.hotkey}}
-        </v-btn>
-        <v-spacer></v-spacer>
-        <span justify-end >
-          {{hk.command}}
-        </span>
-          
+          <v-btn outline color="black">
+            {{ hk.hotkey }}
+          </v-btn>
+          <v-spacer></v-spacer>
+          <span justify-end>
+            {{ hk.command }}
+          </span>
         </v-list-tile>
       </v-list>
-  </v-card>
-    
+    </v-card>
   </v-dialog>
 </template>
 
@@ -55,6 +44,5 @@ export default class SkldrControlsView extends SkldrVue {
     this.commands = SkldrMouseTrap.commands;
     this.display = this.commands.length > 0;
   }
-
 }
 </script>

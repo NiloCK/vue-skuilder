@@ -1,5 +1,5 @@
 <template>
-    <!-- <v-text-field
+  <!-- <v-text-field
         ref="inputField"
         box
         v-model="store[field.name]"
@@ -8,7 +8,7 @@
         @input="validate"
         :rules="vuetifyRules()"
     /> -->
-    <!-- <textarea
+  <!-- <textarea
         ref="inputField"
         v-model="store[field.name]"
         :name="field.name"
@@ -17,17 +17,17 @@
         :rules="vuetifyRules()"
         
     ></textarea> -->
-    <v-textarea
-      box
-      ref="inputField"
-      id="wheredoesthisendup"
-      v-model="store[field.name]"
-      :name="field.name"
-      :label="field.name"
-      @input="validate"
-      @change="console.log('hi')"
-    />
-      <!-- :rules="vuetifyRules()" -->
+  <v-textarea
+    box
+    ref="inputField"
+    id="wheredoesthisendup"
+    v-model="store[field.name]"
+    :name="field.name"
+    :label="field.name"
+    @input="validate"
+    @change="console.log('hi')"
+  />
+  <!-- :rules="vuetifyRules()" -->
 </template>
 
 <script lang="ts">
@@ -37,7 +37,6 @@ import SimpleMDE from 'simplemde';
 
 @Component
 export default class MarkdownInput extends FieldInput {
-
   public get validators() {
     const ret = super.validators;
     return ret;
@@ -72,9 +71,9 @@ export default class MarkdownInput extends FieldInput {
   }
 }
 
-document.createElement('blockquote')
+document.createElement('blockquote');
 </script>
 
 <style scoped>
-@import url("https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css");
+@import url('https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css');
 </style>

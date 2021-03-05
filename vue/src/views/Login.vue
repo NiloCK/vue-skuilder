@@ -7,15 +7,15 @@
 <script lang="ts">
 import UserLogin from '@/components/UserLogin.vue';
 import { SkldrRoute } from '@/SkldrRoute';
-import Vue from 'vue'
+import Vue from 'vue';
 import Component from 'vue-class-component';
 
 @Component({
   components: {
-    UserLogin
-  }
+    UserLogin,
+  },
 })
-export default class LoginRoute extends SkldrRoute { }
+export default class LoginRoute extends SkldrRoute {}
 </script>
 
 <style lang="css" scoped>

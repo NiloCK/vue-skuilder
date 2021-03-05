@@ -1,32 +1,22 @@
 <template>
-<!-- <v-container grid-list-xs align-center class='login'> -->
-  
-  <v-layout row wrap align-center>
-    
-  <v-flex >
-    
-  <v-card>
-      <v-card-title
-        v-if="!loginRoute"
-          class="headline grey lighten-2"
-          primary-title
-      >
-          Log In
-      </v-card-title>
+  <!-- <v-container grid-list-xs align-center class='login'> -->
 
-      <v-card-text>
-      <v-form
-          onsubmit="return false;"  
-      >
-          <v-text-field
+  <v-layout row wrap align-center>
+    <v-flex>
+      <v-card>
+        <v-card-title v-if="!loginRoute" class="headline grey lighten-2" primary-title> Log In </v-card-title>
+
+        <v-card-text>
+          <v-form onsubmit="return false;">
+            <v-text-field
               autofocus
               name="name"
               label="Username"
               id=""
               v-model="username"
               prepend-icon="account_circle"
-          ></v-text-field>
-          <v-text-field
+            ></v-text-field>
+            <v-text-field
               prepend-icon="lock"
               name="name"
               hover="Show password input"
@@ -37,30 +27,21 @@
               :append-icon-cb="() => (passwordVisible = !passwordVisible)"
               :type="passwordVisible ? 'text' : 'password'"
               v-model="password"
-          ></v-text-field>
-          <v-btn type="submit" :loading="awaitingResponse" @click="login" :color="buttonStatus.color">
+            ></v-text-field>
+            <v-btn type="submit" :loading="awaitingResponse" @click="login" :color="buttonStatus.color">
               <v-icon left dark>lock_open</v-icon>
               Log In
-          </v-btn>
-          <router-link
-            v-if="loginRoute"
-            to="signup"
-          >
-            <v-btn flat>Create New Account</v-btn>
-          </router-link>
-          <v-btn
-            v-else
-            @click="toggle"
-            flat
-          >
-              Create New Account
-          </v-btn>        
-      </v-form>
-      </v-card-text>
-  </v-card>
-  </v-flex>
+            </v-btn>
+            <router-link v-if="loginRoute" to="signup">
+              <v-btn flat>Create New Account</v-btn>
+            </router-link>
+            <v-btn v-else @click="toggle" flat> Create New Account </v-btn>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-flex>
   </v-layout>
-<!-- </v-container> -->
+  <!-- </v-container> -->
 </template>
 
 <script lang="ts">
@@ -92,7 +73,7 @@ export default class UserLogin extends SkldrVue {
     alertUser({
       text: 'Username or password was incorrect.',
       status: Status.error,
-      timeout: this.errorTimeout
+      timeout: this.errorTimeout,
     });
     setTimeout(() => {
       this.badLoginAttempt = false;
@@ -104,11 +85,11 @@ export default class UserLogin extends SkldrVue {
 
     try {
       const res = await this.$store.state._user!.login(this.username, this.password);
-      this.$store.state._user!.getConfig().then(cfg => {
+      this.$store.state._user!.getConfig().then((cfg) => {
         this.$store.state.config = cfg;
       });
       this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
-      this.$router.push('/study')
+      this.$router.push('/study');
     } catch (e) {
       this.initBadLogin();
     }
@@ -119,7 +100,7 @@ export default class UserLogin extends SkldrVue {
   private get buttonStatus() {
     return {
       color: this.badLoginAttempt ? 'error' : 'success',
-      text: this.badLoginAttempt ? 'Try again' : 'Log In'
+      text: this.badLoginAttempt ? 'Try again' : 'Log In',
     };
   }
 

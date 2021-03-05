@@ -1,67 +1,38 @@
 <template>
-  <v-app v-if="$store.state.onLoadComplete" :dark="dark" >
-  <!-- class="blue darken-2 grey--text text--lighten-5" dark> -->
-    <v-navigation-drawer
-      clipped
-      v-model="drawer"
-      enable-resize-watcher
-      fixed
-      app
-    >
+  <v-app v-if="$store.state.onLoadComplete" :dark="dark">
+    <!-- class="blue darken-2 grey--text text--lighten-5" dark> -->
+    <v-navigation-drawer clipped v-model="drawer" enable-resize-watcher fixed app>
       <v-list>
-        <v-list-tile
-          value="true"          
-          :to="{path: '/home'}"
-        >
+        <v-list-tile value="true" :to="{ path: '/home' }">
           <v-list-tile-action>
             <v-icon>home</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title> 
-              Home
-            </v-list-tile-title>
+            <v-list-tile-title> Home </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile
-          v-if='true'
-          value="true"
-          :to="{path: '/study'}"
-        >
+        <v-list-tile v-if="true" value="true" :to="{ path: '/study' }">
           <v-list-tile-action>
             <v-icon>school</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title> 
-              Study
-            </v-list-tile-title>
+            <v-list-tile-title> Study </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile
-          v-if='true'
-          value="true"          
-          :to="{path: '/classrooms'}"
-        >
+        <v-list-tile v-if="true" value="true" :to="{ path: '/classrooms' }">
           <v-list-tile-action>
             <v-icon>people</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title> 
-              Classrooms
-            </v-list-tile-title>
+            <v-list-tile-title> Classrooms </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile
-          v-if='true'
-          value="true"          
-          :to="{path: '/quilts'}"
-        >
+        <v-list-tile v-if="true" value="true" :to="{ path: '/quilts' }">
           <v-list-tile-action>
             <v-icon>bookmarks</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title> 
-              Quilts
-            </v-list-tile-title>
+            <v-list-tile-title> Quilts </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
         <!-- <v-list-tile
@@ -80,11 +51,7 @@
         </v-list-tile> -->
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar
-      app
-      dense
-      clipped-left
-    >
+    <v-toolbar app dense clipped-left>
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <!-- <v-toolbar-title class="text-uppercase">
         <span class="font-weight-thin grey--text text--darken-1">edu</span>
@@ -119,8 +86,8 @@ import Component from 'vue-class-component';
 @Component({
   components: {
     UserLoginAndRegistrationContainer,
-    SnackbarService
-  }
+    SnackbarService,
+  },
 })
 export default class App extends SkldrVue {
   public build: string = '0.0.2';

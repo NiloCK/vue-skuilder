@@ -24,11 +24,7 @@
             <v-checkbox label="Allow peer instruction" v-model="peerAssist" :value="true"></v-checkbox>
           </v-flex>
           <v-flex xs12 sm6 md4>
-            <v-select
-              :items="birthYears"
-              label="Approximate Birth Year of Students"
-              v-model="birthYear"
-            ></v-select>
+            <v-select :items="birthYears" label="Approximate Birth Year of Students" v-model="birthYear"></v-select>
           </v-flex>
           <v-flex xs12 sm6 md4>
             <v-btn :loading="updatePending" color="primary" @click="submit">Create This Class</v-btn>
@@ -40,9 +36,9 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import SkldrVue from "../../SkldrVue";
-import Component from "vue-class-component";
+import Vue from 'vue';
+import SkldrVue from '../../SkldrVue';
+import Component from 'vue-class-component';
 import {
   CourseConfig,
   CreateCourse,
@@ -50,14 +46,14 @@ import {
   DataShape55,
   QuestionType55,
   ClassroomConfig,
-  CreateClassroom
-} from "../../server/types";
-import serverRequest from "../../server";
-import { alertUser } from "../SnackbarService.vue";
-import { Status } from "../../enums/Status";
-import Mousetrap from "mousetrap";
-import { log } from "util";
-import moment from "moment";
+  CreateClassroom,
+} from '../../server/types';
+import serverRequest from '../../server';
+import { alertUser } from '../SnackbarService.vue';
+import { Status } from '../../enums/Status';
+import Mousetrap from 'mousetrap';
+import { log } from 'util';
+import moment from 'moment';
 import { registerUserForClassroom } from '../../db/userDB';
 
 @Component({})
@@ -65,21 +61,21 @@ export default class ClassroomEditor extends SkldrVue {
   private mousetrap: MousetrapInstance = new Mousetrap(this.$el);
 
   private peerAssist: boolean = true;
-  private name: string = "";
+  private name: string = '';
   private birthYear: number | undefined = undefined;
 
-  private id: string = "";
+  private id: string = '';
   private nameRules: Array<(value: string) => string | boolean> = [
-    value => {
+    (value) => {
       const max = 30;
       if (value.length > max) {
         return `Course name must be ${max} characters or less`;
       } else {
         return true;
       }
-    }
+    },
   ];
-  private description: string = "";
+  private description: string = '';
 
   private banner?: Blob = undefined;
   private thumb?: Blob = undefined;
@@ -92,25 +88,25 @@ export default class ClassroomEditor extends SkldrVue {
   }> = [];
 
   private created() {
-    this.mousetrap.bind("esc", this.clearFormAndDismiss);
+    this.mousetrap.bind('esc', this.clearFormAndDismiss);
 
     const year: number = moment().year();
 
     this.birthYears.push({
       text: `< ${year - 17} (Adult Students)`,
-      value: 0
+      value: 0,
     });
 
     for (let age = 17; age >= 6; age--) {
       this.birthYears.push({
         text: `${year - age} (Grade ${age - 5})`,
-        value: year - age
+        value: year - age,
       });
     }
 
     this.birthYears.push({
       text: `>${year - 6} (K or younger)`,
-      value: year - 5
+      value: year - 5,
     });
   }
 
@@ -122,9 +118,9 @@ export default class ClassroomEditor extends SkldrVue {
       teachers: [this.$store.state._user!.username],
       students: [],
       birthYear: this.birthYear,
-      classMeetingSchedule: "",
+      classMeetingSchedule: '',
       peerAssist: this.peerAssist,
-      joinCode: ""
+      joinCode: '',
     };
 
     log(`Class Config:
@@ -134,13 +130,13 @@ export default class ClassroomEditor extends SkldrVue {
       data: config,
       type: ServerRequestType.CREATE_CLASSROOM,
       response: null,
-      user: this.$store.state._user!.username
+      user: this.$store.state._user!.username,
     });
 
     if (result.response) {
       alertUser({
         text: `Class created successfully. Join code: ${result.response.joincode}`,
-        status: Status.ok
+        status: Status.ok,
       });
 
       registerUserForClassroom(this.$store.state._user!.username, result.response.uuid, 'teacher');
@@ -151,10 +147,10 @@ export default class ClassroomEditor extends SkldrVue {
   }
 
   private clearFormAndDismiss() {
-    this.name = "";
-    this.description = "";
+    this.name = '';
+    this.description = '';
 
-    this.$emit("ClassroomEditingComplete");
+    this.$emit('ClassroomEditingComplete');
   }
 }
 </script>

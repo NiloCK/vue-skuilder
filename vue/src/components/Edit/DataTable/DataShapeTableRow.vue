@@ -1,11 +1,10 @@
 <template>
   <tr>
-      <td v-for="field in dataShape.fields" :key="dataShape.fields.indexOf(field)">
-        {{ data[field.name] }}
-      </td>
+    <td v-for="field in dataShape.fields" :key="dataShape.fields.indexOf(field)">
+      {{ data[field.name] }}
+    </td>
   </tr>
 </template>
-
 
 <script lang="ts">
 import Vue from 'vue';

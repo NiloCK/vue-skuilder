@@ -1,15 +1,9 @@
 <template>
   <table>
-      <DataShapeTableHeader v-bind:dataShape="dataShape" />
-      <DataShapeTableRow
-        v-for="row in data"
-        :key="data.indexOf(row)" 
-        v-bind:data="row"
-        v-bind:dataShape="dataShape"
-      />
+    <DataShapeTableHeader v-bind:dataShape="dataShape" />
+    <DataShapeTableRow v-for="row in data" :key="data.indexOf(row)" v-bind:data="row" v-bind:dataShape="dataShape" />
   </table>
 </template>
-
 
 <script lang="ts">
 import Vue from 'vue';
@@ -22,8 +16,8 @@ import { ViewData } from '@/base-course/Interfaces/ViewData';
 @Component({
   components: {
     DataShapeTableHeader,
-    DataShapeTableRow
-  }
+    DataShapeTableRow,
+  },
 })
 export default class DataShapeTable extends Vue {
   @Prop() private dataShape: DataShape;

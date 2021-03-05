@@ -1,11 +1,8 @@
 <template>
   <div>
-      {{question.a}} &equals; {{question.b}} 
+    {{ question.a }} &equals; {{ question.b }}
 
-      <TFSelect 
-        v-bind:MouseTrap="MouseTrap"
-        :submit="submit"
-      />
+    <TFSelect v-bind:MouseTrap="MouseTrap" :submit="submit" />
   </div>
 </template>
 
@@ -17,16 +14,14 @@ import TFSelect from '@/base-course/Components/TrueFalse.vue';
 
 @Component({
   components: {
-    TFSelect
-  }
+    TFSelect,
+  },
 })
 export default class TrueFalse extends QuestionView<EqualityTest> {
   public answer: boolean;
 
   public submit(selection: number) {
-    alert(
-      this.question.isCorrect(selection === 0)
-    );
+    alert(this.question.isCorrect(selection === 0));
   }
 
   get question() {

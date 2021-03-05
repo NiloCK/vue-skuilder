@@ -21,7 +21,7 @@ There are three components to this repository:
 
 - ... can be installed according to instructions from couchdb.org
 - can be configured with `couchdb/skuilder.ini` according to instructions for your OS at http://docs.couchdb.org/en/latest/config/intro.html
-- after installation, a control panel can be viewed at http://localhost:5984/_utils/
+- after installation, a control panel can be viewed at http://localhost:5984/\_utils/
 
 ## express.js server layer
 

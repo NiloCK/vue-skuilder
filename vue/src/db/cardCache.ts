@@ -14,7 +14,6 @@ class LocalCache {
     this.init();
   }
 
-
   public async getDoc<T>(
     _id: PouchDB.Core.DocumentId,
     options: PouchDB.Core.GetOptions = {}
@@ -33,13 +32,15 @@ class LocalCache {
   public cacheDoc(_id: PouchDB.Core.DocumentId) {
     const rep = this.local.replicate.from(this.remote, {
       doc_ids: [_id],
-      live: true
+      live: true,
     });
 
     rep.on('complete', async (info) => {
-      const doc = await this.getDoc<PouchDB.Core.Document<{
-        [index: string]: any
-      }>>(_id);
+      const doc = await this.getDoc<
+        PouchDB.Core.Document<{
+          [index: string]: any;
+        }>
+      >(_id);
 
       Object.keys(doc).forEach((key) => {
         if (key.indexOf('id_') === 0) {
@@ -60,13 +61,14 @@ class LocalCache {
   }
 
   private async init() {
-    this.doc_ids = (await this.local.allDocs({
-      include_docs: false
-    })).rows.map((row) => {
+    this.doc_ids = (
+      await this.local.allDocs({
+        include_docs: false,
+      })
+    ).rows.map((row) => {
       return row.id;
     });
   }
-
 }
 
 // const lc = new LocalCache();

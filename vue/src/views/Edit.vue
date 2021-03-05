@@ -1,16 +1,16 @@
 <template>
   <div>
-      <h1 class="headline">Editing Course Data</h1>
-      
-      <v-select
-        item-text="name"
-        item-value="_id"
-        :items="courseList"
-        v-model="selectedCourse"
-        label="Select a course to contribute to:"
-      />
-      
-      <course-editor v-if="selectedCourse" v-bind:course="selectedCourse" />
+    <h1 class="headline">Editing Course Data</h1>
+
+    <v-select
+      item-text="name"
+      item-value="_id"
+      :items="courseList"
+      v-model="selectedCourse"
+      label="Select a course to contribute to:"
+    />
+
+    <course-editor v-if="selectedCourse" v-bind:course="selectedCourse" />
   </div>
 </template>
 
@@ -23,8 +23,8 @@ import SkldrVue from '../SkldrVue';
 
 @Component({
   components: {
-    CourseEditor
-  }
+    CourseEditor,
+  },
 })
 export default class Edit extends SkldrVue {
   public courseList: CourseConfig[] = [];

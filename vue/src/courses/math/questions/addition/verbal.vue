@@ -1,8 +1,8 @@
 <template>
   <div>
-      {{question.a}} plus {{question.b}} is 
-      <!-- <input type="number" v-model="answer" @keyup.enter="submitAnswer(answer)" /> -->
-      <UserInputNumber />
+    {{ question.a }} plus {{ question.b }} is
+    <!-- <input type="number" v-model="answer" @keyup.enter="submitAnswer(answer)" /> -->
+    <UserInputNumber />
   </div>
 </template>
 
@@ -14,8 +14,8 @@ import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.
 
 @Component({
   components: {
-    UserInputNumber
-  }
+    UserInputNumber,
+  },
 })
 export default class VerbalAddition extends QuestionView<SingleDigitAdditionQuestion> {
   public answer: string = '';

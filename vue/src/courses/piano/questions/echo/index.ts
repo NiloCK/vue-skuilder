@@ -13,27 +13,25 @@ import { log } from 'util';
 const fields: FieldDefinition[] = [
   {
     name: 'Melody',
-    type: FieldType.MIDI
-  }
+    type: FieldType.MIDI,
+  },
 ];
 
 export class EchoQuestion extends Question {
   public static dataShapes: DataShape[] = [
     {
       fields,
-      name: DataShapeName.PIANO_Echo
-    }
+      name: DataShapeName.PIANO_Echo,
+    },
   ];
 
-  public static views = [
-    Playback
-  ] as VueConstructor<Viewable>[];
+  public static views = [Playback] as VueConstructor<Viewable>[];
 
   public midi: NoteEvent[];
 
   constructor(data: ViewData[]) {
     super(data);
-    this.midi = data[0].Melody as any as NoteEvent[];
+    this.midi = (data[0].Melody as any) as NoteEvent[];
   }
 
   /**
@@ -50,7 +48,7 @@ export class EchoQuestion extends Question {
   }
 
   /**
-   * The time (in MS) at which the last note in 
+   * The time (in MS) at which the last note in
    * recording is played
    */
   public get lastNoteOnTimestamp(): number {
@@ -68,8 +66,8 @@ export class EchoQuestion extends Question {
   public isCorrect(answer: NoteEvent[]): boolean {
     const firstNoteNumber = this.midi[0].note.number;
 
-    const onMidi = this.midi.filter(e => e.type === "noteon");
-    const onAnswer = answer.filter(e => e.type === 'noteon');
+    const onMidi = this.midi.filter((e) => e.type === 'noteon');
+    const onAnswer = answer.filter((e) => e.type === 'noteon');
 
     const qSylSeq = eventsToSyllableSequence(this.midi);
     const aSylSeq = eventsToSyllableSequence(answer);

@@ -4,16 +4,15 @@
 
 After cloning the repository,
 
- - `npm install` or `yarn install`
+- `npm install` or `yarn install`
 
- The app needs to be configured with the url of a CouchDB (or other database respecting the CouchDB replication protocol) server. See `/src/ENVIRONMENT_VARS.ts` to point the app toward a specific database. The default value, for ease of development startup, points to an in-browser pouch-db database.
+The app needs to be configured with the url of a CouchDB (or other database respecting the CouchDB replication protocol) server. See `/src/ENVIRONMENT_VARS.ts` to point the app toward a specific database. The default value, for ease of development startup, points to an in-browser pouch-db database.
 
- The alternate value in `ENVIRONMENT_VARS.TS` points to the default url of a locally running CouchDB database.
+The alternate value in `ENVIRONMENT_VARS.TS` points to the default url of a locally running CouchDB database.
 
-  - [CouchDB Website](http://couchdb.apache.org/)
+- [CouchDB Website](http://couchdb.apache.org/)
 
-  Note that CORS may need to be enabled in your CouchDB install.
-
+Note that CORS may need to be enabled in your CouchDB install.
 
 # Development
 
@@ -21,7 +20,7 @@ This project is scaffolded with [vue-cli 3](https://cli.vuejs.org/). See the vue
 
 ## Development Build / Serve
 
- - `npm run serve` or `yarn serve`
+- `npm run serve` or `yarn serve`
 
 Does an in-memory build of the project and hosts with the webpack dev server. Hot reloading and source maps included for in-browser debugging.
 
@@ -33,8 +32,8 @@ As of now, only the firefox debugger is functioning reliably (see #2).
 
 Component state / props / virtual DOM exploration is also available in the browser via [vue-devtools](https://github.com/vuejs/vue-devtools).
 
- - [Firefox Addon](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
- - [Chrome Extension](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+- [Firefox Addon](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
+- [Chrome Extension](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
 
 ## Production Build
 
@@ -43,7 +42,6 @@ Check for relevant flags in `/src/ENVIRONMENT_VARS.ts` before building for produ
 - `npm run build` or `yarn build`
 
 Outputs a static web page in the `/build` folder.
-
 
 # Licence
 

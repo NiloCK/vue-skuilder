@@ -10,11 +10,7 @@
       :color="getColor(snack)"
     >
       {{ snack.text }}
-      <v-btn
-        icon
-        flat
-        @click="close()"
-      >
+      <v-btn icon flat @click="close()">
         <v-icon>close</v-icon>
       </v-btn>
     </v-snackbar>
@@ -36,13 +32,13 @@ interface SnackbarOptions {
 }
 
 export function alertUser(msg: SnackbarOptions): void {
-  const snackBarService: SnackbarService =
-    (document.getElementById('SnackbarService')! as any).__vue__ as SnackbarService;
+  const snackBarService: SnackbarService = (document.getElementById('SnackbarService')! as any)
+    .__vue__ as SnackbarService;
 
   msg = {
     text: msg.text,
     status: msg.status,
-    timeout: msg.timeout !== undefined ? msg.timeout : 5000 // 5000 ms default
+    timeout: msg.timeout !== undefined ? msg.timeout : 5000, // 5000 ms default
   };
 
   snackBarService.addSnack(msg);

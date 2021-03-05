@@ -1,7 +1,6 @@
 <template>
   <div class="about">
     <h1>This is an about page</h1>
-    
   </div>
 </template>
 
@@ -16,15 +15,14 @@ export default {
   data: () => {
     return {
       type: 'Viewable',
-      problem: new SingleDigitMultiplicationQuestion(
-        [{
+      problem: new SingleDigitMultiplicationQuestion([
+        {
           a: randomInt(0, 10),
-          b: randomInt(0, 10)
-        }]
-      )
+          b: randomInt(0, 10),
+        },
+      ]),
     };
   },
-  components: {
-  }
+  components: {},
 };
 </script>

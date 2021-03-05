@@ -11,7 +11,8 @@ import { RadioMultipleChoiceAnswer } from '@/base-course/Interfaces/AnswerInterf
 const validator = {
   instructions: 'Must be "ACUTE", "RIGHT", "OBTUSE", "STRAIGHT", or "REFLEX".',
   test: (value: string) => {
-    if (value === AngleCategories.ACUTE ||
+    if (
+      value === AngleCategories.ACUTE ||
       value === AngleCategories.OBTUSE ||
       value === AngleCategories.REFLEX ||
       value === AngleCategories.RIGHT ||
@@ -19,15 +20,15 @@ const validator = {
     ) {
       return {
         status: Status.ok,
-        msg: ''
+        msg: '',
       };
     } else {
       return {
         status: Status.error,
-        msg: 'Must be "ACUTE", "RIGHT", "OBTUSE", "STRAIGHT", or "REFLEX".'
+        msg: 'Must be "ACUTE", "RIGHT", "OBTUSE", "STRAIGHT", or "REFLEX".',
       };
     }
-  }
+  },
 };
 
 export enum AngleCategories {
@@ -35,26 +36,26 @@ export enum AngleCategories {
   RIGHT = 'RIGHT',
   OBTUSE = 'OBTUSE',
   STRAIGHT = 'STRAIGHT',
-  REFLEX = 'REFLEX'
+  REFLEX = 'REFLEX',
 }
 
 const fields: FieldDefinition[] = [
   {
     name: 'Category',
     type: FieldType.STRING,
-    validator
-  }
+    validator,
+  },
 ];
 
 export class AngleCategorize extends Question {
-  public static dataShapes = [{
-    name: DataShapeName.MATH_AngleCategorize,
-    fields
-  }];
-
-  public static views = [
-    AngleCategorizeV
+  public static dataShapes = [
+    {
+      name: DataShapeName.MATH_AngleCategorize,
+      fields,
+    },
   ];
+
+  public static views = [AngleCategorizeV];
 
   public angleCategory: AngleCategories;
   public answers: string[];
@@ -67,13 +68,12 @@ export class AngleCategorize extends Question {
       AngleCategories.OBTUSE,
       AngleCategories.REFLEX,
       AngleCategories.RIGHT,
-      AngleCategories.STRAIGHT
+      AngleCategories.STRAIGHT,
     ]);
   }
 
   public isCorrect(answer: RadioMultipleChoiceAnswer) {
-    return this.angleCategory.valueOf() ===
-      answer.choiceList[answer.selection];
+    return this.angleCategory.valueOf() === answer.choiceList[answer.selection];
   }
 
   public dataShapes() {

@@ -1,19 +1,8 @@
 <template>
-<div>
-  <v-textarea
-    v-if="testRoute"
-    outline
-    label="Type Here"
-    name="name"
-    v-model="md"
-  />
-  <md-token-renderer
-    v-for="(token, i) in tokens"
-    :key="i"
-    :token="token"
-    :last="i === tokens.length - 1"
-  />
-</div>
+  <div>
+    <v-textarea v-if="testRoute" outline label="Type Here" name="name" v-model="md" />
+    <md-token-renderer v-for="(token, i) in tokens" :key="i" :token="token" :last="i === tokens.length - 1" />
+  </div>
 </template>
 
 <script lang="ts">
@@ -24,20 +13,21 @@ import hljs from 'highlight.js';
 
 @Component({
   components: {
-    MdTokenRenderer
-  }
+    MdTokenRenderer,
+  },
 })
 export default class MarkdownRenderer extends Vue {
   @Prop({
     required: true,
-    type: String
-  }) md: string;
+    type: String,
+  })
+  md: string;
 
   public get testRoute(): boolean {
     // console.log(`Route: ${this.$route.path}`);
 
     if (this.$route.path === '/md') {
-      this.md = "test md";
+      this.md = 'test md';
       return true;
     } else {
       return false;
@@ -56,9 +46,8 @@ export default class MarkdownRenderer extends Vue {
     //   console.log(JSON.stringify(t));
     // });
     return tokens;
-  };
+  }
 }
 </script>
 
-<style lang="css" scoped>
-</style>
+<style lang="css" scoped></style>

@@ -1,14 +1,14 @@
 <template>
   <div class="multipleChoice">
     <MultipleChoiceOption
-        v-for='choice in choiceList'
-        :key='choiceList.indexOf(choice)'
-        :content='choice'
-        :selected='choiceList.indexOf(choice) === currentSelection'
-        :number='choiceList.indexOf(choice)'
-        :setSelection='setSelection'
-        :submit='forwardSelection'
-        :markedWrong='choiceIsWrong(choice)'
+      v-for="choice in choiceList"
+      :key="choiceList.indexOf(choice)"
+      :content="choice"
+      :selected="choiceList.indexOf(choice) === currentSelection"
+      :number="choiceList.indexOf(choice)"
+      :setSelection="setSelection"
+      :submit="forwardSelection"
+      :markedWrong="choiceIsWrong(choice)"
     />
   </div>
 </template>
@@ -22,13 +22,14 @@ import { Answer } from '../Displayable';
 
 @Component({
   components: {
-    MultipleChoiceOption
-  }
+    MultipleChoiceOption,
+  },
 })
 export default class RadioSelect extends UserInput {
   @Prop({
-    required: true
-  }) public choiceList: string[];
+    required: true,
+  })
+  public choiceList: string[];
   @Prop() public MouseTrap: MousetrapInstance;
   // @Prop() public submit: (selection: number) => void;
 
@@ -37,11 +38,9 @@ export default class RadioSelect extends UserInput {
   // disabled for future submission
   public incorrectSelections: number[] = [];
 
-
   public mounted() {
     this.$el.focus();
   }
-
 
   public created() {
     this.MouseTrap.bind('left', this.decrementSelection);
@@ -59,7 +58,7 @@ export default class RadioSelect extends UserInput {
     } else if (this.currentSelection !== -1) {
       const rec = this.submitAnswer({
         choiceList: this.choiceList,
-        selection: this.currentSelection
+        selection: this.currentSelection,
       });
 
       if (!rec.isCorrect) {
@@ -79,22 +78,16 @@ export default class RadioSelect extends UserInput {
     if (this.currentSelection === -1) {
       this.currentSelection = Math.ceil(this.choiceList.length / 2);
     } else {
-      this.currentSelection = Math.min(
-        this.choiceList.length - 1,
-        this.currentSelection + 1
-      );
+      this.currentSelection = Math.min(this.choiceList.length - 1, this.currentSelection + 1);
     }
   }
 
   public decrementSelection() {
     // alert('dencrement');
     if (this.currentSelection === -1) {
-      this.currentSelection = Math.floor((this.choiceList.length / 2) - 1);
+      this.currentSelection = Math.floor(this.choiceList.length / 2 - 1);
     } else {
-      this.currentSelection = Math.max(
-        0,
-        this.currentSelection - 1
-      );
+      this.currentSelection = Math.max(0, this.currentSelection - 1);
     }
   }
 

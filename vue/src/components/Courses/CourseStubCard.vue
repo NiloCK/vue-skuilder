@@ -1,26 +1,25 @@
 <template>
-    <v-card v-if="!updatePending">
+  <v-card v-if="!updatePending">
+    <v-toolbar dense flat>
+      <v-toolbar-title @click="routeToCourse">
+        {{ _courseConfig.name }}
+      </v-toolbar-title>
+    </v-toolbar>
+    <v-card-text>
+      Questions: {{ questionCount }}
 
-      <v-toolbar dense flat>
-        <v-toolbar-title @click="routeToCourse">
-          {{_courseConfig.name}}
-        </v-toolbar-title>
-      </v-toolbar>
-      <v-card-text>
-        Questions: {{ questionCount }}
-
-        <p>{{_courseConfig.description}}</p>
-      </v-card-text>
-      <v-card-actions>
-        <v-btn @click="routeToCourse" color="primary">More Info</v-btn>
-        <v-btn :loading="addingCourse" @click="registerForCourse" color="primary">Register</v-btn>
-      </v-card-actions>
-    </v-card>  
+      <p>{{ _courseConfig.description }}</p>
+    </v-card-text>
+    <v-card-actions>
+      <v-btn @click="routeToCourse" color="primary">More Info</v-btn>
+      <v-btn :loading="addingCourse" @click="registerForCourse" color="primary">Register</v-btn>
+    </v-card-actions>
+  </v-card>
 </template>
 
 <script lang="ts">
-import SkldrVue from "../../SkldrVue";
-import Component from "vue-class-component";
+import SkldrVue from '../../SkldrVue';
+import Component from 'vue-class-component';
 import {
   CourseConfig,
   CreateCourse,
@@ -28,10 +27,10 @@ import {
   DataShape55,
   QuestionType55,
   ClassroomConfig,
-  CreateClassroom
-} from "../../server/types";
-import serverRequest from "../../server";
-import { log } from "util";
+  CreateClassroom,
+} from '../../server/types';
+import serverRequest from '../../server';
+import { log } from 'util';
 import { Prop, Watch } from 'vue-property-decorator';
 import { getCourseList, getCourseTagStubs, getCourseConfig } from '../../db/courseDB';
 import { getCourseDB } from '../../db';
@@ -50,19 +49,20 @@ export default class CourseStubCard extends SkldrVue {
   private async created() {
     const db = await getCourseDB(this._id);
     this._courseConfig = (await getCourseConfig(this._id))!;
-    this.questionCount = (await db.find({
-      limit: 1000,
-      selector: {
-        docType: DocType.CARD
-      }
-    })).docs.length;
+    this.questionCount = (
+      await db.find({
+        limit: 1000,
+        selector: {
+          docType: DocType.CARD,
+        },
+      })
+    ).docs.length;
     this.updatePending = false;
   }
 
   routeToCourse() {
     this.$router.push(`/quilts/${this._id}`);
   }
-
 
   async registerForCourse() {
     this.addingCourse = true;
@@ -71,7 +71,6 @@ export default class CourseStubCard extends SkldrVue {
     // this.$set(this.spinnerMap, course, undefined);
     // this.refreshData();
     this.$emit('refresh');
-
   }
 }
 </script>

@@ -46,8 +46,8 @@ export interface AppState {
       inSession: boolean;
       courseList: string[];
       sessionTimeLimit: number;
-    }
-  }
+    };
+  };
   config: UserConfig;
   onLoadComplete: boolean;
 }
@@ -58,7 +58,7 @@ export const defaultState: AppState = {
     init: false,
     loggedIn: false,
     regDialogOpen: false,
-    loginDialogOpen: false
+    loginDialogOpen: false,
   },
   cardPreviewMode: false,
   dataInputForm: {
@@ -68,26 +68,26 @@ export const defaultState: AppState = {
     fields: [],
     localStore: {},
     shapeViews: [],
-    uploading: false
+    uploading: false,
   },
   views: {
     study: {
       inSession: false,
       courseList: [],
-      sessionTimeLimit: 5
-    }
+      sessionTimeLimit: 5,
+    },
   },
   config: {
     darkMode: false,
-    likesConfetti: false
+    likesConfetti: false,
   },
-  onLoadComplete: false
+  onLoadComplete: false,
 };
 
 const Store = new Vuex.Store<AppState>({
   state: defaultState,
   mutations: {},
-  actions: {}
+  actions: {},
 });
 
 export default Store;
@@ -116,10 +116,8 @@ function checkAuthCookie() {
       };
     } = JSON.parse(this.responseText);
 
-    if (resp.userCtx.name !== undefined &&
-      resp.userCtx.name !== '' &&
-      resp.userCtx.name !== null) {
-      Store.state._user = (await User.instance(resp.userCtx.name));
+    if (resp.userCtx.name !== undefined && resp.userCtx.name !== '' && resp.userCtx.name !== null) {
+      Store.state._user = await User.instance(resp.userCtx.name);
       Store.state.config = await Store.state._user!.getConfig();
       Store.state.userLoginAndRegistrationContainer.loggedIn = true;
     } else {
@@ -129,12 +127,6 @@ function checkAuthCookie() {
     Store.state.onLoadComplete = true;
     Store.state.userLoginAndRegistrationContainer.init = true;
   });
-  authXML.open(
-    'GET',
-    ENV.COUCHDB_SERVER_PROTOCOL +
-    '://' +
-    ENV.COUCHDB_SERVER_URL +
-    '_session'
-  );
+  authXML.open('GET', ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + '_session');
   authXML.send();
 }

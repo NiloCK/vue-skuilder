@@ -1,15 +1,15 @@
 <template>
-    <v-card class='elevation-12'>
-        <transition name='component-fade' mode='out-in'>
-            <component
-                class='cardView'
-                :is="view"
-                v-bind:data="data"
-                v-bind:key="course_id + '-' + card_id + '-' + sessionOrder"
-                v-on:emitResponse="processResponse($event)"
-            />
-        </transition>
-    </v-card>
+  <v-card class="elevation-12">
+    <transition name="component-fade" mode="out-in">
+      <component
+        class="cardView"
+        :is="view"
+        v-bind:data="data"
+        v-bind:key="course_id + '-' + card_id + '-' + sessionOrder"
+        v-on:emitResponse="processResponse($event)"
+      />
+    </transition>
+  </v-card>
 </template>
 
 <script lang="ts">
@@ -22,18 +22,21 @@ import { CardRecord } from '@/db/types';
 import { log } from 'util';
 
 @Component({
-  components: Courses.allViews()
+  components: Courses.allViews(),
 })
 export default class CardViewer extends Vue {
   @Prop({
-    required: false
-  }) public sessionOrder: number = 0;
+    required: false,
+  })
+  public sessionOrder: number = 0;
   @Prop({
-    required: false
-  }) public card_id: PouchDB.Core.DocumentId = '';
+    required: false,
+  })
+  public card_id: PouchDB.Core.DocumentId = '';
   @Prop({
-    required: false
-  }) public course_id: string = '';
+    required: false,
+  })
+  public course_id: string = '';
   @Prop() public view: VueConstructor<Viewable>;
   @Prop() public data: ViewData[];
 

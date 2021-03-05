@@ -1,25 +1,21 @@
 <template>
-  <div v-if='!updatePending'>
+  <div v-if="!updatePending">
     <h1>Which seems harder?</h1>
     <!-- <v-card> -->
-      A:
-      <card-loader
-        :qualified_id="id1"
-      />
+    A:
+    <card-loader :qualified_id="id1" />
     <!-- </v-card> -->
     <!-- <v-card> -->
-      B:
-      <card-loader
-        :qualified_id="id2"
-      />
+    B:
+    <card-loader :qualified_id="id2" />
     <!-- </v-card> -->
     <v-btn color="primary" @click="getNewCards"></v-btn>
-  </div>  
+  </div>
 </template>
 
 <script lang="ts">
-import SkldrVue from "../../SkldrVue";
-import Component from "vue-class-component";
+import SkldrVue from '../../SkldrVue';
+import Component from 'vue-class-component';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import CardLoader from '@/components/Study/CardLoader.vue';
 
@@ -30,14 +26,14 @@ import {
   DataShape55,
   QuestionType55,
   ClassroomConfig,
-  CreateClassroom
-} from "../../server/types";
-import serverRequest from "../../server";
-import { alertUser } from "../SnackbarService.vue";
-import { Status } from "../../enums/Status";
-import Mousetrap from "mousetrap";
-import { log } from "util";
-import moment from "moment";
+  CreateClassroom,
+} from '../../server/types';
+import serverRequest from '../../server';
+import { alertUser } from '../SnackbarService.vue';
+import { Status } from '../../enums/Status';
+import Mousetrap from 'mousetrap';
+import { log } from 'util';
+import moment from 'moment';
 import { registerUserForClassroom } from '../../db/userDB';
 import TeacherClassroomDB, { getClassroomDB, CLASSROOM_CONFIG, AssignedContent } from '../../db/classroomDB';
 import { Prop, Watch } from 'vue-property-decorator';
@@ -50,8 +46,8 @@ import { StudySessionItem } from '@/db/contentSource';
 @Component({
   components: {
     CardViewer,
-    CardLoader
-  }
+    CardLoader,
+  },
 })
 export default class ELOModerator extends SkldrVue {
   @Prop({ required: true }) private _id: string;
@@ -63,8 +59,8 @@ export default class ELOModerator extends SkldrVue {
 
   public card1: StudySessionItem;
   public card2: StudySessionItem;
-  public id1: string = "";
-  public id2: string = "";
+  public id1: string = '';
+  public id2: string = '';
 
   private async created() {
     const userCourses = await this.$store.state._user!.getCourseRegistrationsDoc();
@@ -81,14 +77,14 @@ export default class ELOModerator extends SkldrVue {
     this.updatePending = true;
     const cards = await this.courseDB.getCardsCenteredAtELO({
       limit: 2,
-      elo: 'random'
+      elo: 'random',
     });
 
     this.card1 = cards[0];
     this.card2 = cards[1];
 
-    this.id1 = "";
-    this.id2 = "";
+    this.id1 = '';
+    this.id2 = '';
 
     this.id1 = cards[0].qualifiedID;
     this.id2 = cards[1].qualifiedID;

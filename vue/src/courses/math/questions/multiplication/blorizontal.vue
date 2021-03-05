@@ -1,7 +1,7 @@
 <template>
   <div>
-      {{question.a}} &times; {{question.b}} = 
-       <UserInputNumber />
+    {{ question.a }} &times; {{ question.b }} =
+    <UserInputNumber />
   </div>
 </template>
 
@@ -12,18 +12,18 @@ import { SingleDigitMultiplicationQuestion } from './index';
 import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
 
 @Component({
-    components: {
-        UserInputNumber
-    }
+  components: {
+    UserInputNumber,
+  },
 })
 export default class MultiplicationHorizontal extends QuestionView<SingleDigitMultiplicationQuestion> {
-    public answer: string = '';
-    get question() {
-        return new SingleDigitMultiplicationQuestion(this.data);
-    }
+  public answer: string = '';
+  get question() {
+    return new SingleDigitMultiplicationQuestion(this.data);
+  }
 
-    public submit() {
-        alert(this.question.isCorrect(parseInt(this.answer, 10)));
-    }
+  public submit() {
+    alert(this.question.isCorrect(parseInt(this.answer, 10)));
+  }
 }
 </script>

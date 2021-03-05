@@ -1,7 +1,7 @@
 <template>
   <div>
-      {{question.a}} + {{question.b}} = 
-       <UserInputNumber />
+    {{ question.a }} + {{ question.b }} =
+    <UserInputNumber />
   </div>
 </template>
 
@@ -14,8 +14,8 @@ import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.
 
 @Component({
   components: {
-    UserInputNumber
-  }
+    UserInputNumber,
+  },
 })
 export default class AdditionHorizontal extends QuestionView<SingleDigitAdditionQuestion> {
   public answer: string = '';

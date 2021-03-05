@@ -1,11 +1,11 @@
 <template>
-    <div>
-        <table>
-            <thead>
-                <td></td>
-            </thead>
-        </table>
-    </div>
+  <div>
+    <table>
+      <thead>
+        <td></td>
+      </thead>
+    </table>
+  </div>
 </template>
 
 <script lang="ts">

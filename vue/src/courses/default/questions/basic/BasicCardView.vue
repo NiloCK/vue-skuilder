@@ -1,8 +1,8 @@
 <template>
   <div>
-      {{ card.Front}}
-      <hr>
-      {{ card.Back }}
+    {{ card.Front }}
+    <hr />
+    {{ card.Back }}
   </div>
 </template>
 

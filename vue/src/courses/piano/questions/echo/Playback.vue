@@ -1,57 +1,41 @@
 <template>
-<div v-if="initialized">
-
-  <div v-if="state === 'ready'">
-    <div class="display-1">{{promptText}} <span class='font-weight-bold'>{{firstNote}}</span></div>
-    <div class="headline">
-      Listen...<span v-if="recording"> and Repeat</span>
-    </div>
-    <!-- <div id="progressBar">
+  <div v-if="initialized">
+    <div v-if="state === 'ready'">
+      <div class="display-1">
+        {{ promptText }} <span class="font-weight-bold">{{ firstNote }}</span>
+      </div>
+      <div class="headline">Listen...<span v-if="recording"> and Repeat</span></div>
+      <!-- <div id="progressBar">
       <v-progress-linear :value="100"></v-progress-linear>
     </div> -->
-    <div class="progressContainer">
-      <div id="progress" ref="progressBar"></div> 
-    </div>
-      
-    <v-btn
-      color="primary"
-      @click="clearAttempt"
-      autofocus
-    >
-      Play again <v-icon right>volume_up</v-icon>
-    </v-btn>
+      <div class="progressContainer">
+        <div id="progress" ref="progressBar"></div>
+      </div>
 
-    <syllable-seq-vis 
-      ref="inputVis"
-      v-if="true" 
-      :seq="inputSeq"
-      :lastTSsuggestion="lastTSsuggestion"
-    />
-    <syllable-seq-vis v-if="graded" :seq="gradedSeq" />
+      <v-btn color="primary" @click="clearAttempt" autofocus> Play again <v-icon right>volume_up</v-icon> </v-btn>
+
+      <syllable-seq-vis ref="inputVis" v-if="true" :seq="inputSeq" :lastTSsuggestion="lastTSsuggestion" />
+      <syllable-seq-vis v-if="graded" :seq="gradedSeq" />
+    </div>
+    <div v-else-if="state === 'nodevice'">No midi device detected. Please attach one!</div>
+    <div v-else-if="state === 'notsupported'">
+      <p>This exercise requires a midi input device, which is not supported by this browser ☹</p>
+      <div>
+        <p>Please try again with one of the following browsers:</p>
+        <ul>
+          <li>
+            <a href="https://www.google.com/chrome/">Google Chrome</a>
+          </li>
+          <li>
+            <a href="https://www.microsoft.com/edge">Microsoft Edge</a>
+          </li>
+          <li>
+            <a href="https://brave.com/">Brave</a>
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
-  <div v-else-if="state === 'nodevice'">
-    No midi device detected. Please attach one!
-  </div>
-  <div v-else-if="state === 'notsupported'">
-    <p>
-      This exercise requires a midi input device, which is not supported by this browser ☹
-    </p>
-    <p>
-      Please try again with one of the following browsers:
-      <ul>
-        <li>
-          <a href="https://www.google.com/chrome/">Google Chrome</a>
-        </li>
-        <li>
-          <a href="https://www.microsoft.com/edge">Microsoft Edge</a>
-        </li>
-        <li>
-          <a href="https://brave.com/">Brave</a>
-        </li>
-      </ul>
-    </p>
-  </div>
-</div>
 </template>
 
 <script lang="ts">
@@ -65,8 +49,8 @@ import SyllableSeqVis from '../../utility/SyllableSeqVis.vue';
 
 @Component({
   components: {
-    SyllableSeqVis
-  }
+    SyllableSeqVis,
+  },
 })
 export default class Playback extends QuestionView<EchoQuestion> {
   public midi: SkMidi;
@@ -92,11 +76,10 @@ export default class Playback extends QuestionView<EchoQuestion> {
 
   public get promptText(): string {
     if (eventsToSyllableSequence(this.question.midi).syllables[0].notes.length > 1) {
-      return "Lowest note of first chord:"
+      return 'Lowest note of first chord:';
     } else {
-      return "First note:"
+      return 'First note:';
     }
-
   }
 
   public get firstNote(): string {
@@ -113,14 +96,15 @@ export default class Playback extends QuestionView<EchoQuestion> {
   public $refs: {
     progressBar: HTMLDivElement;
     inputVis: SyllableSeqVis;
-  }
+  };
 
   async created() {
-
     // this.MouseTrap = new Mousetrap(this.$el);
     this.lastTSsuggestion = this.question.midi[this.question.midi.length - 1].timestamp;
     this.MouseTrap.unbind('space'); // remove from dismissed cards
-    this.MouseTrap.bind('space', () => { this.clearAttempt() });
+    this.MouseTrap.bind('space', () => {
+      this.clearAttempt();
+    });
   }
 
   public clearAttempt() {
@@ -134,7 +118,9 @@ export default class Playback extends QuestionView<EchoQuestion> {
   public async mounted() {
     try {
       this.midi = await SkMidi.instance();
-      this.midi.setStateChangeListener(() => { this.init(); });
+      this.midi.setStateChangeListener(() => {
+        this.init();
+      });
       this.initialized = true;
     } catch (error) {
       this.error = error;
@@ -143,12 +129,10 @@ export default class Playback extends QuestionView<EchoQuestion> {
     }
 
     this.init();
-
   }
 
   public init() {
     if (this.state) {
-
       if (this.state !== this.midi.state) {
         this.initialized = false;
         this.state = this.midi.state;
@@ -162,11 +146,9 @@ export default class Playback extends QuestionView<EchoQuestion> {
     console.log(`Playback is running init with state: ${this.state}`);
 
     if (this.state === 'ready') {
-
       this.playbackDuration = this.question.duration;
       this.play();
     }
-
   }
 
   public record() {
@@ -213,14 +195,13 @@ export default class Playback extends QuestionView<EchoQuestion> {
   private runProgressBar() {
     // console.log('running progress bar...');
     try {
-
       this.$refs.progressBar.style.animationName = '';
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           this.$refs.progressBar.style.animationDuration = this.playbackDuration + 'ms';
           this.$refs.progressBar.style.animationName = 'progress';
-        })
-      })
+        });
+      });
     } catch (e) {
       setTimeout(this.runProgressBar, 50);
     }
@@ -237,7 +218,7 @@ export default class Playback extends QuestionView<EchoQuestion> {
     this.inputSeq = eventsToSyllableSequence([]);
 
     // console.log("Graded Sequence:\n" + this.gradedSeq.toString());
-    console.log("Graded Sequence is correct: " + this.gradedSeq.isCorrect());
+    console.log('Graded Sequence is correct: ' + this.gradedSeq.isCorrect());
 
     if (!this.submitAnswer(this.midi.recording).isCorrect) {
       this.attempts++;
@@ -253,7 +234,7 @@ export default class Playback extends QuestionView<EchoQuestion> {
 }
 </script>
 
-<style lang="css" >
+<style lang="css">
 @keyframes progress {
   0% {
     width: 0%;

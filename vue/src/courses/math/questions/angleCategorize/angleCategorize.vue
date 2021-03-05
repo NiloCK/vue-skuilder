@@ -1,14 +1,9 @@
 <template>
   <div>
     <h2>What kind of angle is this?</h2>
-    <canvas ref="canvas" width=300 height=300 >
+    <canvas ref="canvas" width="300" height="300"> </canvas>
 
-    </canvas>
-
-    <radio-multiple-choice
-      :choiceList=question.answers
-      :MouseTrap=MouseTrap
-    />
+    <radio-multiple-choice :choiceList="question.answers" :MouseTrap="MouseTrap" />
   </div>
 </template>
 
@@ -23,19 +18,19 @@ import { randomInt } from '../../utility';
 @Component({
   components: {
     UserInputNumber,
-    RadioMultipleChoice
-  }
+    RadioMultipleChoice,
+  },
 })
 export default class AngleCategorizeV extends QuestionView<AngleCategorize> {
   public $refs: {
-    canvas: HTMLCanvasElement
+    canvas: HTMLCanvasElement;
   };
   private angle: number;
 
   private created() {
     this.angle = ((category) => {
       if (category === AngleCategories.ACUTE) {
-        return randomInt(10, 83)
+        return randomInt(10, 83);
       } else if (category === AngleCategories.RIGHT) {
         return 90;
       } else if (category === AngleCategories.OBTUSE) {
@@ -45,45 +40,37 @@ export default class AngleCategorizeV extends QuestionView<AngleCategorize> {
       } else if (category === AngleCategories.REFLEX) {
         return randomInt(190, 350);
       } else {
-        throw new Error("Unknown Angle type on AngleCategorize question");
+        throw new Error('Unknown Angle type on AngleCategorize question');
       }
     })(this.question.angleCategory);
   }
 
   private mounted() {
-    this.$nextTick(
-      function () {
-        const width = this.$refs.canvas.width;
-        const height = this.$refs.canvas.height;
-        const ctx: CanvasRenderingContext2D = this.$refs.canvas.getContext('2d')!;
+    this.$nextTick(function () {
+      const width = this.$refs.canvas.width;
+      const height = this.$refs.canvas.height;
+      const ctx: CanvasRenderingContext2D = this.$refs.canvas.getContext('2d')!;
 
-        const baseArm = randomInt(0, 360);
-        const otherArm = baseArm + this.angle;
+      const baseArm = randomInt(0, 360);
+      const otherArm = baseArm + this.angle;
 
-        ctx.moveTo(width / 2, height / 2);
-        let x = (width / 2) + width * Math.cos((baseArm / 360) * 2 * Math.PI);
-        let y = (height / 2) + width * Math.sin((baseArm / 360) * 2 * Math.PI);
-        ctx.lineTo(x, y);
-        ctx.stroke();
+      ctx.moveTo(width / 2, height / 2);
+      let x = width / 2 + width * Math.cos((baseArm / 360) * 2 * Math.PI);
+      let y = height / 2 + width * Math.sin((baseArm / 360) * 2 * Math.PI);
+      ctx.lineTo(x, y);
+      ctx.stroke();
 
-        ctx.moveTo(width / 2, height / 2);
-        let x2 = (width / 2) + width * Math.cos((otherArm / 360) * 2 * Math.PI);
-        let y2 = (height / 2) + width * Math.sin((otherArm / 360) * 2 * Math.PI);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
+      ctx.moveTo(width / 2, height / 2);
+      let x2 = width / 2 + width * Math.cos((otherArm / 360) * 2 * Math.PI);
+      let y2 = height / 2 + width * Math.sin((otherArm / 360) * 2 * Math.PI);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
 
-        ctx.moveTo(width / 2, height / 2);
-        ctx.beginPath();
-        ctx.arc(width / 2,
-          height / 2,
-          25,
-          (baseArm / 360) * 2 * Math.PI,
-          (otherArm / 360) * 2 * Math.PI,
-        );
-        ctx.stroke();
-      }
-    )
-
+      ctx.moveTo(width / 2, height / 2);
+      ctx.beginPath();
+      ctx.arc(width / 2, height / 2, 25, (baseArm / 360) * 2 * Math.PI, (otherArm / 360) * 2 * Math.PI);
+      ctx.stroke();
+    });
   }
 
   get question() {

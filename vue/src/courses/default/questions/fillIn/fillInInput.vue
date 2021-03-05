@@ -1,15 +1,8 @@
 <template>
-  <span
-   v-if='radioType'
-   class='headline underline'
-  >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-  <user-input-string
-   v-else
-   id="input"
-   :icon="false"
-   type="text"
-   :value="text"
-  />
+  <span v-if="radioType" class="headline underline"
+    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span
+  >
+  <user-input-string v-else id="input" :icon="false" type="text" :value="text" />
 </template>
 
 <script lang="ts">
@@ -19,13 +12,14 @@ import UserInputString from '@/base-course/Components/UserInput/UserInputString.
 
 @Component({
   components: {
-    UserInputString
-  }
+    UserInputString,
+  },
 })
 export default class FillInInput extends FillInBase {
   @Prop({
-    required: true
-  }) public text: string;
+    required: true,
+  })
+  public text: string;
 
   public inputType: 'text' | 'radio';
 

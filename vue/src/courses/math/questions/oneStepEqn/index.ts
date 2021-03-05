@@ -15,15 +15,15 @@ const validator = {
     if (0 <= input && input <= 100) {
       return {
         status: Status.ok,
-        msg: ''
+        msg: '',
       };
     } else {
       return {
         status: Status.error,
-        msg: 'Single-step equation problem inputs must be between 0 and 100, inclusive.'
+        msg: 'Single-step equation problem inputs must be between 0 and 100, inclusive.',
       };
     }
-  }
+  },
 };
 
 const operationValidator: Validator = {
@@ -36,51 +36,51 @@ const operationValidator: Validator = {
     ) {
       return {
         status: Status.ok,
-        msg: ''
+        msg: '',
       };
     } else {
       return {
         status: Status.error,
-        msg: `Operation must be ADDITION, SUBTRACTION, MULTIPLICATION, or DIVISION`
+        msg: `Operation must be ADDITION, SUBTRACTION, MULTIPLICATION, or DIVISION`,
       };
     }
-  }
+  },
 };
 
 const fields: FieldDefinition[] = [
   {
     name: 'a',
     type: FieldType.INT,
-    validator
+    validator,
   },
   {
     name: 'b',
     type: FieldType.INT,
-    validator
+    validator,
   },
   {
     name: 'operation',
     type: FieldType.STRING,
-    validator: operationValidator
-  }
+    validator: operationValidator,
+  },
 ];
 
 enum Operation {
   ADDITION = 'ADDITION',
   SUBTRACTION = 'SUBTRACTION',
   MULTIPLICATION = 'MULTIPLICATION',
-  DIVISION = 'DIVISION'
+  DIVISION = 'DIVISION',
 }
 
 export class OneStepEquation extends Question {
-  public static dataShapes = [{
-    name: DataShapeName.MATH_OneStepEquation,
-    fields
-  }];
-
-  public static views = [
-    Solve
+  public static dataShapes = [
+    {
+      name: DataShapeName.MATH_OneStepEquation,
+      fields,
+    },
   ];
+
+  public static views = [Solve];
 
   public a: number;
   public b: number;
@@ -97,7 +97,6 @@ export class OneStepEquation extends Question {
     let answer: number = 0;
 
     if (this.operation === Operation.ADDITION) {
-
       // x - a = b
       answer = this.a + this.b;
     } else if (this.operation === Operation.SUBTRACTION) {
@@ -116,7 +115,8 @@ export class OneStepEquation extends Question {
 The operation is ${this.operation.valueOf()}
 this.a = ${this.a}
 this.b = ${this.b}
-`);
+`
+    );
     return answer;
   }
 

@@ -1,18 +1,14 @@
 <template>
   <div>
-    <span class="headline">
-      Spell the word:
-    </span>
+    <span class="headline"> Spell the word: </span>
     <UserInputString />
     <center>
-      <span v-if='priorAttempts !== 0' class="title">
-      {{ question.word }}
+      <span v-if="priorAttempts !== 0" class="title">
+        {{ question.word }}
       </span>
     </center>
     <center>
-      <audio-auto-player
-        :src="[getURL('WordAudio'), getURL('SentenceAudio'), getURL('WordAudio')]"
-      />
+      <audio-auto-player :src="[getURL('WordAudio'), getURL('SentenceAudio'), getURL('WordAudio')]" />
     </center>
   </div>
 </template>
@@ -29,8 +25,8 @@ import { log } from 'util';
 @Component({
   components: {
     AudioAutoPlayer,
-    UserInputString
-  }
+    UserInputString,
+  },
 })
 export default class IdentifyVocab extends QuestionView<SpellingQuestion> {
   public answer: string = '';
