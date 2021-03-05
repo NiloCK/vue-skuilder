@@ -18,7 +18,7 @@ module.exports = {
          *
          * @default true
          */
-        template: false,
+        template: true,
 
         /**
          * Use prettier to process `<script>` blocks or not
