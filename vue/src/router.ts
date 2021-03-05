@@ -41,16 +41,12 @@ export default new Router({
     {
       path: '/login',
       name: 'login',
-<<<<<<< HEAD
-      component: Login
+      component: Login,
     },
     {
       path: '/signup',
       name: 'signup',
-      component: SignUp
-======= 
-      component: UserLogin,
->>>>>>> 1f78d111e4726b08d8df7d6f69608872b46dfae8
+      component: SignUp,
     },
     {
       path: '/edit',
