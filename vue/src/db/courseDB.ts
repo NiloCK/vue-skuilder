@@ -429,8 +429,7 @@ export async function addTagToCard(
     if (!tag.taggedCards.includes(cardID)) {
       tag.taggedCards.push(cardID);
       return courseDB.put<Tag>(tag);
-    }
-    else throw new Error(`Card already has this tag`);
+    } else throw new Error(`Card already has this tag`);
   } catch (e) {
     log(`Tag ${tagID} does not exist...`);
     await createTag(courseID, tagID);
