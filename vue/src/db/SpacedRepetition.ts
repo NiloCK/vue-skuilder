@@ -1,15 +1,7 @@
-import {
-  QuestionRecord,
-  CardRecord,
-  isQuestionRecord,
-  CardHistory,
-  areQuestionRecords,
-} from '@/db/types';
+import { areQuestionRecords, CardHistory, CardRecord, QuestionRecord } from '@/db/types';
 import { duration, Moment } from 'moment';
 import { log } from 'util';
-import Store from '@/store';
-import cardCache from './cardCache';
-import { updateUserElo, User } from './userDB';
+import { User } from './userDB';
 
 /**
  * Returns the minimum number of seconds that should pass before a

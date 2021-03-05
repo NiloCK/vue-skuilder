@@ -7,9 +7,9 @@ import {
   StudySessionNewItem,
   StudySessionReviewItem,
 } from './contentSource';
-import { ScheduledCard, User } from './userDB';
+import { Loggable } from './Loggable';
 import { CardRecord } from './types';
-import { removeScheduledCardReview } from '.';
+import { ScheduledCard, User } from './userDB';
 
 export interface StudySessionRecord {
   card: {
@@ -48,14 +48,6 @@ class ItemQueue<T extends StudySessionItem> {
     } else {
       return null;
     }
-  }
-}
-
-abstract class Loggable {
-  protected abstract readonly _className: string;
-  protected log(s: string) {
-    console.log(`LOG-${this._className}@${new Date()}:
-\t${s}`);
   }
 }
 

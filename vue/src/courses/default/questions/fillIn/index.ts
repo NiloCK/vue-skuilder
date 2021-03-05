@@ -11,6 +11,26 @@ import _ from 'lodash';
 import marked from 'marked';
 import FillInView from './fillIn.vue';
 
+function chunk(text: string, l: string, r: string): string[] {
+  if (text.length === 0) return [];
+
+  let ret: string[] = [];
+
+  const left = text.indexOf(l);
+  const right = text.indexOf(r, left);
+
+  if (left >= 0 && right > left) {
+    ret.push(text.substring(0, left));
+    ret.push(text.substring(left, right + r.length));
+
+    ret = ret.concat(chunk(text.substring(right + r.length), l, r));
+  } else {
+    return [text];
+  }
+
+  return ret;
+}
+
 function splitText(
   text: string,
   leftBound: string,
@@ -32,41 +52,76 @@ function splitText(
 
 export function splitTextToken(token: marked.Tokens.Text): marked.Tokens.Text[] {
   if (containsComponent(token)) {
-    const text = splitText(token.text, '{{', '}}');
-    const raw = splitText(token.raw, '{{', '}}');
+    const textChunks = chunk(token.text, '{{', '}}');
+    const rawChunks = chunk(token.raw, '{{', '}}');
 
-    let ret: marked.Tokens.Text[] = [];
-
-    if (raw.left.length > 0) {
-      ret.push({
-        type: 'text',
-        raw: raw.left,
-        text: text.left,
+    if (textChunks.length === rawChunks.length) {
+      return textChunks.map((c, i) => {
+        return {
+          type: 'text',
+          text: textChunks[i],
+          raw: rawChunks[i],
+        };
       });
+    } else {
+      throw new Error(`Error parsing markdown`);
     }
-    if (raw.middle.length > 0) {
-      ret.push({
-        type: 'text',
-        raw: '{{' + raw.middle + '}}',
-        text: '{{' + text.middle + '}}',
-      });
-    }
-    if (raw.right.length > 0) {
-      ret.push({
-        type: 'text',
-        raw: raw.right,
-        text: text.right,
-      });
-    }
-
-    return ret;
   } else {
     return [token];
   }
 }
 
+export function splitParagraphToken(
+  token: marked.Tokens.Paragraph
+): (
+  | marked.Token
+  | {
+      type: 'component';
+      raw: string;
+    }
+)[] {
+  let ret: marked.Token[] = [];
+
+  if (containsComponent(token)) {
+    const textChunks = chunk(token.text, '{{', '}}');
+    const rawChunks = chunk(token.raw, '{{', '}}');
+    if (textChunks.length === rawChunks.length) {
+      for (let i = 0; i < textChunks.length; i++) {
+        const textToken = {
+          type: 'text',
+          text: textChunks[i],
+          raw: rawChunks[i],
+        } as marked.Tokens.Text;
+
+        if (isComponent(textToken)) {
+          ret.push(textToken);
+        } else {
+          marked.lexer(rawChunks[i]).forEach((t) => {
+            if (t.type === 'paragraph') {
+              ret = ret.concat((t as any).tokens);
+            } else {
+              ret.push(t);
+            }
+          });
+        }
+      }
+      return ret;
+    } else {
+      throw new Error(`Error parsing Markdown`);
+    }
+  } else {
+    ret.push(token);
+  }
+  return ret;
+}
+
+export function paragraphContainsComponent(t: marked.Token) {
+  if ((t as any).tokens) {
+  }
+}
+
 export function containsComponent(token: marked.Token) {
-  if (token.type === 'text') {
+  if (token.type === 'text' || token.type === 'paragraph') {
     let opening = token.raw.indexOf('{{');
     let closing = token.raw.indexOf('}}');
 
@@ -239,7 +294,11 @@ export class BlanksCard extends Question {
       if (this.answers) {
         return this.answers.includes(answer);
       } else {
-        throw new Error(`Question has no known answers!`);
+        if (answer === '') {
+          return true;
+        } else {
+          throw new Error(`Question has no configured answers!`);
+        }
       }
     } else {
       return this.isCorrectRadio(answer as RadioMultipleChoiceAnswer);

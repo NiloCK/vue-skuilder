@@ -42,9 +42,11 @@ export default class MarkdownRenderer extends Vue {
     //   }
     // })
     const tokens = marked.lexer(this.md);
-    // tokens.forEach(t => {
-    //   console.log(JSON.stringify(t));
-    // });
+    if (this.testRoute) {
+      tokens.forEach(t => {
+        console.log(JSON.stringify(t));
+      });
+    }
     return tokens;
   }
 }

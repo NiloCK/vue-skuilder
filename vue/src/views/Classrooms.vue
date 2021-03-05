@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
-    <v-layout row wrap justify-space-around>
-      <v-flex md4 sm12 xs12>
+    <v-layout pa-4 row wrap justify-space-around>
+      <v-flex v-if="studentClasses.length > 0" md4 sm12 xs12>
         <v-card>
           <v-toolbar>
             <v-toolbar-title>My Classes</v-toolbar-title>
@@ -36,7 +36,7 @@
       <v-flex v-if="teacherClasses.length > 0" md4 sm12 xs12>
         <v-card>
           <v-toolbar>
-            <v-toolbar-title>Classes I Teach</v-toolbar-title>
+            <v-toolbar-title>Classes I Manage</v-toolbar-title>
           </v-toolbar>
 
           <v-list>
@@ -59,14 +59,27 @@
           </v-list>
         </v-card>
       </v-flex>
+
+      <v-flex v-if="studentClasses.length === 0 && teacherClasses.length === 0" class="headline">
+        You are not in any classes! Join your class below if someone has given you a joincode. Or else, start your own!
+      </v-flex>
     </v-layout>
 
-    <v-form>
-      <label for="joinCode">Class Code</label>
-      <v-text-field name="joinCode" label="" id="joinCode" v-model="joinCode"></v-text-field>
-      <v-btn @click="joinClass">Join a class </v-btn>
-    </v-form>
+    <v-divider></v-divider>
 
+    <v-layout pa-4 xs12 sm12 md8 lg6 xl6>
+      <v-card xs12 xl12>
+        <!-- <v-form> -->
+        <v-toolbar>
+          <v-toolbar-title>Join a class</v-toolbar-title>
+        </v-toolbar>
+        <v-card-text>
+          <v-text-field name="joinCode" label="Class Code" id="joinCode" v-model="joinCode"></v-text-field>
+          <v-btn color="primary" @click="joinClass">Join</v-btn>
+        </v-card-text>
+        <!-- </v-form> -->
+      </v-card>
+    </v-layout>
     <v-dialog v-model="newClassDialog" fullscreen transition="dialog-bottom-transition" :overlay="false">
       <v-btn color="primary" dark slot="activator">Start a new Class</v-btn>
       <classroom-editor v-on:ClassroomEditingComplete="processResponse($event)" />

@@ -1,28 +1,13 @@
-import { Displayable } from '@/base-course/Displayable';
-import { DataShape } from '@/base-course/Interfaces/DataShape';
-import { NameSpacer } from '@/courses';
-import {
-  CardData,
-  CardHistory,
-  CardRecord,
-  DataShapeData,
-  DisplayableData,
-  DocType,
-  QuestionData,
-  SkuilderCourseData,
-  getCardHistoryID,
-} from '@/db/types';
-import { FieldType } from '@/enums/FieldType';
+import { CardHistory, CardRecord, DocType, getCardHistoryID, SkuilderCourseData } from '@/db/types';
 import ENV from '@/ENVIRONMENT_VARS';
-import Store, { GuestUsername } from '@/store';
+import { GuestUsername } from '@/store';
 import moment, { Moment } from 'moment';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
 import { log } from 'util';
-import { ScheduledCard, getUserDB, User } from './userDB';
-import _ from 'lodash';
+import { getUserDB, ScheduledCard, User } from './userDB';
 
 (window as any).process = process; // required as a fix for pouchdb - see #18
 
@@ -169,20 +154,32 @@ export async function putCardRecord<T extends CardRecord>(
 ): Promise<CardHistory<CardRecord>> {
   const userDB = getUserDB(user);
   const cardHistoryID = getCardHistoryID(record.courseID, record.cardID);
+  record.timeStamp = moment.utc(record.timeStamp).toString() as any;
 
   try {
-    const cardHistory = await userDB.get<CardHistory<T>>(cardHistoryID);
-    cardHistory.records.push(record);
-    User.instance().then((u) => {
-      u.updateCardHistory(cardHistory.courseID, cardHistory.cardID, cardHistory);
+    // const cardHistory = await userDB.get<CardHistory<T>>(cardHistoryID);
+    // cardHistory.records.push(record);
+    const u = await User.instance();
+
+    // u.updateCardHistory(cardHistory.courseID, cardHistory.cardID, cardHistory)
+    const cardHistory = await u.update<CardHistory<T>>(cardHistoryID, function (h: CardHistory<T>) {
+      h.records.push(record);
+      // momentifyCardHistory<T>(h);
+      // h.records = h.records.map( r => {
+      //   return {
+      //     ...r,
+      //     timeStamp: r.timeStamp.toString()
+      //   }
+      // });
+      return h;
     });
 
     // userDB.put(cardHistory);
-    momentifyCardHistory<T>(cardHistory);
-    if (cardHistory.bestInterval === undefined) {
-      cardHistory.bestInterval = 0;
-    }
-    return cardHistory;
+    // momentifyCardHistory<T>(cardHistory!);
+    // if (cardHistory!.bestInterval === undefined) {
+    //   cardHistory!.bestInterval = 0;
+    // }
+    return cardHistory!;
   } catch (reason) {
     if (reason.status === 404) {
       const initCardHistory: CardHistory<T> = {

@@ -1,8 +1,11 @@
 <template>
-  <div ref="fillIn">
+  <div>
     <markdown-renderer :md="question.mdText" />
-
     <radio-multiple-choice v-if="question.options" :choiceList="question.options" :MouseTrap="MouseTrap" />
+    <v-card-actions v-else-if="!isQuestion">
+      <v-spacer></v-spacer>
+      <v-btn color="primary" @click="submitAnswer('')" :autofocus="autofocus"> Next </v-btn>
+    </v-card-actions>
   </div>
 </template>
 
@@ -37,10 +40,14 @@ export default class FillInView extends QuestionView<BlanksCard> {
     return new BlanksCard(this.data);
   }
 
-  public $refs: {
-    canvas: HTMLCanvasElement;
-    fillIn: HTMLDivElement;
-  };
+  get isQuestion(): boolean {
+    if (!this.question.answers || this.question.answers.length === 0) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   private angle: number;
   private _question: BlanksCard;
 

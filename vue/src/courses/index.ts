@@ -8,6 +8,7 @@ import piano from './piano';
 import defaultCourse from './default';
 import Viewable from '../base-course/Viewable';
 import { Displayable } from '@/base-course/Displayable';
+import pitch from './pitch';
 
 export class CourseList {
   private readonly courseList: Course[];
@@ -185,6 +186,13 @@ export interface ViewDescriptor {
   view: string;
 }
 
-const courseList: CourseList = new CourseList([math, wordWork, french, defaultCourse, piano]);
+const courseList: CourseList = new CourseList([
+  math,
+  wordWork,
+  french,
+  defaultCourse,
+  piano,
+  pitch,
+]);
 
 export default courseList;

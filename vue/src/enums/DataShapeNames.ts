@@ -3,6 +3,7 @@ export enum DataShapeName {
   // Shared base-course types
   Basic = 'Basic',
   Blanks = 'Blanks',
+  Default = 'Default',
 
   // Math
   MATH_SingleDigitAddition = 'SingleDigitAddition',
@@ -25,4 +26,7 @@ export enum DataShapeName {
   // Piano
   PIANO_Echo = 'Piano_Echo',
   PIANO_PlayNote = 'Piano_PlayNote',
+
+  // Pitch
+  PITCH_chroma = 'Pitch_chroma',
 }

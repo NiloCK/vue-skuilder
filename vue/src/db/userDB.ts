@@ -176,7 +176,7 @@ Currently logged-in as ${this._username}.`
   }
 
   public update<T extends PouchDB.Core.Document<{}>>(id: string, update: Update<T>) {
-    this.upadteQueue.update(id, update);
+    return this.upadteQueue.update(id, update);
   }
 
   public async updateCardHistory(

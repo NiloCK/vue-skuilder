@@ -1,6 +1,8 @@
 <template>
   <span v-if="token.type === 'text' && (!token.tokens || token.tokens.length === 0)">
+    <!-- (t {{token.raw}}) -->
     <span v-if="isComponent(token)">
+      <!-- (component) -->
       <component v-if="!last" :is="parsedComponent(token).is" :text="parsedComponent(token).text" />
     </span>
     <span v-else-if="containsComponent(token)">
@@ -36,7 +38,16 @@
   </strong>
 
   <p class="headline" v-else-if="token.type === 'paragraph'">
+    <span v-if="containsComponent(token)">
+      <md-token-renderer
+        v-for="(splitTok, j) in splitParagraphToken(token)"
+        :key="j"
+        :token="splitTok"
+        :last="last && token.tokens.length === 1 && j === splitParagraphToken(token).length - 1"
+      />
+    </span>
     <md-token-renderer
+      v-else
       v-for="(subTok, j) in token.tokens"
       :key="j"
       :token="subTok"
@@ -74,7 +85,7 @@
   </table>
   <span v-else-if="token.type === 'html'" v-html="token.html"></span>
   <!-- ? -->
-  <highlightjs v-else-if="token.type === 'code'" :language="token.lang" :code="token.text" />
+  <highlightjs class="hljs_render pa-2" v-else-if="token.type === 'code'" :language="token.lang" :code="token.text" />
   <code v-else-if="token.type === 'codespan'">{{ token.text }}</code>
   <!-- ? -->
   <blockquote v-else-if="token.type === 'blockquote'">
@@ -82,10 +93,14 @@
   </blockquote>
   <span v-else-if="token.type === 'escape'">{{ token.text }}</span>
   <em v-else-if="token.type === 'em'">
+    <<<<<<< Updated upstream
     <span v-if="isComponent(token)">
       <component v-if="!last" :is="parsedComponent(token).is" :text="parsedComponent(token).text" />
     </span>
     <md-token-renderer v-else v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
+    =======
+    <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
+    >>>>>>> Stashed changes
   </em>
 </template>
 
@@ -95,7 +110,12 @@ import marked from 'marked';
 import hljs from 'highlight.js';
 import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
-import { containsComponent, isComponent, splitTextToken } from '@/courses/default/questions/fillIn';
+import {
+  containsComponent,
+  isComponent,
+  splitTextToken,
+  splitParagraphToken,
+} from '@/courses/default/questions/fillIn';
 
 Vue.use(hljs.vuePlugin);
 
@@ -127,6 +147,9 @@ export default class MdTokenRenderer extends Vue {
   public splitTextToken(token: marked.Tokens.Text) {
     return splitTextToken(token);
   }
+  public splitParagraphToken(token: marked.Tokens.Paragraph) {
+    return splitParagraphToken(token);
+  }
 
   public parsedComponent(
     token: marked.Tokens.Em
@@ -151,6 +174,10 @@ blockquote {
 code::before {
   content: none !important;
 }
+
+/* .hljs_render {
+  padding: 8px; 
+}*/
 
 /* @import "./../../../node_modules/highlight.js/styles/stackoverflow-light.css"; */
 /* @import "./../../../node_modules/highlight.js/styles/xt256.css"; */

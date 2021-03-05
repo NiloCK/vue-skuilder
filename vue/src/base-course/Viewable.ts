@@ -14,7 +14,7 @@ export default abstract class Viewable extends Vue {
   @Prop() public data: ViewData[];
   protected startTime: moment.Moment = moment.utc();
   protected MouseTrap: MousetrapInstance = new MouseTrap(this.$el);
-  public abstract hotKeys: HotKey[] = [];
+  public hotKeys: HotKey[] = [];
 
   /**
    * Returns the time in milliseconds since the element was created

@@ -4,7 +4,7 @@
       <v-progress-circular indeterminate color="secondary"></v-progress-circular>
     </div>
     <div v-else>
-      <!-- <v-btn @click='toggleComponent' color="success">Content Editing / Component Registration</v-btn> -->
+      <v-btn @click="toggleComponent" color="success">Content Editing / Component Registration</v-btn>
       <div v-if="editingMode">
         <!-- <div>
           {{`There ${registeredDataShapes.length !== 1 ? 'are' : 'is'} ${registeredDataShapes.length} registered data shape${registeredDataShapes.length === 1 ? '' : 's'} in the course.`}}

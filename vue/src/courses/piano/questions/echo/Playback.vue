@@ -1,9 +1,9 @@
 <template>
   <div v-if="initialized">
-    <div v-if="state === 'ready'">
-      <div class="display-1">
-        {{ promptText }} <span class="font-weight-bold">{{ firstNote }}</span>
-      </div>
+    <!-- <div v-if="state === 'ready'"> -->
+    <div v-if="true">
+      <!-- <div class="display-1">{{promptText}} <span class='font-weight-bold'>{{firstNote}}</span></div> -->
+      <div class="display-1">{{ promptText }} <note-display :chroma="firstNoteChroma" /></div>
       <div class="headline">Listen...<span v-if="recording"> and Repeat</span></div>
       <!-- <div id="progressBar">
       <v-progress-linear :value="100"></v-progress-linear>
@@ -46,10 +46,12 @@ import SkMidi, { NoteEvent, eventsToSyllableSequence, SyllableSequence } from '.
 import { EchoQuestion } from '.';
 import moment from 'moment';
 import SyllableSeqVis from '../../utility/SyllableSeqVis.vue';
+import NoteDisplay from '../../NoteDisplay.vue';
 
 @Component({
   components: {
     SyllableSeqVis,
+    NoteDisplay,
   },
 })
 export default class Playback extends QuestionView<EchoQuestion> {
@@ -79,6 +81,15 @@ export default class Playback extends QuestionView<EchoQuestion> {
       return 'Lowest note of first chord:';
     } else {
       return 'First note:';
+    }
+  }
+
+  public get firstNoteChroma(): number {
+    if (this.initialized) {
+      // return this.question.midi[0].note.name;
+      return eventsToSyllableSequence(this.question.midi).rootNote.number % 12;
+    } else {
+      return 0;
     }
   }
 

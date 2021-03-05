@@ -3,7 +3,7 @@ import Courses, { NameSpacer, ShapeDescriptor } from '@/courses';
 import { FieldType } from '@/enums/FieldType';
 import ENV from '@/ENVIRONMENT_VARS';
 import { CourseConfig } from '@/server/types';
-import _ from 'lodash';
+import _, { take } from 'lodash';
 import pouch from 'pouchdb-browser';
 import { log } from 'util';
 import { filterAlldocsByPrefix, pouchDBincludeCredentialsConfig } from '.';
@@ -426,8 +426,11 @@ export async function addTagToCard(
   try {
     log(`Applying tag ${tagID} to card ${courseID + '-' + cardID}...`);
     const tag = await courseDB.get<Tag>(prefixedTagID);
-    tag.taggedCards.push(cardID);
-    return courseDB.put<Tag>(tag);
+    if (!tag.taggedCards.includes(cardID)) {
+      tag.taggedCards.push(cardID);
+      return courseDB.put<Tag>(tag);
+    }
+    else throw new Error(`Card already has this tag`);
   } catch (e) {
     log(`Tag ${tagID} does not exist...`);
     await createTag(courseID, tagID);

@@ -6,9 +6,14 @@
           <span class="font-weight-thin">edu</span>
           <span class="font-weight-bold">Quilt</span>
         </h1>
-        <div class="display-1">An experiment in community-driven learning and teaching</div>
+        <!-- {interactive|adaptive|personalized} courseware that {everyone|anyone|you|grandma|grandpa} can {edit|improve|write} -->
+        <p class="headline">
+          <em>quilt</em>: (n) a <text-swap ref="swap1" :text="label" /> of
+          <text-swap ref="swap2" :text="adjective" /> courseware that <text-swap ref="swap3" :text="subject" /> can
+          <text-swap ref="swap4" :text="verb" />
+        </p>
         <br /><br /><br />
-        <div class="headline">(get cozy)</div>
+        <div class="subheading">(get cozy)</div>
       </v-flex>
       <!-- <div class="section"></div> -->
       <!-- <div class="section step1">
@@ -30,6 +35,7 @@
 
 <script lang="ts">
 import UserLogin from '../components/UserLogin.vue';
+import TextSwap from '@/components/TextSwap.vue';
 import { Status } from '@/enums/Status';
 import SkldrVue from '../SkldrVue';
 import { Prop, Component } from 'vue-property-decorator';
@@ -37,9 +43,35 @@ import { Prop, Component } from 'vue-property-decorator';
 @Component({
   components: {
     UserLogin,
+    TextSwap,
   },
 })
-export default class Home extends SkldrVue {}
+export default class Home extends SkldrVue {
+  $refs: {
+    swap1: TextSwap;
+    swap2: TextSwap;
+    swap3: TextSwap;
+    swap4: TextSwap;
+  };
+  private get swaps(): TextSwap[] {
+    return [this.$refs.swap1, this.$refs.swap2, this.$refs.swap3, this.$refs.swap4];
+  }
+
+  private created() {
+    setInterval(this.randomSwap, 7000);
+  }
+
+  private randomSwap() {
+    this.swaps.forEach((s) => {
+      if (Math.random() < 0.33) s.next();
+    });
+  }
+
+  private label: string[] = ['collection', 'patchwork', 'network', 'jumble'];
+  private adjective: string[] = ['interactive', 'adaptive', 'interlinked', 'intelligent'];
+  private subject: string[] = ['anyone', 'everyone', 'you']; // grandma, grandpa, an MBA
+  private verb: string[] = ['edit', 'start', 'study', 'improve'];
+}
 </script>
 
 <style scoped>

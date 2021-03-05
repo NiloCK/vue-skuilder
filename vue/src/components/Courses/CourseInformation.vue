@@ -7,7 +7,7 @@
     </p>
 
     <div class="body-2">{{ questionCount }} exercises</div>
-    <div class="body-2">{{ tagCount }} tags</div>
+    <div class="body-2">{{ tags.length }} tags</div>
 
     <!-- <div style='background-color: red; padding: 15px; margin: 10px;'>
 
@@ -38,6 +38,24 @@
           </v-btn>
         </router-link>
         <v-btn color="error" small outline @click="drop">Drop this course</v-btn>
+        <div v-for="(tag, i) in tags" :key="i">
+          <v-card>
+            <v-card-text>
+              <pre>
+              {{
+                  (() => {
+                    let ret = '';
+                    for (let i in tag) {
+                      ret += `${i}: ${tag[i]}\n`;
+                    }
+                    return ret;
+                  })()
+                }}
+              </pre>
+            </v-card-text>
+          </v-card>
+          <!-- {{JSON.stringify(tag)}} -->
+        </div>
       </div>
       <div v-else>
         <v-btn color="primary" @click="register">Register</v-btn>
@@ -90,13 +108,7 @@ export default class CourseInformation extends SkldrVue {
     return this._courseConfig.name.toLowerCase().includes('piano');
   }
 
-  // private elo: number = 984;
-  // private num: number = 6;
-
-  // private async getCards() {
-  //   let c = new CourseDB(this._id);
-  //   (await c.getCardsByELO(this.elo, this.num));
-  // }
+  private tagStr(t: Tag) {}
 
   private nameRules: Array<(value: string) => string | boolean> = [
     (value) => {
@@ -120,7 +132,7 @@ export default class CourseInformation extends SkldrVue {
   private _courseConfig: CourseConfig;
   public userIsRegistered: boolean = false;
   private questionCount: number;
-  private tagCount: number;
+  private tags: Tag[] = [];
 
   private async created() {
     const userCourses = await this.$store.state._user!.getCourseRegistrationsDoc();
@@ -138,7 +150,7 @@ export default class CourseInformation extends SkldrVue {
         limit: 1000,
       })
     ).docs.length;
-    this.tagCount = (await getCourseTagStubs(this._id)).rows.length;
+    this.tags = (await getCourseTagStubs(this._id)).rows.map((r) => r.doc!);
     this.updatePending = false;
   }
 
