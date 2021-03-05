@@ -1,5 +1,5 @@
 import ENV from '@/ENVIRONMENT_VARS';
-import { GuestUsername } from '@/store';
+import { GuestUsername, UserConfig } from '@/store';
 import pouch from 'pouchdb-browser';
 import { log } from 'util';
 import {
@@ -16,6 +16,7 @@ import { Status } from '@/enums/Status';
 import moment from 'moment';
 import { Moment } from 'moment';
 import { CardHistory, CardRecord, getCardHistoryID } from './types';
+import UpdateQueue, { Update } from './updateQueue';
 
 const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' +
   ENV.COUCHDB_SERVER_URL + 'skuilder';
@@ -81,6 +82,11 @@ export interface ScheduledCard {
 export class User {
   private static _instance: User;
   private static _initialized: boolean = false;
+  static readonly DOC_IDS = {
+    CONFIG: 'CONFIG',
+    COURSE_REGISTRATIONS: 'CourseRegistrations',
+    CLASSROOM_REGISTRATIONS: 'ClassroomRegistrations'
+  }
 
   private email: string;
   private _username: string;
@@ -88,6 +94,7 @@ export class User {
 
   private remoteDB: PouchDB.Database;
   private localDB: PouchDB.Database;
+  private upadteQueue: UpdateQueue;
 
   public async createAccount(username: string, password: string) {
     let ret = {
@@ -116,6 +123,7 @@ Currently logged-in as ${this._username}.`);
           log(`CREATEACCOUNT: logged in as new user: ${loginResult.ok}`);
           const newLocal = getLocalUserDB(username);
           const newRemote = getUserDB(username);
+          this._username = username;
 
           this.localDB.replicate.to(
             newLocal
@@ -127,7 +135,6 @@ Currently logged-in as ${this._username}.`);
               await clearLocalGuestDB();
 
               // reset this.local & this.remote DBs
-              this._username = username;
               this.init();
             });
           });
@@ -176,6 +183,10 @@ Currently logged-in as ${this._username}.`);
     await this.init();
 
     return ret;
+  }
+
+  public update<T extends PouchDB.Core.Document<{}>>(id: string, update: Update<T>) {
+    this.upadteQueue.update(id, update);
   }
 
   public async updateCardHistory(courseID: string,
@@ -411,16 +422,21 @@ Currently logged-in as ${this._username}.`);
 
   private async init() {
     User._initialized = false;
-    if (this._username === GuestUsername) {
-      const acc = accomodateGuest();
-      this._username = acc.username;
-      if (acc.firstVisit) {
-        await this.createAccount(this._username, this._username);
-      }
-      await this.login(this._username, this._username);
-    }
+    // if (this._username === GuestUsername) {
+    //   const acc = accomodateGuest();
+    //   this._username = acc.username;
+    //   if (acc.firstVisit) {
+    //     await this.createAccount(this._username, this._username);
+    //   }
+    //   await this.login(this._username, this._username);
+    // }
     this.localDB = getLocalUserDB(this._username);
-    this.remoteDB = getUserDB(this._username);
+    if (this._username === GuestUsername) {
+      this.remoteDB = getLocalUserDB(this._username);
+    } else {
+      this.remoteDB = getUserDB(this._username);
+    }
+    this.upadteQueue = new UpdateQueue(this.localDB);
 
     pouch.sync(this.localDB, this.remoteDB, {
       live: true,

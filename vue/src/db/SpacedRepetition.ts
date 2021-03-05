@@ -29,7 +29,10 @@ function newQuestionInterval(cardHistory: CardHistory<QuestionRecord>) {
         cardHistory.bestInterval = lastInterval;
         // update bestInterval on cardHistory in db
         User.instance().then((u) => {
-            u.updateCardHistory(cardHistory.courseID, cardHistory.cardID, {
+            // u.updateCardHistory(cardHistory.courseID, cardHistory.cardID, {
+            //     bestInterval: lastInterval
+            // });
+            u.update<CardHistory<QuestionRecord>>(cardHistory._id, {
                 bestInterval: lastInterval
             });
         });
