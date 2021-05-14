@@ -63,14 +63,19 @@ export function getCourseDB(courseID: string): PouchDB.Database {
 }
 
 export async function getLatestVersion() {
-  const docs = await getCouchDB('version').allDocs({
-    descending: true,
-    limit: 1,
-  });
-  if (docs && docs.rows && docs.rows[0]) {
-    return docs.rows[0].id;
-  } else {
-    return '0.0.0';
+  try {
+
+    const docs = await getCouchDB('version').allDocs({
+      descending: true,
+      limit: 1,
+    });
+    if (docs && docs.rows && docs.rows[0]) {
+      return docs.rows[0].id;
+    } else {
+      return '0.0.0';
+    }
+  } catch {
+    return '-1';
   }
 }
 
