@@ -11,5 +11,9 @@
         "prettier": "^2.2.1",
         "typescript": "^4.1.3"
     },
-    "name": "vue-skuilder"
+    "name": "vue-skuilder",
+    "scripts": {
+        "serve": "lerna run serve --stream",
+        "build": "lerna run build --stream"
+    }
 }
