@@ -16,7 +16,7 @@ jobs:
           ls ${{ github.workspace }}
       - uses: actions/setup-node@v1
       - run: npm install -g yarn
-      - run: npm install -g lerna 
-      - run: yarn
+      - run: npm install -g lerna
+      - run: lerna bootstrap
       - run: yarn build
       - run: echo "🍏 This job's status is ${{ job.status }}."
