@@ -1,5 +1,4 @@
 name: deploy-branch
-branch: deploy
 on: 
   pull_request:
     branches:
