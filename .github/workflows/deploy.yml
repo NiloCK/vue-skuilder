@@ -1,8 +1,9 @@
 name: deploy-branch
 branch: deploy
-on: pull_request:
-  branches:
-    - deploy
+on: 
+  pull_request:
+    branches:
+      - deploy
 jobs:
   deploy:
     runs-on: ubuntu-latest
