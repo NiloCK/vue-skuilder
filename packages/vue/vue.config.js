@@ -15,7 +15,7 @@ module.exports = {
   },
 };
 
-const terserOptgions = {
+const terserOptions = {
   terserOptions: {
     keep_classnames: true,
   },
