@@ -78,7 +78,7 @@ export default class AsyncProcessQueue<T extends Request, R extends Result> {
         () => {
           status = this.jobStatus(jobID);
           if (status === 'complete' || status === 'error') {
-            resolve();
+            resolve(null);
           } else {
             reject();
           }
