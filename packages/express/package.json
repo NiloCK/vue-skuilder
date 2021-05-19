@@ -6,7 +6,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "serve": "ts-node-dev src/app.ts",
-        "notbuild": "tsc"
+        "build": "tsc"
     },
     "author": "Colin Kennedy",
     "license": "GPL-3.0-or-later",
