@@ -1,6 +1,8 @@
 {
-    "compileOnSave": true,
+    // "compileOnSave": true,
     "files": ["src/app.ts"],
+    "exclude": ["node_modules"],
+    // "include": ["src"],
     "compilerOptions": {
         "module": "commonjs",
         "outDir": "dist",
