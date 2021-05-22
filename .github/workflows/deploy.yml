@@ -13,7 +13,7 @@ jobs:
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.DO_SSH_KEY }}
-          name: id_rsa # optional
+          name: id_rsa
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
       - name: Check out repository code
         uses: actions/checkout@v2
@@ -24,11 +24,11 @@ jobs:
       - run: npm install -g yarn
       - run: npm install -g lerna
       - run: npm install -g typescript
+      - run: apt-install ftp-upload
       - run: lerna bootstrap
       - name: Build
         continue-on-error: true
         run: yarn build
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - name: Upload to DO
-        run: apt-install ftp-upload
         run: ftp-upload -h eduquilt.com -u ${{ secrets.DO_USERNAME }} --password ${{ secrets.DO_PASSWORD }} package.json
