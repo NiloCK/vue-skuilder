@@ -24,7 +24,7 @@ jobs:
       - run: npm install -g yarn
       - run: npm install -g lerna
       - run: npm install -g typescript
-      - run: apt-get install ftp-upload
+      - run: sudo apt-get install ftp-upload
       - run: lerna bootstrap
       - name: Build
         continue-on-error: true
