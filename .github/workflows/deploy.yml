@@ -31,4 +31,10 @@ jobs:
         run: yarn build
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - name: Upload to DO
-        run: ftp-upload -h eduquilt.com -u ${{ secrets.DO_USERNAME }} --password ${{ secrets.DO_PASSWORD }} package.json
+        uses: SamKirkland/FTP-Deploy-Action@4.0.0
+        with:
+          server: eduquilt.com
+          username: ${{ secrets.DO_USERNAME}}
+          password: ${{ secrets.DO_PASSWORD }}
+          dry-run: true
+        # run: ftp-upload -h eduquilt.com -u ${{ secrets.DO_USERNAME }} --password ${{ secrets.DO_PASSWORD }} package.json
