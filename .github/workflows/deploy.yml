@@ -9,6 +9,12 @@ jobs:
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - name: load ssh key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DO_SSH_KEY }}
+          name: id_rsa # optional
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
       - name: Check out repository code
         uses: actions/checkout@v2
       - name: List files in the repository
@@ -23,3 +29,6 @@ jobs:
         continue-on-error: true
         run: yarn build
       - run: echo "🍏 This job's status is ${{ job.status }}."
+      - name: Upload to DO
+        run: apt-install ftp-upload
+        run: ftp-upload -h eduquilt.com -u ${{ secrets.DO_USERNAME }} --password ${{ secrets.DO_PASSWORD }} package.json
