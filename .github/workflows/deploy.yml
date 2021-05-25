@@ -31,11 +31,20 @@ jobs:
         run: yarn build
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - name: Upload to DO
-        uses: SamKirkland/FTP-Deploy-Action@4.0.0
+        uses: easingthemes/ssh-deploy@v2
         with:
-          server: eduquilt.com
-          username: ${{ secrets.DO_USERNAME}}
-          password: ${{ secrets.DO_PASSWORD }}
-          port: 22
-          dry-run: true
+          SSH_PRIVATE_KEY: ${{ secrets.DO_SSH_KEY }}
+          REMOTE_HOST: eduquilt.com
+          REMOTE_USER: ${{ secrets.DO_USERNAME }}
+          SOURCE: 'packages/vue/dist/'
+          TARGET: '~/test/'
+
+#         uses: SamKirkland/FTP-Deploy-Action@4.0.0
+#         with:
+#           server: eduquilt.com
+#           username: ${{ secrets.DO_USERNAME}}
+#           password: ${{ secrets.DO_PASSWORD }}
+#           port: 22
+#           dry-run: true
+        
         # run: ftp-upload -h eduquilt.com -u ${{ secrets.DO_USERNAME }} --password ${{ secrets.DO_PASSWORD }} package.json
