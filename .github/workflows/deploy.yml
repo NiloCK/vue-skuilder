@@ -31,6 +31,7 @@ jobs:
         run: yarn build
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - name: Upload to DO
+        continue-on-error: true
         uses: easingthemes/ssh-deploy@v2
         with:
           SSH_PRIVATE_KEY: ${{ secrets.DO_SSH_KEY }}
