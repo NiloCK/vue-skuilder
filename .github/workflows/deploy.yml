@@ -36,5 +36,6 @@ jobs:
           server: eduquilt.com
           username: ${{ secrets.DO_USERNAME}}
           password: ${{ secrets.DO_PASSWORD }}
+          port: 22
           dry-run: true
         # run: ftp-upload -h eduquilt.com -u ${{ secrets.DO_USERNAME }} --password ${{ secrets.DO_PASSWORD }} package.json
