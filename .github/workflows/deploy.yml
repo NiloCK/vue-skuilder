@@ -9,7 +9,6 @@ jobs:
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: ping eduquilt.com
       - name: load ssh key
         uses: shimataro/ssh-key-action@v2
         with:
