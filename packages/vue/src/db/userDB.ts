@@ -236,26 +236,25 @@ Currently logged-in as ${this._username}.`
     });
   }
 
-  public async getPendingReviews(course_id?: string) {
+  private async getReviewstoDate(targetDate: Moment, course_id?: string) {
     const keys = getStartAndEndKeys(REVIEW_PREFIX);
-    const now = moment.utc();
-
+    
     const reviews = await this.remoteDB.allDocs<ScheduledCard>({
       startkey: keys.startkey,
       endkey: keys.endkey,
       include_docs: true,
     });
-
+    
     log(
       `Fetching ${this._username}'s scheduled reviews${
         course_id ? ` for course ${course_id}` : ''
       }.`
-    );
-    return reviews.rows
+      );
+      return reviews.rows
       .filter((r) => {
         if (r.id.startsWith(REVIEW_PREFIX)) {
           const date = moment.utc(r.id.substr(REVIEW_PREFIX.length), REVIEW_TIME_FORMAT);
-          if (now.isAfter(date)) {
+          if (targetDate.isAfter(date)) {
             if (course_id === undefined || r.doc!.courseId === course_id) {
               return true;
             }
@@ -263,6 +262,17 @@ Currently logged-in as ${this._username}.`
         }
       })
       .map((r) => r.doc!);
+  }
+    
+    public async getReviewsForcast(daysCount: number) {
+      const time = moment.utc().add('d' + daysCount);
+      return this.getReviewstoDate(time);
+    }
+    
+  public async getPendingReviews(course_id?: string) {
+    const now = moment.utc();
+    return this.getReviewstoDate(now, course_id);
+    
   }
 
   public async getScheduledReviewCount(course_id: string): Promise<number> {
