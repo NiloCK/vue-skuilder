@@ -265,7 +265,7 @@ Currently logged-in as ${this._username}.`
   }
     
     public async getReviewsForcast(daysCount: number) {
-      const time = moment.utc().add('d' + daysCount);
+      const time = moment.utc().add(daysCount, 'days');
       return this.getReviewstoDate(time);
     }
     
