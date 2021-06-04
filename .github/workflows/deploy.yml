@@ -17,7 +17,7 @@ jobs:
       - run: lerna bootstrap
       - name: Build
         continue-on-error: true
-      - run: yarn build
+        run: yarn build
       - name: Upload to DO
         uses: shimataro/ssh-key-action@v2
         with:
