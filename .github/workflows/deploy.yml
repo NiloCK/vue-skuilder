@@ -28,3 +28,4 @@ jobs:
       - run: ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/vue/$(($vcount+1))
       - run: rsync ./packages/vue/dist ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/vue/$(($vcount+1))
       - run: ssh ${{ secrets.DO_USERNAME }}@eduilt.com ln -sfn /home/skuilder/vue/$(($vcount+1) /www
+      
