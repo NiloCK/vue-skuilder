@@ -4,31 +4,28 @@ on:
     branches:
       - deploy
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - name: load ssh key
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - run: npm install -g yarn
+      - run: npm install -g lerna
+      - run: npm install -g typescript
+      - run: lerna bootstrap
+      - name: Build
+        continue-on-error: true
+        run: yarn build
+      - name: Upload to DO
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.DO_SSH_KEY }}
           name: id_rsa
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
-      - name: Check out repository code
-        uses: actions/checkout@v2
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-      - uses: actions/setup-node@v1
-      - run: npm install -g yarn
-      - run: npm install -g lerna
-      - run: npm install -g typescript
-      - run: apt-install ftp-upload
-      - run: lerna bootstrap
-      - name: Build
-        continue-on-error: true
-        run: yarn build
-      - run: echo "🍏 This job's status is ${{ job.status }}."
-      - name: Upload to DO
-        run: ftp-upload -h eduquilt.com -u ${{ secrets.DO_USERNAME }} --password ${{ secrets.DO_PASSWORD }} package.json
+      - run: vcount=$(ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ls -t /home/skuilder/vue/ | head -n1)
+      - run: ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/vue/$(($vcount+1))
+      - run: rsync ./packages/vue/dist ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/vue/$(($vcount+1))
+      - run: ssh ${{ secrets.DO_USERNAME }}@eduilt.com ln -sfn /home/skuilder/vue/$(($vcount+1) /www
+      
