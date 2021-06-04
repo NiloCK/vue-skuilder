@@ -26,6 +26,13 @@ jobs:
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
       - run: vcount=$(ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ls -t /home/skuilder/eduquilt/vue/ | head -n1)
       - run: ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/eduquilt/vue/$(($vcount+1))
+      - run: npm install -g yarn
+      - run: npm install -g lerna
+      - run: npm install -g typescript
+      - run: lerna bootstrap
+      - name: Build
+        continue-on-error: true
+        run: yarn build
       - run: rsync ./packages/vue/dist ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/eduquilt/vue/$(($vcount+1))
       - run: ssh ${{ secrets.DO_USERNAME }}@eduilt.com ln -sfn /home/skuilder/eduquilt/vue/$(($vcount+1) /www
       
