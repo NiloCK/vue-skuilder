@@ -11,13 +11,6 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
       - uses: actions/setup-node@v1
-      - run: npm install -g yarn
-      - run: npm install -g lerna
-      - run: npm install -g typescript
-      - run: lerna bootstrap
-      - name: Build
-        continue-on-error: true
-        run: yarn build
       - name: Upload to DO
         uses: shimataro/ssh-key-action@v2
         with:
