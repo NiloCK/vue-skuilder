@@ -28,5 +28,5 @@ jobs:
           vcount=$(ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ls /home/skuilder/eduquilt/vue/ | tail -n1)
           ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/eduquilt/vue/$(($vcount+1))
           rsync ./packages/vue/dist ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/eduquilt/vue/$(($vcount+1))
-          ssh ${{ secrets.DO_USERNAME }}@eduilt.com ln -sfn /home/skuilder/eduquilt/vue/$(($vcount+1) /www
+          ssh ${{ secrets.DO_USERNAME }}@eduilt.com ln -sfn /home/skuilder/eduquilt/vue/$(($vcount+1)) /www
       
