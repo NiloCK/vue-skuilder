@@ -24,8 +24,8 @@ jobs:
       - name: Build
         continue-on-error: true
         run: |
-        echo ${{ secrets.VUE_ENV }} > ./packages/vue/.env.production
-        yarn build
+          echo ${{ secrets.VUE_ENV }} > ./packages/vue/.env.production
+          yarn build
       # todo: make deploy of vue, express conditional on changes in their respective directories
       - run: | 
           vcount=$(ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ls /home/skuilder/dist/vue/ | tail -n1)
