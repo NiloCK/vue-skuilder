@@ -25,6 +25,7 @@ jobs:
         continue-on-error: true
         run: |
           printf ${{ secrets.VUE_ENV }} > ./packages/vue/.env.production
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com printf ${{ secrets.VUE_ENV }} > /home/skuilder/.env.production
           yarn build
       # todo: make deploy of vue, express conditional on changes in their respective directories
       - run: | 
