@@ -24,7 +24,7 @@ jobs:
       - name: Build
         continue-on-error: true
         run: |
-          echo ${{ secrets.VUE_ENV }} > ./packages/vue/.env.production
+          printf ${{ secrets.VUE_ENV }} > ./packages/vue/.env.production
           yarn build
       # todo: make deploy of vue, express conditional on changes in their respective directories
       - run: | 
