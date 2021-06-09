@@ -17,6 +17,7 @@ import SignUp from './views/SignUp.vue';
 import ReleaseNotes from './views/ReleaseNotes.vue';
 import Study from './views/Study.vue';
 import User from './views/User.vue';
+import Stats from './components/User/Stats.vue';
 
 Vue.use(Router);
 
@@ -141,8 +142,18 @@ export default new Router({
         {
           path: 'new',
           component: User,
-        },
+        }//,
+        // {
+        //   path: '/stats',
+        //   component: Stats,
+        // },
       ],
     },
+    {
+      path: '/user/:_id/stats',
+      props: true,
+      alias: ['/u/:_id/stats'],
+      component: Stats
+    }
   ],
 });
