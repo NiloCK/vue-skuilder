@@ -1,5 +1,5 @@
 import { areQuestionRecords, CardHistory, CardRecord, QuestionRecord } from '@/db/types';
-import { duration, Moment } from 'moment';
+import moment, { duration, Moment } from 'moment';
 import { log } from 'util';
 import { User } from './userDB';
 
@@ -165,6 +165,9 @@ function getPreviousIntervals(cardHistory: QuestionRecord[]): number[] {
  * @param end The second time
  */
 function secondsBetween(start: Moment, end: Moment): number {
+  // assertion guard against mis-typed json from database
+  start = moment(start);
+  end = moment(end);
   const ret = duration(end.diff(start)).asSeconds();
   // log(`From start: ${start} to finish: ${end} is ${ret} seconds`);
   return ret;
