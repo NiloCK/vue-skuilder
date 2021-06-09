@@ -169,13 +169,16 @@ export async function putCardRecord<T extends CardRecord>(
     // u.updateCardHistory(cardHistory.courseID, cardHistory.cardID, cardHistory)
     const cardHistory = await u.update<CardHistory<T>>(cardHistoryID, function (h: CardHistory<T>) {
       h.records.push(record);
-      // momentifyCardHistory<T>(h);
+      momentifyCardHistory<T>(h);
       // h.records = h.records.map( r => {
       //   return {
       //     ...r,
       //     timeStamp: r.timeStamp.toString()
       //   }
       // });
+      h.bestInterval = h.bestInterval || 0;
+      h.lapses = h.lapses || 0;
+      h.streak= h.streak || 0;
       return h;
     });
 
