@@ -164,13 +164,13 @@ export async function putCardRecord<T extends CardRecord>(
   record: T,
   user: string
 ): Promise<CardHistory<CardRecord>> {
-  const userDB = getUserDB(user);
   const cardHistoryID = getCardHistoryID(record.courseID, record.cardID);
+  // stringify the current record to make it writable to couchdb
   record.timeStamp = moment.utc(record.timeStamp).toString() as any;
-
+  
   try {
     const u = await User.instance();
-
+    
     const cardHistory = await u.update<CardHistory<T>>(cardHistoryID, function (h: CardHistory<T>) {
       h.records.push(record);
       h.bestInterval = h.bestInterval || 0;
@@ -178,7 +178,7 @@ export async function putCardRecord<T extends CardRecord>(
       h.streak= h.streak || 0;
       return h;
     });
-
+    
     momentifyCardHistory<T>(cardHistory);
     return cardHistory;
   } catch (reason) {
@@ -192,7 +192,7 @@ export async function putCardRecord<T extends CardRecord>(
         streak: 0,
         bestInterval: 0,
       };
-      userDB.put<CardHistory<T>>(initCardHistory);
+      getUserDB(user).put<CardHistory<T>>(initCardHistory);
       return initCardHistory;
     } else {
       throw new Error(`putCardRecord failed because of:
