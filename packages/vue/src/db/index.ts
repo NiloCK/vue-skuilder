@@ -153,6 +153,13 @@ export async function getRandomCards(courseIDs: string[]) {
   }
 }
 
+/**
+ * Logs a record of the user's interaction with the card and returns the card's
+ * up-to-date history
+ * @param record the recent recorded interaction between user and card
+ * @param user the current user
+ * @returns The updated state of the card's CardHistory data
+ */
 export async function putCardRecord<T extends CardRecord>(
   record: T,
   user: string
