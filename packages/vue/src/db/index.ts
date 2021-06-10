@@ -169,7 +169,6 @@ export async function putCardRecord<T extends CardRecord>(
     // u.updateCardHistory(cardHistory.courseID, cardHistory.cardID, cardHistory)
     const cardHistory = await u.update<CardHistory<T>>(cardHistoryID, function (h: CardHistory<T>) {
       h.records.push(record);
-      momentifyCardHistory<T>(h);
       // h.records = h.records.map( r => {
       //   return {
       //     ...r,
@@ -199,7 +198,6 @@ export async function putCardRecord<T extends CardRecord>(
         streak: 0,
         bestInterval: 0,
       };
-      momentifyCardHistory<T>(initCardHistory);
       userDB.put<CardHistory<T>>(initCardHistory);
       return initCardHistory;
     } else {
@@ -212,6 +210,14 @@ message: ${reason.message}`);
   }
 }
 
+function deMomentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>) {
+  cardHistory.records = cardHistory.records.map( r => {
+        return {
+          ...r,
+          timeStamp: r.timeStamp.toString()
+        }
+  });
+}
 function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>) {
   cardHistory.records = cardHistory.records.map<T>((record) => {
     const ret: T = {
