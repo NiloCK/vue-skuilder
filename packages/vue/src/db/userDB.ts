@@ -179,28 +179,6 @@ Currently logged-in as ${this._username}.`
     return this.upadteQueue.update(id, update);
   }
 
-  public async updateCardHistory(
-    courseID: string,
-    cardID: string,
-    h: Partial<CardHistory<CardRecord>>,
-    attempt: number = 0
-  ) {
-    this.remoteDB.get<CardHistory<CardRecord>>(getCardHistoryID(courseID, cardID)).then((dbh) => {
-      dbh = {
-        ...dbh,
-        ...h,
-      };
-
-      this.remoteDB.put(dbh).catch((err) => {
-        if (err.name === 'conflict' && attempt <= 3) {
-          this.updateCardHistory(courseID, cardID, h, attempt + 1);
-        } else {
-          throw err;
-        }
-      });
-    });
-  }
-
   public async getCourseRegistrationsDoc(): Promise<
     CourseRegistrationDoc & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta
   > {

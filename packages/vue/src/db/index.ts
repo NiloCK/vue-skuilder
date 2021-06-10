@@ -169,11 +169,8 @@ export async function putCardRecord<T extends CardRecord>(
   record.timeStamp = moment.utc(record.timeStamp).toString() as any;
 
   try {
-    // const cardHistory = await userDB.get<CardHistory<T>>(cardHistoryID);
-    // cardHistory.records.push(record);
     const u = await User.instance();
 
-    // u.updateCardHistory(cardHistory.courseID, cardHistory.cardID, cardHistory)
     const cardHistory = await u.update<CardHistory<T>>(cardHistoryID, function (h: CardHistory<T>) {
       h.records.push(record);
       h.bestInterval = h.bestInterval || 0;
