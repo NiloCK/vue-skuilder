@@ -10,7 +10,7 @@
 
     <v-checkbox label="I like confetti" v-model="confetti" @click.capture="updateConfetti" />
     <v-checkbox label="I like the dark" v-model="darkMode" @click.capture="updateDark" />
-    <h2 class="display-1">Languages:</h2>
+    <!-- <h2 class="display-1">Languages:</h2>
     I am near-fluent or better in the following languages:
     {{ selectedLanguages.toString() }}
     <v-checkbox
@@ -20,13 +20,7 @@
       :value="language.code"
       v-model="selectedLanguages"
       @click.capture="updateLanguage"
-    />
-    <!-- <h2 class='display-1'>My Quilts:</h2>
-      <div
-        v-if='isNewUser'
-      >
-
-      </div> -->
+    /> -->
   </div>
 </template>
 
