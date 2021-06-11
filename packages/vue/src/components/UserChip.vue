@@ -12,7 +12,7 @@
 
       <v-list>
         <!-- eventual notifications bar -->
-        <v-list-tile v-for="item in items" :key="item.key" @click="dismiss(item)">
+        <v-list-tile v-for="item in items" :key="item" @click="dismiss(item)">
           <v-list-tile-title>{{ item }}</v-list-tile-title>
         </v-list-tile>
 
