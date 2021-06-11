@@ -287,7 +287,7 @@ class SkMidi {
    * when the time between them is small. (noteon at ~0 ms suffers
    * from a latency effect, while other timestamps don't).
    */
-   static readonly OFFSET: number = 5;
+  static readonly OFFSET: number = 5;
 
   public recording: NoteEvent[] = [];
 
@@ -484,11 +484,11 @@ class SkMidi {
 
   public play(recording?: NoteEvent[]) {
     let playbackData: NoteEvent[] = recording ? recording : this.recording;
-    playbackData = playbackData.map( (e) => {
+    playbackData = playbackData.map((e) => {
       return {
         ...e,
-        timestamp: e.timestamp + SkMidi.OFFSET
-      }
+        timestamp: e.timestamp + SkMidi.OFFSET,
+      };
     });
 
     playbackData.forEach((e) => {
