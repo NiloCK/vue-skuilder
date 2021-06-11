@@ -4,7 +4,7 @@
   </div>
   <div v-else>
     <div class="Study" v-if="sessionPrepared">
-      <v-layout v-if="previewMode">
+      <v-layout v-if="previewMode && previewCourseConfig">
         <span class="headline"
           >Quilt preview for <em>{{ previewCourseConfig.name }}</em></span
         >
@@ -14,6 +14,10 @@
         >
         <v-spacer></v-spacer>
         <SkldrControlsView />
+      </v-layout>
+      <v-layout v-else-if="previewMode">
+        <span class="headline">... No course was specified for the preview.</span>
+        <div>(this shouldn't happen)...</div>
       </v-layout>
       <v-layout v-else>
         <h1 class="display-1">
