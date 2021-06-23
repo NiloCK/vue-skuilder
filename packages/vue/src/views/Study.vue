@@ -61,7 +61,7 @@
           :card_id="cardID"
           :course_id="courseID"
           :session-order="cardCount"
-          @emitResponse="processResponse($event)"
+          @emitResponse="() => processResponse($event)"
         />
         <!-- <card-loader
           :class="loading ? 'muted' : ''"
@@ -197,6 +197,7 @@ import {
 } from '@/db/contentSource';
 import SessionController, { StudySessionRecord } from '@/db/SessionController';
 import confetti from 'canvas-confetti';
+import { adjustScores } from '@/tutor/Elo';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
@@ -483,7 +484,7 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
   }
 
   private processResponse(r: CardRecord) {
-    // alert(JSON.stringify(r))
+    alert(JSON.stringify(r));
     // clear the timer state
     this.timerIsActive = false;
 
