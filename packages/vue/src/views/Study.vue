@@ -3,7 +3,7 @@
     <SessionConfiguration :startFcn="initStudySession" />
   </div>
   <div v-else>
-    <div class="Study" v-if="sessionPrepared">
+    <div v-if="sessionPrepared" class="Study">
       <v-layout v-if="previewMode && previewCourseConfig">
         <span class="headline"
           >Quilt preview for <em>{{ previewCourseConfig.name }}</em></span
@@ -55,13 +55,13 @@
 
       <div v-else ref="shadowWrapper">
         <card-viewer
-          v-bind:class="loading ? 'muted' : ''"
-          v-bind:view="view"
-          v-bind:data="data"
-          v-bind:card_id="cardID"
-          v-bind:course_id="courseID"
-          v-bind:sessionOrder="cardCount"
-          v-on:emitResponse="processResponse($event)"
+          :class="loading ? 'muted' : ''"
+          :view="view"
+          :data="data"
+          :card_id="cardID"
+          :course_id="courseID"
+          :session-order="cardCount"
+          @emitResponse="processResponse($event)"
         />
         <!-- <card-loader
           :class="loading ? 'muted' : ''"
@@ -200,53 +200,6 @@ import confetti from 'canvas-confetti';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
-}
-
-class EloRank {
-  k: number;
-  constructor(k?: number) {
-    this.k = k || 32;
-  }
-
-  setKFactor(k: number) {
-    this.k = k;
-  }
-  getKFactor() {
-    return this.k;
-  }
-
-  getExpected(a: number, b: number) {
-    return 1 / (1 + Math.pow(10, (b - a) / 400));
-  }
-  updateRating(expected: number, actual: number, current: number) {
-    return Math.round(current + this.k * (actual - expected));
-  }
-}
-
-function adjustScores(
-  userElo: number,
-  cardElo: number,
-  userScore: number,
-  k?: number
-): {
-  userElo: number;
-  cardElo: number;
-} {
-  const elo = new EloRank(k);
-  const exp = elo.getExpected(userElo, cardElo);
-  const upA = elo.updateRating(exp, userScore, userElo);
-  const upB = elo.updateRating(1 - exp, 1 - userScore, cardElo);
-
-  console.log(`ELO updates w/ user score ${userScore}
-       user  |  card
-init   ${userElo}         ${cardElo}
-final  ${upA}         ${upB}
-  `);
-
-  return {
-    userElo: upA,
-    cardElo: upB,
-  };
 }
 
 @Component({
