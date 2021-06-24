@@ -142,7 +142,7 @@ export default new Router({
         {
           path: 'new',
           component: User,
-        }//,
+        }, //,
         // {
         //   path: '/stats',
         //   component: Stats,
@@ -153,7 +153,7 @@ export default new Router({
       path: '/user/:_id/stats',
       props: true,
       alias: ['/u/:_id/stats'],
-      component: Stats
-    }
+      component: Stats,
+    },
   ],
 });

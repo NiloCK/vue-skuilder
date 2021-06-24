@@ -80,6 +80,7 @@ module.exports = {
         trailingComma: 'es5',
       },
     ],
+    semi: ['error', 'always'],
   },
   parser: '@babel/eslint-parser',
 };
