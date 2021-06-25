@@ -542,7 +542,7 @@ export async function updateCardElo(courseID: string, cardID: string, elo: numbe
     const cDB = getCourseDB(courseID);
     const card = await cDB.get<CardData>(cardID);
     card.elo = elo;
-    return cDB.put(card); // race conditions - how to handle - is it important? probably not
+    return cDB.put(card); // race conditions - is it important? probably not (net-zero effect)
   }
 }
 
