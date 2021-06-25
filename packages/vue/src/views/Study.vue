@@ -463,18 +463,6 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
       .then(() => this.$router.push(`/quilts/${this.previewCourseConfig!.courseID!}`));
   }
 
-  private get sessionString() {
-    let ret = '';
-    // for (let i = 0; i < this.session.length; i++) {
-    //   ret += `${i}: ${this.session[i].qualifiedID}`;
-    //   if (this.session[i].reviewID !== undefined) {
-    //     ret += ' (review)';
-    //   }
-    //   ret += '\n';
-    // }
-    return ret;
-  }
-
   private get currentCard(): StudySessionRecord {
     return this.sessionRecord[this.sessionRecord.length - 1];
   }
@@ -593,19 +581,24 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
 
     if (cardElo && userElo) {
       const eloUpdate = adjustScores(userElo, cardElo, userScore, k);
-      const user = await updateUserElo(this.$store.state._user!.username, course_id, eloUpdate.userElo);
-      const card = await updateCardElo(course_id, card_id, eloUpdate.cardElo);
+      this.userCourseRegDoc.courses.find((c) => c.courseID === course_id)!.elo = eloUpdate.userElo;
 
-      if (user.ok && card && card.ok) {
-        console.log(`Updated ELOs:
-  user: ${this.$store.state._user!.username}
-  course: ${course_id}
-  card: ${card_id}
-      `);
-        this.userCourseRegDoc.courses.find((c) => c.courseID === course_id)!.elo = eloUpdate.userElo;
-      }
+      Promise.all([
+        updateUserElo(this.$store.state._user!.username, course_id, eloUpdate.userElo),
+        updateCardElo(course_id, card_id, eloUpdate.cardElo),
+      ]).then((results) => {
+        const user = results[0];
+        const card = results[1];
 
-      return user.ok && card && card.ok;
+        if (user.ok && card && card.ok) {
+          console.log(
+            `Updated ELOS:
+\tUser: ${eloUpdate.userElo} (${eloUpdate.userElo - userElo})
+\tCard: ${eloUpdate.cardElo} (${eloUpdate.cardElo - cardElo})
+`
+          );
+        }
+      });
     }
   }
 
