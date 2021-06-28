@@ -61,7 +61,7 @@
           :card_id="cardID"
           :course_id="courseID"
           :session-order="cardCount"
-          @emitResponse="() => processResponse($event)"
+          @emitResponse="processResponse($event)"
         />
         <!-- <card-loader
           :class="loading ? 'muted' : ''"
@@ -472,7 +472,7 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
   }
 
   private processResponse(r: CardRecord) {
-    alert(JSON.stringify(r));
+    // alert(JSON.stringify(r));
     // clear the timer state
     this.timerIsActive = false;
 
@@ -486,6 +486,7 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
     if (isQuestionRecord(r)) {
       log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
       if (r.isCorrect) {
+        this.$refs.shadowWrapper.setAttribute('style', `--r: ${255 * (1 - (r.performance as number))}; --g:${255}`);
         this.$refs.shadowWrapper.classList.add('correct');
 
         if (this.$store.state.config.likesConfetti) {
@@ -706,7 +707,7 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
 } */
 
 .correct {
-  animation: greenFade 1250ms ease-out;
+  animation: varFade 1250ms ease-out;
 }
 
 .incorrect {
@@ -715,6 +716,16 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
 
 a {
   text-decoration: underline;
+}
+
+@keyframes varFade {
+  0% {
+    box-shadow: rgba(var(--r), var(--g), 0, 0.25) 0px 7px 8px -4px, rgba(var(--r), var(--g), 0, 0.25) 0px 12px 17px 2px,
+      rgba(var(--r), var(--g), 0, 0.25) 0px 5px 22px 4px;
+  }
+  100% {
+    box-shadow: rgba(0, 150, 0, 0) 0px 0px;
+  }
 }
 
 @keyframes greenFade {
