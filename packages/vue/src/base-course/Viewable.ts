@@ -70,19 +70,19 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
 
   public submitAnswer(answer: Answer): QuestionRecord {
     log('QuestionView.submitAnswer called...');
-    const isCorrect = this.question.isCorrect(answer);
+    const evaluation = this.question.evaluate(answer, this.timeSpent);
 
     const record: QuestionRecord = {
+      ...evaluation,
       priorAttemps: this.priorAttempts,
       courseID: '',
       cardID: '',
-      isCorrect,
       timeSpent: this.timeSpent,
       timeStamp: this.startTime,
       userAnswer: answer,
     };
 
-    if (!isCorrect) {
+    if (evaluation.isCorrect) {
       this.priorAttempts++;
     }
     this.emitResponse(record);
