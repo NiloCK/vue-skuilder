@@ -29,6 +29,8 @@ import { log } from 'util';
   },
 })
 export default class IdentifyVocab extends QuestionView<SpellingQuestion> {
+  static extend = Vue.extend;
+
   public answer: string = '';
   get question() {
     return new SpellingQuestion(this.data);
