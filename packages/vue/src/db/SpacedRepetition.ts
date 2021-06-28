@@ -34,7 +34,7 @@ function newQuestionInterval(cardHistory: CardHistory<QuestionRecord>) {
   }
 
   if (currentAttempt.isCorrect) {
-    const skill = demonstratedSkill(currentAttempt);
+    const skill = currentAttempt.performance as number;
     log(`Demontrated skill: \t${skill}`);
     const interval: number = lastInterval * (0.75 + skill);
     cardHistory.lapses = getLapses(cardHistory.records);
@@ -104,40 +104,6 @@ function getInitialInterval(cardHistory: QuestionRecord[]): number {
   //  - the individual user (how do they respond in general
   //      when compared to the population)
   return 60 * 60 * 24 * 3; // 3 days
-}
-
-/**
- * Returns a number from (0, 1) representing the user's perceived skill
- * in answering the question. 0 representing beginner skill and 1 representing
- * expert skill.
- *
- * @param response the record of the user's interaction with the card
- */
-function demonstratedSkill(response: QuestionRecord) {
-  // this function will be dependant on external factors including:
-  // - typical response times to the card type / individual card among the community
-  // - the student's general responsiveness (eg, students with observed
-  //   processing speed deficits can be given an amout of 'buffering' time)
-  // - the context in which the question was asked: eg, 7*4 is easier to answer
-  //   if the previous question was 6*4. It's easier still as a member of the
-  //   chain of questions 2*4, 3*4, 4*4, 5*4, 6*4, ...
-
-  // experts should answer this question in <= 5 secnods (5000 ms)
-  // this value will be dynamic, populated from a service and based on
-  // observed interations with the card
-  const expertSpeed = 5000;
-  const userSpeed = Math.min(response.timeSpent, 10 * expertSpeed);
-
-  // if userResponse is > 10 x expertSpeed, discount as probably afk / distracted ?
-
-  const speedPenalty = userSpeed / expertSpeed;
-  const speedPenaltyMultiplier = userSpeed > expertSpeed ? Math.pow(0.8, speedPenalty) : 1;
-
-  let ret = response.isCorrect ? 1 : 0;
-
-  ret = ret * speedPenaltyMultiplier;
-
-  return Math.min(ret, 1);
 }
 
 /**

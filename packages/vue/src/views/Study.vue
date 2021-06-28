@@ -514,12 +514,13 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
             this.scheduleReview(history, item);
             if (history.records.length === 1) {
               // correct answer on first sight: elo win for student
-              this.updateUserAndCardElo(1, this.courseID, this.cardID);
+              //TODOJun24 - consider displayedSkill as an 'outcome' instead of 0,1
+              this.updateUserAndCardElo(r.performance as number, this.courseID, this.cardID);
             } else {
               // win for the student, but adjust less aggressively as
               // the card is more familiar
               const k = Math.floor(32 / history.records.length);
-              this.updateUserAndCardElo(1, this.courseID, this.cardID, k);
+              this.updateUserAndCardElo(r.performance as number, this.courseID, this.cardID, k);
             }
           });
         } else {
@@ -572,10 +573,6 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
   }
 
   private async updateUserAndCardElo(userScore: number, course_id: string, card_id: string, k?: number) {
-    console.log(`Updating ELO scores for
-      user: ${this.$store.state._user!.username}
-      card: ${course_id}-${card_id}`);
-
     const userElo = this.userCourseRegDoc.courses.find((c) => c.courseID === course_id)!.elo;
     const cardElo = this.currentCard.card.card_elo;
 
