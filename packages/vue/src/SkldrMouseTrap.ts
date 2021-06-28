@@ -9,13 +9,13 @@ export interface HotKeyMetaData {
 }
 
 // from https://github.com/ccampbell/mousetrap/tree/master/plugins/global-bind
-(function (a) {
-  var c = {},
+(function (a: any) {
+  var c: any = {},
     d = a.prototype.stopCallback;
-  a.prototype.stopCallback = function (e, b, a, f) {
+  a.prototype.stopCallback = function (e: any, b: any, a: any, f: any) {
     return this.paused ? !0 : c[a] || c[f] ? !1 : d.call(this, e, b, a);
   };
-  a.prototype.bindGlobal = function (a, b, d) {
+  a.prototype.bindGlobal = function (a: any, b: any, d: any) {
     this.bind(a, b, d);
     if (a instanceof Array) for (b = 0; b < a.length; b++) c[a[b]] = !0;
     else c[a] = !0;
