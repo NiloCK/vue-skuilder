@@ -18,6 +18,7 @@ import UserInputString from '@/base-course/Components/UserInput/UserInputString.
 })
 export default class IdentifyVocab extends QuestionView<VocabQuestion> {
   get question() {
+    t;
     return new VocabQuestion(this.data);
   }
 }
