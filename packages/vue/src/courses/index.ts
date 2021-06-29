@@ -41,7 +41,7 @@ export class CourseList {
     return ret;
   }
 
-  public getView(viewDescription: ViewDescriptor | string): VueConstructor<Viewable> {
+  public getView(viewDescription: ViewDescriptor | string): VueConstructor {
     let description: ViewDescriptor;
     if (typeof viewDescription === 'string') {
       description = NameSpacer.getViewDescriptor(viewDescription);

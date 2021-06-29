@@ -40,7 +40,7 @@ export class SingleDigitAdditionQuestion extends Question {
     },
   ];
 
-  public static views: VueConstructor<Viewable>[] = [HorizontalAddition, VerbalAddition];
+  public static views: VueConstructor[] = [HorizontalAddition, VerbalAddition];
 
   public a: number;
   public b: number;

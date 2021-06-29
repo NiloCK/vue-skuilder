@@ -229,7 +229,7 @@ export default class Study extends SkldrVue {
   public editCardReady: boolean = false; // editor for this card is ready to display
   // the currently displayed card
   public cardID: PouchDB.Core.DocumentId = '';
-  public view: VueConstructor<Viewable>;
+  public view: VueConstructor;
   public constructedView: Viewable;
   public data: ViewData[] = [];
   public courseID: string = '';
@@ -679,7 +679,7 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
       this.courseID = _courseID;
 
       // bleeding memory? Do these get GCd?
-      this.constructedView = new this.view();
+      this.constructedView = new this.view() as Viewable;
 
       this.sessionRecord.push({
         card: {

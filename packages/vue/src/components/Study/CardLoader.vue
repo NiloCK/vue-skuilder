@@ -84,7 +84,7 @@ export default class CardLoader extends SkldrVue {
       }
 
       this.data = tmpData;
-      this.view = tmpView;
+      this.view = tmpView as VueConstructor<Viewable>;
       this.cardID = _cardID;
       this.courseID = _courseID;
 
