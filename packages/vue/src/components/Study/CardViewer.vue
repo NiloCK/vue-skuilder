@@ -13,13 +13,13 @@
 </template>
 
 <script lang="ts">
-import Vue, { VueConstructor } from 'vue';
-import { Component, Prop, Emit } from 'vue-property-decorator';
-import Courses from '@/courses';
-import Viewable from '@/base-course/Viewable';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
+import Viewable from '@/base-course/Viewable';
+import Courses from '@/courses';
 import { CardRecord } from '@/db/types';
 import { log } from 'util';
+import Vue, { VueConstructor } from 'vue';
+import { Component, Emit, Prop } from 'vue-property-decorator';
 
 @Component({
   components: Courses.allViews(),

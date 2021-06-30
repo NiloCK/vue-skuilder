@@ -1,4 +1,6 @@
-import MouseTrap from 'mousetrap';
+import Mousetrap from 'mousetrap';
+import 'mousetrap/plugins/global-bind/mousetrap-global-bind.js';
+import { ExtendedKeyboardEvent, MousetrapInstance } from 'mousetrap';
 
 export interface HotKey extends HotKeyMetaData {
   callback: (e: ExtendedKeyboardEvent, combo: String) => any;
@@ -8,21 +10,6 @@ export interface HotKeyMetaData {
   hotkey: string | string[];
 }
 
-// from https://github.com/ccampbell/mousetrap/tree/master/plugins/global-bind
-(function (a: any) {
-  var c: any = {},
-    d = a.prototype.stopCallback;
-  a.prototype.stopCallback = function (e: any, b: any, a: any, f: any) {
-    return this.paused ? !0 : c[a] || c[f] ? !1 : d.call(this, e, b, a);
-  };
-  a.prototype.bindGlobal = function (a: any, b: any, d: any) {
-    this.bind(a, b, d);
-    if (a instanceof Array) for (b = 0; b < a.length; b++) c[a[b]] = !0;
-    else c[a] = !0;
-  };
-  a.init();
-})(Mousetrap);
-
 export default class SkldrMouseTrap {
   private static _instance: SkldrMouseTrap;
 
@@ -30,7 +17,7 @@ export default class SkldrMouseTrap {
   private hotkeys: HotKey[];
 
   private constructor() {
-    this.mouseTrap = new MouseTrap();
+    this.mouseTrap = new Mousetrap();
     this.hotkeys = [];
   }
 
@@ -48,13 +35,13 @@ export default class SkldrMouseTrap {
     SkldrMouseTrap.instance().hotkeys = hk;
 
     hk.forEach((k) => {
-      MouseTrap.bindGlobal(k.hotkey, k.callback);
+      Mousetrap.bindGlobal(k.hotkey, k.callback);
       // SkldrMouseTrap.instance().mouseTrap.bindGlobal(k.hotkey, k.callback);
     });
   }
 
   public static reset() {
-    MouseTrap.reset();
+    Mousetrap.reset();
     SkldrMouseTrap.instance().mouseTrap.reset();
     SkldrMouseTrap.instance().hotkeys = [];
   }

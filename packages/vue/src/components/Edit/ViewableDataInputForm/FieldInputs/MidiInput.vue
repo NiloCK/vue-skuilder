@@ -15,7 +15,7 @@
       Clear and try again
       <v-icon right>close</v-icon>
     </v-btn>
-    <v-checkbox @click.capture="resetInput" label="Include Transpositions" v-model="transpositions"></v-checkbox>
+    <v-checkbox @click.capture="reset" label="Include Transpositions" v-model="transpositions"></v-checkbox>
   </div>
 </template>
 
@@ -41,7 +41,7 @@ export default class MidiInput extends FieldInput {
   public display: boolean = false;
   public transpositions: boolean = false;
 
-  public $refs: {
+  public declare $refs: {
     inputVis: SyllableSeqVis;
     inputField: HTMLInputElement;
   };

@@ -92,8 +92,6 @@ import SkldrVue from '../../SkldrVue';
 @Component({})
 export default class ClassroomCtrlPanel extends SkldrVue {
   @Prop({ required: true }) private _id: string;
-  private mousetrap: MousetrapInstance = new Mousetrap(this.$el);
-
   private _classroomCfg: ClassroomConfig;
 
   private classroomDB: TeacherClassroomDB;
