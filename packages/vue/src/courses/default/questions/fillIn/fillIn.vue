@@ -4,7 +4,7 @@
     <radio-multiple-choice v-if="question.options" :choiceList="question.options" :MouseTrap="MouseTrap" />
     <v-card-actions v-else-if="!isQuestion">
       <v-spacer></v-spacer>
-      <v-btn color="primary" @click="submitAnswer('')" :autofocus="autofocus"> Next </v-btn>
+      <v-btn color="primary" @click="submitAnswer('')" autofocus="autofocus"> Next </v-btn>
     </v-card-actions>
   </div>
 </template>
