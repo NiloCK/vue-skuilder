@@ -1,6 +1,6 @@
 <template>
   <div v-if="!$store.state.views.study.inSession">
-    <SessionConfiguration :startFcn="initStudySession" />
+    <SessionConfiguration v-bind:startFcn="initStudySession" />
   </div>
   <div v-else>
     <div v-if="sessionPrepared" class="Study">
@@ -61,7 +61,7 @@
           :card_id="cardID"
           :course_id="courseID"
           :session-order="cardCount"
-          @emitResponse="processResponse($event)"
+          v-on:emitResponse="processResponse($event)"
         />
         <!-- <card-loader
           :class="loading ? 'muted' : ''"
@@ -163,7 +163,7 @@ import {
   CardHistory,
 } from '@/db/types';
 import Viewable, { isQuestionView } from '@/base-course/Viewable';
-import { Component, Prop } from 'vue-property-decorator';
+import { Component, Emit, Prop } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import CardLoader from '@/components/Study/CardLoader.vue';
 import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
@@ -471,6 +471,7 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
     return this.sessionRecord.filter((r) => r.card.course_id === course_id && r.card.card_id === card_id).length;
   }
 
+  @Emit('emitResponse')
   private processResponse(r: CardRecord) {
     // alert(JSON.stringify(r));
     // clear the timer state
@@ -515,13 +516,12 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
             this.scheduleReview(history, item);
             if (history.records.length === 1) {
               // correct answer on first sight: elo win for student
-              //TODOJun24 - consider displayedSkill as an 'outcome' instead of 0,1
-              this.updateUserAndCardElo(r.performance as number, this.courseID, this.cardID);
+              this.updateUserAndCardElo(0.5 + (r.performance as number) / 2, this.courseID, this.cardID);
             } else {
               // win for the student, but adjust less aggressively as
               // the card is more familiar
-              const k = Math.floor(32 / history.records.length);
-              this.updateUserAndCardElo(r.performance as number, this.courseID, this.cardID, k);
+              const k = Math.ceil(32 / history.records.length);
+              this.updateUserAndCardElo(0.5 + (r.performance as number) / 2, this.courseID, this.cardID, k);
             }
           });
         } else {
