@@ -22,7 +22,6 @@ jobs:
       - run: npm install -g typescript
       - run: lerna bootstrap
       - name: Build
-        continue-on-error: true # TODO - fix express errors & remove this
         run: |
           printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
           yarn build
