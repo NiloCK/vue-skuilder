@@ -82,7 +82,7 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
       userAnswer: answer,
     };
 
-    if (evaluation.isCorrect) {
+    if (!evaluation.isCorrect) {
       this.priorAttempts++;
     }
     this.emitResponse(record);
