@@ -30,7 +30,7 @@ export default class CalculateSupplementaryAngle extends QuestionView<Supplement
   };
   private angle: number;
   private _question: SupplementaryAngles;
-  private _p: PaperScope;
+  private _p?: paper.PaperScope;
 
   public beforeDestroy() {
     // destroy paperscope instance

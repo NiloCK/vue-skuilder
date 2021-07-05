@@ -179,28 +179,6 @@ Currently logged-in as ${this._username}.`
     return this.upadteQueue.update(id, update);
   }
 
-  public async updateCardHistory(
-    courseID: string,
-    cardID: string,
-    h: Partial<CardHistory<CardRecord>>,
-    attempt: number = 0
-  ) {
-    this.remoteDB.get<CardHistory<CardRecord>>(getCardHistoryID(courseID, cardID)).then((dbh) => {
-      dbh = {
-        ...dbh,
-        ...h,
-      };
-
-      this.remoteDB.put(dbh).catch((err) => {
-        if (err.name === 'conflict' && attempt <= 3) {
-          this.updateCardHistory(courseID, cardID, h, attempt + 1);
-        } else {
-          throw err;
-        }
-      });
-    });
-  }
-
   public async getCourseRegistrationsDoc(): Promise<
     CourseRegistrationDoc & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta
   > {
@@ -236,9 +214,8 @@ Currently logged-in as ${this._username}.`
     });
   }
 
-  public async getPendingReviews(course_id?: string) {
+  private async getReviewstoDate(targetDate: Moment, course_id?: string) {
     const keys = getStartAndEndKeys(REVIEW_PREFIX);
-    const now = moment.utc();
 
     const reviews = await this.remoteDB.allDocs<ScheduledCard>({
       startkey: keys.startkey,
@@ -255,7 +232,7 @@ Currently logged-in as ${this._username}.`
       .filter((r) => {
         if (r.id.startsWith(REVIEW_PREFIX)) {
           const date = moment.utc(r.id.substr(REVIEW_PREFIX.length), REVIEW_TIME_FORMAT);
-          if (now.isAfter(date)) {
+          if (targetDate.isAfter(date)) {
             if (course_id === undefined || r.doc!.courseId === course_id) {
               return true;
             }
@@ -263,6 +240,16 @@ Currently logged-in as ${this._username}.`
         }
       })
       .map((r) => r.doc!);
+  }
+
+  public async getReviewsForcast(daysCount: number) {
+    const time = moment.utc().add(daysCount, 'days');
+    return this.getReviewstoDate(time);
+  }
+
+  public async getPendingReviews(course_id?: string) {
+    const now = moment.utc();
+    return this.getReviewstoDate(now, course_id);
   }
 
   public async getScheduledReviewCount(course_id: string): Promise<number> {
@@ -457,7 +444,8 @@ Currently logged-in as ${this._username}.`
         reviewCards: {
           map: function (doc: PouchDB.Core.Document<{}>) {
             if (doc._id.indexOf('card_review') === 0) {
-              emit(doc._id, doc.courseId + '-' + doc.cardId);
+              const copy: any = doc;
+              emit(copy._id, copy.courseId + '-' + copy.cardId);
             }
           }.toString(),
         },
@@ -820,6 +808,11 @@ export async function registerUserForClassroom(
     return getUserDB(user).put(doc);
   });
 }
+
+/**
+ * This noop exists to facilitate writing couchdb filter fcns
+ */
+function emit(x: any, y: any): any {}
 
 export async function dropUserFromClassroom(user: string, classID: string) {
   return getOrCreateClassroomRegistrationsDoc(user).then((doc) => {

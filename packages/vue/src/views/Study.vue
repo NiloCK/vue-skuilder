@@ -1,10 +1,10 @@
 <template>
   <div v-if="!$store.state.views.study.inSession">
-    <SessionConfiguration :startFcn="initStudySession" />
+    <SessionConfiguration v-bind:startFcn="initStudySession" />
   </div>
   <div v-else>
-    <div class="Study" v-if="sessionPrepared">
-      <v-layout v-if="previewMode">
+    <div v-if="sessionPrepared" class="Study">
+      <v-layout v-if="previewMode && previewCourseConfig">
         <span class="headline"
           >Quilt preview for <em>{{ previewCourseConfig.name }}</em></span
         >
@@ -14,6 +14,10 @@
         >
         <v-spacer></v-spacer>
         <SkldrControlsView />
+      </v-layout>
+      <v-layout v-else-if="previewMode">
+        <span class="headline">... No course was specified for the preview.</span>
+        <div>(this shouldn't happen)...</div>
       </v-layout>
       <v-layout v-else>
         <h1 class="display-1">
@@ -51,12 +55,12 @@
 
       <div v-else ref="shadowWrapper">
         <card-viewer
-          v-bind:class="loading ? 'muted' : ''"
-          v-bind:view="view"
-          v-bind:data="data"
-          v-bind:card_id="cardID"
-          v-bind:course_id="courseID"
-          v-bind:sessionOrder="cardCount"
+          :class="loading ? 'muted' : ''"
+          :view="view"
+          :data="data"
+          :card_id="cardID"
+          :course_id="courseID"
+          :session-order="cardCount"
           v-on:emitResponse="processResponse($event)"
         />
         <!-- <card-loader
@@ -159,7 +163,7 @@ import {
   CardHistory,
 } from '@/db/types';
 import Viewable, { isQuestionView } from '@/base-course/Viewable';
-import { Component, Prop } from 'vue-property-decorator';
+import { Component, Emit, Prop } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import CardLoader from '@/components/Study/CardLoader.vue';
 import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
@@ -193,56 +197,10 @@ import {
 } from '@/db/contentSource';
 import SessionController, { StudySessionRecord } from '@/db/SessionController';
 import confetti from 'canvas-confetti';
+import { adjustScores } from '@/tutor/Elo';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
-}
-
-class EloRank {
-  k: number;
-  constructor(k?: number) {
-    this.k = k || 32;
-  }
-
-  setKFactor(k: number) {
-    this.k = k;
-  }
-  getKFactor() {
-    return this.k;
-  }
-
-  getExpected(a: number, b: number) {
-    return 1 / (1 + Math.pow(10, (b - a) / 400));
-  }
-  updateRating(expected: number, actual: number, current: number) {
-    return Math.round(current + this.k * (actual - expected));
-  }
-}
-
-function adjustScores(
-  userElo: number,
-  cardElo: number,
-  userScore: number,
-  k?: number
-): {
-  userElo: number;
-  cardElo: number;
-} {
-  const elo = new EloRank(k);
-  const exp = elo.getExpected(userElo, cardElo);
-  const upA = elo.updateRating(exp, userScore, userElo);
-  const upB = elo.updateRating(1 - exp, 1 - userScore, cardElo);
-
-  console.log(`ELO updates w/ user score ${userScore}
-       user  |  card
-init   ${userElo}         ${cardElo}
-final  ${upA}         ${upB}
-  `);
-
-  return {
-    userElo: upA,
-    cardElo: upB,
-  };
 }
 
 @Component({
@@ -271,7 +229,7 @@ export default class Study extends SkldrVue {
   public editCardReady: boolean = false; // editor for this card is ready to display
   // the currently displayed card
   public cardID: PouchDB.Core.DocumentId = '';
-  public view: VueConstructor<Viewable>;
+  public view: VueConstructor;
   public constructedView: Viewable;
   public data: ViewData[] = [];
   public courseID: string = '';
@@ -505,18 +463,6 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
       .then(() => this.$router.push(`/quilts/${this.previewCourseConfig!.courseID!}`));
   }
 
-  private get sessionString() {
-    let ret = '';
-    // for (let i = 0; i < this.session.length; i++) {
-    //   ret += `${i}: ${this.session[i].qualifiedID}`;
-    //   if (this.session[i].reviewID !== undefined) {
-    //     ret += ' (review)';
-    //   }
-    //   ret += '\n';
-    // }
-    return ret;
-  }
-
   private get currentCard(): StudySessionRecord {
     return this.sessionRecord[this.sessionRecord.length - 1];
   }
@@ -525,8 +471,9 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
     return this.sessionRecord.filter((r) => r.card.course_id === course_id && r.card.card_id === card_id).length;
   }
 
+  @Emit('emitResponse')
   private processResponse(r: CardRecord) {
-    // alert(JSON.stringify(r))
+    // alert(JSON.stringify(r));
     // clear the timer state
     this.timerIsActive = false;
 
@@ -540,6 +487,7 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
     if (isQuestionRecord(r)) {
       log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
       if (r.isCorrect) {
+        this.$refs.shadowWrapper.setAttribute('style', `--r: ${255 * (1 - (r.performance as number))}; --g:${255}`);
         this.$refs.shadowWrapper.classList.add('correct');
 
         if (this.$store.state.config.likesConfetti) {
@@ -568,12 +516,12 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
             this.scheduleReview(history, item);
             if (history.records.length === 1) {
               // correct answer on first sight: elo win for student
-              this.updateUserAndCardElo(1, this.courseID, this.cardID);
+              this.updateUserAndCardElo(0.5 + (r.performance as number) / 2, this.courseID, this.cardID);
             } else {
               // win for the student, but adjust less aggressively as
               // the card is more familiar
-              const k = Math.floor(32 / history.records.length);
-              this.updateUserAndCardElo(1, this.courseID, this.cardID, k);
+              const k = Math.ceil(32 / history.records.length);
+              this.updateUserAndCardElo(0.5 + (r.performance as number) / 2, this.courseID, this.cardID, k);
             }
           });
         } else {
@@ -626,28 +574,29 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
   }
 
   private async updateUserAndCardElo(userScore: number, course_id: string, card_id: string, k?: number) {
-    console.log(`Updating ELO scores for
-      user: ${this.$store.state._user!.username}
-      card: ${course_id}-${card_id}`);
-
     const userElo = this.userCourseRegDoc.courses.find((c) => c.courseID === course_id)!.elo;
     const cardElo = this.currentCard.card.card_elo;
 
     if (cardElo && userElo) {
       const eloUpdate = adjustScores(userElo, cardElo, userScore, k);
-      const user = await updateUserElo(this.$store.state._user!.username, course_id, eloUpdate.userElo);
-      const card = await updateCardElo(course_id, card_id, eloUpdate.cardElo);
+      this.userCourseRegDoc.courses.find((c) => c.courseID === course_id)!.elo = eloUpdate.userElo;
 
-      if (user.ok && card && card.ok) {
-        console.log(`Updated ELOs:
-  user: ${this.$store.state._user!.username}
-  course: ${course_id}
-  card: ${card_id}
-      `);
-        this.userCourseRegDoc.courses.find((c) => c.courseID === course_id)!.elo = eloUpdate.userElo;
-      }
+      Promise.all([
+        updateUserElo(this.$store.state._user!.username, course_id, eloUpdate.userElo),
+        updateCardElo(course_id, card_id, eloUpdate.cardElo),
+      ]).then((results) => {
+        const user = results[0];
+        const card = results[1];
 
-      return user.ok && card && card.ok;
+        if (user.ok && card && card.ok) {
+          console.log(
+            `Updated ELOS:
+\tUser: ${eloUpdate.userElo} (${eloUpdate.userElo - userElo})
+\tCard: ${eloUpdate.cardElo} (${eloUpdate.cardElo - cardElo})
+`
+          );
+        }
+      });
     }
   }
 
@@ -730,7 +679,7 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
       this.courseID = _courseID;
 
       // bleeding memory? Do these get GCd?
-      this.constructedView = new this.view();
+      this.constructedView = new this.view() as Viewable;
 
       this.sessionRecord.push({
         card: {
@@ -758,7 +707,7 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
 } */
 
 .correct {
-  animation: greenFade 1250ms ease-out;
+  animation: varFade 1250ms ease-out;
 }
 
 .incorrect {
@@ -767,6 +716,16 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
 
 a {
   text-decoration: underline;
+}
+
+@keyframes varFade {
+  0% {
+    box-shadow: rgba(var(--r), var(--g), 0, 0.25) 0px 7px 8px -4px, rgba(var(--r), var(--g), 0, 0.25) 0px 12px 17px 2px,
+      rgba(var(--r), var(--g), 0, 0.25) 0px 5px 22px 4px;
+  }
+  100% {
+    box-shadow: rgba(0, 150, 0, 0) 0px 0px;
+  }
 }
 
 @keyframes greenFade {

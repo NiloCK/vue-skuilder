@@ -51,7 +51,6 @@ import { StudySessionItem } from '@/db/contentSource';
 })
 export default class ELOModerator extends SkldrVue {
   @Prop({ required: true }) private _id: string;
-  private mousetrap: MousetrapInstance = new Mousetrap(this.$el);
   private courseDB: CourseDB;
 
   private updatePending: boolean = true;

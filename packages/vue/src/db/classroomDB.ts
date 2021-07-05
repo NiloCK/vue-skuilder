@@ -24,14 +24,14 @@ export type ClassroomMessage = {};
 
 export type AssignedContent = AssignedCourse | AssignedTag | AssignedCard;
 
-interface AssignedTag extends ContentBase {
+export interface AssignedTag extends ContentBase {
   type: 'tag';
   tagID: string;
 }
-interface AssignedCourse extends ContentBase {
+export interface AssignedCourse extends ContentBase {
   type: 'course';
 }
-interface AssignedCard extends ContentBase {
+export interface AssignedCard extends ContentBase {
   type: 'card';
   cardID: string;
 }
@@ -66,7 +66,7 @@ abstract class ClassroomDBBase {
     return getStartAndEndKeys(this._content_prefix);
   }
 
-  protected abstract async init(): Promise<void>;
+  protected abstract init(): Promise<void>;
 
   public async getAssignedContent(): Promise<AssignedContent[]> {
     console.log(`Getting assigned content...`);

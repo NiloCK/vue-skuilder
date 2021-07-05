@@ -7,6 +7,6 @@
         "module": "commonjs",
         "outDir": "dist",
         "sourceMap": true,
-        "lib": ["es2015"]
+        "lib": ["es2015", "DOM"]
     }
 }

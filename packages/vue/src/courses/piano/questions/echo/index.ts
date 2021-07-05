@@ -4,11 +4,8 @@ import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { DataShapeName } from '@/enums/DataShapeNames';
 import { FieldType } from '@/enums/FieldType';
+import { eventsToSyllableSequence, NoteEvent } from '../../utility/midi';
 import Playback from './Playback.vue';
-import { NoteEvent, eventsToSyllableSequence } from '../../utility/midi';
-import { VueConstructor } from 'vue';
-import Viewable from '@/base-course/Viewable';
-import { log } from 'util';
 
 const fields: FieldDefinition[] = [
   {
@@ -25,7 +22,7 @@ export class EchoQuestion extends Question {
     },
   ];
 
-  public static views = [Playback] as VueConstructor<Viewable>[];
+  public static views = [Playback];
 
   public midi: NoteEvent[];
 
@@ -105,6 +102,6 @@ export class EchoQuestion extends Question {
     return EchoQuestion.dataShapes;
   }
   public views() {
-    return EchoQuestion.views as VueConstructor<Viewable>[];
+    return EchoQuestion.views;
   }
 }

@@ -16,6 +16,7 @@
                       <router-link :to="`/quilts/${course._id}`">
                         {{ course.name }}
                       </router-link>
+                      <v-icon v-if="!course.public">visibility_off</v-icon>
                     </v-list-tile-title>
                   </v-list-tile-content>
                   <v-list-tile-action>

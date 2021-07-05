@@ -103,3 +103,10 @@ export default class App extends SkldrVue {
   }
 }
 </script>
+
+<style>
+code:before,
+code:after {
+  content: none !important;
+}
+</style>

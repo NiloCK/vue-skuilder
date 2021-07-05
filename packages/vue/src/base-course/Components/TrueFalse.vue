@@ -15,7 +15,7 @@ import RadioSelect from './RadioMultipleChoice.vue';
   },
 })
 export default class TrueFalse extends Vue {
-  @Prop() public MouseTrap: MousetrapInstance;
+  @Prop() public MouseTrap: any;
   @Prop() public submit: (selection: number) => void;
 }
 </script>

@@ -93,7 +93,7 @@ export default class UserRegistration extends SkldrVue {
   private userSecret: string = '';
   private secret: string = 'goons';
   private get registrationRoute(): boolean {
-    return this.$route.name!.toLowerCase() === 'signup';
+    return typeof this.$route.name === 'string' && this.$route.name.toLowerCase() === 'signup';
   }
 
   private readonly roles: string[] = ['Student', 'Teacher', 'Author'];

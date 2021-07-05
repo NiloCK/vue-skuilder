@@ -65,7 +65,7 @@ import Mousetrap from 'mousetrap';
 
 @Component({})
 export default class CourseEditor extends SkldrVue {
-  private mousetrap: MousetrapInstance = new Mousetrap(this.$el);
+  private mousetrap = new Mousetrap(this.$el);
 
   private id: string = '';
   private name: string = '';

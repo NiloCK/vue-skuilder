@@ -42,7 +42,7 @@
           <v-card>
             <v-card-text>
               <pre>
-              {{
+              <!-- {{
                   (() => {
                     let ret = '';
                     for (let i in tag) {
@@ -50,7 +50,7 @@
                     }
                     return ret;
                   })()
-                }}
+                }} -->
               </pre>
             </v-card-text>
           </v-card>
@@ -102,7 +102,6 @@ import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
 })
 export default class CourseInformation extends SkldrVue {
   @Prop({ required: true }) private _id: string;
-  private mousetrap: MousetrapInstance = new Mousetrap(this.$el);
 
   private get isPianoCourse(): boolean {
     return this._courseConfig.name.toLowerCase().includes('piano');

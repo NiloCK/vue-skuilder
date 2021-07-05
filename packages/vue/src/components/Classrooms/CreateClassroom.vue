@@ -58,7 +58,7 @@ import { registerUserForClassroom } from '../../db/userDB';
 
 @Component({})
 export default class ClassroomEditor extends SkldrVue {
-  private mousetrap: MousetrapInstance = new Mousetrap(this.$el);
+  private mousetrap = new Mousetrap(this.$el);
 
   private peerAssist: boolean = true;
   private name: string = '';
