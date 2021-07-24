@@ -44,6 +44,7 @@
           v-bind:field="field"
           :uiValidationFunction="checkInput"
         />
+        <audio-input v-bind:store="store" v-bind:field="field" :uiValidationFunction="checkInput"> </audio-input>
       </div>
 
       <v-btn type="submit" color="primary" :loading="uploading" @click.native.prevent="submit" :disabled="!allowSumbit">
@@ -379,6 +380,7 @@ export default class DataInputForm extends SkldrVue {
             this.dataShape,
             input,
             this.$store.state._user!.username
+            // generic (non-required by datashape) attachments here
           );
         })
       );

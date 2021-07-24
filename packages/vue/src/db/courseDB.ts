@@ -296,12 +296,23 @@ export async function getCardDataShape(courseID: string, cardID: string) {
   return ret;
 }
 
+/**
+ *
+ * @param courseID id of the course (quilt) being added to
+ * @param codeCourse
+ * @param shape
+ * @param data the datashape data - data required for this shape
+ * @param author
+ * @param uploads optional additional media uploads: img0, img1, ..., aud0, aud1,...
+ * @returns
+ */
 export async function addNote55(
   courseID: string,
   codeCourse: string,
   shape: DataShape,
   data: any,
-  author?: string
+  author?: string,
+  uploads?: { [x: string]: PouchDB.Core.FullAttachment }
 ) {
   // alert(`Course id: ${courseID}`);
   const db = await getCourseDB(courseID);
@@ -327,10 +338,18 @@ export async function addNote55(
     payload.author = author;
   }
 
-  if (attachmentFields.length !== 0) {
-    attachmentFields.forEach((attField) => {
-      attachments[attField.name] = data[attField.name];
+  attachmentFields.forEach((attField) => {
+    attachments[attField.name] = data[attField.name];
+  });
+
+  //
+  if (uploads) {
+    Object.keys(uploads).forEach((k) => {
+      attachments[k] = uploads[k];
     });
+  }
+
+  if (attachmentFields.length !== 0 || (uploads && Object.keys(uploads).length)) {
     payload._attachments = attachments;
   }
 
