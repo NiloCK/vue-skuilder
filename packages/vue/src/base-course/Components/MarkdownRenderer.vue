@@ -1,7 +1,12 @@
 <template>
   <div>
     <v-textarea v-if="testRoute" outline label="Type Here" name="name" v-model="md" />
-    <md-token-renderer v-for="(token, i) in tokens" :key="i" :token="token" :last="i === tokens.length - 1" />
+    <md-token-renderer
+      v-for="(token, i) in tokens"
+      v-bind:key="i"
+      v-bind:token="token"
+      v-bind:last="i === tokens.length - 1"
+    />
   </div>
 </template>
 
