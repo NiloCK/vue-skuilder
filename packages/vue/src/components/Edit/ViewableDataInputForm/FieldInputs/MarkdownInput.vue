@@ -1,31 +1,12 @@
 <template>
-  <!-- <v-text-field
-        ref="inputField"
-        box
-        v-model="store[field.name]"
-        :name="field.name"
-        :label="field.name"
-        @input="validate"
-        :rules="vuetifyRules()"
-    /> -->
-  <!-- <textarea
-        ref="inputField"
-        v-model="store[field.name]"
-        :name="field.name"
-        :label="field.name"
-        @input="validate"
-        :rules="vuetifyRules()"
-        
-    ></textarea> -->
   <v-textarea
     box
     ref="inputField"
     v-model="store[field.name]"
-    :name="field.name"
-    :label="field.name"
-    @input="validate"
+    v-bind:name="field.name"
+    v-bind:label="field.name"
+    v-on:input="validate"
   />
-  <!-- :rules="vuetifyRules()" -->
 </template>
 
 <script lang="ts">
