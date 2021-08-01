@@ -10,15 +10,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { QuestionView } from '@/base-course/Viewable';
-import { BlanksCard, FillInSection } from './index';
-import FillInInput from './fillInInput.vue';
-import FillInText from './fillInText.vue';
+import AudioAutoPlayer from '@/base-course/Components/AudioAutoPlayer.vue';
 import MarkdownRenderer from '@/base-course/Components/MarkdownRenderer.vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
-import { log } from 'util';
-import { type } from 'os';
+import { QuestionView } from '@/base-course/Viewable';
+import { Component } from 'vue-property-decorator';
+import FillInInput from './fillInInput.vue';
+import FillInText from './fillInText.vue';
+import { BlanksCard } from './index';
 
 const typeMap: {
   [index: string]: string;
