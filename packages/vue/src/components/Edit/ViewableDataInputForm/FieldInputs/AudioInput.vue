@@ -1,6 +1,7 @@
 <template>
   <div>
-    <label v-bind:for="field.name">{{ field.name }}: </label>
+    <label class="headline" v-bind:for="field.name">{{ title }}: </label>
+
     <div>
       <input
         ref="inputField"
@@ -25,6 +26,9 @@ import { log } from 'util';
 
 @Component
 export default class AudioInput extends FieldInput {
+  public get title(): string {
+    return this.field.name;
+  }
   public getValidators(): ValidatingFunction[] {
     if (this.field.validator) {
       return [this.field.validator.test];
