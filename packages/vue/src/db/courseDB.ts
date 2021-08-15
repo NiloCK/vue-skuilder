@@ -1,4 +1,5 @@
 import { DataShape } from '@/base-course/Interfaces/DataShape';
+import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import Courses, { NameSpacer, ShapeDescriptor } from '@/courses';
 import { FieldType } from '@/enums/FieldType';
 import ENV from '@/ENVIRONMENT_VARS';
@@ -314,7 +315,6 @@ export async function addNote55(
   author?: string,
   uploads?: { [x: string]: PouchDB.Core.FullAttachment }
 ) {
-  // alert(`Course id: ${courseID}`);
   const db = await getCourseDB(courseID);
 
   const dataShapeId = NameSpacer.getDataShapeString({
