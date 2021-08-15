@@ -47,6 +47,10 @@ export default class MediaUploadInput extends FieldInput {
   public get title(): string {
     return this.field.name;
   }
+  public clearData() {
+    this.audio = [];
+    this.image = [];
+  }
 
   public audio: AudioData[] = [];
   public image: Blob[] = [];
