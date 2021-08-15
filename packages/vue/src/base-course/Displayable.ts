@@ -2,6 +2,7 @@ import Vue, { VueConstructor } from 'vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable from './Viewable';
+import { FieldType } from '@/enums/FieldType';
 
 export interface Answer {}
 
@@ -39,8 +40,8 @@ Displayable Constructor was called with no view Data.
 function validateData(shape: DataShape[], data: ViewData[]) {
   for (let i = 0; i < shape.length; i++) {
     shape[i].fields.forEach((field) => {
-      if (data[i][field.name] === undefined) {
-        throw new Error(`field validation failed: ${field.name}`);
+      if (data[i][field.name] === undefined && field.type !== FieldType.MEDIA_UPLOADS) {
+        throw new Error(`field validation failed:\n\t${field.name}, (${field.type})`);
       }
     });
   }
