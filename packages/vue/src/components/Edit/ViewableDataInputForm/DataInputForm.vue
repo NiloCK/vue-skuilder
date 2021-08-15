@@ -1,64 +1,70 @@
 <template>
   <div>
     <v-form autocomplete="off">
-      <div ref="fieldInputWraps" v-for="field in dataShape.fields" :key="dataShape.fields.indexOf(field)">
+      <div ref="fieldInputWraps" v-for="field in dataShape.fields" v-bind:key="dataShape.fields.indexOf(field)">
         <string-input
           v-if="field.type === str"
           v-bind:store="store"
           v-bind:field="field"
-          :uiValidationFunction="checkInput"
+          v-bind:uiValidationFunction="checkInput"
         />
         <number-input
           v-else-if="field.type === num"
           v-bind:store="store"
           v-bind:field="field"
-          :uiValidationFunction="checkInput"
+          v-bind:uiValidationFunction="checkInput"
         />
         <integer-input
           v-else-if="field.type === int"
           v-bind:store="store"
           v-bind:field="field"
-          :uiValidationFunction="checkInput"
+          v-bind:uiValidationFunction="checkInput"
         />
         <image-input
           v-else-if="field.type === img"
           v-bind:store="store"
           v-bind:field="field"
-          :uiValidationFunction="checkInput"
+          v-bind:uiValidationFunction="checkInput"
         />
         <markdown-input
           v-else-if="field.type === mkd"
           v-bind:store="store"
           v-bind:field="field"
-          :uiValidationFunction="checkInput"
+          v-bind:uiValidationFunction="checkInput"
         />
         <audio-input
           v-else-if="field.type === audio"
           v-bind:store="store"
           v-bind:field="field"
-          :uiValidationFunction="checkInput"
+          v-bind:uiValidationFunction="checkInput"
         />
         <midi-input
           v-else-if="field.type === midi"
           v-bind:store="store"
           v-bind:field="field"
-          :uiValidationFunction="checkInput"
+          v-bind:uiValidationFunction="checkInput"
         />
-        <audio-input v-bind:store="store" v-bind:field="field" :uiValidationFunction="checkInput"> </audio-input>
+        <media-uploader
+          v-else-if="field.type === uploader"
+          v-bind:store="store"
+          v-bind:field="field"
+          v-bind:uiValidationFunction="checkInput"
+        />
       </div>
 
-      <v-btn type="submit" color="primary" :loading="uploading" @click.native.prevent="submit" :disabled="!allowSumbit">
-        Add data
+      <v-btn
+        right
+        type="submit"
+        color="primary"
+        v-bind:loading="uploading"
+        v-bind:disabled="!allowSumbit"
+        v-on:click.native.prevent="submit"
+      >
+        Add card
         <v-icon right dark>add_circle</v-icon>
-        <!-- Remove if don't want to use icon. -->
       </v-btn>
     </v-form>
     <card-browser v-if="allowSubmit" v-bind:views="shapeViews" v-bind:data="[previewInput]" />
-
-    <!-- <data-shape-table
-      v-bind:dataShape="dataShape"
-      v-bind:data="existingData"
-    /> -->
   </div>
 </template>
 
@@ -75,6 +81,7 @@ import ImageInput from './FieldInputs/ImageInput.vue';
 import AudioInput from './FieldInputs/AudioInput.vue';
 import MarkdownInput from './FieldInputs/MarkdownInput.vue';
 import MidiInput from './FieldInputs/MidiInput.vue';
+import MediaUploader from './FieldInputs/MediaUploader.vue';
 import { DisplayableData, DataShapeData, QuestionData } from '@/db/types';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
 import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue';
@@ -103,6 +110,7 @@ type StringIndexable = { [x: string]: any };
     MidiInput,
     CardBrowser,
     DataShapeTable,
+    MediaUploader,
   },
 })
 export default class DataInputForm extends SkldrVue {
@@ -197,6 +205,7 @@ export default class DataInputForm extends SkldrVue {
   private readonly mkd: string = FieldType.MARKDOWN;
   private readonly audio: string = FieldType.AUDIO;
   private readonly midi: string = FieldType.MIDI;
+  private readonly uploader: string = FieldType.MEDIA_UPLOADS;
 
   public updateTags(newTags: string[]) {
     log(`tags updated: ${JSON.stringify(newTags)}`);
