@@ -34,8 +34,6 @@ export default class RadioSelect extends UserInput {
   // @Prop() public submit: (selection: number) => void;
 
   public currentSelection: number = -1;
-  // todo: incorrect user-answers are greyed out and
-  // disabled for future submission
   public incorrectSelections: number[] = [];
 
   public mounted() {
