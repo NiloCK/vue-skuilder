@@ -69,33 +69,29 @@
 </template>
 
 <script lang="ts">
-import Vue, { VueConstructor } from 'vue';
-import { Component, Prop, Watch } from 'vue-property-decorator';
-import FormInput from './FieldInputs/index.vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
-import { FieldType, fieldConverters } from '@/enums/FieldType';
-import NumberInput from './FieldInputs/NumberInput.vue';
-import StringInput from './FieldInputs/StringInput.vue';
-import IntegerInput from './FieldInputs/IntegerInput.vue';
-import ImageInput from './FieldInputs/ImageInput.vue';
-import AudioInput from './FieldInputs/AudioInput.vue';
-import MarkdownInput from './FieldInputs/MarkdownInput.vue';
-import MidiInput from './FieldInputs/MidiInput.vue';
-import MediaUploader from './FieldInputs/MediaUploader.vue';
-import { DisplayableData, DataShapeData, QuestionData } from '@/db/types';
+import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
 import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue';
-import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
-import Courses, { NameSpacer, ShapeDescriptor } from '@/courses';
-import { alertUser } from '@/components/SnackbarService.vue';
-import { Status } from '@/enums/Status';
 import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
-import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
-import SkldrVue from '../../../SkldrVue';
-import { CourseConfig } from '../../../server/types';
-import { addNote55, getCourseTagStubs } from '../../../db/courseDB';
-import { log } from 'util';
+import { alertUser } from '@/components/SnackbarService.vue';
+import Courses, { NameSpacer, ShapeDescriptor } from '@/courses';
+import { fieldConverters, FieldType } from '@/enums/FieldType';
+import { Status } from '@/enums/Status';
 import _ from 'lodash';
+import { log } from 'util';
+import Vue from 'vue';
+import { Component, Watch } from 'vue-property-decorator';
+import { addNote55, getCourseTagStubs } from '../../../db/courseDB';
+import SkldrVue from '../../../SkldrVue';
+import AudioInput from './FieldInputs/AudioInput.vue';
+import ImageInput from './FieldInputs/ImageInput.vue';
+import IntegerInput from './FieldInputs/IntegerInput.vue';
+import MarkdownInput from './FieldInputs/MarkdownInput.vue';
+import MediaUploader from './FieldInputs/MediaUploader.vue';
+import MidiInput from './FieldInputs/MidiInput.vue';
+import NumberInput from './FieldInputs/NumberInput.vue';
+import StringInput from './FieldInputs/StringInput.vue';
 
 type StringIndexable = { [x: string]: any };
 
@@ -118,6 +114,7 @@ export default class DataInputForm extends SkldrVue {
   public $refs: {
     fieldInputWraps: HTMLDivElement[];
   };
+
   public get fieldInputs(): FieldInput[] {
     return this.$refs.fieldInputWraps.map<FieldInput>((div) => {
       // if ((div.children[0] as any).__vue__.clearData !==)
@@ -132,7 +129,7 @@ export default class DataInputForm extends SkldrVue {
         }
       }
 
-      return new IntegerInput({});
+      return new IntegerInput({}); // ???
     });
   }
 
@@ -236,20 +233,29 @@ export default class DataInputForm extends SkldrVue {
   }
 
   private checkInput(): boolean {
-    let ret: boolean = Object.getOwnPropertyNames(this.store.validation).length === this.dataShape.fields.length + 1; // +1 here b/c of the validation key
+    let inputIsValid: boolean =
+      Object.getOwnPropertyNames(this.store.validation).length === this.expectedValidations() + 1; // +1 here b/c of the validation key
 
-    Object.getOwnPropertyNames(this.store.validation).forEach((fieldName) => {
-      if (this.store.validation[fieldName] === false) {
-        ret = false;
-      }
-    });
+    const invalidFields = Object.getOwnPropertyNames(this.store.validation).filter(
+      (fieldName) => this.store.validation[fieldName] === false
+    );
 
-    if (ret) {
+    console.log(
+      `Invalid Fields: ${invalidFields.map((f) => {
+        return `\n${f}`;
+      })}`
+    );
+
+    if (invalidFields.length > 0) {
+      inputIsValid = false;
+    }
+
+    if (inputIsValid) {
       this.convertInput();
     }
-    this.allowSumbit = ret;
-    console.log(`Form data is valid: ${ret}`);
-    return ret;
+    this.allowSumbit = inputIsValid;
+    console.log(`Form data is valid: ${inputIsValid}`);
+    return inputIsValid;
   }
 
   public get allowSubmit(): boolean {
