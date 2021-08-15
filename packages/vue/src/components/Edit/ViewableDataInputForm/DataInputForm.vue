@@ -282,7 +282,38 @@ export default class DataInputForm extends SkldrVue {
   }
 
   public convertInput() {
-    this.dataShape.fields.forEach((fieldDef) => {
+    const supplmentedFields = this.dataShape.fields.map((f) => {
+      const copiedFieldDefinition: FieldDefinition = {
+        name: f.name,
+        type: f.type,
+        validator: f.validator,
+      };
+      return copiedFieldDefinition;
+    });
+
+    for (let i = 1; i < 11; i++) {
+      if (this.store[`audio-${i}`]) {
+        supplmentedFields.push({
+          name: `audio-${i}`,
+          type: FieldType.AUDIO,
+        });
+      } else {
+        break;
+      }
+    }
+
+    for (let i = 1; i < 11; i++) {
+      if (this.store[`image-${i}`]) {
+        supplmentedFields.push({
+          name: `image-${i}`,
+          type: FieldType.IMAGE,
+        });
+      } else {
+        break;
+      }
+    }
+
+    supplmentedFields.forEach((fieldDef) => {
       this.store.convertedInput[fieldDef.name] = fieldConverters[fieldDef.type].databaseConverter(
         this.store[fieldDef.name]
       );
@@ -373,7 +404,7 @@ export default class DataInputForm extends SkldrVue {
       let inputs = [];
 
       if (this.inputContainsTranspositionFcns()) {
-        console.log(`Expanded input: 
+        console.log(`Expanded input:
         ${JSON.stringify(this.expandO(this.convertedInput))}`);
         inputs = this.expandO(this.convertedInput);
       } else {
