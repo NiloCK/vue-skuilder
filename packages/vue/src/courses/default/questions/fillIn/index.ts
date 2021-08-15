@@ -145,6 +145,10 @@ export const BlanksCardDataShapes: DataShape[] = [
         name: 'Input',
         type: FieldType.MARKDOWN,
       },
+      {
+        name: 'Uploads',
+        type: FieldType.MEDIA_UPLOADS,
+      },
     ],
   },
 ];
