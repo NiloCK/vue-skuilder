@@ -1,9 +1,7 @@
 <template>
   <span v-if="token.type === 'text' && (!token.tokens || token.tokens.length === 0)">
-    <!-- (t {{token.raw}}) -->
     <span v-if="isComponent(token)">
-      <!-- (component) -->
-      <component v-if="!last" :is="parsedComponent(token).is" :text="parsedComponent(token).text" />
+      <component v-if="!last" v-bind:is="parsedComponent(token).is" v-bind:text="parsedComponent(token).text" />
     </span>
     <span v-else-if="containsComponent(token)">
       <md-token-renderer v-for="(subTok, j) in splitTextToken(token)" :key="j" :token="subTok" />
