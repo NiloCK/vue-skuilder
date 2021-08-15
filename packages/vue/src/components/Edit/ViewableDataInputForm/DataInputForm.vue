@@ -221,6 +221,20 @@ export default class DataInputForm extends SkldrVue {
     });
   }
   public allowSumbit: boolean = false;
+
+  private expectedValidations(): number {
+    const fieldCount = this.dataShape.fields.length;
+
+    // as far as I can imagine, this should only ever be zero or one
+    const mediaUploadCount = this.dataShape.fields.filter((f) => f.type === FieldType.MEDIA_UPLOADS).length;
+
+    const uploadedItems = Object.getOwnPropertyNames(this.store.validation).filter((f) => {
+      return /audio-[\d]+/.test(f) || /image-[\d]+/.test(f);
+    }).length;
+
+    return fieldCount + uploadedItems - mediaUploadCount;
+  }
+
   private checkInput(): boolean {
     let ret: boolean = Object.getOwnPropertyNames(this.store.validation).length === this.dataShape.fields.length + 1; // +1 here b/c of the validation key
 
