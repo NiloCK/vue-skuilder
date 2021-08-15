@@ -1,10 +1,11 @@
 <template>
   <div>
-    <markdown-renderer :md="question.mdText" />
-    <radio-multiple-choice v-if="question.options" :choiceList="question.options" :MouseTrap="MouseTrap" />
+    <audio-auto-player v-if="hasAudio" v-bind:src="audioURL" />
+    <markdown-renderer v-bind:md="question.mdText" />
+    <radio-multiple-choice v-if="question.options" v-bind:choiceList="question.options" v-bind:MouseTrap="MouseTrap" />
     <v-card-actions v-else-if="!isQuestion">
       <v-spacer></v-spacer>
-      <v-btn color="primary" @click="submitAnswer('')" autofocus="autofocus"> Next </v-btn>
+      <v-btn color="primary" v-on:click="submitAnswer('')" autofocus="autofocus"> Next </v-btn>
     </v-card-actions>
   </div>
 </template>
@@ -32,11 +33,33 @@ const typeMap: {
     RadioMultipleChoice,
     blankType: FillInInput,
     textType: FillInText,
+    AudioAutoPlayer,
   },
 })
 export default class FillInView extends QuestionView<BlanksCard> {
   get question() {
     return new BlanksCard(this.data);
+  }
+  get hasAudio() {
+    if (this.data[0]['audio-1']) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  get audioURL(): string[] {
+    if (this.hasAudio) {
+      // let url = URL.createObjectURL(this.data[0].autoplayAudio);
+      let urls: string[] = [];
+      let i = 1;
+      while (this.data[0][`audio-${i}`]) {
+        urls.push(URL.createObjectURL(this.data[0][`audio-${i}`]));
+        i++;
+      }
+      return urls;
+    } else {
+      return [''];
+    }
   }
 
   get isQuestion(): boolean {
