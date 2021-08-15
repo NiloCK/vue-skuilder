@@ -2,13 +2,13 @@
   <div class="multipleChoice">
     <MultipleChoiceOption
       v-for="choice in choiceList"
-      :key="choiceList.indexOf(choice)"
-      :content="choice"
-      :selected="choiceList.indexOf(choice) === currentSelection"
-      :number="choiceList.indexOf(choice)"
-      :setSelection="setSelection"
-      :submit="forwardSelection"
-      :markedWrong="choiceIsWrong(choice)"
+      v-bind:key="choiceList.indexOf(choice)"
+      v-bind:content="choice"
+      v-bind:selected="choiceList.indexOf(choice) === currentSelection"
+      v-bind:number="choiceList.indexOf(choice)"
+      v-bind:setSelection="setSelection"
+      v-bind:submit="forwardSelection"
+      v-bind:markedWrong="choiceIsWrong(choice)"
     />
   </div>
 </template>
