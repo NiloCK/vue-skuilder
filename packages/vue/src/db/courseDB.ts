@@ -322,9 +322,40 @@ export async function addNote55(
     dataShape: shape.name,
   });
 
-  const attachmentFields = shape.fields.filter((field) => {
-    return field.type === FieldType.IMAGE || field.type === FieldType.AUDIO;
-  });
+  const attachmentFields = shape.fields
+    .map((field) => {
+      // make a copy, in order NOT to append to the datashape
+      const copy: FieldDefinition = {
+        name: field.name,
+        type: field.type,
+      };
+      return copy;
+    })
+    .filter((field) => {
+      return field.type === FieldType.IMAGE || field.type === FieldType.AUDIO;
+    })
+    .concat([
+      {
+        name: 'autoplayAudio',
+        type: FieldType.AUDIO,
+      },
+    ]);
+
+  for (let i = 1; i < 11; i++) {
+    if (data[`audio-${i}`]) {
+      attachmentFields.push({
+        name: `audio-${i}`,
+        type: FieldType.AUDIO,
+      });
+    }
+
+    if (data[`image-${i}`]) {
+      attachmentFields.push({
+        name: `image-${i}`,
+        type: FieldType.IMAGE,
+      });
+    }
+  }
 
   const attachments: { [index: string]: PouchDB.Core.FullAttachment } = {};
   const payload: DisplayableData = {
