@@ -14,11 +14,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import UserInput from '@/base-course/Components/UserInput/UserInput';
 import { Component, Prop } from 'vue-property-decorator';
 import MultipleChoiceOption from './MultipleChoiceOption.vue';
-import UserInput from '@/base-course/Components/UserInput/UserInput';
-import { Answer } from '../Displayable';
 
 @Component({
   components: {

@@ -2,7 +2,7 @@
   <div>
     <audio-auto-player v-if="hasAudio" v-bind:src="audioURL" />
     <markdown-renderer v-bind:md="question.mdText" />
-    <radio-multiple-choice v-if="question.options" v-bind:choiceList="question.options" v-bind:MouseTrap="MouseTrap" />
+    <radio-multiple-choice v-if="question.options" v-bind:choiceList="truncatedOptions" v-bind:MouseTrap="MouseTrap" />
     <center v-else-if="priorAttempts == 1" class="title">
       <span>
         {{ obscuredAnswer }}
@@ -25,6 +25,7 @@ import AudioAutoPlayer from '@/base-course/Components/AudioAutoPlayer.vue';
 import MarkdownRenderer from '@/base-course/Components/MarkdownRenderer.vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
 import { QuestionView } from '@/base-course/Viewable';
+import _ from 'lodash';
 import { Component } from 'vue-property-decorator';
 import FillInInput from './fillInInput.vue';
 import FillInText from './fillInText.vue';
@@ -83,6 +84,27 @@ export default class FillInView extends QuestionView<BlanksCard> {
         obscuredAnswer += '*';
       }
       return obscuredAnswer;
+    }
+  }
+
+  get truncatedOptions(): string[] | undefined {
+    if (this.question.options) {
+      if (this.question.options.length <= 6) {
+        return this.question.options;
+      } else {
+        // include one answer
+        let truncatedList = [this.question.answers![Math.floor(Math.random() * this.question.answers!.length)]];
+        // construct a list of all non-answers
+        let tmpList: string[] = _.shuffle(
+          this.question.options.filter((o) => this.question.answers?.indexOf(o) === -1)
+        );
+        // push 5 of them to the returned list
+        truncatedList.push(...tmpList.slice(0, 5));
+
+        // and SHUFFLE before passing to the radioMC renderer.
+        // because it displays items in the order recieved (dumb UI component)
+        return _.shuffle(truncatedList);
+      }
     }
   }
 
