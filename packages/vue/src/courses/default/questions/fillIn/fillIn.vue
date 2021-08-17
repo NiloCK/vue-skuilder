@@ -3,7 +3,17 @@
     <audio-auto-player v-if="hasAudio" v-bind:src="audioURL" />
     <markdown-renderer v-bind:md="question.mdText" />
     <radio-multiple-choice v-if="question.options" v-bind:choiceList="question.options" v-bind:MouseTrap="MouseTrap" />
-    <v-card-actions v-else-if="!isQuestion">
+    <center v-else-if="priorAttempts == 1" class="title">
+      <span>
+        {{ obscuredAnswer }}
+      </span>
+    </center>
+    <center v-else-if="priorAttempts == 2" class="title">
+      <span>
+        {{ someAnswer }}
+      </span>
+    </center>
+    <v-card-actions v-if="!isQuestion">
       <v-spacer></v-spacer>
       <v-btn color="primary" v-on:click="submitAnswer('')" autofocus="autofocus"> Next </v-btn>
     </v-card-actions>
@@ -62,6 +72,31 @@ export default class FillInView extends QuestionView<BlanksCard> {
     }
   }
 
+  /**
+   * returns an 'obscured' string hinting at the answer:
+   * ie, if the answer is 'Canada', it returns '******'
+   */
+  get obscuredAnswer(): string | undefined {
+    if (this.someAnswer) {
+      let obscuredAnswer = '';
+      for (let i = 0; i < this.someAnswer.length; i++) {
+        obscuredAnswer += '*';
+      }
+      return obscuredAnswer;
+    }
+  }
+
+  /**
+   * returns a random member of the 'answers' string[] if
+   * the question has 'answers' data. Used in the default case
+   * to dispaly
+   */
+  get someAnswer(): string | undefined {
+    if (this.question.answers) {
+      return this.question.answers[Math.floor(this.question.answers.length * Math.random())];
+    }
+  }
+
   get isQuestion(): boolean {
     if (!this.question.answers || this.question.answers.length === 0) {
       return false;
@@ -70,12 +105,7 @@ export default class FillInView extends QuestionView<BlanksCard> {
     }
   }
 
-  private angle: number;
-  private _question: BlanksCard;
-
-  private created() {
-    this._question = new BlanksCard(this.data);
-  }
+  private created() {}
 }
 </script>
 
