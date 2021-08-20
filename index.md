@@ -1,4 +1,7 @@
 Posts:
+{% for thing in site %}
+{{ thing }}
+{% endfor %}
 
 <ul>
   {% for post in site.posts %}
