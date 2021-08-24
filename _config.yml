@@ -1,0 +1,5 @@
+plugins:
+  - jekyll-feed
+title: eduQuilt
+description: Project Notes!
+author: Colin Kennedy
