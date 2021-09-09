@@ -52,6 +52,8 @@
         />
       </div>
 
+      <tags-input hideSubmit="true" ref="tagsInput" v-bind:courseID="course.courseID" cardID="" />
+
       <v-btn
         right
         type="submit"
@@ -73,6 +75,7 @@ import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
 import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue';
+import TagsInput from '@/components/Edit/TagsInput.vue';
 import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
 import { alertUser } from '@/components/SnackbarService.vue';
 import Courses, { NameSpacer, ShapeDescriptor } from '@/courses';
@@ -82,7 +85,7 @@ import _ from 'lodash';
 import { log } from 'util';
 import Vue from 'vue';
 import { Component, Watch } from 'vue-property-decorator';
-import { addNote55, getCourseTagStubs } from '../../../db/courseDB';
+import { addNote55, addTagToCard, getCourseTagStubs } from '../../../db/courseDB';
 import SkldrVue from '../../../SkldrVue';
 import AudioInput from './FieldInputs/AudioInput.vue';
 import ImageInput from './FieldInputs/ImageInput.vue';
@@ -107,12 +110,14 @@ type StringIndexable = { [x: string]: any };
     CardBrowser,
     DataShapeTable,
     MediaUploader,
+    TagsInput,
   },
 })
 export default class DataInputForm extends SkldrVue {
   private timer: NodeJS.Timeout;
   public $refs: {
     fieldInputWraps: HTMLDivElement[];
+    tagsInput: TagsInput;
   };
 
   public get fieldInputs(): FieldInput[] {
@@ -450,6 +455,17 @@ export default class DataInputForm extends SkldrVue {
           text: `Content added... Thank you!`,
           status: Status.ok,
         });
+        const ti = this.$refs.tagsInput;
+        if (ti.tags.length) {
+          for (let i = 0; i < ti.tags.length; i++) {
+            // apply configured tags to the newly created card
+            await addTagToCard(this.course.courseID!, result[0].id, ti.tags[i].text);
+          }
+          // pull down any tags just added for auto-complete suggest
+          ti.updateAvailableCourseTags();
+          // clear applied tags
+          ti.tags = [];
+        }
         this.reset();
       } else {
         alertUser({

@@ -9,7 +9,7 @@
       @tags-changed="tagsChanged"
     />
 
-    <v-btn color="success" @click="submit" :loading="loading">Save Changes</v-btn>
+    <v-btn v-if="!hideSubmit" color="success" @click="submit" :loading="loading">Save Changes</v-btn>
   </div>
 </template>
 
@@ -38,6 +38,11 @@ export default class SkTagsInput extends SkldrVue {
   public courseID: string;
   @Prop()
   public cardID: string;
+  @Prop({
+    required: false,
+    default: false,
+  })
+  public hideSubmit = false;
 
   public loading: boolean = true;
 
@@ -105,7 +110,7 @@ export default class SkTagsInput extends SkldrVue {
   }
 
   @Watch('courseID')
-  private async updateAvailableCourseTags() {
+  public async updateAvailableCourseTags() {
     try {
       this.availableCourseTags = (await getCourseTagStubs(this.courseID)).rows.map((row) => {
         log(`available tag: ${JSON.stringify(row)}`);
