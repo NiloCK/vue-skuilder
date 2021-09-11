@@ -4,7 +4,7 @@ import { ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable from './Viewable';
 import { FieldType } from '@/enums/FieldType';
 
-export type Answer = string | string[];
+export interface Answer {}
 
 // tslint:disable-next-line:max-classes-per-file
 export abstract class Displayable {

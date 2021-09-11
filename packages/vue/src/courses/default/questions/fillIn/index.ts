@@ -311,7 +311,7 @@ export class BlanksCard extends Question {
       }
     } else if (typeof answer === 'object') {
       if (this.answers) {
-        return answer.every((a) => {
+        return (answer as string[]).every((a) => {
           return this.answers!.includes(a);
         });
       } else {
