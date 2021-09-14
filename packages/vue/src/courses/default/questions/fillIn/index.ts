@@ -297,7 +297,7 @@ export class BlanksCard extends Question {
   }
 
   public isCorrect(answer: Answer) {
-    console.log(`answers:${this.answers}\nuser answer: ${answer}`);
+    console.log(`answers:${this.answers}\nuser answer: ${JSON.stringify(answer)}`);
 
     if (typeof answer === 'string') {
       if (this.answers) {
@@ -309,9 +309,9 @@ export class BlanksCard extends Question {
           throw new Error(`Question has no configured answers!`);
         }
       }
-    } else if (typeof answer === 'object') {
+    } else if (Array.isArray(answer)) {
       if (this.answers) {
-        return (answer as string[]).every((a) => {
+        return answer.every((a) => {
           return this.answers!.includes(a);
         });
       } else {
