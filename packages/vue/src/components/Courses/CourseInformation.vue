@@ -6,26 +6,6 @@
       {{ _courseConfig.description }}
     </p>
 
-    <div class="body-2">{{ questionCount }} exercises</div>
-    <div class="body-2">{{ tags.length }} tags</div>
-
-    <!-- <div style='background-color: red; padding: 15px; margin: 10px;'>
-
-      <v-text-field
-        v-model="elo"
-        label="elo"
-        id="id"
-        type='number'
-      ></v-text-field>
-      <v-text-field
-        v-model="num"
-        label="CardCount"
-        id="id"
-        type='number'
-      ></v-text-field>
-      <v-btn color="success" @click="getCards">GetCards!</v-btn>
-    </div> -->
-
     <transition name="component-fade" mode="out-in">
       <div v-if="userIsRegistered">
         <router-link :to="`/study/${_id}`">
@@ -38,24 +18,6 @@
           </v-btn>
         </router-link>
         <v-btn color="error" small outline @click="drop">Drop this course</v-btn>
-        <div v-for="(tag, i) in tags" :key="i">
-          <v-card>
-            <v-card-text>
-              <pre>
-              <!-- {{
-                  (() => {
-                    let ret = '';
-                    for (let i in tag) {
-                      ret += `${i}: ${tag[i]}\n`;
-                    }
-                    return ret;
-                  })()
-                }} -->
-              </pre>
-            </v-card-text>
-          </v-card>
-          <!-- {{JSON.stringify(tag)}} -->
-        </div>
       </div>
       <div v-else>
         <v-btn color="primary" @click="register">Register</v-btn>
@@ -64,6 +26,24 @@
         </router-link>
       </div>
     </transition>
+
+    <div class="body-2">{{ questionCount }} exercises</div>
+    <v-card>
+      <v-toolbar dense>
+        <v-toolbar-title>Tags</v-toolbar-title>
+        <v-spacer></v-spacer>
+        {{ tags.length }}
+      </v-toolbar>
+      <v-card-text>
+        <v-chip outline v-for="(tag, i) in tags" v-bind:key="i">{{ tag.name }}</v-chip>
+      </v-card-text>
+    </v-card>
+
+    <!-- <div style="background-color: red; padding: 15px; margin: 10px">
+      <v-text-field v-model="elo" label="elo" id="id" type="number"></v-text-field>
+      <v-text-field v-model="num" label="CardCount" id="id" type="number"></v-text-field>
+      <v-btn color="success" @click="getCards">GetCards!</v-btn>
+    </div> -->
 
     <midi-config v-if="isPianoCourse" :_id="_id" />
   </div>
