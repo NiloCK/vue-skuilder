@@ -21,7 +21,7 @@
       </v-layout>
       <v-layout v-else>
         <h1 class="display-1">
-          Study:
+          {{ courseNames[courseID] }}:
           <v-progress-circular
             v-if="loading"
             absolute
@@ -176,7 +176,14 @@ import moment, { Moment } from 'moment';
 import { ScheduledCard, getUserClassrooms, CourseRegistrationDoc, updateUserElo, User } from '../db/userDB';
 import { Watch } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
-import { getCredentialledCourseConfig, getCardDataShape, updateCardElo, getCourseList, CourseDB } from '@/db/courseDB';
+import {
+  getCredentialledCourseConfig,
+  getCardDataShape,
+  updateCardElo,
+  getCourseList,
+  CourseDB,
+  getCourseName,
+} from '@/db/courseDB';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
 import { StudentClassroomDB } from '../db/classroomDB';
 import { alertUser } from '../components/SnackbarService.vue';
@@ -233,6 +240,18 @@ export default class Study extends SkldrVue {
   public constructedView: Viewable;
   public data: ViewData[] = [];
   public courseID: string = '';
+
+  public courseNames: { [courseID: string]: string } = {};
+  // public courseName(id: string): string {
+  //   if (this.courseNames[id]) {
+  //     return this.courseNames[id];
+  //   } else {
+  //     getCourseName(id).then((name) => {
+  //       this.courseNames[id] = name;
+  //     });
+  //     return '';
+  //   }
+  // }
 
   public cardCount: number = 1;
 
@@ -442,6 +461,11 @@ export default class Study extends SkldrVue {
 
     // await this.getSessionCards();
     this.sessionPrepared = true;
+
+    // Populate course names from IDs
+    sources
+      .filter((s) => s.type === 'course')
+      .forEach(async (c) => (this.courseNames[c.id] = await getCourseName(c.id)));
 
     log(`Session created:
 ${this.sessionController.toString()}
