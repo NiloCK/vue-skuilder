@@ -459,7 +459,6 @@ export default class Study extends SkldrVue {
     await this.sessionController.prepareSession();
     this._intervalHandler = setInterval(this.tick, 1000);
 
-    // await this.getSessionCards();
     this.sessionPrepared = true;
 
     // Populate course names from IDs
@@ -477,7 +476,6 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
 `);
 
     this.$store.state.views.study.inSession = true;
-    // this.nextCard();
     this.loadCard(this.sessionController.nextCard());
   }
 
