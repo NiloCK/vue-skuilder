@@ -109,13 +109,6 @@ export default new Router({
       props: true,
       alias: ['/quilts/:_id', '/q/:_id'],
       component: CourseInformation,
-      // children: [
-      //   {
-      //     path: 'elo',
-      //     component: ELOModerator,
-      //     props: true
-      //   }
-      // ]
     },
     {
       path: '/courses/:_id/elo',
