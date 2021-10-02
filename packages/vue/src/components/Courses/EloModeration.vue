@@ -1,26 +1,30 @@
 <template>
-  <div v-if="!updatePending">
-    <h1>Which seems harder?</h1>
-    <!-- <v-card> -->
-    A:
-    <card-loader :qualified_id="id1" />
-    <!-- </v-card> -->
-    <!-- <v-card> -->
-    B:
-    <card-loader :qualified_id="id2" />
-    <!-- </v-card> -->
-    <v-btn color="primary" @click="getNewCards"></v-btn>
-  </div>
+  <v-layout column v-if="!updatePending">
+    <v-flex xs1>
+      <h1>Which seems <em>harder</em>?</h1>
+    </v-flex>
+
+    <v-layout row wrap>
+      <v-btn v-on:click="vote('a')" color="success ma-5"><v-icon>check</v-icon></v-btn>
+      <card-loader class="ma-2" v-bind:qualified_id="id1" />
+    </v-layout>
+
+    <v-layout row wrap>
+      <v-btn v-on:click="vote('b')" color="success ma-5"><v-icon>check</v-icon></v-btn>
+      <card-loader class="ma-2" v-bind:qualified_id="id2" />
+    </v-layout>
+  </v-layout>
 </template>
 
 <script lang="ts">
 import CardLoader from '@/components/Study/CardLoader.vue';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import { StudySessionItem } from '@/db/contentSource';
+import { adjustScores } from '@/tutor/Elo';
 import { log } from 'util';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import { CourseDB, getCourseConfig } from '../../db/courseDB';
+import { CourseDB, getCourseConfig, updateCardElo } from '../../db/courseDB';
 import { CourseConfig } from '../../server/types';
 import SkldrVue from '../../SkldrVue';
 
@@ -50,6 +54,22 @@ export default class ELOModerator extends SkldrVue {
     this.courseDB = new CourseDB(this._id);
 
     this._courseConfig = (await getCourseConfig(this._id))!;
+    this.getNewCards();
+  }
+
+  private vote(x: 'a' | 'b') {
+    const scoreA = parseInt(this.card1.qualifiedID.split('-')[2]);
+    const scoreB = parseInt(this.card2.qualifiedID.split('-')[2]);
+
+    const scores = adjustScores(scoreA, scoreB, x === 'a' ? 1 : 0);
+
+    console.log(`Updating:
+    ${this.card1.cardID}: ${scoreA} -> ${scores.userElo}
+    ${this.card2.cardID}: ${scoreB} -> ${scores.cardElo}`);
+
+    updateCardElo(this.card1.courseID, this.card1.cardID, scores.userElo);
+    updateCardElo(this.card2.courseID, this.card2.cardID, scores.cardElo);
+
     this.getNewCards();
   }
 
