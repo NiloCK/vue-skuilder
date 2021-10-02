@@ -14,34 +14,15 @@
 </template>
 
 <script lang="ts">
-import SkldrVue from '../../SkldrVue';
-import Component from 'vue-class-component';
-import CardViewer from '@/components/Study/CardViewer.vue';
 import CardLoader from '@/components/Study/CardLoader.vue';
-
-import {
-  CourseConfig,
-  CreateCourse,
-  ServerRequestType,
-  DataShape55,
-  QuestionType55,
-  ClassroomConfig,
-  CreateClassroom,
-} from '../../server/types';
-import serverRequest from '../../server';
-import { alertUser } from '../SnackbarService.vue';
-import { Status } from '../../enums/Status';
-import Mousetrap from 'mousetrap';
-import { log } from 'util';
-import moment from 'moment';
-import { registerUserForClassroom } from '../../db/userDB';
-import TeacherClassroomDB, { getClassroomDB, CLASSROOM_CONFIG, AssignedContent } from '../../db/classroomDB';
-import { Prop, Watch } from 'vue-property-decorator';
-import { getCourseList, getCourseTagStubs, getCourseConfig, CourseDB } from '../../db/courseDB';
-import { Tag, DocType } from '../../db/types';
-import { getCourseDB } from '../../db';
-import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
+import CardViewer from '@/components/Study/CardViewer.vue';
 import { StudySessionItem } from '@/db/contentSource';
+import { log } from 'util';
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
+import { CourseDB, getCourseConfig } from '../../db/courseDB';
+import { CourseConfig } from '../../server/types';
+import SkldrVue from '../../SkldrVue';
 
 @Component({
   components: {
