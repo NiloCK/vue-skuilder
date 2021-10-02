@@ -17,6 +17,12 @@
             Add content
           </v-btn>
         </router-link>
+        <router-link :to="`/courses/${_id}/elo`">
+          <v-btn dark color="green darken-2" title="Rank course content for difficulty">
+            <v-icon left>style</v-icon>
+            Arrange
+          </v-btn>
+        </router-link>
         <v-btn color="error" small outline @click="drop">Drop this course</v-btn>
       </div>
       <div v-else>
