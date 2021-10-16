@@ -72,6 +72,38 @@ export class CourseDB implements StudyContentSource {
       };
     });
   }
+  public async getCardsByEloLimits(low: number = 0, high: number = Number.MAX_SAFE_INTEGER) {
+    return (
+      await this.db.query('elo', {
+        startkey: low,
+        endkey: high,
+      })
+    ).rows.map((r) => {
+      return `${this.id}-${r.id}-${r.key}`;
+    });
+  }
+  public async getCardData(id: string[]) {
+    console.log(id);
+    const cards = await this.db.allDocs<CardData>({
+      keys: id,
+      include_docs: true,
+    });
+    let ret: { [card: string]: string[] } = {};
+    cards.rows.forEach((r) => {
+      ret[r.id] = r.doc!.id_displayable_data;
+    });
+
+    await Promise.all(
+      cards.rows.map((r) => {
+        return async () => {
+          ret[r.id] = r.doc!.id_displayable_data;
+        };
+      })
+    );
+
+    return ret;
+  }
+
   public async getCardsCenteredAtELO(
     options: {
       limit: number;
