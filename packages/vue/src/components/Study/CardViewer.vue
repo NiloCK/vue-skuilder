@@ -3,7 +3,7 @@
     <transition name="component-fade" mode="out-in">
       <component
         class="cardView"
-        :is="view"
+        v-bind:is="view"
         v-bind:data="data"
         v-bind:key="course_id + '-' + card_id + '-' + sessionOrder"
         v-on:emitResponse="processResponse($event)"
