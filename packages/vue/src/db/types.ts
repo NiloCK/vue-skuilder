@@ -1,4 +1,5 @@
 import { Answer, Evaluation } from '@/base-course/Displayable';
+import { EloRank } from '@/tutor/Elo';
 import { Moment } from 'moment';
 
 export enum DocType {
@@ -39,7 +40,7 @@ export interface CardData extends SkuilderCourseData {
   // DocType.CARD
   id_displayable_data: PouchDB.Core.DocumentId[];
   id_view: PouchDB.Core.DocumentId;
-  elo?: number;
+  elo?: number | EloRank;
 }
 
 /** A list of populated courses in the DB */
