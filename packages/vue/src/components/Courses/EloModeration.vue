@@ -47,7 +47,7 @@ export default class ELOModerator extends SkldrVue {
   public id2: string = '';
 
   private async created() {
-    const userCourses = await this.$store.state._user!.getCourseRegistrationsDoc();
+    // const userCourses = await this.$store.state._user!.getCourseRegistrationsDoc();
     // this.userIsRegistered = userCourses.courses.filter((c) => {
     //   return c.courseID === this._id && (c.status === 'active' || c.status === undefined)
     // }).length === 1;
