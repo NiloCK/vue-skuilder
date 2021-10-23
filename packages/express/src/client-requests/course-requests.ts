@@ -56,24 +56,28 @@ const elodoc = {
     elo: {
       map: `function (doc) {
                 if (doc.docType && doc.docType === 'CARD') {
-                    if (doc.elo) {
+                    if (doc.elo && typeof(doc.elo) === 'number') {
                         emit(doc.elo, doc._id);
+                    } else if (doc.elo) {
+                        emit(doc.elo.score, doc._id);
                     } else {
                         const randElo = 995 + Math.round(10 * Math.random());
                         emit(randElo, doc._id);
                     }
                 }
             }`,
-      // "mapFcn": function eloView(doc: any) {
-      //     if (doc.docType && doc.docType === 'CARD') {
-      //         if (doc.elo) {
-      //             emit(doc.elo, doc._id);
-      //         } else {
-      //             const randElo = 995 + Math.round(10 * Math.random());
-      //             emit(randElo, doc._id);
-      //         }
+      // mapFcn: function eloView(doc: any) {
+      //   if (doc.docType && doc.docType === 'CARD') {
+      //     if (doc.elo && typeof doc.elo === 'number') {
+      //       emit(doc.elo, doc._id);
+      //     } else if (doc.elo) {
+      //       emit(doc.elo.score, doc._id);
+      //     } else {
+      //       const randElo = 995 + Math.round(10 * Math.random());
+      //       emit(randElo, doc._id);
       //     }
-      // }
+      //   }
+      // },
     },
   },
   language: 'javascript',
