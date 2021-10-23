@@ -21,6 +21,14 @@ export type EloRank = {
   count: number;
 };
 
+export function EloToNumber(elo: number | EloRank): number {
+  if (typeof elo === 'number') {
+    return elo;
+  } else {
+    return elo.score;
+  }
+}
+
 /**
  * Calculates updated ELO scores for users and content after they interact
  *

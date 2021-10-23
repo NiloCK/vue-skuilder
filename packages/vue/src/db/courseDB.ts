@@ -52,7 +52,8 @@ export class CourseDB implements StudyContentSource {
     // this.log()
     const newCards = (await this.getCardsByELO(userCrsdoc!.elo, cardLimit)).filter((card) => {
       return activeCards.indexOf(card) === -1;
-    });
+      }
+    );
 
     // get scheduled reviews ... .... .....
     return newCards;
