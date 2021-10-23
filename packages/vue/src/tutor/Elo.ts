@@ -1,4 +1,4 @@
-export class EloRank {
+export class EloRanker {
   constructor(public k: number = 32) {}
 
   setKFactor(k: number) {
@@ -15,6 +15,11 @@ export class EloRank {
     return Math.round(current + this.k * (actual - expected));
   }
 }
+
+export type EloRank = {
+  score: number;
+  count: number;
+};
 
 /**
  * Calculates updated ELO scores for users and content after they interact
@@ -37,7 +42,7 @@ export function adjustScores(
   if (userScore < 0 || userScore > 1) {
     throw new Error(`ELO performance rating must be between 0 and 1 - received ${userScore}`);
   }
-  const elo = new EloRank(k);
+  const elo = new EloRanker(k);
   const exp = elo.getExpected(userElo, cardElo);
   const updatedUserElo = elo.updateRating(exp, userScore, userElo);
   const updatedCardElo = elo.updateRating(1 - exp, 1 - userScore, cardElo);
