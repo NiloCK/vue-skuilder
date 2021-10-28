@@ -20,7 +20,8 @@
 import CardLoader from '@/components/Study/CardLoader.vue';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import { StudySessionItem } from '@/db/contentSource';
-import { adjustScores } from '@/tutor/Elo';
+import { CardData } from '@/db/types';
+import { adjustCourseScores, CourseElo } from '@/tutor/Elo';
 import { log } from 'util';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
@@ -45,6 +46,8 @@ export default class ELOModerator extends SkldrVue {
   public card2: StudySessionItem;
   public id1: string = '';
   public id2: string = '';
+  public elo1: CourseElo;
+  public elo2: CourseElo;
 
   private async created() {
     // const userCourses = await this.$store.state._user!.getCourseRegistrationsDoc();
@@ -61,7 +64,9 @@ export default class ELOModerator extends SkldrVue {
     const scoreA = parseInt(this.card1.qualifiedID.split('-')[2]);
     const scoreB = parseInt(this.card2.qualifiedID.split('-')[2]);
 
-    const scores = adjustScores(scoreA, scoreB, x === 'a' ? 1 : 0);
+    const scores = adjustCourseScores(this.elo1, this.elo2, x === 'a' ? 1 : 0, {
+      globalOnly: true,
+    });
 
     console.log(`Updating:
     ${this.card1.cardID}: ${scoreA} -> ${scores.userElo}
@@ -88,8 +93,11 @@ export default class ELOModerator extends SkldrVue {
 
     this.id1 = cards[0].qualifiedID;
     this.id2 = cards[1].qualifiedID;
+    const eloData = await this.courseDB.getCardEloData([this.id1, this.id2]);
+    this.elo1 = eloData[0];
+    this.elo2 = eloData[1];
 
-    log(`Loaded cards: ${this.card1.cardID}, ${this.card2.cardID}`);
+    console.log(`Loaded cards: ${this.card1.cardID}, ${this.card2.cardID}`);
     this.updatePending = false;
   }
 }
