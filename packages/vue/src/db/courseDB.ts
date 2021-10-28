@@ -4,6 +4,7 @@ import Courses, { NameSpacer, ShapeDescriptor } from '@/courses';
 import { FieldType } from '@/enums/FieldType';
 import ENV from '@/ENVIRONMENT_VARS';
 import { CourseConfig } from '@/server/types';
+import { blankCourseElo, CourseElo, EloToNumber, toCourseElo } from '@/tutor/Elo';
 import _, { take } from 'lodash';
 import pouch from 'pouchdb-browser';
 import { log } from 'util';
@@ -50,8 +51,9 @@ export class CourseDB implements StudyContentSource {
     const activeCards = await u.getActiveCards(this.id);
 
     // this.log()
-    const newCards = (await this.getCardsByELO(userCrsdoc!.elo, cardLimit)).filter((card) => {
-      return activeCards.indexOf(card) === -1;
+    const newCards = (await this.getCardsByELO(EloToNumber(userCrsdoc!.elo), cardLimit)).filter(
+      (card) => {
+        return activeCards.indexOf(card) === -1;
       }
     );
 
@@ -83,6 +85,15 @@ export class CourseDB implements StudyContentSource {
       return `${this.id}-${r.id}-${r.key}`;
     });
   }
+  public async getCardEloData(id: string[]): Promise<CourseElo[]> {
+    return (
+      await this.db.allDocs<CardData>({
+        keys: id,
+        include_docs: true,
+      })
+    ).rows.map((card) => toCourseElo(card.doc!.elo));
+  }
+
   public async getCardData(id: string[]) {
     console.log(id);
     const cards = await this.db.allDocs<CardData>({
@@ -115,23 +126,24 @@ export class CourseDB implements StudyContentSource {
     },
     filter?: (a: string) => boolean
   ): Promise<StudySessionItem[]> {
-    let elo: number;
+    let targetElo: number;
 
     if (options.elo === 'user') {
       const u = await User.instance();
 
-      elo = -1;
+      targetElo = -1;
       try {
-        elo = (await u.getCourseRegistrationsDoc()).courses.find((c) => {
+        const courseDoc = (await u.getCourseRegistrationsDoc()).courses.find((c) => {
           return c.courseID === this.id;
-        })!.elo;
+        })!;
+        targetElo = EloToNumber(courseDoc.elo);
       } catch {
-        elo = 1000;
+        targetElo = 1000;
       }
     } else if (options.elo === 'random') {
-      elo = Math.round(Math.random() * 2000);
+      targetElo = Math.round(Math.random() * 2000);
     } else {
-      elo = options.elo;
+      targetElo = options.elo;
     }
 
     let cards: string[] = [];
@@ -140,7 +152,7 @@ export class CourseDB implements StudyContentSource {
     let newCount: number = 0;
 
     while (cards.length < options.limit && newCount !== previousCount) {
-      cards = await this.getCardsByELO(elo, mult * options.limit);
+      cards = await this.getCardsByELO(targetElo, mult * options.limit);
       previousCount = newCount;
       newCount = cards.length;
 
@@ -623,14 +635,15 @@ async function createCard(
             course: qDescriptor.course,
             questionType: qDescriptor.questionType,
             view,
-          })
+          }),
+          blankCourseElo()
         );
       }
     }
   }
 }
 
-export async function updateCardElo(courseID: string, cardID: string, elo: number) {
+export async function updateCardElo(courseID: string, cardID: string, elo: CourseElo) {
   if (elo) {
     // checking against null, undefined, NaN
     const cDB = getCourseDB(courseID);
@@ -653,7 +666,7 @@ function addCard(
   course: string,
   id_displayable_data: PouchDB.Core.DocumentId[],
   id_view: PouchDB.Core.DocumentId,
-  elo?: number
+  elo: CourseElo
 ) {
   return getCourseDB(courseID).post<CardData>({
     course,
