@@ -1,21 +1,20 @@
+import { Status } from '@/enums/Status';
 import ENV from '@/ENVIRONMENT_VARS';
 import { GuestUsername, UserConfig } from '@/store';
+import { CourseElo } from '@/tutor/Elo';
+import moment, { Moment } from 'moment';
 import pouch from 'pouchdb-browser';
 import { log } from 'util';
+import { getCourseConfigs } from './courseDB';
 import {
-  hexEncode,
-  pouchDBincludeCredentialsConfig,
-  updateGuestAccountExpirationDate,
   filterAlldocsByPrefix,
   getStartAndEndKeys,
+  hexEncode,
+  pouchDBincludeCredentialsConfig,
   REVIEW_PREFIX,
   REVIEW_TIME_FORMAT,
+  updateGuestAccountExpirationDate,
 } from './index';
-import { getCourseConfigs } from './courseDB';
-import { Status } from '@/enums/Status';
-import moment from 'moment';
-import { Moment } from 'moment';
-import { CardHistory, CardRecord, getCardHistoryID } from './types';
 import UpdateQueue, { Update } from './updateQueue';
 
 const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + 'skuilder';
@@ -280,8 +279,14 @@ Currently logged-in as ${this._username}.`
           user: true,
           admin: false,
           moderator: false,
-          elo: 1000,
-          taggedElo: {},
+          elo: {
+            global: {
+              score: 1000,
+              count: 0,
+            },
+            tags: {},
+            misc: {},
+          },
         };
 
         if (
@@ -679,10 +684,6 @@ function accomodateGuest(): {
 const userCoursesDoc = 'CourseRegistrations';
 const userClassroomsDoc = 'ClassroomRegistrations';
 
-interface TaggedElo {
-  [tag: string]: number;
-}
-
 export interface CourseRegistration {
   status?: 'active' | 'dropped' | 'maintenance-mode' | 'preview';
   courseID: string;
@@ -692,8 +693,7 @@ export interface CourseRegistration {
   settings?: {
     [setting: string]: string | number | boolean;
   };
-  elo: number;
-  taggedElo: TaggedElo;
+  elo: number | CourseElo;
 }
 
 interface StudyWeights {
@@ -767,20 +767,11 @@ async function getOrCreateCourseRegistrationsDoc(
   return ret;
 }
 
-export async function updateUserElo(user: string, course_id: string, elo: number | TaggedElo) {
+export async function updateUserElo(user: string, course_id: string, elo: CourseElo) {
   let regDoc = await getOrCreateCourseRegistrationsDoc(user);
-  if (isTaggedElo(elo)) {
-    for (const tag in elo) {
-      regDoc.courses.find((c) => c.courseID === course_id)!.taggedElo[tag] = elo[tag];
-    }
-  } else {
-    regDoc.courses.find((c) => c.courseID === course_id)!.elo = elo;
-  }
+  const course = regDoc.courses.find((c) => c.courseID === course_id)!;
+  course.elo = elo;
   return getUserDB(user).put(regDoc);
-}
-
-function isTaggedElo(e: number | TaggedElo): e is TaggedElo {
-  return (e as TaggedElo).length !== undefined;
 }
 
 export async function registerUserForClassroom(
