@@ -58,6 +58,8 @@ const elodoc = {
                 if (doc.docType && doc.docType === 'CARD') {
                     if (doc.elo && typeof(doc.elo) === 'number') {
                         emit(doc.elo, doc._id);
+                    } else if (doc.elo && doc.elo.global) {
+                        emit(doc.elo.global.score, doc._id);
                     } else if (doc.elo) {
                         emit(doc.elo.score, doc._id);
                     } else {
