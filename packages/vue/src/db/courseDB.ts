@@ -506,11 +506,22 @@ export async function addTagToCard(
   // In this case, should be converted to a server-request
   const prefixedTagID = getTagID(tagID);
   const courseDB = getCourseDB(courseID);
+  const courseApi = new CourseDB(courseID);
   try {
     log(`Applying tag ${tagID} to card ${courseID + '-' + cardID}...`);
     const tag = await courseDB.get<Tag>(prefixedTagID);
     if (!tag.taggedCards.includes(cardID)) {
       tag.taggedCards.push(cardID);
+
+      courseApi.getCardEloData([cardID]).then((eloData) => {
+        const elo = eloData[0];
+        elo.tags[tagID] = {
+          count: 0,
+          score: elo.global.score, // todo: or 1000?
+        };
+        updateCardElo(courseID, cardID, elo);
+      });
+
       return courseDB.put<Tag>(tag);
     } else throw new Error(`Card already has this tag`);
   } catch (e) {
