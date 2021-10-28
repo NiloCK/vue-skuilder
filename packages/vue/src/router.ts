@@ -18,6 +18,7 @@ import ReleaseNotes from './views/ReleaseNotes.vue';
 import Study from './views/Study.vue';
 import User from './views/User.vue';
 import Stats from './components/User/Stats.vue';
+import TagInformation from './components/Courses/TagInformation.vue';
 
 Vue.use(Router);
 
@@ -115,6 +116,12 @@ export default new Router({
       props: true,
       alias: ['/quilts/:_id/elo', '/q/:_id/elo'],
       component: ELOModerator,
+    },
+    {
+      path: '/courses/:_courseId/tags/:_id',
+      props: true,
+      alias: ['/quilts/:_courseId/tags/:_id', '/q/:_courseId/tags/:_id'],
+      component: TagInformation,
     },
     {
       path: '/courses/:previewCourseID/preview',

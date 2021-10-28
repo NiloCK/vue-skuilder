@@ -41,7 +41,11 @@
         {{ tags.length }}
       </v-toolbar>
       <v-card-text>
-        <v-chip outline v-for="(tag, i) in tags" v-bind:key="i">{{ tag.name }}</v-chip>
+        <v-chip outline v-for="(tag, i) in tags" v-bind:key="i">
+          <router-link :to="`/q/${_id}/tags/${tag.name}`">
+            {{ tag.name }}
+          </router-link>
+        </v-chip>
       </v-card-text>
     </v-card>
 
@@ -56,30 +60,15 @@
 </template>
 
 <script lang="ts">
-import SkldrVue from '../../SkldrVue';
-import Component from 'vue-class-component';
-import {
-  CourseConfig,
-  CreateCourse,
-  ServerRequestType,
-  DataShape55,
-  QuestionType55,
-  ClassroomConfig,
-  CreateClassroom,
-} from '../../server/types';
-import serverRequest from '../../server';
-import { alertUser } from '../SnackbarService.vue';
-import { Status } from '../../enums/Status';
-import Mousetrap from 'mousetrap';
-import { log } from 'util';
-import moment from 'moment';
-import { registerUserForClassroom } from '../../db/userDB';
-import TeacherClassroomDB, { getClassroomDB, CLASSROOM_CONFIG, AssignedContent } from '../../db/classroomDB';
-import { Prop, Watch } from 'vue-property-decorator';
-import { getCourseList, getCourseTagStubs, getCourseConfig, CourseDB } from '../../db/courseDB';
-import { Tag, DocType } from '../../db/types';
-import { getCourseDB } from '../../db';
 import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
+import { log } from 'util';
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
+import { getCourseDB } from '../../db';
+import { CourseDB, getCourseConfig, getCourseTagStubs } from '../../db/courseDB';
+import { DocType, Tag } from '../../db/types';
+import { CourseConfig } from '../../server/types';
+import SkldrVue from '../../SkldrVue';
 
 @Component({
   components: {
