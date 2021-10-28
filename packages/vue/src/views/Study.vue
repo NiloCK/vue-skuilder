@@ -168,7 +168,14 @@ import CardViewer from '@/components/Study/CardViewer.vue';
 import CardLoader from '@/components/Study/CardLoader.vue';
 import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
 import Courses, { NameSpacer } from '@/courses';
-import { getRandomCards, putCardRecord, scheduleCardReview, getCourseDoc, removeScheduledCardReview } from '@/db';
+import {
+  getRandomCards,
+  putCardRecord,
+  scheduleCardReview,
+  getCourseDoc,
+  removeScheduledCardReview,
+  getCourseDB,
+} from '@/db';
 import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import { log } from 'util';
 import { newInterval } from '@/db/SpacedRepetition';
@@ -204,7 +211,7 @@ import {
 } from '@/db/contentSource';
 import SessionController, { StudySessionRecord } from '@/db/SessionController';
 import confetti from 'canvas-confetti';
-import { adjustScores } from '@/tutor/Elo';
+import { adjustCourseScores, toCourseElo } from '@/tutor/Elo';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
@@ -596,11 +603,13 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
   }
 
   private async updateUserAndCardElo(userScore: number, course_id: string, card_id: string, k?: number) {
-    const userElo = this.userCourseRegDoc.courses.find((c) => c.courseID === course_id)!.elo;
-    const cardElo = this.currentCard.card.card_elo;
+    const userElo = toCourseElo(this.userCourseRegDoc.courses.find((c) => c.courseID === course_id)!.elo);
+    const cardElo = (
+      await new CourseDB(this.currentCard.card.course_id).getCardEloData([this.currentCard.card.card_id])
+    )[0];
 
     if (cardElo && userElo) {
-      const eloUpdate = adjustScores(userElo, cardElo, userScore, k);
+      const eloUpdate = adjustCourseScores(userElo, cardElo, userScore);
       this.userCourseRegDoc.courses.find((c) => c.courseID === course_id)!.elo = eloUpdate.userElo;
 
       Promise.all([
@@ -613,8 +622,8 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
         if (user.ok && card && card.ok) {
           console.log(
             `Updated ELOS:
-\tUser: ${eloUpdate.userElo} (${eloUpdate.userElo - userElo})
-\tCard: ${eloUpdate.cardElo} (${eloUpdate.cardElo - cardElo})
+\tUser: ${JSON.stringify(eloUpdate.userElo)})
+\tCard: ${JSON.stringify(eloUpdate.cardElo)})
 `
           );
         }
