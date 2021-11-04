@@ -48,6 +48,9 @@ const typeMap: {
   },
 })
 export default class FillInView extends QuestionView<BlanksCard> {
+  public toString() {
+    return this.data[0].Input as string;
+  }
   get question() {
     return new BlanksCard(this.data);
   }
