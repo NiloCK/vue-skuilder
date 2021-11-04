@@ -94,7 +94,7 @@ export class CourseDB implements StudyContentSource {
     ).rows.map((card) => toCourseElo(card.doc!.elo));
   }
 
-  public async getCardData(id: string[]) {
+  public async getCardDisplayableDataIDs(id: string[]) {
     console.log(id);
     const cards = await this.db.allDocs<CardData>({
       keys: id,

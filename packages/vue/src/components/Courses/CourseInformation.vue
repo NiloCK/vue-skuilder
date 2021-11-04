@@ -33,7 +33,6 @@
       </div>
     </transition>
 
-    <div class="body-2">{{ questionCount }} exercises</div>
     <v-card>
       <v-toolbar dense>
         <v-toolbar-title>Tags</v-toolbar-title>
@@ -49,6 +48,38 @@
       </v-card-text>
     </v-card>
 
+    <v-card>
+      <v-toolbar dense>
+        <v-toolbar-title>Exercises</v-toolbar-title>
+        <v-spacer></v-spacer>
+        {{ questionCount }}
+      </v-toolbar>
+      <v-list two-line>
+        <template v-for="(c, i) in cards">
+          <v-list-tile v-bind:key="c">
+            <v-list-tile-content>
+              <v-list-tile-title>
+                {{ cardPreview[c] }}
+              </v-list-tile-title>
+              <v-list-tile-sub-title>
+                {{ c.split('-')[2] }}
+              </v-list-tile-sub-title>
+            </v-list-tile-content>
+            <v-list-tile-action>
+              <v-btn icon>
+                <v-icon>more</v-icon>
+              </v-btn>
+            </v-list-tile-action>
+            <v-list-tile-action>
+              <v-btn icon>
+                <v-icon>zoom_in</v-icon>
+              </v-btn>
+            </v-list-tile-action>
+          </v-list-tile>
+        </template>
+      </v-list>
+    </v-card>
+
     <!-- <div style="background-color: red; padding: 15px; margin: 10px">
       <v-text-field v-model="elo" label="elo" id="id" type="number"></v-text-field>
       <v-text-field v-model="num" label="CardCount" id="id" type="number"></v-text-field>
@@ -61,14 +92,16 @@
 
 <script lang="ts">
 import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
+import Courses from '@/courses';
 import { log } from 'util';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import { getCourseDB } from '../../db';
+import { getCourseDB, getCourseDoc, getCourseDocs } from '../../db';
 import { CourseDB, getCourseConfig, getCourseTagStubs } from '../../db/courseDB';
-import { DocType, Tag } from '../../db/types';
+import { CardData, DisplayableData, DocType, Tag } from '../../db/types';
 import { CourseConfig } from '../../server/types';
 import SkldrVue from '../../SkldrVue';
+import { displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 
 @Component({
   components: {
@@ -77,12 +110,17 @@ import SkldrVue from '../../SkldrVue';
 })
 export default class CourseInformation extends SkldrVue {
   @Prop({ required: true }) private _id: string;
+  private courseDB: CourseDB;
 
   private get isPianoCourse(): boolean {
     return this._courseConfig.name.toLowerCase().includes('piano');
   }
 
   private tagStr(t: Tag) {}
+
+  private cards: string[] = [];
+  private cardData: { [card: string]: string[] } = {};
+  private cardPreview: { [card: string]: string } = {};
 
   private nameRules: Array<(value: string) => string | boolean> = [
     (value) => {
@@ -109,6 +147,54 @@ export default class CourseInformation extends SkldrVue {
   private tags: Tag[] = [];
 
   private async created() {
+    this.courseDB = new CourseDB(this._id);
+    this.cards = await this.courseDB.getCardsByEloLimits();
+
+    const hydratedCardData = (
+      await getCourseDocs<CardData>(
+        this._id,
+        this.cards.map((c) => c.split('-')[1]),
+        {
+          include_docs: true,
+        }
+      )
+    ).rows.map((r) => r.doc!);
+
+    hydratedCardData.forEach((c) => {
+      this.cardData[c._id] = c.id_displayable_data;
+    });
+
+    this.cards.forEach(async (c) => {
+      console.log(`generating preview for ${c}`);
+      const _courseID: string = c.split('-')[0];
+      const _cardID: string = c.split('-')[1];
+
+      const tmpCardData = hydratedCardData.find((c) => c._id == _cardID)!;
+      const tmpView = Courses.getView(tmpCardData.id_view);
+
+      // todo 143 / perf: this fetch is non-blocking, but is making a db
+      // query for each card. much much better to batch query by allDocs
+      // with keys list
+      const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
+        return getCourseDoc<DisplayableData>(_courseID, id, {
+          attachments: false,
+          binary: true,
+        });
+      });
+
+      Promise.all(tmpDataDocs).then((docs) => {
+        docs.forEach((doc) => {
+          const tmpData = [];
+          tmpData.unshift(displayableDataToViewData(doc));
+
+          const view = new tmpView();
+          (view as any).data = tmpData;
+
+          this.cardPreview[c] = view.toString();
+        });
+      });
+    });
+
     const userCourses = await this.$store.state._user!.getCourseRegistrationsDoc();
     this.userIsRegistered =
       userCourses.courses.filter((c) => {
