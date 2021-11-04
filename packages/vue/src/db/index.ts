@@ -64,7 +64,6 @@ export function getCourseDB(courseID: string): PouchDB.Database {
 
 export async function getLatestVersion() {
   try {
-
     const docs = await getCouchDB('version').allDocs({
       descending: true,
       limit: 1,
@@ -111,6 +110,17 @@ export function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) 
         date: expirationDate,
       });
     });
+}
+
+export function getCourseDocs<T extends SkuilderCourseData>(
+  courseID: string,
+  docIDs: string[],
+  options: PouchDB.Core.AllDocsOptions = {}
+) {
+  return getCourseDB(courseID).allDocs<T>({
+    ...options,
+    keys: docIDs,
+  });
 }
 
 export function getCourseDoc<T extends SkuilderCourseData>(
@@ -167,18 +177,18 @@ export async function putCardRecord<T extends CardRecord>(
   const cardHistoryID = getCardHistoryID(record.courseID, record.cardID);
   // stringify the current record to make it writable to couchdb
   record.timeStamp = moment.utc(record.timeStamp).toString() as any;
-  
+
   try {
     const u = await User.instance();
-    
+
     const cardHistory = await u.update<CardHistory<T>>(cardHistoryID, function (h: CardHistory<T>) {
       h.records.push(record);
       h.bestInterval = h.bestInterval || 0;
       h.lapses = h.lapses || 0;
-      h.streak= h.streak || 0;
+      h.streak = h.streak || 0;
       return h;
     });
-    
+
     momentifyCardHistory<T>(cardHistory);
     return cardHistory;
   } catch (reason) {
@@ -205,11 +215,11 @@ message: ${reason.message}`);
 }
 
 function deMomentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>) {
-  cardHistory.records = cardHistory.records.map( r => {
-        return {
-          ...r,
-          timeStamp: r.timeStamp.toString()
-        }
+  cardHistory.records = cardHistory.records.map((r) => {
+    return {
+      ...r,
+      timeStamp: r.timeStamp.toString(),
+    };
   });
 }
 function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>) {
