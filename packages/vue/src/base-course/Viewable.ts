@@ -12,6 +12,9 @@ import { HotKey } from '@/SkldrMouseTrap';
  */
 export default abstract class Viewable extends Vue {
   @Prop() public data: ViewData[];
+  public toString(): string {
+    return '!!! preview not implemented !!!';
+  }
   protected startTime: moment.Moment = moment.utc();
   protected MouseTrap = new MouseTrap(this.$el);
   public hotKeys: HotKey[] = [];
