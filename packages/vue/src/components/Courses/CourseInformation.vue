@@ -54,20 +54,27 @@
         <v-spacer></v-spacer>
         {{ questionCount }}
       </v-toolbar>
-      <v-list two-line>
-        <template v-for="(c, i) in cards">
-          <v-list-tile v-bind:key="c">
+      <v-list two-line dense>
+        <template v-for="c in cards">
+          <v-list-tile
+            v-bind:key="c"
+            v-bind:class="selectedCard == c ? 'elevation-4 font-weight-black teal lighten-5' : ''"
+          >
             <v-list-tile-content>
-              <v-list-tile-title>
-                {{ cardPreview[c] }}
-              </v-list-tile-title>
-              <v-list-tile-sub-title>
-                {{ c.split('-')[2] }}
-              </v-list-tile-sub-title>
+              <!-- <card-viewer v-if="selectedCard === c" /> -->
+              <template>
+                <v-list-tile-title>
+                  {{ cardPreview[c] }}
+                </v-list-tile-title>
+                <v-list-tile-sub-title>
+                  {{ c.split('-')[2] }}
+                </v-list-tile-sub-title>
+              </template>
             </v-list-tile-content>
             <v-list-tile-action>
-              <v-btn icon>
-                <v-icon>more</v-icon>
+              <v-btn icon v-on:click="selectedCard = selectedCard == c ? '' : c">
+                <v-icon v-if="selectedCard !== c">open_in_full</v-icon>
+                <v-icon v-else>close</v-icon>
               </v-btn>
             </v-list-tile-action>
             <v-list-tile-action>
@@ -76,6 +83,9 @@
               </v-btn>
             </v-list-tile-action>
           </v-list-tile>
+          <!-- <transition name="component-scale" mode="out-in" v-bind:key="c"> -->
+          <card-loader v-bind:key="c" v-if="selectedCard === c" v-bind:qualified_id="c" />
+          <!-- </transition> -->
         </template>
       </v-list>
     </v-card>
@@ -91,6 +101,7 @@
 </template>
 
 <script lang="ts">
+import CardLoader from '@/components/Study/CardLoader.vue';
 import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
 import Courses from '@/courses';
 import { log } from 'util';
@@ -106,6 +117,7 @@ import { displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 @Component({
   components: {
     MidiConfig,
+    CardLoader,
   },
 })
 export default class CourseInformation extends SkldrVue {
@@ -121,6 +133,7 @@ export default class CourseInformation extends SkldrVue {
   private cards: string[] = [];
   private cardData: { [card: string]: string[] } = {};
   private cardPreview: { [card: string]: string } = {};
+  private selectedCard: string = '';
 
   private nameRules: Array<(value: string) => string | boolean> = [
     (value) => {
@@ -165,7 +178,7 @@ export default class CourseInformation extends SkldrVue {
     });
 
     this.cards.forEach(async (c) => {
-      console.log(`generating preview for ${c}`);
+      // console.log(`generating preview for ${c}`);
       const _courseID: string = c.split('-')[0];
       const _cardID: string = c.split('-')[1];
 
@@ -241,5 +254,19 @@ export default class CourseInformation extends SkldrVue {
 .component-fade-enter, .component-fade-leave-to
 /* .component-fade-leave-active below version 2.1.8 */ {
   opacity: 0;
+}
+
+.component-scale-enter-active,
+.component-scale-leave-active {
+  max-height: auto;
+  transform: scale(1, 1);
+  transform-origin: top;
+  transition: transform 0.3s ease, max-height 0.3s ease;
+}
+.component-scale-enter,
+.component-fade-leave-to {
+  max-height: 0px;
+  transform: scale(1, 0);
+  overflow: hidden;
 }
 </style>
