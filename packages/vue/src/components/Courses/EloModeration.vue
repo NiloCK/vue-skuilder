@@ -93,7 +93,7 @@ export default class ELOModerator extends SkldrVue {
 
     this.id1 = cards[0].qualifiedID;
     this.id2 = cards[1].qualifiedID;
-    const eloData = await this.courseDB.getCardEloData([this.id1, this.id2]);
+    const eloData = await this.courseDB.getCardEloData([this.card1.cardID, this.card2.cardID]);
     this.elo1 = eloData[0];
     this.elo2 = eloData[1];
 
