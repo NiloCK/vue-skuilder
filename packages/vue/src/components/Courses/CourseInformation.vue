@@ -108,7 +108,7 @@ import { log } from 'util';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import { getCourseDB, getCourseDoc, getCourseDocs } from '../../db';
-import { CourseDB, getCourseConfig, getCourseTagStubs } from '../../db/courseDB';
+import { CourseDB, getCachedCourseList, getCourseConfig, getCourseList, getCourseTagStubs } from '../../db/courseDB';
 import { CardData, DisplayableData, DocType, Tag } from '../../db/types';
 import { CourseConfig } from '../../server/types';
 import SkldrVue from '../../SkldrVue';
@@ -160,6 +160,16 @@ export default class CourseInformation extends SkldrVue {
   private tags: Tag[] = [];
 
   private async created() {
+    // const courses = await getCachedCourseList();
+
+    // const thisCourse = courses.find((c) => c.name.replace(' ', '_') === this._id || c.courseID === this._id);
+    // if (thisCourse) {
+    //   console.log(`found ${JSON.stringify(thisCourse)}`);
+    //   this._id = thisCourse.courseID!;
+    // } else {
+    //   console.log(`No course found for ${this._id}`);
+    //   return;
+    // }
     this.courseDB = new CourseDB(this._id);
     this.cards = await this.courseDB.getCardsByEloLimits();
 
