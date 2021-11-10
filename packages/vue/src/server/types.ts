@@ -72,6 +72,10 @@ export interface ClassroomConfig {
 }
 
 export interface CourseConfig {
+  /** courseID is generated server-side. It is not present on
+   * new courses at the time of writing, client-side, but always
+   * present (!) when a CourseConfig is retrieved from the database
+   */
   courseID?: string;
   name: string;
   description: string;
@@ -82,6 +86,7 @@ export interface CourseConfig {
   moderators: string[];
   dataShapes: DataShape55[];
   questionTypes: QuestionType55[];
+  disambiguator?: string;
 }
 
 export interface CreateCourse extends IServerRequest {
