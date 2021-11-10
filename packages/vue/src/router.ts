@@ -3,9 +3,11 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import ClassroomCtrlPanel from './components/Classrooms/ClassroomCtrlPanel.vue';
 import JoinCode from './components/Classrooms/JoinCode.vue';
-import CourseInformation from './components/Courses/CourseInformation.vue';
+import CourseRouter from './components/Courses/CourseRouter.vue';
 import ELOModerator from './components/Courses/EloModeration.vue';
+import TagInformation from './components/Courses/TagInformation.vue';
 import CourseEditor from './components/Edit/CourseEditor.vue';
+import Stats from './components/User/Stats.vue';
 import About from './views/About.vue';
 import Admin from './views/Admin.vue';
 import Classrooms from './views/Classrooms.vue';
@@ -13,12 +15,10 @@ import Courses from './views/Courses.vue';
 import Edit from './views/Edit.vue';
 import Home from './views/Home.vue';
 import Login from './views/Login.vue';
-import SignUp from './views/SignUp.vue';
 import ReleaseNotes from './views/ReleaseNotes.vue';
+import SignUp from './views/SignUp.vue';
 import Study from './views/Study.vue';
 import User from './views/User.vue';
-import Stats from './components/User/Stats.vue';
-import TagInformation from './components/Courses/TagInformation.vue';
 
 Vue.use(Router);
 
@@ -106,10 +106,10 @@ export default new Router({
       component: Courses,
     },
     {
-      path: '/courses/:_id',
+      path: '/courses/:query',
       props: true,
-      alias: ['/quilts/:_id', '/q/:_id'],
-      component: CourseInformation,
+      alias: ['/quilts/:query', '/q/:query'],
+      component: CourseRouter,
     },
     {
       path: '/courses/:_id/elo',
