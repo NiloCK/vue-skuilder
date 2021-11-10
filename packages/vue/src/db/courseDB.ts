@@ -80,6 +80,7 @@ export class CourseDB implements StudyContentSource {
       await this.db.query('elo', {
         startkey: low,
         endkey: high,
+        limit: 25,
       })
     ).rows.map((r) => {
       return `${this.id}-${r.id}-${r.key}`;
@@ -91,7 +92,10 @@ export class CourseDB implements StudyContentSource {
         keys: id,
         include_docs: true,
       })
-    ).rows.map((card) => toCourseElo(card.doc!.elo));
+    ).rows.map((card) => {
+      // console.log(JSON.stringify(card));
+      return toCourseElo(card.doc!.elo);
+    });
   }
 
   public async getCardDisplayableDataIDs(id: string[]) {
@@ -276,6 +280,35 @@ export async function removeCourse(courseID: string) {
       ...course,
     });
   });
+}
+
+export async function disambiguateCourse(course: string, disambiguator: string) {
+  // do NOT update the `CourseConfig` doc in the course database.
+  // This information is for the course router only, and does not
+  // directly impaact the running of the course itself
+
+  // write to the lookup db
+  courseLookupDB.get<CourseConfig>(course).then((cfg) => {
+    courseLookupDB.put({
+      ...cfg,
+      disambiguator,
+    });
+  });
+}
+
+var courseListCache: CourseConfig[] = [];
+export async function getCachedCourseList(): Promise<CourseConfig[]> {
+  if (courseListCache.length) {
+    return courseListCache;
+  } else {
+    courseListCache = (await getCourseList()).rows.map((r) => {
+      return {
+        ...r.doc!,
+        courseID: r.id,
+      };
+    });
+    return getCachedCourseList();
+  }
 }
 
 export async function getCourseList() {
