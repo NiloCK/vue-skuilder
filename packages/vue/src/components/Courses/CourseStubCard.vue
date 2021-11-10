@@ -52,7 +52,7 @@ export default class CourseStubCard extends SkldrVue {
   private async created() {
     const db = await getCourseDB(this._id);
     this._courseConfig = (await getCourseConfig(this._id))!;
-    this.isPrivate = !this._courseConfig.public
+    this.isPrivate = !this._courseConfig.public;
     this.questionCount = (
       await db.find({
         limit: 1000,
@@ -65,7 +65,7 @@ export default class CourseStubCard extends SkldrVue {
   }
 
   routeToCourse() {
-    this.$router.push(`/quilts/${this._id}`);
+    this.$router.push(`/quilts/${this._courseConfig.name.replace(' ', '_')}`);
   }
 
   async registerForCourse() {
