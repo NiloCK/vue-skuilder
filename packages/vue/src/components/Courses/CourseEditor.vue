@@ -54,20 +54,23 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import SkldrVue from '../../SkldrVue';
-import Component from 'vue-class-component';
-import { CourseConfig, CreateCourse, ServerRequestType, DataShape55, QuestionType55 } from '../../server/types';
-import serverRequest from '../../server';
-import { alertUser } from '../SnackbarService.vue';
-import { Status } from '../../enums/Status';
 import Mousetrap from 'mousetrap';
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
+import serverRequest from '../../server';
+import { CourseConfig, CreateCourse, DataShape55, QuestionType55, ServerRequestType } from '../../server/types';
+import SkldrVue from '../../SkldrVue';
+import { alertUser } from '../SnackbarService.vue';
 
 @Component({})
 export default class CourseEditor extends SkldrVue {
   private mousetrap = new Mousetrap(this.$el);
 
   private id: string = '';
+  @Prop({
+    required: false,
+    default: '',
+  })
   private name: string = '';
   private nameRules: Array<(value: string) => string | boolean> = [
     (value) => {
