@@ -37,7 +37,7 @@ jobs:
           ecount=$(ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ls -1v /home/skuilder/dist/express/ | tail -n1)
           ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/dist/express/$(($ecount+1))
           rsync -rl ./packages/express/dist/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/$(($ecount+1))
-          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ln -sfn /home/skuilder/dist/express/$(($vcount+1)) /home/skuilder/api
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ln -sfn /home/skuilder/dist/express/$(($ecount+1)) /home/skuilder/api
         # restart service, loading from ~/api
 
       # todo: toss a buildinfo.md file into the (vcount+1) folder, linking PR, listing time, logging build errors, etc
