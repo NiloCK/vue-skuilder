@@ -77,11 +77,6 @@
                 <v-icon v-else>close</v-icon>
               </v-btn>
             </v-list-tile-action>
-            <v-list-tile-action>
-              <v-btn icon>
-                <v-icon>zoom_in</v-icon>
-              </v-btn>
-            </v-list-tile-action>
           </v-list-tile>
           <!-- <transition name="component-scale" mode="out-in" v-bind:key="c"> -->
           <card-loader v-bind:key="c" v-if="selectedCard === c" v-bind:qualified_id="c" />
