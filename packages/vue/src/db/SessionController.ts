@@ -188,8 +188,8 @@ export default class SessionController extends Loggable {
     const perCourse = Math.ceil(n / this.sources.length);
     const newContent = await Promise.all(this.sources.map((c) => c.getNewCards(perCourse)));
 
-    newContent.forEach((newContent) => {
-      newContent.filter((c) => {
+    newContent.forEach((newContentFromSource) => {
+      newContentFromSource = newContentFromSource.filter((c) => {
         this._sessionRecord.find((record) => record.card.card_id === c.cardID);
       });
     });
