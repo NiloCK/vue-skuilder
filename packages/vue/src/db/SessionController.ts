@@ -190,7 +190,7 @@ export default class SessionController extends Loggable {
 
     newContent.forEach((newContentFromSource) => {
       newContentFromSource = newContentFromSource.filter((c) => {
-        this._sessionRecord.find((record) => record.card.card_id === c.cardID);
+        return this._sessionRecord.find((record) => record.card.card_id === c.cardID) === undefined;
       });
     });
 
