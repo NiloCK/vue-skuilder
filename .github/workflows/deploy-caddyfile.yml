@@ -1,0 +1,16 @@
+name: deploy-caddyfile
+on:
+  pull_request:
+    branches:
+      - deploy
+    paths:
+      - '.deployment/Caddyfile'
+jobs:
+  deploy_caddyfile:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+        echo "deploying updated Caddyfile in place of prior"
+        scp .deplotment/Caddyfile ${{ secrets.DO_USERNAME }}@eduquilt.com/etc/caddy/Caddyfile
+        echo "restarting the caddy service"
+        ssh ${{ secrets.DO_USERNAME }}@eduquilt.com caddy reload
