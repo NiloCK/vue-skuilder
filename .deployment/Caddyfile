@@ -20,6 +20,10 @@ eduquilt.com {
 		reverse_proxy localhost:3000
 	}
 
+	handle_path /testpath {
+		respond "this worked"
+	}
+
 	handle {
 		root * /home/skuilder/www
 		try_files {path} {path}/ /index.html
