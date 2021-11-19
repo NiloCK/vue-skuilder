@@ -9,6 +9,8 @@ jobs:
   deploy_caddyfile:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
       - name: auth step
         uses: shimataro/ssh-key-action@v2
         with:
