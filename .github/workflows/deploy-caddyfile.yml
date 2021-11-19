@@ -9,6 +9,11 @@ jobs:
   deploy_caddyfile:
     runs-on: ubuntu-latest
     steps:
+      uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DO_SSH_KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
       - run: |
           echo "deploying updated Caddyfile in place of prior"
           scp .deployment/Caddyfile ${{ secrets.DO_USERNAME }}@eduquilt.com:/etc/caddy/Caddyfile
