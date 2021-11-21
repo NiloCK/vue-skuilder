@@ -4,15 +4,12 @@
       <v-progress-circular indeterminate color="secondary"></v-progress-circular>
     </div>
     <div v-else>
-      <v-btn @click="toggleComponent" color="success">Content Editing / Component Registration</v-btn>
+      <v-btn v-on:click="toggleComponent" color="success">Content Editing / Component Registration</v-btn>
       <div v-if="editingMode">
-        <!-- <div>
-          {{`There ${registeredDataShapes.length !== 1 ? 'are' : 'is'} ${registeredDataShapes.length} registered data shape${registeredDataShapes.length === 1 ? '' : 's'} in the course.`}}
-        </div> -->
         <v-select
           v-model="selectedShape"
           label="What kind of content are you adding?"
-          :items="registeredDataShapes.map((shape) => shape.name)"
+          v-bind:items="registeredDataShapes.map((shape) => shape.name)"
         />
 
         <data-input-form v-if="selectedShape !== ''" />
@@ -26,6 +23,7 @@
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import ComponentRegistration from '@/components/Edit/ComponentRegistration/ComponentRegistration.vue';
 import Courses, { NameSpacer } from '@/courses';
+import { BlanksCard } from '@/courses/default/questions/fillIn';
 import SkldrVue from '@/SkldrVue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
 import { getCredentialledCourseConfig } from '../../db/courseDB';
@@ -46,7 +44,7 @@ export default class CourseEditor extends SkldrVue {
   public course: string;
   public registeredDataShapes: DataShape[] = [];
   public dataShapes: DataShape[] = [];
-  public selectedShape: string = '';
+  public selectedShape: string = BlanksCard.dataShapes[0].name; // default to 'BlanksCard'
   public courseConfig: CourseConfig;
   private loading: boolean = true; // datashapes are loading on init
   private editingMode: boolean = true;
@@ -59,7 +57,9 @@ export default class CourseEditor extends SkldrVue {
     }
   }
   public async created() {
+    this.onShapeSelected(this.selectedShape);
     this.courseConfig = await getCredentialledCourseConfig(this.course);
+
     // for testing getCourseTagStubs...
     // log(JSON.stringify(await getCourseTagStubs(this.course)));
 
