@@ -1,3 +1,7 @@
+[![image](https://user-images.githubusercontent.com/10780590/132559883-8d65a1ef-d930-468b-8805-7e1003e05c7d.png)](https://www.youtube.com/watch?v=a6tvHMvF8Mo)
+
+An experiment in mass-collaborative authoring of general, intelligent tutoring systems.
+
 # Usage
 
 ## Installation

@@ -1,7 +1,10 @@
 <template>
   <div>
     <v-textarea v-if="testRoute" outline label="Type Here" name="name" v-model="md" />
-    <md-token-renderer v-for="(token, i) in tokens" :key="i" :token="token" :last="i === tokens.length - 1" />
+    <span v-for="(token, i) in tokens" v-bind:key="i">
+      <md-token-renderer v-if="token.type" v-bind:token="token" v-bind:last="i === tokens.length - 1" />
+      <audio-auto-player v-else-if="token.audio" v-bind:src="token.audio" />
+    </span>
   </div>
 </template>
 
@@ -10,6 +13,13 @@ import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import MdTokenRenderer from './MdTokenRenderer.vue';
 import marked, { Tokenizer } from 'marked';
 import hljs from 'highlight.js';
+
+type SkldrToken =
+  | marked.Token
+  | {
+      type: false;
+      audio: string;
+    };
 
 @Component({
   components: {
@@ -34,7 +44,7 @@ export default class MarkdownRenderer extends Vue {
     }
   }
 
-  public get tokens(): marked.TokensList {
+  public get tokens(): SkldrToken[] {
     // marked.setOptions({
     //   highlight: (code, lang, cb) => {
     //     console.log(`highlighting!`);

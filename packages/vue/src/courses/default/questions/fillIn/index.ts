@@ -145,6 +145,10 @@ export const BlanksCardDataShapes: DataShape[] = [
         name: 'Input',
         type: FieldType.MARKDOWN,
       },
+      {
+        name: 'Uploads',
+        type: FieldType.MEDIA_UPLOADS,
+      },
     ],
   },
 ];
@@ -224,12 +228,15 @@ export class BlanksCard extends Question {
     }
   }
 
-  recurseToken(
+  findAnswers(
     tok: marked.Token
   ): {
     answers: string[] | null;
     options: string[] | null;
   } | null {
+    // todo: enable multi-blanks
+    //
+
     if (tok.type === 'text') {
       if (isComponent(tok)) {
         const optsStr = tok.raw.substring(2, tok.raw.length - 2);
@@ -257,7 +264,7 @@ export class BlanksCard extends Question {
         const split = this.splitTextToken(tok as marked.Tokens.Text);
         for (let i = 0; i < split.length; i++) {
           if (isComponent(split[i])) {
-            return this.recurseToken(split[i]);
+            return this.findAnswers(split[i]);
           }
         }
       }
@@ -265,7 +272,7 @@ export class BlanksCard extends Question {
 
     if ((tok as any).tokens) {
       for (let i = 0; i < (tok as any).tokens.length; i++) {
-        const candidate = this.recurseToken((tok as any).tokens[i]);
+        const candidate = this.findAnswers((tok as any).tokens[i]);
         if (candidate !== null) {
           return candidate;
         }
@@ -280,7 +287,7 @@ export class BlanksCard extends Question {
     this.mdText = (data[0].Input as any) as string;
     const tokens = marked.lexer(this.mdText);
     for (let i = 0; i < tokens.length; i++) {
-      const parsedOptions = this.recurseToken(tokens[i]);
+      const parsedOptions = this.findAnswers(tokens[i]);
       if (parsedOptions !== null) {
         this.answers = parsedOptions.answers;
         this.options = parsedOptions.options;
@@ -289,7 +296,9 @@ export class BlanksCard extends Question {
     }
   }
 
-  public isCorrect(answer: Answer | Answer[]) {
+  public isCorrect(answer: Answer) {
+    console.log(`answers:${this.answers}\nuser answer: ${JSON.stringify(answer)}`);
+
     if (typeof answer === 'string') {
       if (this.answers) {
         return this.answers.includes(answer);
@@ -299,6 +308,14 @@ export class BlanksCard extends Question {
         } else {
           throw new Error(`Question has no configured answers!`);
         }
+      }
+    } else if (Array.isArray(answer)) {
+      if (this.answers) {
+        return answer.every((a) => {
+          return this.answers!.includes(a);
+        });
+      } else {
+        throw new Error(`Question has no configured answers!`);
       }
     } else {
       return this.isCorrectRadio(answer as RadioMultipleChoiceAnswer);

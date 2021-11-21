@@ -279,6 +279,16 @@ class Syllable {
 
 class SkMidi {
   private static _instance: SkMidi;
+
+  /**
+   * OFFSET is used to push all playback events (noteon, note off)
+   * forward by OFFSET milliseconds. This is to prevent a
+   * 'stutter' effect between the first and second syllables
+   * when the time between them is small. (noteon at ~0 ms suffers
+   * from a latency effect, while other timestamps don't).
+   */
+  static readonly OFFSET: number = 5;
+
   public recording: NoteEvent[] = [];
 
   private webmidi: WebMidi = webmidi;
@@ -348,7 +358,7 @@ class SkMidi {
             this._state = 'nodevice';
           }
 
-          resolve();
+          resolve(true);
         }
       });
     });
@@ -474,6 +484,12 @@ class SkMidi {
 
   public play(recording?: NoteEvent[]) {
     let playbackData: NoteEvent[] = recording ? recording : this.recording;
+    playbackData = playbackData.map((e) => {
+      return {
+        ...e,
+        timestamp: e.timestamp + SkMidi.OFFSET,
+      };
+    });
 
     playbackData.forEach((e) => {
       if (e.type === 'noteon') {

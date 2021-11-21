@@ -1,4 +1,5 @@
-import { Answer } from '@/base-course/Displayable';
+import { Answer, Evaluation } from '@/base-course/Displayable';
+import { CourseElo } from '@/tutor/Elo';
 import { Moment } from 'moment';
 
 export enum DocType {
@@ -39,7 +40,7 @@ export interface CardData extends SkuilderCourseData {
   // DocType.CARD
   id_displayable_data: PouchDB.Core.DocumentId[];
   id_view: PouchDB.Core.DocumentId;
-  elo?: number;
+  elo: CourseElo;
 }
 
 /** A list of populated courses in the DB */
@@ -147,6 +148,9 @@ export interface CardRecord {
   /**
    * Number of milliseconds that the user spent before dismissing
    * the card (ie, "I've read this" or "here is my answer")
+   *
+   * //TODO: this (sometimes?) wants to be replaced with a rich
+   *         recording of user activity in working the question
    */
   timeSpent: number;
   /**
@@ -156,14 +160,13 @@ export interface CardRecord {
   timeStamp: Moment;
 }
 
-export interface QuestionRecord extends CardRecord {
+export interface QuestionRecord extends CardRecord, Evaluation {
   userAnswer: Answer;
-  isCorrect: boolean;
   /**
    * The number of incorrect user submissions prededing this submisstion.
    *
    * eg, if a user is asked 7*6=__, submitting 46, 48, 42 will result in three
-   * records being created having 0, 1, and 2 as their
+   * records being created having 0, 1, and 2 as their recorded 'priorAttempts' values
    */
   priorAttemps: number;
 }

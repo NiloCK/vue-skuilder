@@ -4,6 +4,8 @@
       <v-toolbar-title @click="routeToCourse">
         {{ _courseConfig.name }}
       </v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-icon v-if="isPrivate">visibility_off</v-icon>
     </v-toolbar>
     <v-card-text>
       Questions: {{ questionCount }}
@@ -42,6 +44,7 @@ export default class CourseStubCard extends SkldrVue {
 
   public _courseConfig: CourseConfig;
   public questionCount: number;
+  public isPrivate: boolean = false;
 
   private updatePending: boolean = true;
   private addingCourse: boolean = false;
@@ -49,6 +52,7 @@ export default class CourseStubCard extends SkldrVue {
   private async created() {
     const db = await getCourseDB(this._id);
     this._courseConfig = (await getCourseConfig(this._id))!;
+    this.isPrivate = !this._courseConfig.public;
     this.questionCount = (
       await db.find({
         limit: 1000,
@@ -61,7 +65,7 @@ export default class CourseStubCard extends SkldrVue {
   }
 
   routeToCourse() {
-    this.$router.push(`/quilts/${this._id}`);
+    this.$router.push(`/quilts/${this._courseConfig.name.replace(' ', '_')}`);
   }
 
   async registerForCourse() {

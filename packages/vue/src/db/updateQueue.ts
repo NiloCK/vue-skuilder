@@ -105,7 +105,7 @@ export default class UpdateQueue extends Loggable {
           // for (const k in doc) {
           //   this.log(`${k}: ${typeof k}`);
           // }
-          this.log(`Applied updates to doc: ${JSON.stringify(doc)}`);
+          // this.log(`Applied updates to doc: ${JSON.stringify(doc)}`);
           await this.db.put<T>(doc);
           this.log(`Put doc: ${id}`);
 

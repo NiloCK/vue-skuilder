@@ -1,0 +1,52 @@
+# The Caddyfile is an easy way to configure your Caddy web server.
+#
+# Unless the file starts with a global options block, the first
+# uncommented line is always the address of your site.
+#
+# To use your own domain name (with automatic HTTPS), first make
+# sure your domain's A/AAAA DNS records are properly pointed to
+# this machine's public IP, then replace ":80" below with your
+# domain name.
+
+eduquilt.com {
+	handle_path /couch/* {
+		reverse_proxy localhost:5984
+	}
+
+	handle_path /express/* {
+		reverse_proxy localhost:3000
+	}
+	handle_path /express {
+		reverse_proxy localhost:3000
+	}
+
+	handle_path /testpath {
+		respond "this worked"
+	}
+
+	handle {
+		root * /home/skuilder/www
+		try_files {path} {path}/ /index.html
+		file_server
+		encode gzip
+	}
+}
+
+www.eduquilt.com {
+	redir https://eduquilt.com{uri} permanent
+}
+
+couch.eduquilt.com {
+	reverse_proxy localhost:5984
+}
+
+stage.eduquilt.com {
+	handle {
+		root * /home/skuilder/stage
+		try_files {path} {path}/ /index.html
+		file_server
+		encode gzip
+	}
+}
+# Refer to the Caddy docs for more information:
+# https://caddyserver.com/docs/caddyfile

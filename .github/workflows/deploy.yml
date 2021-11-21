@@ -1,5 +1,5 @@
 name: deploy-branch
-on: 
+on:
   pull_request:
     branches:
       - deploy
@@ -22,12 +22,22 @@ jobs:
       - run: npm install -g typescript
       - run: lerna bootstrap
       - name: Build
-        continue-on-error: true
-        run: yarn build
+        run: |
+          printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
+          yarn build
       # todo: make deploy of vue, express conditional on changes in their respective directories
-      - run: | 
-          vcount=$(ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ls /home/skuilder/dist/vue/ | tail -n1)
+      - name: Deploy /vue
+        run: |
+          vcount=$(ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ls -1v /home/skuilder/dist/vue/ | tail -n1)
           ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/dist/vue/$(($vcount+1))
           rsync -rl ./packages/vue/dist/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/vue/$(($vcount+1))
           ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ln -sfn /home/skuilder/dist/vue/$(($vcount+1)) /home/skuilder/www
+      - name: Deploy /express
+        run: |
+          ecount=$(ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ls -1v /home/skuilder/dist/express/ | tail -n1)
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/dist/express/$(($ecount+1))
+          rsync -rl ./packages/express/dist/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/$(($ecount+1))
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ln -sfn /home/skuilder/dist/express/$(($ecount+1)) /home/skuilder/api
+        # restart service, loading from ~/api
+
       # todo: toss a buildinfo.md file into the (vcount+1) folder, linking PR, listing time, logging build errors, etc

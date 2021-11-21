@@ -3,11 +3,15 @@ import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { NonEmptyString } from '@/base-course/Validators';
+import Viewable from '@/base-course/Viewable';
 import { DataShapeName } from '@/enums/DataShapeNames';
 import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
+import { View } from 'paper';
+import { VueConstructor } from 'vue';
 import { Answer } from '../../../../base-course/Displayable';
 import TextBox from './textBox.vue';
+import _ from 'lodash';
 
 enum Chroma {
   A = 'A',

@@ -1,0 +1,24 @@
+name: deploy-caddyfile
+on:
+  pull_request:
+    branches:
+      - deploy
+    paths:
+      - '.deployment/Caddyfile'
+jobs:
+  deploy_caddyfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: auth step
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DO_SSH_KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      - run: |
+          echo "deploying updated Caddyfile in place of prior"
+          cat .deployment/Caddyfile | ssh ${{ secrets.DO_USERNAME }}@eduquilt.com "sudo tee -a /etc/caddy/Caddyfile"
+          echo "restarting the caddy service"
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com caddy reload

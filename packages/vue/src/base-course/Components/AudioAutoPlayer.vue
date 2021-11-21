@@ -1,5 +1,5 @@
 <template>
-  <v-btn @click="play" large raised icon color="primary">
+  <v-btn v-on:click="play" large raised icon color="primary">
     <v-icon>volume_up</v-icon>
   </v-btn>
 </template>

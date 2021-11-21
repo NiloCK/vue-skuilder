@@ -6,6 +6,7 @@ export enum FieldType {
   MARKDOWN = 'markdown',
   AUDIO = 'audio',
   MIDI = 'midi',
+  MEDIA_UPLOADS = 'uploads',
 }
 
 const stringConverter: Converter = (value: string) => value;
@@ -16,7 +17,7 @@ const intConverter: Converter = (value: string) => {
   return parseInt(value, 10);
 };
 
-export const fieldConverters: { [index: string]: FieldConverter } = {
+export const fieldConverters: { [index in FieldType]: FieldConverter } = {
   string: {
     databaseConverter: (value: string) => value,
     previewConverter: (value: string) => value,
@@ -55,6 +56,10 @@ export const fieldConverters: { [index: string]: FieldConverter } = {
     previewConverter: (value) => value,
   },
   markdown: {
+    databaseConverter: (value) => value,
+    previewConverter: (value) => value,
+  },
+  uploads: {
     databaseConverter: (value) => value,
     previewConverter: (value) => value,
   },

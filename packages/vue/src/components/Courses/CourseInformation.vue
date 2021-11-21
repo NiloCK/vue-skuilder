@@ -6,26 +6,6 @@
       {{ _courseConfig.description }}
     </p>
 
-    <div class="body-2">{{ questionCount }} exercises</div>
-    <div class="body-2">{{ tags.length }} tags</div>
-
-    <!-- <div style='background-color: red; padding: 15px; margin: 10px;'>
-
-      <v-text-field
-        v-model="elo"
-        label="elo"
-        id="id"
-        type='number'
-      ></v-text-field>
-      <v-text-field
-        v-model="num"
-        label="CardCount"
-        id="id"
-        type='number'
-      ></v-text-field>
-      <v-btn color="success" @click="getCards">GetCards!</v-btn>
-    </div> -->
-
     <transition name="component-fade" mode="out-in">
       <div v-if="userIsRegistered">
         <router-link :to="`/study/${_id}`">
@@ -37,25 +17,13 @@
             Add content
           </v-btn>
         </router-link>
+        <router-link :to="`/courses/${_id}/elo`">
+          <v-btn dark color="green darken-2" title="Rank course content for difficulty">
+            <v-icon left>style</v-icon>
+            Arrange
+          </v-btn>
+        </router-link>
         <v-btn color="error" small outline @click="drop">Drop this course</v-btn>
-        <div v-for="(tag, i) in tags" :key="i">
-          <v-card>
-            <v-card-text>
-              <pre>
-              {{
-                  (() => {
-                    let ret = '';
-                    for (let i in tag) {
-                      ret += `${i}: ${tag[i]}\n`;
-                    }
-                    return ret;
-                  })()
-                }}
-              </pre>
-            </v-card-text>
-          </v-card>
-          <!-- {{JSON.stringify(tag)}} -->
-        </div>
       </div>
       <div v-else>
         <v-btn color="primary" @click="register">Register</v-btn>
@@ -65,50 +33,102 @@
       </div>
     </transition>
 
+    <v-card>
+      <v-toolbar dense>
+        <v-toolbar-title>Tags</v-toolbar-title>
+        <v-spacer></v-spacer>
+        {{ tags.length }}
+      </v-toolbar>
+      <v-card-text>
+        <v-chip outline v-for="(tag, i) in tags" v-bind:key="i">
+          <router-link :to="`/q/${_id}/tags/${tag.name}`">
+            {{ tag.name }}
+          </router-link>
+        </v-chip>
+      </v-card-text>
+    </v-card>
+
+    <v-card>
+      <v-toolbar dense>
+        <v-toolbar-title>Exercises</v-toolbar-title>
+        <v-spacer></v-spacer>
+        {{ questionCount }}
+      </v-toolbar>
+      <v-list two-line dense>
+        <template v-for="c in cards">
+          <v-list-tile
+            v-bind:key="c"
+            v-bind:class="selectedCard == c ? 'elevation-4 font-weight-black teal lighten-5' : ''"
+          >
+            <v-list-tile-content>
+              <!-- <card-viewer v-if="selectedCard === c" /> -->
+              <template>
+                <v-list-tile-title>
+                  {{ cardPreview[c] }}
+                </v-list-tile-title>
+                <v-list-tile-sub-title>
+                  {{ c.split('-')[2] }}
+                </v-list-tile-sub-title>
+              </template>
+            </v-list-tile-content>
+            <v-list-tile-action>
+              <v-btn icon v-on:click="selectedCard = selectedCard == c ? '' : c">
+                <v-icon v-if="selectedCard !== c">open_in_full</v-icon>
+                <v-icon v-else>close</v-icon>
+              </v-btn>
+            </v-list-tile-action>
+          </v-list-tile>
+          <!-- <transition name="component-scale" mode="out-in" v-bind:key="c"> -->
+          <card-loader v-bind:key="c" v-if="selectedCard === c" v-bind:qualified_id="c" />
+          <!-- </transition> -->
+        </template>
+      </v-list>
+    </v-card>
+
+    <!-- <div style="background-color: red; padding: 15px; margin: 10px">
+      <v-text-field v-model="elo" label="elo" id="id" type="number"></v-text-field>
+      <v-text-field v-model="num" label="CardCount" id="id" type="number"></v-text-field>
+      <v-btn color="success" @click="getCards">GetCards!</v-btn>
+    </div> -->
+
     <midi-config v-if="isPianoCourse" :_id="_id" />
   </div>
 </template>
 
 <script lang="ts">
-import SkldrVue from '../../SkldrVue';
-import Component from 'vue-class-component';
-import {
-  CourseConfig,
-  CreateCourse,
-  ServerRequestType,
-  DataShape55,
-  QuestionType55,
-  ClassroomConfig,
-  CreateClassroom,
-} from '../../server/types';
-import serverRequest from '../../server';
-import { alertUser } from '../SnackbarService.vue';
-import { Status } from '../../enums/Status';
-import Mousetrap from 'mousetrap';
-import { log } from 'util';
-import moment from 'moment';
-import { registerUserForClassroom } from '../../db/userDB';
-import TeacherClassroomDB, { getClassroomDB, CLASSROOM_CONFIG, AssignedContent } from '../../db/classroomDB';
-import { Prop, Watch } from 'vue-property-decorator';
-import { getCourseList, getCourseTagStubs, getCourseConfig, CourseDB } from '../../db/courseDB';
-import { Tag, DocType } from '../../db/types';
-import { getCourseDB } from '../../db';
+import CardLoader from '@/components/Study/CardLoader.vue';
 import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
+import Courses from '@/courses';
+import { log } from 'util';
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
+import { getCourseDB, getCourseDoc, getCourseDocs } from '../../db';
+import { CourseDB, getCachedCourseList, getCourseConfig, getCourseList, getCourseTagStubs } from '../../db/courseDB';
+import { CardData, DisplayableData, DocType, Tag } from '../../db/types';
+import { CourseConfig } from '../../server/types';
+import SkldrVue from '../../SkldrVue';
+import { displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 
 @Component({
   components: {
     MidiConfig,
+    CardLoader,
   },
 })
 export default class CourseInformation extends SkldrVue {
   @Prop({ required: true }) private _id: string;
-  private mousetrap: MousetrapInstance = new Mousetrap(this.$el);
+  private courseDB: CourseDB;
 
   private get isPianoCourse(): boolean {
     return this._courseConfig.name.toLowerCase().includes('piano');
   }
 
   private tagStr(t: Tag) {}
+
+  private cards: string[] = [];
+  private cardData: { [card: string]: string[] } = {};
+  private cardPreview: { [card: string]: string } = {};
+  private selectedCard: string = '';
 
   private nameRules: Array<(value: string) => string | boolean> = [
     (value) => {
@@ -135,6 +155,64 @@ export default class CourseInformation extends SkldrVue {
   private tags: Tag[] = [];
 
   private async created() {
+    // const courses = await getCachedCourseList();
+
+    // const thisCourse = courses.find((c) => c.name.replace(' ', '_') === this._id || c.courseID === this._id);
+    // if (thisCourse) {
+    //   console.log(`found ${JSON.stringify(thisCourse)}`);
+    //   this._id = thisCourse.courseID!;
+    // } else {
+    //   console.log(`No course found for ${this._id}`);
+    //   return;
+    // }
+    this.courseDB = new CourseDB(this._id);
+    this.cards = await this.courseDB.getCardsByEloLimits();
+
+    const hydratedCardData = (
+      await getCourseDocs<CardData>(
+        this._id,
+        this.cards.map((c) => c.split('-')[1]),
+        {
+          include_docs: true,
+        }
+      )
+    ).rows.map((r) => r.doc!);
+
+    hydratedCardData.forEach((c) => {
+      this.cardData[c._id] = c.id_displayable_data;
+    });
+
+    this.cards.forEach(async (c) => {
+      // console.log(`generating preview for ${c}`);
+      const _courseID: string = c.split('-')[0];
+      const _cardID: string = c.split('-')[1];
+
+      const tmpCardData = hydratedCardData.find((c) => c._id == _cardID)!;
+      const tmpView = Courses.getView(tmpCardData.id_view);
+
+      // todo 143 / perf: this fetch is non-blocking, but is making a db
+      // query for each card. much much better to batch query by allDocs
+      // with keys list
+      const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
+        return getCourseDoc<DisplayableData>(_courseID, id, {
+          attachments: false,
+          binary: true,
+        });
+      });
+
+      Promise.all(tmpDataDocs).then((docs) => {
+        docs.forEach((doc) => {
+          const tmpData = [];
+          tmpData.unshift(displayableDataToViewData(doc));
+
+          const view = new tmpView();
+          (view as any).data = tmpData;
+
+          this.cardPreview[c] = view.toString();
+        });
+      });
+    });
+
     const userCourses = await this.$store.state._user!.getCourseRegistrationsDoc();
     this.userIsRegistered =
       userCourses.courses.filter((c) => {
@@ -181,5 +259,19 @@ export default class CourseInformation extends SkldrVue {
 .component-fade-enter, .component-fade-leave-to
 /* .component-fade-leave-active below version 2.1.8 */ {
   opacity: 0;
+}
+
+.component-scale-enter-active,
+.component-scale-leave-active {
+  max-height: auto;
+  transform: scale(1, 1);
+  transform-origin: top;
+  transition: transform 0.3s ease, max-height 0.3s ease;
+}
+.component-scale-enter,
+.component-fade-leave-to {
+  max-height: 0px;
+  transform: scale(1, 0);
+  overflow: hidden;
 }
 </style>

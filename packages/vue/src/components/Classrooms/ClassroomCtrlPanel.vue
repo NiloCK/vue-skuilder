@@ -19,11 +19,13 @@
         <h3>Quilts:</h3>
         <ul></ul>
         <ul>
-          <li v-for="c in _assignedCourses" :key="c._id">{{ c.courseID }} <a @click="removeContent(c)">Remove</a></li>
+          <li v-for="c in _assignedCourses" :key="c.courseID">
+            {{ c.courseID }} <a @click="removeContent(c)">Remove</a>
+          </li>
         </ul>
         <h3>Tags:</h3>
         <ul>
-          <li v-for="c in _assignedTags" :key="c._id">
+          <li v-for="(c, i) in _assignedTags" :key="i">
             {{ c.courseID }} - {{ c.tagID }} <a @click="removeContent(c)">Remove</a>
           </li>
         </ul>
@@ -76,35 +78,20 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import SkldrVue from '../../SkldrVue';
-import Component from 'vue-class-component';
-import {
-  CourseConfig,
-  CreateCourse,
-  ServerRequestType,
-  DataShape55,
-  QuestionType55,
-  ClassroomConfig,
-  CreateClassroom,
-} from '../../server/types';
-import serverRequest from '../../server';
-import { alertUser } from '../SnackbarService.vue';
-import { Status } from '../../enums/Status';
+import moment from 'moment';
 import Mousetrap from 'mousetrap';
 import { log } from 'util';
-import moment from 'moment';
-import { registerUserForClassroom } from '../../db/userDB';
-import TeacherClassroomDB, { getClassroomDB, CLASSROOM_CONFIG, AssignedContent } from '../../db/classroomDB';
+import Component from 'vue-class-component';
 import { Prop, Watch } from 'vue-property-decorator';
+import TeacherClassroomDB, { AssignedContent, AssignedTag } from '../../db/classroomDB';
 import { getCourseList, getCourseTagStubs } from '../../db/courseDB';
 import { Tag } from '../../db/types';
+import { ClassroomConfig, CourseConfig } from '../../server/types';
+import SkldrVue from '../../SkldrVue';
 
 @Component({})
 export default class ClassroomCtrlPanel extends SkldrVue {
   @Prop({ required: true }) private _id: string;
-  private mousetrap: MousetrapInstance = new Mousetrap(this.$el);
-
   private _classroomCfg: ClassroomConfig;
 
   private classroomDB: TeacherClassroomDB;
@@ -118,7 +105,7 @@ export default class ClassroomCtrlPanel extends SkldrVue {
   private get _assignedTags() {
     return this._assignedContent.filter((c) => {
       return c.type === 'tag';
-    });
+    }) as AssignedTag[];
   }
 
   private nameRules: Array<(value: string) => string | boolean> = [
@@ -164,6 +151,8 @@ export default class ClassroomCtrlPanel extends SkldrVue {
   private async assignContent() {
     if (this.selectedTags.length === 0) {
       await this.classroomDB.assignContent({
+        assignedOn: moment(),
+        activeOn: moment(),
         type: 'course',
         courseID: this.selectedCourse,
         assignedBy: this.$store.state._user!.username,
@@ -171,6 +160,8 @@ export default class ClassroomCtrlPanel extends SkldrVue {
     } else {
       await this.selectedTags.forEach((tag) => {
         this.classroomDB.assignContent({
+          assignedOn: moment(),
+          activeOn: moment(),
           type: 'tag',
           courseID: this.selectedCourse,
           tagID: tag,

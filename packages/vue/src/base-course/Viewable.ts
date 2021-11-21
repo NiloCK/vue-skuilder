@@ -12,8 +12,11 @@ import { HotKey } from '@/SkldrMouseTrap';
  */
 export default abstract class Viewable extends Vue {
   @Prop() public data: ViewData[];
+  public toString(): string {
+    return '!!! preview not implemented !!!';
+  }
   protected startTime: moment.Moment = moment.utc();
-  protected MouseTrap: MousetrapInstance = new MouseTrap(this.$el);
+  protected MouseTrap = new MouseTrap(this.$el);
   public hotKeys: HotKey[] = [];
 
   /**
@@ -70,19 +73,19 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
 
   public submitAnswer(answer: Answer): QuestionRecord {
     log('QuestionView.submitAnswer called...');
-    const isCorrect = this.question.isCorrect(answer);
+    const evaluation = this.question.evaluate(answer, this.timeSpent);
 
     const record: QuestionRecord = {
+      ...evaluation,
       priorAttemps: this.priorAttempts,
       courseID: '',
       cardID: '',
-      isCorrect,
       timeSpent: this.timeSpent,
       timeStamp: this.startTime,
       userAnswer: answer,
     };
 
-    if (!isCorrect) {
+    if (!evaluation.isCorrect) {
       this.priorAttempts++;
     }
     this.emitResponse(record);

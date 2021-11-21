@@ -64,7 +64,6 @@ export function getCourseDB(courseID: string): PouchDB.Database {
 
 export async function getLatestVersion() {
   try {
-
     const docs = await getCouchDB('version').allDocs({
       descending: true,
       limit: 1,
@@ -113,6 +112,17 @@ export function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) 
     });
 }
 
+export function getCourseDocs<T extends SkuilderCourseData>(
+  courseID: string,
+  docIDs: string[],
+  options: PouchDB.Core.AllDocsOptions = {}
+) {
+  return getCourseDB(courseID).allDocs<T>({
+    ...options,
+    keys: docIDs,
+  });
+}
+
 export function getCourseDoc<T extends SkuilderCourseData>(
   courseID: string,
   docID: PouchDB.Core.DocumentId,
@@ -153,38 +163,34 @@ export async function getRandomCards(courseIDs: string[]) {
   }
 }
 
+/**
+ * Logs a record of the user's interaction with the card and returns the card's
+ * up-to-date history
+ * @param record the recent recorded interaction between user and card
+ * @param user the current user
+ * @returns The updated state of the card's CardHistory data
+ */
 export async function putCardRecord<T extends CardRecord>(
   record: T,
   user: string
 ): Promise<CardHistory<CardRecord>> {
-  const userDB = getUserDB(user);
   const cardHistoryID = getCardHistoryID(record.courseID, record.cardID);
+  // stringify the current record to make it writable to couchdb
   record.timeStamp = moment.utc(record.timeStamp).toString() as any;
 
   try {
-    // const cardHistory = await userDB.get<CardHistory<T>>(cardHistoryID);
-    // cardHistory.records.push(record);
     const u = await User.instance();
 
-    // u.updateCardHistory(cardHistory.courseID, cardHistory.cardID, cardHistory)
     const cardHistory = await u.update<CardHistory<T>>(cardHistoryID, function (h: CardHistory<T>) {
       h.records.push(record);
-      // momentifyCardHistory<T>(h);
-      // h.records = h.records.map( r => {
-      //   return {
-      //     ...r,
-      //     timeStamp: r.timeStamp.toString()
-      //   }
-      // });
+      h.bestInterval = h.bestInterval || 0;
+      h.lapses = h.lapses || 0;
+      h.streak = h.streak || 0;
       return h;
     });
 
-    // userDB.put(cardHistory);
-    // momentifyCardHistory<T>(cardHistory!);
-    // if (cardHistory!.bestInterval === undefined) {
-    //   cardHistory!.bestInterval = 0;
-    // }
-    return cardHistory!;
+    momentifyCardHistory<T>(cardHistory);
+    return cardHistory;
   } catch (reason) {
     if (reason.status === 404) {
       const initCardHistory: CardHistory<T> = {
@@ -196,8 +202,7 @@ export async function putCardRecord<T extends CardRecord>(
         streak: 0,
         bestInterval: 0,
       };
-      momentifyCardHistory<T>(initCardHistory);
-      userDB.put<CardHistory<T>>(initCardHistory);
+      getUserDB(user).put<CardHistory<T>>(initCardHistory);
       return initCardHistory;
     } else {
       throw new Error(`putCardRecord failed because of:
@@ -209,6 +214,14 @@ message: ${reason.message}`);
   }
 }
 
+function deMomentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>) {
+  cardHistory.records = cardHistory.records.map((r) => {
+    return {
+      ...r,
+      timeStamp: r.timeStamp.toString(),
+    };
+  });
+}
 function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>) {
   cardHistory.records = cardHistory.records.map<T>((record) => {
     const ret: T = {

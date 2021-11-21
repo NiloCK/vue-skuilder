@@ -12,11 +12,16 @@
 
       <v-list>
         <!-- eventual notifications bar -->
-        <v-list-tile v-for="item in items" :key="item.key" @click="dismiss(item)">
+        <v-list-tile v-for="item in items" :key="item" @click="dismiss(item)">
           <v-list-tile-title>{{ item }}</v-list-tile-title>
         </v-list-tile>
 
         <v-divider v-if="items.length" />
+
+        <v-list-tile @click="gotoStats">
+          <v-icon left>trending_up</v-icon>
+          <v-list-tile-title>Stats</v-list-tile-title>
+        </v-list-tile>
 
         <v-list-tile @click="gotoSettings">
           <v-icon left>settings</v-icon>
@@ -55,6 +60,9 @@ export default class UserChip extends SkldrVue {
   }
   public async gotoSettings() {
     this.$router.push(`/u/${(await User.instance()).username}`);
+  }
+  public async gotoStats() {
+    this.$router.push(`/u/${(await User.instance()).username}/stats`);
   }
 
   private dismiss(item: string) {

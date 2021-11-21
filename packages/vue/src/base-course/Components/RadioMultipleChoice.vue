@@ -2,23 +2,21 @@
   <div class="multipleChoice">
     <MultipleChoiceOption
       v-for="choice in choiceList"
-      :key="choiceList.indexOf(choice)"
-      :content="choice"
-      :selected="choiceList.indexOf(choice) === currentSelection"
-      :number="choiceList.indexOf(choice)"
-      :setSelection="setSelection"
-      :submit="forwardSelection"
-      :markedWrong="choiceIsWrong(choice)"
+      v-bind:key="choiceList.indexOf(choice)"
+      v-bind:content="choice"
+      v-bind:selected="choiceList.indexOf(choice) === currentSelection"
+      v-bind:number="choiceList.indexOf(choice)"
+      v-bind:setSelection="setSelection"
+      v-bind:submit="forwardSelection"
+      v-bind:markedWrong="choiceIsWrong(choice)"
     />
   </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import UserInput from '@/base-course/Components/UserInput/UserInput';
 import { Component, Prop } from 'vue-property-decorator';
 import MultipleChoiceOption from './MultipleChoiceOption.vue';
-import UserInput from '@/base-course/Components/UserInput/UserInput';
-import { Answer } from '../Displayable';
 
 @Component({
   components: {
@@ -30,12 +28,10 @@ export default class RadioSelect extends UserInput {
     required: true,
   })
   public choiceList: string[];
-  @Prop() public MouseTrap: MousetrapInstance;
+  @Prop() public MouseTrap: any;
   // @Prop() public submit: (selection: number) => void;
 
   public currentSelection: number = -1;
-  // todo: incorrect user-answers are greyed out and
-  // disabled for future submission
   public incorrectSelections: number[] = [];
 
   public mounted() {

@@ -1,93 +1,100 @@
 <template>
   <div>
     <v-form autocomplete="off">
-      <div ref="fieldInputWraps" v-for="field in dataShape.fields" :key="dataShape.fields.indexOf(field)">
+      <div ref="fieldInputWraps" v-for="field in dataShape.fields" v-bind:key="dataShape.fields.indexOf(field)">
         <string-input
           v-if="field.type === str"
           v-bind:store="store"
           v-bind:field="field"
-          :uiValidationFunction="checkInput"
+          v-bind:uiValidationFunction="checkInput"
         />
         <number-input
           v-else-if="field.type === num"
           v-bind:store="store"
           v-bind:field="field"
-          :uiValidationFunction="checkInput"
+          v-bind:uiValidationFunction="checkInput"
         />
         <integer-input
           v-else-if="field.type === int"
           v-bind:store="store"
           v-bind:field="field"
-          :uiValidationFunction="checkInput"
+          v-bind:uiValidationFunction="checkInput"
         />
         <image-input
           v-else-if="field.type === img"
           v-bind:store="store"
           v-bind:field="field"
-          :uiValidationFunction="checkInput"
+          v-bind:uiValidationFunction="checkInput"
         />
         <markdown-input
           v-else-if="field.type === mkd"
           v-bind:store="store"
           v-bind:field="field"
-          :uiValidationFunction="checkInput"
+          v-bind:uiValidationFunction="checkInput"
         />
         <audio-input
           v-else-if="field.type === audio"
           v-bind:store="store"
           v-bind:field="field"
-          :uiValidationFunction="checkInput"
+          v-bind:uiValidationFunction="checkInput"
         />
         <midi-input
           v-else-if="field.type === midi"
           v-bind:store="store"
           v-bind:field="field"
-          :uiValidationFunction="checkInput"
+          v-bind:uiValidationFunction="checkInput"
+        />
+        <media-uploader
+          v-else-if="field.type === uploader"
+          v-bind:store="store"
+          v-bind:field="field"
+          v-bind:uiValidationFunction="checkInput"
         />
       </div>
 
-      <v-btn type="submit" color="primary" :loading="uploading" @click.native.prevent="submit" :disabled="!allowSumbit">
-        Add data
+      <tags-input hideSubmit="true" ref="tagsInput" v-bind:courseID="course.courseID" cardID="" />
+
+      <v-btn
+        right
+        type="submit"
+        color="primary"
+        v-bind:loading="uploading"
+        v-bind:disabled="!allowSumbit"
+        v-on:click.native.prevent="submit"
+      >
+        Add card
         <v-icon right dark>add_circle</v-icon>
-        <!-- Remove if don't want to use icon. -->
       </v-btn>
     </v-form>
     <card-browser v-if="allowSubmit" v-bind:views="shapeViews" v-bind:data="[previewInput]" />
-
-    <!-- <data-shape-table
-      v-bind:dataShape="dataShape"
-      v-bind:data="existingData"
-    /> -->
   </div>
 </template>
 
 <script lang="ts">
-import Vue, { VueConstructor } from 'vue';
-import { Component, Prop, Watch } from 'vue-property-decorator';
-import FormInput from './FieldInputs/index.vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
-import { FieldType, fieldConverters } from '@/enums/FieldType';
-import NumberInput from './FieldInputs/NumberInput.vue';
-import StringInput from './FieldInputs/StringInput.vue';
-import IntegerInput from './FieldInputs/IntegerInput.vue';
-import ImageInput from './FieldInputs/ImageInput.vue';
-import AudioInput from './FieldInputs/AudioInput.vue';
-import MarkdownInput from './FieldInputs/MarkdownInput.vue';
-import MidiInput from './FieldInputs/MidiInput.vue';
-import { DisplayableData, DataShapeData, QuestionData } from '@/db/types';
+import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
 import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue';
-import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
-import Courses, { NameSpacer, ShapeDescriptor } from '@/courses';
-import { alertUser } from '@/components/SnackbarService.vue';
-import { Status } from '@/enums/Status';
+import TagsInput from '@/components/Edit/TagsInput.vue';
 import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
-import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
-import SkldrVue from '../../../SkldrVue';
-import { CourseConfig } from '../../../server/types';
-import { addNote55, getCourseTagStubs } from '../../../db/courseDB';
-import { log } from 'util';
+import { alertUser } from '@/components/SnackbarService.vue';
+import Courses, { NameSpacer, ShapeDescriptor } from '@/courses';
+import { fieldConverters, FieldType } from '@/enums/FieldType';
+import { Status } from '@/enums/Status';
 import _ from 'lodash';
+import { log } from 'util';
+import Vue from 'vue';
+import { Component, Watch } from 'vue-property-decorator';
+import { addNote55, addTagToCard, getCourseTagStubs } from '../../../db/courseDB';
+import SkldrVue from '../../../SkldrVue';
+import AudioInput from './FieldInputs/AudioInput.vue';
+import ImageInput from './FieldInputs/ImageInput.vue';
+import IntegerInput from './FieldInputs/IntegerInput.vue';
+import MarkdownInput from './FieldInputs/MarkdownInput.vue';
+import MediaUploader from './FieldInputs/MediaUploader.vue';
+import MidiInput from './FieldInputs/MidiInput.vue';
+import NumberInput from './FieldInputs/NumberInput.vue';
+import StringInput from './FieldInputs/StringInput.vue';
 
 type StringIndexable = { [x: string]: any };
 
@@ -102,13 +109,17 @@ type StringIndexable = { [x: string]: any };
     MidiInput,
     CardBrowser,
     DataShapeTable,
+    MediaUploader,
+    TagsInput,
   },
 })
 export default class DataInputForm extends SkldrVue {
   private timer: NodeJS.Timeout;
   public $refs: {
     fieldInputWraps: HTMLDivElement[];
+    tagsInput: TagsInput;
   };
+
   public get fieldInputs(): FieldInput[] {
     return this.$refs.fieldInputWraps.map<FieldInput>((div) => {
       // if ((div.children[0] as any).__vue__.clearData !==)
@@ -123,7 +134,7 @@ export default class DataInputForm extends SkldrVue {
         }
       }
 
-      return new IntegerInput({});
+      return new IntegerInput({}); // ???
     });
   }
 
@@ -196,6 +207,7 @@ export default class DataInputForm extends SkldrVue {
   private readonly mkd: string = FieldType.MARKDOWN;
   private readonly audio: string = FieldType.AUDIO;
   private readonly midi: string = FieldType.MIDI;
+  private readonly uploader: string = FieldType.MEDIA_UPLOADS;
 
   public updateTags(newTags: string[]) {
     log(`tags updated: ${JSON.stringify(newTags)}`);
@@ -211,21 +223,44 @@ export default class DataInputForm extends SkldrVue {
     });
   }
   public allowSumbit: boolean = false;
+
+  private expectedValidations(): number {
+    const fieldCount = this.dataShape.fields.length;
+
+    // as far as I can imagine, this should only ever be zero or one
+    const mediaUploadCount = this.dataShape.fields.filter((f) => f.type === FieldType.MEDIA_UPLOADS).length;
+
+    const uploadedItems = Object.getOwnPropertyNames(this.store.validation).filter((f) => {
+      return /audio-[\d]+/.test(f) || /image-[\d]+/.test(f);
+    }).length;
+
+    return fieldCount + uploadedItems - mediaUploadCount;
+  }
+
   private checkInput(): boolean {
-    let ret: boolean = Object.getOwnPropertyNames(this.store.validation).length === this.dataShape.fields.length + 1; // +1 here b/c of the validation key
+    let inputIsValid: boolean =
+      Object.getOwnPropertyNames(this.store.validation).length === this.expectedValidations() + 1; // +1 here b/c of the validation key
 
-    Object.getOwnPropertyNames(this.store.validation).forEach((fieldName) => {
-      if (this.store.validation[fieldName] === false) {
-        ret = false;
-      }
-    });
+    const invalidFields = Object.getOwnPropertyNames(this.store.validation).filter(
+      (fieldName) => this.store.validation[fieldName] === false
+    );
 
-    if (ret) {
+    console.log(
+      `Invalid Fields: ${invalidFields.map((f) => {
+        return `\n${f}`;
+      })}`
+    );
+
+    if (invalidFields.length > 0) {
+      inputIsValid = false;
+    }
+
+    if (inputIsValid) {
       this.convertInput();
     }
-    this.allowSumbit = ret;
-    console.log(`Form data is valid: ${ret}`);
-    return ret;
+    this.allowSumbit = inputIsValid;
+    console.log(`Form data is valid: ${inputIsValid}`);
+    return inputIsValid;
   }
 
   public get allowSubmit(): boolean {
@@ -272,7 +307,38 @@ export default class DataInputForm extends SkldrVue {
   }
 
   public convertInput() {
-    this.dataShape.fields.forEach((fieldDef) => {
+    const supplmentedFields = this.dataShape.fields.map((f) => {
+      const copiedFieldDefinition: FieldDefinition = {
+        name: f.name,
+        type: f.type,
+        validator: f.validator,
+      };
+      return copiedFieldDefinition;
+    });
+
+    for (let i = 1; i < 11; i++) {
+      if (this.store[`audio-${i}`]) {
+        supplmentedFields.push({
+          name: `audio-${i}`,
+          type: FieldType.AUDIO,
+        });
+      } else {
+        break;
+      }
+    }
+
+    for (let i = 1; i < 11; i++) {
+      if (this.store[`image-${i}`]) {
+        supplmentedFields.push({
+          name: `image-${i}`,
+          type: FieldType.IMAGE,
+        });
+      } else {
+        break;
+      }
+    }
+
+    supplmentedFields.forEach((fieldDef) => {
       this.store.convertedInput[fieldDef.name] = fieldConverters[fieldDef.type].databaseConverter(
         this.store[fieldDef.name]
       );
@@ -363,7 +429,7 @@ export default class DataInputForm extends SkldrVue {
       let inputs = [];
 
       if (this.inputContainsTranspositionFcns()) {
-        console.log(`Expanded input: 
+        console.log(`Expanded input:
         ${JSON.stringify(this.expandO(this.convertedInput))}`);
         inputs = this.expandO(this.convertedInput);
       } else {
@@ -379,6 +445,7 @@ export default class DataInputForm extends SkldrVue {
             this.dataShape,
             input,
             this.$store.state._user!.username
+            // generic (non-required by datashape) attachments here
           );
         })
       );
@@ -388,6 +455,17 @@ export default class DataInputForm extends SkldrVue {
           text: `Content added... Thank you!`,
           status: Status.ok,
         });
+        const ti = this.$refs.tagsInput;
+        if (ti.tags.length) {
+          for (let i = 0; i < ti.tags.length; i++) {
+            // apply configured tags to the newly created card
+            await addTagToCard(this.course.courseID!, result[0].id, ti.tags[i].text);
+          }
+          // pull down any tags just added for auto-complete suggest
+          ti.updateAvailableCourseTags();
+          // clear applied tags
+          ti.tags = [];
+        }
         this.reset();
       } else {
         alertUser({

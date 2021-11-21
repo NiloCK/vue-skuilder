@@ -1,21 +1,20 @@
+import { Status } from '@/enums/Status';
 import ENV from '@/ENVIRONMENT_VARS';
 import { GuestUsername, UserConfig } from '@/store';
+import { CourseElo } from '@/tutor/Elo';
+import moment, { Moment } from 'moment';
 import pouch from 'pouchdb-browser';
 import { log } from 'util';
+import { getCourseConfigs } from './courseDB';
 import {
-  hexEncode,
-  pouchDBincludeCredentialsConfig,
-  updateGuestAccountExpirationDate,
   filterAlldocsByPrefix,
   getStartAndEndKeys,
+  hexEncode,
+  pouchDBincludeCredentialsConfig,
   REVIEW_PREFIX,
   REVIEW_TIME_FORMAT,
+  updateGuestAccountExpirationDate,
 } from './index';
-import { getCourseConfigs } from './courseDB';
-import { Status } from '@/enums/Status';
-import moment from 'moment';
-import { Moment } from 'moment';
-import { CardHistory, CardRecord, getCardHistoryID } from './types';
 import UpdateQueue, { Update } from './updateQueue';
 
 const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + 'skuilder';
@@ -179,28 +178,6 @@ Currently logged-in as ${this._username}.`
     return this.upadteQueue.update(id, update);
   }
 
-  public async updateCardHistory(
-    courseID: string,
-    cardID: string,
-    h: Partial<CardHistory<CardRecord>>,
-    attempt: number = 0
-  ) {
-    this.remoteDB.get<CardHistory<CardRecord>>(getCardHistoryID(courseID, cardID)).then((dbh) => {
-      dbh = {
-        ...dbh,
-        ...h,
-      };
-
-      this.remoteDB.put(dbh).catch((err) => {
-        if (err.name === 'conflict' && attempt <= 3) {
-          this.updateCardHistory(courseID, cardID, h, attempt + 1);
-        } else {
-          throw err;
-        }
-      });
-    });
-  }
-
   public async getCourseRegistrationsDoc(): Promise<
     CourseRegistrationDoc & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta
   > {
@@ -236,9 +213,8 @@ Currently logged-in as ${this._username}.`
     });
   }
 
-  public async getPendingReviews(course_id?: string) {
+  private async getReviewstoDate(targetDate: Moment, course_id?: string) {
     const keys = getStartAndEndKeys(REVIEW_PREFIX);
-    const now = moment.utc();
 
     const reviews = await this.remoteDB.allDocs<ScheduledCard>({
       startkey: keys.startkey,
@@ -255,7 +231,7 @@ Currently logged-in as ${this._username}.`
       .filter((r) => {
         if (r.id.startsWith(REVIEW_PREFIX)) {
           const date = moment.utc(r.id.substr(REVIEW_PREFIX.length), REVIEW_TIME_FORMAT);
-          if (now.isAfter(date)) {
+          if (targetDate.isAfter(date)) {
             if (course_id === undefined || r.doc!.courseId === course_id) {
               return true;
             }
@@ -263,6 +239,16 @@ Currently logged-in as ${this._username}.`
         }
       })
       .map((r) => r.doc!);
+  }
+
+  public async getReviewsForcast(daysCount: number) {
+    const time = moment.utc().add(daysCount, 'days');
+    return this.getReviewstoDate(time);
+  }
+
+  public async getPendingReviews(course_id?: string) {
+    const now = moment.utc();
+    return this.getReviewstoDate(now, course_id);
   }
 
   public async getScheduledReviewCount(course_id: string): Promise<number> {
@@ -293,8 +279,14 @@ Currently logged-in as ${this._username}.`
           user: true,
           admin: false,
           moderator: false,
-          elo: 1000,
-          taggedElo: {},
+          elo: {
+            global: {
+              score: 1000,
+              count: 0,
+            },
+            tags: {},
+            misc: {},
+          },
         };
 
         if (
@@ -457,7 +449,8 @@ Currently logged-in as ${this._username}.`
         reviewCards: {
           map: function (doc: PouchDB.Core.Document<{}>) {
             if (doc._id.indexOf('card_review') === 0) {
-              emit(doc._id, doc.courseId + '-' + doc.cardId);
+              const copy: any = doc;
+              emit(copy._id, copy.courseId + '-' + copy.cardId);
             }
           }.toString(),
         },
@@ -691,10 +684,6 @@ function accomodateGuest(): {
 const userCoursesDoc = 'CourseRegistrations';
 const userClassroomsDoc = 'ClassroomRegistrations';
 
-interface TaggedElo {
-  [tag: string]: number;
-}
-
 export interface CourseRegistration {
   status?: 'active' | 'dropped' | 'maintenance-mode' | 'preview';
   courseID: string;
@@ -704,8 +693,7 @@ export interface CourseRegistration {
   settings?: {
     [setting: string]: string | number | boolean;
   };
-  elo: number;
-  taggedElo: TaggedElo;
+  elo: number | CourseElo;
 }
 
 interface StudyWeights {
@@ -779,20 +767,11 @@ async function getOrCreateCourseRegistrationsDoc(
   return ret;
 }
 
-export async function updateUserElo(user: string, course_id: string, elo: number | TaggedElo) {
+export async function updateUserElo(user: string, course_id: string, elo: CourseElo) {
   let regDoc = await getOrCreateCourseRegistrationsDoc(user);
-  if (isTaggedElo(elo)) {
-    for (const tag in elo) {
-      regDoc.courses.find((c) => c.courseID === course_id)!.taggedElo[tag] = elo[tag];
-    }
-  } else {
-    regDoc.courses.find((c) => c.courseID === course_id)!.elo = elo;
-  }
+  const course = regDoc.courses.find((c) => c.courseID === course_id)!;
+  course.elo = elo;
   return getUserDB(user).put(regDoc);
-}
-
-function isTaggedElo(e: number | TaggedElo): e is TaggedElo {
-  return (e as TaggedElo).length !== undefined;
 }
 
 export async function registerUserForClassroom(
@@ -820,6 +799,11 @@ export async function registerUserForClassroom(
     return getUserDB(user).put(doc);
   });
 }
+
+/**
+ * This noop exists to facilitate writing couchdb filter fcns
+ */
+function emit(x: any, y: any): any {}
 
 export async function dropUserFromClassroom(user: string, classID: string) {
   return getOrCreateClassroomRegistrationsDoc(user).then((doc) => {

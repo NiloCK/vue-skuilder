@@ -40,7 +40,6 @@ import { getCourseList, getCourseTagStubs } from '../../db/courseDB';
 @Component({})
 export default class JoinCode extends SkldrVue {
   @Prop({ required: true }) private _id: string;
-  private mousetrap: MousetrapInstance = new Mousetrap(this.$el);
 
   private _classroomCfg: ClassroomConfig;
   private classroomDB: TeacherClassroomDB;

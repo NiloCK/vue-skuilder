@@ -1,8 +1,10 @@
 import { DataShape } from '@/base-course/Interfaces/DataShape';
+import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import Courses, { NameSpacer, ShapeDescriptor } from '@/courses';
 import { FieldType } from '@/enums/FieldType';
 import ENV from '@/ENVIRONMENT_VARS';
 import { CourseConfig } from '@/server/types';
+import { blankCourseElo, CourseElo, EloToNumber, toCourseElo } from '@/tutor/Elo';
 import _, { take } from 'lodash';
 import pouch from 'pouchdb-browser';
 import { log } from 'util';
@@ -49,9 +51,11 @@ export class CourseDB implements StudyContentSource {
     const activeCards = await u.getActiveCards(this.id);
 
     // this.log()
-    const newCards = (await this.getCardsByELO(userCrsdoc!.elo, cardLimit)).filter((card) => {
-      return activeCards.indexOf(card) === -1;
-    });
+    const newCards = (await this.getCardsByELO(EloToNumber(userCrsdoc!.elo), cardLimit)).filter(
+      (card) => {
+        return activeCards.indexOf(card) === -1;
+      }
+    );
 
     // get scheduled reviews ... .... .....
     return newCards;
@@ -71,6 +75,51 @@ export class CourseDB implements StudyContentSource {
       };
     });
   }
+  public async getCardsByEloLimits(low: number = 0, high: number = Number.MAX_SAFE_INTEGER) {
+    return (
+      await this.db.query('elo', {
+        startkey: low,
+        endkey: high,
+        limit: 25,
+      })
+    ).rows.map((r) => {
+      return `${this.id}-${r.id}-${r.key}`;
+    });
+  }
+  public async getCardEloData(id: string[]): Promise<CourseElo[]> {
+    return (
+      await this.db.allDocs<CardData>({
+        keys: id,
+        include_docs: true,
+      })
+    ).rows.map((card) => {
+      // console.log(JSON.stringify(card));
+      return toCourseElo(card.doc!.elo);
+    });
+  }
+
+  public async getCardDisplayableDataIDs(id: string[]) {
+    console.log(id);
+    const cards = await this.db.allDocs<CardData>({
+      keys: id,
+      include_docs: true,
+    });
+    let ret: { [card: string]: string[] } = {};
+    cards.rows.forEach((r) => {
+      ret[r.id] = r.doc!.id_displayable_data;
+    });
+
+    await Promise.all(
+      cards.rows.map((r) => {
+        return async () => {
+          ret[r.id] = r.doc!.id_displayable_data;
+        };
+      })
+    );
+
+    return ret;
+  }
+
   public async getCardsCenteredAtELO(
     options: {
       limit: number;
@@ -81,23 +130,24 @@ export class CourseDB implements StudyContentSource {
     },
     filter?: (a: string) => boolean
   ): Promise<StudySessionItem[]> {
-    let elo: number;
+    let targetElo: number;
 
     if (options.elo === 'user') {
       const u = await User.instance();
 
-      elo = -1;
+      targetElo = -1;
       try {
-        elo = (await u.getCourseRegistrationsDoc()).courses.find((c) => {
+        const courseDoc = (await u.getCourseRegistrationsDoc()).courses.find((c) => {
           return c.courseID === this.id;
-        })!.elo;
+        })!;
+        targetElo = EloToNumber(courseDoc.elo);
       } catch {
-        elo = 1000;
+        targetElo = 1000;
       }
     } else if (options.elo === 'random') {
-      elo = Math.round(Math.random() * 2000);
+      targetElo = Math.round(Math.random() * 2000);
     } else {
-      elo = options.elo;
+      targetElo = options.elo;
     }
 
     let cards: string[] = [];
@@ -106,7 +156,7 @@ export class CourseDB implements StudyContentSource {
     let newCount: number = 0;
 
     while (cards.length < options.limit && newCount !== previousCount) {
-      cards = await this.getCardsByELO(elo, mult * options.limit);
+      cards = await this.getCardsByELO(targetElo, mult * options.limit);
       previousCount = newCount;
       newCount = cards.length;
 
@@ -232,6 +282,35 @@ export async function removeCourse(courseID: string) {
   });
 }
 
+export async function disambiguateCourse(course: string, disambiguator: string) {
+  // do NOT update the `CourseConfig` doc in the course database.
+  // This information is for the course router only, and does not
+  // directly impaact the running of the course itself
+
+  // write to the lookup db
+  courseLookupDB.get<CourseConfig>(course).then((cfg) => {
+    courseLookupDB.put({
+      ...cfg,
+      disambiguator,
+    });
+  });
+}
+
+var courseListCache: CourseConfig[] = [];
+export async function getCachedCourseList(): Promise<CourseConfig[]> {
+  if (courseListCache.length) {
+    return courseListCache;
+  } else {
+    courseListCache = (await getCourseList()).rows.map((r) => {
+      return {
+        ...r.doc!,
+        courseID: r.id,
+      };
+    });
+    return getCachedCourseList();
+  }
+}
+
 export async function getCourseList() {
   return courseLookupDB.allDocs<CourseConfig>({
     include_docs: true,
@@ -296,14 +375,24 @@ export async function getCardDataShape(courseID: string, cardID: string) {
   return ret;
 }
 
+/**
+ *
+ * @param courseID id of the course (quilt) being added to
+ * @param codeCourse
+ * @param shape
+ * @param data the datashape data - data required for this shape
+ * @param author
+ * @param uploads optional additional media uploads: img0, img1, ..., aud0, aud1,...
+ * @returns
+ */
 export async function addNote55(
   courseID: string,
   codeCourse: string,
   shape: DataShape,
   data: any,
-  author?: string
+  author?: string,
+  uploads?: { [x: string]: PouchDB.Core.FullAttachment }
 ) {
-  // alert(`Course id: ${courseID}`);
   const db = await getCourseDB(courseID);
 
   const dataShapeId = NameSpacer.getDataShapeString({
@@ -311,9 +400,40 @@ export async function addNote55(
     dataShape: shape.name,
   });
 
-  const attachmentFields = shape.fields.filter((field) => {
-    return field.type === FieldType.IMAGE || field.type === FieldType.AUDIO;
-  });
+  const attachmentFields = shape.fields
+    .map((field) => {
+      // make a copy, in order NOT to append to the datashape
+      const copy: FieldDefinition = {
+        name: field.name,
+        type: field.type,
+      };
+      return copy;
+    })
+    .filter((field) => {
+      return field.type === FieldType.IMAGE || field.type === FieldType.AUDIO;
+    })
+    .concat([
+      {
+        name: 'autoplayAudio',
+        type: FieldType.AUDIO,
+      },
+    ]);
+
+  for (let i = 1; i < 11; i++) {
+    if (data[`audio-${i}`]) {
+      attachmentFields.push({
+        name: `audio-${i}`,
+        type: FieldType.AUDIO,
+      });
+    }
+
+    if (data[`image-${i}`]) {
+      attachmentFields.push({
+        name: `image-${i}`,
+        type: FieldType.IMAGE,
+      });
+    }
+  }
 
   const attachments: { [index: string]: PouchDB.Core.FullAttachment } = {};
   const payload: DisplayableData = {
@@ -327,10 +447,18 @@ export async function addNote55(
     payload.author = author;
   }
 
-  if (attachmentFields.length !== 0) {
-    attachmentFields.forEach((attField) => {
-      attachments[attField.name] = data[attField.name];
+  attachmentFields.forEach((attField) => {
+    attachments[attField.name] = data[attField.name];
+  });
+
+  //
+  if (uploads) {
+    Object.keys(uploads).forEach((k) => {
+      attachments[k] = uploads[k];
     });
+  }
+
+  if (attachmentFields.length !== 0 || (uploads && Object.keys(uploads).length)) {
     payload._attachments = attachments;
   }
 
@@ -423,11 +551,22 @@ export async function addTagToCard(
   // In this case, should be converted to a server-request
   const prefixedTagID = getTagID(tagID);
   const courseDB = getCourseDB(courseID);
+  const courseApi = new CourseDB(courseID);
   try {
     log(`Applying tag ${tagID} to card ${courseID + '-' + cardID}...`);
     const tag = await courseDB.get<Tag>(prefixedTagID);
     if (!tag.taggedCards.includes(cardID)) {
       tag.taggedCards.push(cardID);
+
+      courseApi.getCardEloData([cardID]).then((eloData) => {
+        const elo = eloData[0];
+        elo.tags[tagID] = {
+          count: 0,
+          score: elo.global.score, // todo: or 1000?
+        };
+        updateCardElo(courseID, cardID, elo);
+      });
+
       return courseDB.put<Tag>(tag);
     } else throw new Error(`Card already has this tag`);
   } catch (e) {
@@ -529,20 +668,21 @@ async function createCard(
             course: qDescriptor.course,
             questionType: qDescriptor.questionType,
             view,
-          })
+          }),
+          blankCourseElo()
         );
       }
     }
   }
 }
 
-export async function updateCardElo(courseID: string, cardID: string, elo: number) {
+export async function updateCardElo(courseID: string, cardID: string, elo: CourseElo) {
   if (elo) {
     // checking against null, undefined, NaN
     const cDB = getCourseDB(courseID);
     const card = await cDB.get<CardData>(cardID);
     card.elo = elo;
-    return cDB.put(card); // race conditions - how to handle - is it important? probably not
+    return cDB.put(card); // race conditions - is it important? probably not (net-zero effect)
   }
 }
 
@@ -559,7 +699,7 @@ function addCard(
   course: string,
   id_displayable_data: PouchDB.Core.DocumentId[],
   id_view: PouchDB.Core.DocumentId,
-  elo?: number
+  elo: CourseElo
 ) {
   return getCourseDB(courseID).post<CardData>({
     course,
