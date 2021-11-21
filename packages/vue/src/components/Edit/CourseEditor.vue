@@ -23,26 +23,14 @@
 </template>
 
 <script lang="ts">
-import SkldrVue from '@/SkldrVue';
-import Vue from 'vue';
-import { Component, Prop, Watch } from 'vue-property-decorator';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
-import Courses, { NameSpacer } from '@/courses';
-import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
-import { DataShapeData } from '@/db/types';
 import ComponentRegistration from '@/components/Edit/ComponentRegistration/ComponentRegistration.vue';
-import { DataShapeName } from '@/enums/DataShapeNames';
-// import BasicCard from '@/base-course/CardTypes/BasicCard';
-import { FieldType } from '@/enums/FieldType';
-import BaseCards from '@/base-course/CardTypes';
+import Courses, { NameSpacer } from '@/courses';
+import SkldrVue from '@/SkldrVue';
+import { Component, Prop, Watch } from 'vue-property-decorator';
+import { getCredentialledCourseConfig } from '../../db/courseDB';
 import { CourseConfig } from '../../server/types';
-import {
-  getCourseConfig,
-  getCourseDataShapes,
-  getCredentialledCourseConfig,
-  getCourseTagStubs,
-} from '../../db/courseDB';
-import { log } from 'util';
+import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
 
 @Component({
   components: {
