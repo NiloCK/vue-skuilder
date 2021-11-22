@@ -1,58 +1,66 @@
 <template>
   <div>
     <v-form autocomplete="off">
-      <div ref="fieldInputWraps" v-for="field in dataShape.fields" v-bind:key="dataShape.fields.indexOf(field)">
+      <div ref="fieldInputWraps" v-for="(field, i) in dataShape.fields" v-bind:key="dataShape.fields.indexOf(field)">
         <string-input
           v-if="field.type === str"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
         <number-input
           v-else-if="field.type === num"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
         <integer-input
           v-else-if="field.type === int"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
         <image-input
           v-else-if="field.type === img"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
         <markdown-input
           v-else-if="field.type === mkd"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
         <audio-input
           v-else-if="field.type === audio"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
         <midi-input
           v-else-if="field.type === midi"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
         <media-uploader
           v-else-if="field.type === uploader"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
       </div>
 
-      <tags-input hideSubmit="true" ref="tagsInput" v-bind:courseID="course.courseID" cardID="" />
+      <tags-input hideSubmit="true" ref="tagsInput" v-bind:courseID="courseCfg.courseID" cardID="" />
 
       <v-btn
         right
@@ -81,10 +89,11 @@ import { alertUser } from '@/components/SnackbarService.vue';
 import Courses, { NameSpacer, ShapeDescriptor } from '@/courses';
 import { fieldConverters, FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
+import { CourseConfig } from '@/server/types';
 import _ from 'lodash';
 import { log } from 'util';
 import Vue from 'vue';
-import { Component, Watch } from 'vue-property-decorator';
+import { Component, Prop, Watch } from 'vue-property-decorator';
 import { addNote55, addTagToCard, getCourseTagStubs } from '../../../db/courseDB';
 import SkldrVue from '../../../SkldrVue';
 import AudioInput from './FieldInputs/AudioInput.vue';
@@ -114,6 +123,11 @@ type StringIndexable = { [x: string]: any };
   },
 })
 export default class DataInputForm extends SkldrVue {
+  @Prop({
+    required: true,
+  })
+  public courseCfg: CourseConfig;
+
   private timer: NodeJS.Timeout;
   public $refs: {
     fieldInputWraps: HTMLDivElement[];
@@ -138,21 +152,8 @@ export default class DataInputForm extends SkldrVue {
     });
   }
 
-  // @Prop() public dataShape: DataShape;
-  public get dataShape() {
-    return this.$store.state.dataInputForm.dataShape!;
-  }
-  public set dataShape(dataShape) {
-    this.$store.state.dataInputForm.dataShape = dataShape;
-  }
-  // @Prop() public course: CourseConfig;
-  public get course() {
-    return this.$store.state.dataInputForm.course!;
-  }
-  public set course(course) {
-    this.$store.state.dataInputForm.course = course;
-  }
-  // public existingData: ViewData[] = [];
+  @Prop({ required: true }) public dataShape: DataShape;
+
   public get existingData() {
     return this.$store.state.dataInputForm.existingData;
   }
@@ -215,7 +216,7 @@ export default class DataInputForm extends SkldrVue {
   }
 
   public async getCourseTags() {
-    const existingTags = await getCourseTagStubs(this.course.courseID!);
+    const existingTags = await getCourseTagStubs(this.courseCfg.courseID!);
     this.autoCompleteSuggestions = existingTags.rows.map((tag) => {
       return {
         text: tag.doc!.name,
@@ -279,7 +280,7 @@ export default class DataInputForm extends SkldrVue {
   }
 
   private get datashapeDescriptor(): ShapeDescriptor {
-    for (const ds of this.course.dataShapes) {
+    for (const ds of this.courseCfg.dataShapes) {
       const descriptor = NameSpacer.getDataShapeDescriptor(ds.name);
       if (descriptor.dataShape === this.dataShape.name) {
         return descriptor;
@@ -440,7 +441,7 @@ export default class DataInputForm extends SkldrVue {
       const result = await Promise.all(
         inputs.map(async (input) => {
           return await addNote55(
-            this.course.courseID!,
+            this.courseCfg.courseID!,
             this.datashapeDescriptor.course,
             this.dataShape,
             input,
@@ -459,7 +460,7 @@ export default class DataInputForm extends SkldrVue {
         if (ti.tags.length) {
           for (let i = 0; i < ti.tags.length; i++) {
             // apply configured tags to the newly created card
-            await addTagToCard(this.course.courseID!, result[0].id, ti.tags[i].text);
+            await addTagToCard(this.courseCfg.courseID!, result[0].id, ti.tags[i].text);
           }
           // pull down any tags just added for auto-complete suggest
           ti.updateAvailableCourseTags();
@@ -494,7 +495,7 @@ export default class DataInputForm extends SkldrVue {
   private getImplementingViews() {
     this.shapeViews = [];
 
-    for (const ds of this.course.dataShapes) {
+    for (const ds of this.courseCfg.dataShapes) {
       const descriptor = NameSpacer.getDataShapeDescriptor(ds.name);
       if (descriptor.dataShape === this.dataShape.name) {
         const crs = Courses.getCourse(descriptor.course)!;

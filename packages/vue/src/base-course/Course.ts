@@ -1,6 +1,7 @@
 import { Displayable } from '@/base-course/Displayable';
 import Vue, { VueConstructor } from 'vue';
 import defaultCourse from '@/courses/default';
+import { BlanksCard } from '@/courses/default/questions/fillIn/';
 
 // tslint:disable-next-line:max-classes-per-file
 export class Course {
@@ -40,7 +41,7 @@ export class Course {
     this.name = name;
     this.questionList = questionList;
 
-    this.questionList.concat(this.getBaseQTypes());
+    this.questionList = this.questionList.concat(this.getBaseQTypes());
   }
 
   public getQuestion(name: string): typeof Displayable | undefined {
@@ -50,9 +51,9 @@ export class Course {
   }
 
   public getBaseQTypes(): Array<typeof Displayable> {
-    // return [BasicCard];
+    // #145 todo: return [BasicCard];
     // should: get 'default' course displayable types
     // return defaultCourse.getBaseQTypes();
-    return [];
+    return [BlanksCard];
   }
 }

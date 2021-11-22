@@ -18,6 +18,7 @@ export abstract class FieldInput extends SkldrVue {
     inputField: HTMLInputElement;
   };
 
+  @Prop() public autofocus: boolean;
   @Prop() public field: FieldDefinition;
   public validationStatus: ValidationResult = {
     status: Status.ok,
