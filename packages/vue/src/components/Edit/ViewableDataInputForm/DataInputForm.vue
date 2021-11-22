@@ -1,54 +1,62 @@
 <template>
   <div>
     <v-form autocomplete="off">
-      <div ref="fieldInputWraps" v-for="field in dataShape.fields" v-bind:key="dataShape.fields.indexOf(field)">
+      <div ref="fieldInputWraps" v-for="(field, i) in dataShape.fields" v-bind:key="dataShape.fields.indexOf(field)">
         <string-input
           v-if="field.type === str"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
         <number-input
           v-else-if="field.type === num"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
         <integer-input
           v-else-if="field.type === int"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
         <image-input
           v-else-if="field.type === img"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
         <markdown-input
           v-else-if="field.type === mkd"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
         <audio-input
           v-else-if="field.type === audio"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
         <midi-input
           v-else-if="field.type === midi"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
         <media-uploader
           v-else-if="field.type === uploader"
           v-bind:store="store"
           v-bind:field="field"
           v-bind:uiValidationFunction="checkInput"
+          v-bind:autofocus="i == 0"
         />
       </div>
 
