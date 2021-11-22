@@ -1,0 +1,38 @@
+name: deploy-express
+on:
+  push:
+    branches:
+      - deploy
+    paths:
+      - 'packages/express/**'
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - name: Upload to DO
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DO_SSH_KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      - run: npm install -g yarn
+      - run: npm install -g lerna
+      - run: npm install -g typescript
+      - run: lerna bootstrap
+      - name: Build
+        run: |
+          printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
+          yarn build
+      - name: Deploy /express
+        run: |
+          ecount=$(ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ls -1v /home/skuilder/dist/express/ | tail -n1)
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/dist/express/$(($ecount+1))
+          rsync -rl ./packages/express/dist/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/$(($ecount+1))
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ln -sfn /home/skuilder/dist/express/$(($ecount+1)) /home/skuilder/api
+        # restart service, loading from ~/api
+
+      # todo: toss a buildinfo.md file into the (ecount+1) folder, linking PR, listing time, logging build errors, etc
