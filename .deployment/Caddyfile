@@ -45,7 +45,6 @@ stage.eduquilt.com {
 		root * /home/skuilder/stage
 		try_files {path} {path}/ /index.html
 		file_server
-		encode gzip
 	}
 }
 # Refer to the Caddy docs for more information:
