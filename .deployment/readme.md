@@ -17,9 +17,22 @@ The site has three components:
 - an `express` nodejs server / api
 - a `couchdb` database
 
-Each of the three pieces exists on this machine (DO droplet) and is served to the world via a **Caddy2** server. The spa is served "normally", while the db and api are routed and reverse proxied. See `./deployment/Caddyfile` (local) or `/etc/caddy/Caddyfile` (droplet) for config of the Caddy server.
+Each of the three pieces exists on this machine (DO droplet) and is served to the world via a **Caddy2** server.
 
 The droplet itself is set up with (from memory - todo - verify): ufw, sshkey login requirements
+
+# `Caddy`
+
+The spa is served "normally", while the db and api are routed and reverse proxied. Caddy's config file, `Caddyfile`, lives at:
+
+- `./deployment/Caddyfile` (local),
+- `~/Caddyfile` (droplet), and
+- `/etc/caddy/Caddyfile` (droplet), which is a symlink to `~/Caddyfile`
+
+The `Caddyfile` is deployed, and Caddy is restarted, via `./github/workflows/deploy-caddyfile.yml` on conditions:
+
+- push to `deploy` branch
+- changes to `.deployment/Caddyfile`
 
 # `vue` spa
 
