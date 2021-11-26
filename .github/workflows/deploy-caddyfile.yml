@@ -21,4 +21,4 @@ jobs:
           echo "deploying updated Caddyfile in place of prior"
           scp .deployment/Caddyfile ${{ secrets.DO_USERNAME }}@eduquilt.com:~/Caddyfile
           echo "restarting the caddy service"
-          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com caddy reload
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com 'caddy reload &'

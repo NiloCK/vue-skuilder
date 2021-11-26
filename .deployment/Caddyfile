@@ -21,7 +21,7 @@ eduquilt.com {
 	}
 
 	handle_path /testpath {
-		respond "this worked"
+		respond "testTwo"
 	}
 
 	handle {
