@@ -20,6 +20,8 @@ jobs:
       - run: |
           echo "deploying updated Caddyfile in place of prior"
           scp .deployment/Caddyfile ${{ secrets.DO_USERNAME }}@eduquilt.com:~/Caddyfile
-          echo "restarting the caddy service"
-          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com
-          caddy reload &
+          echo "reloading the caddyfile"
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com curl localhost:2019/load \
+           -X POST \
+           -H "Content-Type: text/caddyfile" \
+           --data-binary @Caddyfile
