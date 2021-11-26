@@ -21,7 +21,7 @@ eduquilt.com {
 	}
 
 	handle_path /testpath {
-		respond "lastOne"
+		respond "withCurlViaActions"
 	}
 
 	handle {
