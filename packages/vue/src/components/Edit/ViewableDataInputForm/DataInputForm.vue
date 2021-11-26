@@ -2,8 +2,9 @@
   <v-container fluid>
     <v-layout row wrap>
       <v-flex xl6>
-        <v-form ma-2 autocomplete="off">
+        <v-form class="mr-2" autocomplete="off">
           <div
+            class="my-2"
             ref="fieldInputWraps"
             v-for="(field, i) in dataShape.fields"
             v-bind:key="dataShape.fields.indexOf(field)"
@@ -66,8 +67,9 @@
             />
           </div>
 
-          <tags-input hideSubmit="true" ref="tagsInput" v-bind:courseID="courseCfg.courseID" cardID="" />
+          <tags-input class="my-2" hideSubmit="true" ref="tagsInput" v-bind:courseID="courseCfg.courseID" cardID="" />
           <v-btn
+            class="ma-2"
             right
             type="submit"
             color="primary"
@@ -81,7 +83,7 @@
         </v-form>
       </v-flex>
       <v-flex xl6>
-        <card-browser class="ml-4" v-if="allowSubmit" v-bind:views="shapeViews" v-bind:data="[previewInput]" />
+        <card-browser class="ml-2" v-if="allowSubmit" v-bind:views="shapeViews" v-bind:data="[previewInput]" />
       </v-flex>
     </v-layout>
   </v-container>
