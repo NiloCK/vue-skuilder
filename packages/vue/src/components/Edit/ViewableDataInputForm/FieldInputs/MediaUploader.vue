@@ -1,18 +1,18 @@
 <template>
   <div>
+    <!-- <v-spacer></v-spacer>
+    <div class="text-xs-center"> -->
     <label class="headline">Add media:</label>
-    <v-spacer></v-spacer>
-
-    <v-btn round color="primary">
-      <v-icon left>image</v-icon>
-      Image
+    <v-btn disabled large icon color="primary">
+      <v-icon>image</v-icon>
     </v-btn>
-    <v-btn round color="primary" v-on:click="newAudio">
-      <v-icon left>mic</v-icon>
-      Audio
+
+    <v-btn large icon color="teal lighten-2" v-on:click="newAudio">
+      <v-icon>mic</v-icon>
     </v-btn>
 
     <audio-input
+      v-bind:autofocus="false"
       v-bind:uiValidationFunction="uiValidationFunction"
       v-for="(a, i) in audio"
       v-bind:key="i"
