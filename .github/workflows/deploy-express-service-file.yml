@@ -21,4 +21,4 @@ jobs:
           echo "deploying updated eqExpress.service file in place of prior"
           scp .deployment/eqExpress.service ${{ secrets.DO_USERNAME }}@eduquilt.com:~/eqExpress.service
           echo "restarting the service"
-          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'sudo systemctl restart eqExpress'
+          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo ${{ secrets.DO_PASSWORD }} | sudo -S systemctl restart eqExpress'
