@@ -43,7 +43,15 @@ When a new deploy is run by github, the symlink ~/www is automatically re-focuse
 
 # `express` app
 
-The express app is managed via `systemd` and its service configuration file lives at `./deployment/eqExpress.service` (local) and `/etc/systemd/system/eqExpress.service` (droplet).
+The express app is managed via `systemd` and its service configuration file lives at:
+
+- `./deployment/eqExpress.service` (local),
+- `/etc/systemd/system/eqExpress.service` (droplet), and
+- `~/eqExpress.service` (droplet).
+
+The `/etc/` version is a symlink to the `~/` version.
+
+Express app is restarted in each of `.github/workflows/` `deploy-express-service-file.yml` and `deploy-express.yml`
 
 # `couchdb` database
 

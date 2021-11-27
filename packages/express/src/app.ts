@@ -117,16 +117,21 @@ app.post('/', (req, res) => {
 });
 
 app.get('/', (req, res) => {
+  let status = 'Express service is running.\n';
+
   CouchDB.session()
     .then((s) => {
       if (s.ok) {
-        res.send(`Couchdb session is active. (this message is from express...)`);
+        status += 'Couchdb is running.\n';
       } else {
-        res.send(`Couchdb session is ... not ok?`);
+        status += 'Couchdb session is NOT ok.\n';
       }
     })
     .catch((e) => {
-      res.send(`Problems in the couch session! ${JSON.stringify(e)}`);
+      status += `Problems in the couch session! ${JSON.stringify(e)}`;
+    })
+    .finally(() => {
+      res.send(status);
     });
 });
 
