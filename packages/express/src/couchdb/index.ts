@@ -14,7 +14,7 @@ const admin = {
   username: process.env.COUCHDB_ADMIN,
   password: process.env.COUCHDB_PASSWORD,
 };
-const credentialCouchURL = `${'http'}://admin:rb0=gj9f@localhost:5984`;
+const credentialCouchURL = `${protocol}://${admin.username}:${admin.password}@${url}`;
 
 console.log('WORKING DIRECTORY: ' + process.cwd());
 console.log(

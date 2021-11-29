@@ -2,10 +2,10 @@
 Description=eduQuilt express API
 
 [Service]
-ExecStart=/usr/bin/node /home/skuilder/eduquilt/express/express/src/app.js
+ExecStart=/usr/bin/node /home/api/express/src/app.js
 Restart=always
 User=nobody
-# Note Debian/Ubuntu uses 'nogroup', RHEL/Fedora uses 'nobody'
+# Note Debian/Ubuntu uses 'nogroup', RHEL/Fedora uses 'nobody'.
 Group=nogroup
 Environment=PATH=/usr/bin:/usr/local/bin
 Environment=NODE_ENV=production
