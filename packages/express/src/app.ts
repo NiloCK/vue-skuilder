@@ -7,16 +7,16 @@ import {
   ClassroomJoinQueue,
   ClassroomLeaveQueue,
 } from './client-requests/classroom-requests';
+import {
+  CourseCreationQueue,
+  initCourseDBDesignDocInsert,
+} from './client-requests/course-requests';
 import CouchDB from './couchdb';
 import { requestIsAuthenticated } from './couchdb/authentication';
 import bodyParser = require('body-parser');
 import cors = require('cors');
 import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
-import {
-  CourseCreationQueue,
-  initCourseDBDesignDocInsert,
-} from './client-requests/course-requests';
 
 const port = 3000;
 export const classroomDbDesignDoc = fileSystem.readFileSync(
