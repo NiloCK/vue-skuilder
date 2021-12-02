@@ -9,7 +9,7 @@ User=nobody
 Group=nogroup
 Environment=PATH=/usr/bin:/usr/local/bin
 Environment=NODE_ENV=production
-WorkingDirectory=/home/skuilder/eduquilt/express
+WorkingDirectory=/home/skuilder/api/express
 StartLimitAction=0
 
 [Install]
