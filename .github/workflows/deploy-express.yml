@@ -35,6 +35,6 @@ jobs:
           rsync -rl ./packages/express/dist/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/$(($ecount+1))
           rsync -rl ./packages/express/assets/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/$(($ecount+1))/assets
           ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ln -sfn /home/skuilder/dist/express/$(($ecount+1)) /home/skuilder/api
-          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com echo ${{ secrets.EXPRESS_ENV }} > /home/skuilder/.env.production
+          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo ${{ secrets.EXPRESS_ENV }} > /home/skuilder/.env.production'
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo ${{ secrets.DO_PASSWORD }} | sudo -S systemctl restart eqExpress'
       # todo: toss a buildinfo.md file into the (ecount+1) folder, linking PR, listing time, logging build errors, etc
