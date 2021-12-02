@@ -2,7 +2,7 @@ import dotenv = require('dotenv');
 import Nano = require('nano');
 
 dotenv.config({
-  path: '.env.development.local',
+  path: process.argv && process.argv.length == 3 ? process.argv[2] : '.env.development.local',
 });
 
 const url = process.env.COUCHDB_SERVER;
