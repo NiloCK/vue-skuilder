@@ -2,7 +2,7 @@ import dotenv = require('dotenv');
 import Nano = require('nano');
 
 dotenv.config({
-  path: '.env.development.local',
+  path: process.argv && process.argv.length == 3 ? process.argv[2] : '.env.development.local',
 });
 
 const url = process.env.COUCHDB_SERVER;
@@ -14,7 +14,7 @@ const admin = {
   username: process.env.COUCHDB_ADMIN,
   password: process.env.COUCHDB_PASSWORD,
 };
-const credentialCouchURL = `${'http'}://admin:rb0=gj9f@localhost:5984`;
+const credentialCouchURL = `${protocol}://${admin.username}:${admin.password}@${url}`;
 
 console.log('WORKING DIRECTORY: ' + process.cwd());
 console.log(

@@ -19,6 +19,9 @@ jobs:
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
       - run: |
           echo "deploying updated Caddyfile in place of prior"
-          cat .deployment/Caddyfile | ssh ${{ secrets.DO_USERNAME }}@eduquilt.com "sudo tee -a /etc/caddy/Caddyfile"
-          echo "restarting the caddy service"
-          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com caddy reload
+          scp .deployment/Caddyfile ${{ secrets.DO_USERNAME }}@eduquilt.com:~/Caddyfile
+          echo "reloading the caddyfile"
+          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'curl localhost:2019/load \
+           -X POST \
+           -H "Content-Type: text/caddyfile" \
+           --data-binary @Caddyfile'

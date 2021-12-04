@@ -17,9 +17,22 @@ The site has three components:
 - an `express` nodejs server / api
 - a `couchdb` database
 
-Each of the three pieces exists on this machine (DO droplet) and is served to the world via a **Caddy2** server. The spa is served "normally", while the db and api are routed and reverse proxied. See `./deployment/Caddyfile` (local) or `/etc/caddy/Caddyfile` (droplet) for config of the Caddy server.
+Each of the three pieces exists on this machine (DO droplet) and is served to the world via a **Caddy2** server.
 
 The droplet itself is set up with (from memory - todo - verify): ufw, sshkey login requirements
+
+# `Caddy`
+
+The spa is served "normally", while the db and api are routed and reverse proxied. Caddy's config file, `Caddyfile`, lives at:
+
+- `./deployment/Caddyfile` (local),
+- `~/Caddyfile` (droplet), and
+- `/etc/caddy/Caddyfile` (droplet), which is a symlink to `~/Caddyfile`
+
+The `Caddyfile` is deployed, and Caddy is restarted, via `./github/workflows/deploy-caddyfile.yml` on conditions:
+
+- push to `deploy` branch
+- changes to `.deployment/Caddyfile`
 
 # `vue` spa
 
@@ -30,7 +43,15 @@ When a new deploy is run by github, the symlink ~/www is automatically re-focuse
 
 # `express` app
 
-The express app is managed via `systemd` and its service configuration file lives at `./deployment/eqExpress.service` (local) and `/etc/systemd/system/eqExpress.service` (droplet).
+The express app is managed via `systemd` and its service configuration file lives at:
+
+- `./deployment/eqExpress.service` (local),
+- `/etc/systemd/system/eqExpress.service` (droplet), and
+- `~/eqExpress.service` (droplet).
+
+The `/etc/` version is a symlink to the `~/` version.
+
+Express app is restarted in each of `.github/workflows/` `deploy-express-service-file.yml` and `deploy-express.yml`
 
 # `couchdb` database
 
