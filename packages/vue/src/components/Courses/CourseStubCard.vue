@@ -65,7 +65,7 @@ export default class CourseStubCard extends SkldrVue {
   }
 
   routeToCourse() {
-    this.$router.push(`/quilts/${this._courseConfig.name.replace(' ', '_')}`);
+    this.$router.push(`/q/${this._courseConfig.name.replace(' ', '_')}`);
   }
 
   async registerForCourse() {

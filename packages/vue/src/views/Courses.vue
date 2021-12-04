@@ -13,7 +13,7 @@
                 <v-list-tile :key="course._id" avatar>
                   <v-list-tile-content>
                     <v-list-tile-title>
-                      <router-link :to="`/quilts/${course.name.replace(' ', '_')}`">
+                      <router-link :to="`/q/${course.name.replace(' ', '_')}`">
                         {{ course.name }}
                       </router-link>
                       <v-icon v-if="!course.public">visibility_off</v-icon>
