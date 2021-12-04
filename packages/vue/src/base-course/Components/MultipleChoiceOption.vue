@@ -61,11 +61,11 @@ export default class MultipleChoiceOption extends Vue {
       // return `choice selected ${color} darken-4 white--text elevation-8`;
       return `choice selected ${color} lighten-3 elevation-8`;
     } else if (!this.selected && !this.markedWrong) {
-      return `choice ${color} lighten-4 elevation-1`;
+      return `choice not-selected ${color} lighten-4 elevation-1`;
     } else if (this.selected && this.markedWrong) {
-      return `choice grey lighten-2 selected elevation-8`;
+      return `choice selected grey lighten-2 elevation-8`;
     } else if (!this.selected && this.markedWrong) {
-      return 'choice grey lighten-2 elevation-0';
+      return 'choice not-selected grey lighten-2 elevation-0';
     } else {
       throw new Error(`'selected' and 'markedWrong' props in MultipleChoiceOption are in an impossible configuration.`);
     }
@@ -85,5 +85,10 @@ export default class MultipleChoiceOption extends Vue {
 
 .selected {
   transform: translateY(-10px) /* rotate(3deg) */ scale(1.15);
+  z-index: 1;
+}
+
+.not-selected {
+  z-index: 0;
 }
 </style>
