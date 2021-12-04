@@ -1,7 +1,7 @@
 <template>
-  <div :class="`${className} headline`" @mouseover="select" @click="submitThisOption">
+  <v-card v-bind:class="`${className} headline`" v-on:mouseover="select" v-on:click="submitThisOption">
     {{ content }}
-  </div>
+  </v-card>
 </template>
 
 <script lang="ts">
@@ -31,14 +31,41 @@ export default class MultipleChoiceOption extends Vue {
   }
 
   get className(): string {
+    let color: string;
+
+    switch (this.number) {
+      case 0:
+        color = 'red';
+        break;
+      case 1:
+        color = 'purple';
+        break;
+      case 2:
+        color = 'indigo';
+        break;
+      case 3:
+        color = 'light-blue';
+        break;
+      case 4:
+        color = 'teal';
+        break;
+      case 5:
+        color = 'deep-orange';
+        break;
+      default:
+        color = 'grey';
+        break;
+    }
+
     if (this.selected && !this.markedWrong) {
-      return 'choice selected';
+      // return `choice selected ${color} darken-4 white--text elevation-8`;
+      return `choice selected ${color} lighten-3 elevation-8`;
     } else if (!this.selected && !this.markedWrong) {
-      return 'choice';
+      return `choice ${color} lighten-4 elevation-1`;
     } else if (this.selected && this.markedWrong) {
-      return 'choice selected wrong';
+      return `choice grey lighten-2 selected elevation-8`;
     } else if (!this.selected && this.markedWrong) {
-      return 'choice wrong';
+      return 'choice grey lighten-2 elevation-0';
     } else {
       throw new Error(`'selected' and 'markedWrong' props in MultipleChoiceOption are in an impossible configuration.`);
     }
@@ -48,43 +75,15 @@ export default class MultipleChoiceOption extends Vue {
 
 <style scoped>
 .choice {
+  text-align: center;
   display: inline-block;
   border-radius: 4px;
-  padding: 10px;
-  margin: 8px;
+  padding: 15px;
+  margin: 10px;
+  min-width: 65px; /* prevent tiny click-btns on, eg, one-letter answers */
 }
 
 .selected {
-  transition: all ease-out 0.15s;
-  box-shadow: 2px 3px 4px 2px;
   transform: translateY(-10px) /* rotate(3deg) */ scale(1.15);
-}
-
-.wrong {
-  background-color: gray !important;
-}
-
-.choice:nth-child(1) {
-  background-color: lightgreen;
-  outline-width: 5px;
-}
-.choice:nth-child(2) {
-  /* section for 'selected' element */
-  /* transform: rotate(45); */
-
-  /* end section */
-  background-color: lightcoral;
-}
-.choice:nth-child(3) {
-  background-color: lightskyblue;
-}
-.choice:nth-child(4) {
-  background-color: peachpuff;
-}
-.choice:nth-child(5) {
-  background-color: yellowgreen;
-}
-.choice:nth-child(6) {
-  background-color: lightsalmon;
 }
 </style>

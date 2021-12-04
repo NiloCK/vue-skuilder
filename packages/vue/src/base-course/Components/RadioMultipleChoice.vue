@@ -1,8 +1,8 @@
 <template>
   <div class="multipleChoice">
     <MultipleChoiceOption
-      v-for="choice in choiceList"
-      v-bind:key="choiceList.indexOf(choice)"
+      v-for="(choice, i) in choiceList"
+      v-bind:key="i"
       v-bind:content="choice"
       v-bind:selected="choiceList.indexOf(choice) === currentSelection"
       v-bind:number="choiceList.indexOf(choice)"
