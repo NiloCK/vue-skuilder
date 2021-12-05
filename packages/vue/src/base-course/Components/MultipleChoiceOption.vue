@@ -1,10 +1,11 @@
 <template>
   <v-card v-bind:class="`${className} headline`" v-on:mouseover="select" v-on:click="submitThisOption">
-    {{ content }}
+    {{ md }}
   </v-card>
 </template>
 
 <script lang="ts">
+import marked from 'marked';
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 
@@ -28,6 +29,12 @@ export default class MultipleChoiceOption extends Vue {
       this.select();
       this.submit();
     }
+  }
+
+  get md(): string {
+    const md = marked.parseInline(this.content);
+    console.log(`parsed ${this.content} into ${md}`);
+    return marked.parseInline(this.content);
   }
 
   get className(): string {
