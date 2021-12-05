@@ -528,12 +528,20 @@ export async function createTag(courseID: string, tagName: string) {
     course: courseID,
     docType: DocType.TAG,
     name: tagName,
-    snippit: '',
+    snippet: '',
     taggedCards: [],
     wiki: '',
     _id: tagID,
   });
   return resp;
+}
+
+export async function updateTag(tag: Tag) {
+  const prior = await getTag(tag.course, tag.name);
+  return await getCourseDB(tag.course).put<Tag>({
+    ...tag,
+    _rev: prior._rev,
+  });
 }
 
 export async function getTag(courseID: string, tagName: string) {
