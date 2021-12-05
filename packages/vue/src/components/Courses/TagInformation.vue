@@ -1,6 +1,5 @@
 <template>
   <div>
-    HELLO fawefawefawef
     <h1>{{ tag.name }}</h1>
     <br />
     <p>{{ tag.taggedCards.length }} card{{ tag.taggedCards.length === 1 ? '' : 's' }}</p>
