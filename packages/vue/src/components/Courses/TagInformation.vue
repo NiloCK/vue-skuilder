@@ -54,6 +54,8 @@
         </v-fade-transition>
       </template>
     </v-text-field>
+
+    <!-- todo: include card-browser -->
   </div>
 </template>
 
