@@ -1,6 +1,7 @@
 <template>
   <div>
-    <h1>{{ tag.name }}</h1>
+    <!-- todo: -->
+    <h1><router-link :to="`/q/${_courseId}`">[Course]</router-link> > Tag: {{ tag.name }}</h1>
     <br />
     <p>{{ tag.taggedCards.length }} card{{ tag.taggedCards.length === 1 ? '' : 's' }}</p>
 
