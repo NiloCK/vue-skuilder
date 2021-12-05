@@ -26,13 +26,13 @@ export interface SkuilderCourseData {
 export interface Tag extends SkuilderCourseData {
   docType: DocType.TAG;
   name: string;
-  snippit: string; // 200 char description of the tag
+  snippet: string; // 200 char description of the tag
   wiki: string; // 3000 char md-friendly description
   taggedCards: PouchDB.Core.DocumentId[];
 }
 export interface TagStub {
   name: string;
-  snippit: string;
+  snippet: string;
   count: number; // the number of cards that have this tag applied
 }
 

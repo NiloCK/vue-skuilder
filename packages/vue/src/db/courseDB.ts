@@ -528,7 +528,7 @@ export async function createTag(courseID: string, tagName: string) {
     course: courseID,
     docType: DocType.TAG,
     name: tagName,
-    snippit: '',
+    snippet: '',
     taggedCards: [],
     wiki: '',
     _id: tagID,
