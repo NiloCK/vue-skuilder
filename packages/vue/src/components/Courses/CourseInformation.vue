@@ -41,6 +41,8 @@
       </v-toolbar>
       <v-card-text>
         <v-chip outline v-for="(tag, i) in tags" v-bind:key="i">
+          <!-- todo: -->
+          <!-- <router-link :to="`/q/${_courseConfig.name}/tags/${tag.name}`"> -->
           <router-link :to="`/q/${_id}/tags/${tag.name}`">
             {{ tag.name }}
           </router-link>
