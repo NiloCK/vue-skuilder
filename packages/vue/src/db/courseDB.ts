@@ -5,10 +5,11 @@ import { FieldType } from '@/enums/FieldType';
 import ENV from '@/ENVIRONMENT_VARS';
 import { CourseConfig } from '@/server/types';
 import { blankCourseElo, CourseElo, EloToNumber, toCourseElo } from '@/tutor/Elo';
-import _, { take } from 'lodash';
+import _ from 'lodash';
 import pouch from 'pouchdb-browser';
 import { log } from 'util';
 import { filterAlldocsByPrefix, pouchDBincludeCredentialsConfig } from '.';
+import { GET_CACHED } from './clientCache';
 import {
   StudyContentSource,
   StudySessionItem,
@@ -98,6 +99,33 @@ export class CourseDB implements StudyContentSource {
     });
   }
 
+  /**
+   * Returns the lowest and highest `global` ELO ratings in the course
+   */
+  public async getELOBounds() {
+    const [low, high] = await Promise.all([
+      (
+        await this.db.query('elo', {
+          startkey: 0,
+          limit: 1,
+          include_docs: false,
+        })
+      ).rows[0].key,
+      (
+        await this.db.query('elo', {
+          limit: 1,
+          descending: true,
+          startkey: 100_000,
+        })
+      ).rows[0].key,
+    ]);
+
+    return {
+      low: low,
+      high: high,
+    };
+  }
+
   public async getCardDisplayableDataIDs(id: string[]) {
     console.log(id);
     const cards = await this.db.allDocs<CardData>({
@@ -145,7 +173,9 @@ export class CourseDB implements StudyContentSource {
         targetElo = 1000;
       }
     } else if (options.elo === 'random') {
-      targetElo = Math.round(Math.random() * 2000);
+      const bounds = await GET_CACHED(`elo-bounds-${this.id}`, () => this.getELOBounds());
+      targetElo = Math.round(bounds.low + Math.random() * (bounds.high - bounds.low));
+      // console.log(`Picked ${targetElo} from [${bounds.low}, ${bounds.high}]`);
     } else {
       targetElo = options.elo;
     }
