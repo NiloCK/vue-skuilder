@@ -63,6 +63,9 @@
           :session-order="cardCount"
           v-on:emitResponse="processResponse($event)"
         />
+        <!-- <pre>
+        {{ sessionController.detailedReport }}
+        </pre> -->
         <!-- <card-loader
           :class="loading ? 'muted' : ''"
           :qualified_id="`${courseID}-${cardID}`"
