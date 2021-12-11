@@ -38,7 +38,7 @@ class ItemQueue<T extends StudySessionItem> {
     this.q.push(item);
   }
   public addAll(items: T[]) {
-    this.q = this.q.concat(items);
+    items.forEach((i) => this.add(i));
   }
   public get length() {
     return this.q.length;
