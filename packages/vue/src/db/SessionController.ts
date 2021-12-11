@@ -49,6 +49,12 @@ class ItemQueue<T extends StudySessionItem> {
       return null;
     }
   }
+
+  public get toString(): string {
+    return (
+      `${typeof this.q[0]}:\n` + this.q.map((i) => `\t${i.qualifiedID}: ${i.status}`).join('\n')
+    );
+  }
 }
 
 export default class SessionController extends Loggable {
@@ -73,6 +79,9 @@ export default class SessionController extends Loggable {
   }
   public get report(): string {
     return `${this.reviewQ.dequeueCount} reviews, ${this.newQ.dequeueCount} new cards`;
+  }
+  public get detailedReport(): string {
+    return this.newQ.toString + '\n' + this.reviewQ.toString + '\n' + this.failedQ.toString;
   }
   private _intervalHandle: NodeJS.Timeout;
 
