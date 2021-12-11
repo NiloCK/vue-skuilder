@@ -23,12 +23,18 @@ export interface StudySessionRecord {
 
 class ItemQueue<T extends StudySessionItem> {
   private q: T[] = [];
+  private seenCardIds: string[] = [];
   private _dequeueCount: number = 0;
   public get dequeueCount(): number {
     return this._dequeueCount;
   }
 
   public add(item: T) {
+    if (this.seenCardIds.find((d) => d === item.cardID)) {
+      return; // do not re-add a card to the same queue
+    }
+
+    this.seenCardIds.push(item.cardID);
     this.q.push(item);
   }
   public addAll(items: T[]) {
