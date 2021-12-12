@@ -1,5 +1,5 @@
 <template>
-  <v-btn v-on:click="play" large raised icon color="primary">
+  <v-btn v-on:click="play" large raised icon v-bind:class="playing ? 'primary lighten-3 playing' : 'primary'">
     <v-icon>volume_up</v-icon>
   </v-btn>
 </template>
@@ -115,3 +115,20 @@ export default class AudioAutoPlayer extends Vue {
   }
 }
 </script>
+
+<style scoped>
+.playing {
+  /* transform: rotate(3deg) scale(1.15); */
+  animation: 0.85s ease-in-out infinite alternate pulse;
+  z-index: 1;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.15);
+  }
+}
+</style>
