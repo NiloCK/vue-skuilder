@@ -13,6 +13,8 @@ import SkldrMouseTrap from '../../SkldrMouseTrap';
 
 @Component({})
 export default class AudioAutoPlayer extends Vue {
+  private static LOCK: AudioAutoPlayer | null = null;
+
   @Prop({
     required: true,
   })
@@ -66,8 +68,14 @@ export default class AudioAutoPlayer extends Vue {
   }
 
   private play() {
-    this.playing = true;
-    this.playByIndex(0);
+    if (AudioAutoPlayer.LOCK === null || AudioAutoPlayer.LOCK === this) {
+      AudioAutoPlayer.LOCK = this;
+      this.playing = true;
+      this.playByIndex(0);
+    } else {
+      // lock held by another card - check again in _x_ ms
+      setTimeout(this.play, 100);
+    }
   }
 
   private playByIndex(n: number) {
