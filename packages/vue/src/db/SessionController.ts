@@ -23,16 +23,22 @@ export interface StudySessionRecord {
 
 class ItemQueue<T extends StudySessionItem> {
   private q: T[] = [];
+  private seenCardIds: string[] = [];
   private _dequeueCount: number = 0;
   public get dequeueCount(): number {
     return this._dequeueCount;
   }
 
   public add(item: T) {
+    if (this.seenCardIds.find((d) => d === item.cardID)) {
+      return; // do not re-add a card to the same queue
+    }
+
+    this.seenCardIds.push(item.cardID);
     this.q.push(item);
   }
   public addAll(items: T[]) {
-    this.q = this.q.concat(items);
+    items.forEach((i) => this.add(i));
   }
   public get length() {
     return this.q.length;
@@ -48,6 +54,12 @@ class ItemQueue<T extends StudySessionItem> {
     } else {
       return null;
     }
+  }
+
+  public get toString(): string {
+    return (
+      `${typeof this.q[0]}:\n` + this.q.map((i) => `\t${i.qualifiedID}: ${i.status}`).join('\n')
+    );
   }
 }
 
@@ -73,6 +85,9 @@ export default class SessionController extends Loggable {
   }
   public get report(): string {
     return `${this.reviewQ.dequeueCount} reviews, ${this.newQ.dequeueCount} new cards`;
+  }
+  public get detailedReport(): string {
+    return this.newQ.toString + '\n' + this.reviewQ.toString + '\n' + this.failedQ.toString;
   }
   private _intervalHandle: NodeJS.Timeout;
 
