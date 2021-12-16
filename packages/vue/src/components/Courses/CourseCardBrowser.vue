@@ -18,7 +18,7 @@
                 {{ cardPreview[c] }}
               </v-list-tile-title>
               <v-list-tile-sub-title>
-                {{ c.split('-')[2] }}
+                {{ c.split('-').length === 3 ? c.split('-')[2] : '' }}
               </v-list-tile-sub-title>
             </template>
           </v-list-tile-content>
