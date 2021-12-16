@@ -72,6 +72,16 @@ export default class CourseCardBrowser extends SkldrVue {
 
   private async created() {
     this.courseDB = new CourseDB(this._id);
+
+    this.questionCount = (
+      await getCourseDB(this._id).find({
+        selector: {
+          docType: DocType.CARD,
+        },
+        limit: 1000,
+      })
+    ).docs.length;
+
     this.cards = await this.courseDB.getCardsByEloLimits();
 
     const hydratedCardData = (
