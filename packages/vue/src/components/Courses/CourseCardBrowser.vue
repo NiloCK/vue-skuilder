@@ -43,9 +43,9 @@ import CardLoader from '@/components/Study/CardLoader.vue';
 import Courses from '@/courses';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import { getCourseDoc, getCourseDocs } from '../../db';
-import { CourseDB } from '../../db/courseDB';
-import { CardData, DisplayableData, Tag } from '../../db/types';
+import { getCourseDB, getCourseDoc, getCourseDocs } from '../../db';
+import { CourseDB, getTag } from '../../db/courseDB';
+import { CardData, DisplayableData, DocType, Tag } from '../../db/types';
 import SkldrVue from '../../SkldrVue';
 
 @Component({
