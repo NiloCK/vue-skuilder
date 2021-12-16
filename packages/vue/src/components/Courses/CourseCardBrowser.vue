@@ -18,7 +18,7 @@
                 {{ cardPreview[c] }}
               </v-list-tile-title>
               <v-list-tile-sub-title>
-                {{ c.split('-')[2] }}
+                {{ c.split('-').length === 3 ? c.split('-')[2] : '' }}
               </v-list-tile-sub-title>
             </template>
           </v-list-tile-content>
@@ -43,9 +43,9 @@ import CardLoader from '@/components/Study/CardLoader.vue';
 import Courses from '@/courses';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import { getCourseDoc, getCourseDocs } from '../../db';
-import { CourseDB } from '../../db/courseDB';
-import { CardData, DisplayableData, Tag } from '../../db/types';
+import { getCourseDB, getCourseDoc, getCourseDocs } from '../../db';
+import { CourseDB, getTag } from '../../db/courseDB';
+import { CardData, DisplayableData, DocType, Tag } from '../../db/types';
 import SkldrVue from '../../SkldrVue';
 
 @Component({
@@ -72,6 +72,16 @@ export default class CourseCardBrowser extends SkldrVue {
 
   private async created() {
     this.courseDB = new CourseDB(this._id);
+
+    this.questionCount = (
+      await getCourseDB(this._id).find({
+        selector: {
+          docType: DocType.CARD,
+        },
+        limit: 1000,
+      })
+    ).docs.length;
+
     this.cards = await this.courseDB.getCardsByEloLimits();
 
     const hydratedCardData = (
