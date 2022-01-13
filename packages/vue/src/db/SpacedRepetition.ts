@@ -14,7 +14,7 @@ export function newInterval(cardHistory: CardHistory<CardRecord>): number {
   if (areQuestionRecords(cardHistory)) {
     return newQuestionInterval(cardHistory);
   } else {
-    return 100000; // random - replace
+    return 100000; // random - replace // todo 176
   }
 }
 
@@ -36,7 +36,7 @@ function newQuestionInterval(cardHistory: CardHistory<QuestionRecord>) {
   if (currentAttempt.isCorrect) {
     const skill = currentAttempt.performance as number;
     log(`Demontrated skill: \t${skill}`);
-    const interval: number = lastInterval * (0.75 + skill);
+    const interval: number = lastInterval * (0.75 + skill); // todo 176
     cardHistory.lapses = getLapses(cardHistory.records);
     cardHistory.streak = getStreak(cardHistory.records);
 
@@ -46,6 +46,7 @@ function newQuestionInterval(cardHistory: CardHistory<QuestionRecord>) {
       cardHistory.bestInterval &&
       (cardHistory.lapses >= 0 || cardHistory.streak >= 0)
     ) {
+      // todo 176
       // weighted average of best-ever performance vs current performance, based
       // on how often the card has been failed, and the current streak of success
       const ret =
@@ -73,7 +74,7 @@ function lastSuccessfulInterval(cardHistory: QuestionRecord[]): number {
   for (let i = cardHistory.length - 1; i >= 1; i--) {
     if (cardHistory[i].priorAttemps === 0 && cardHistory[i].isCorrect) {
       const lastInterval = secondsBetween(cardHistory[i - 1].timeStamp, cardHistory[i].timeStamp);
-      const ret = Math.max(lastInterval, 20 * 60 * 60);
+      const ret = Math.max(lastInterval, 20 * 60 * 60); // todo 176 - this amounts to a 20 hour minimum for card rescheduling
       log(`Last interval w/ this card was: ${lastInterval}s, returning ${ret}s`);
       return ret;
     }
@@ -98,6 +99,7 @@ function getLapses(records: QuestionRecord[]): number {
 }
 
 function getInitialInterval(cardHistory: QuestionRecord[]): number {
+  // todo 176
   // todo make this a data-driven service, relying on:
   //  - global experience w/ the card (ie, what interval
   //      seems to be working well across the population)
