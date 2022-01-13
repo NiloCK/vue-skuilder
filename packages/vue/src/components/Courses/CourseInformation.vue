@@ -32,6 +32,7 @@
         </router-link>
       </div>
     </transition>
+    <midi-config v-if="isPianoCourse" :_id="_id" />
 
     <v-card>
       <v-toolbar dense>
@@ -51,38 +52,23 @@
     </v-card>
 
     <course-card-browser v-bind:_id="_id" />
-
-    <!-- <div style="background-color: red; padding: 15px; margin: 10px">
-      <v-text-field v-model="elo" label="elo" id="id" type="number"></v-text-field>
-      <v-text-field v-model="num" label="CardCount" id="id" type="number"></v-text-field>
-      <v-btn color="success" @click="getCards">GetCards!</v-btn>
-    </div> -->
-
-    <midi-config v-if="isPianoCourse" :_id="_id" />
   </div>
 </template>
 
 <script lang="ts">
-import { displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
-import CardLoader from '@/components/Study/CardLoader.vue';
-import Courses from '@/courses';
 import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
 import { log } from 'util';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import { getCourseDB, getCourseDoc, getCourseDocs } from '../../db';
+import { getCourseDB } from '../../db';
 import { CourseDB, getCourseConfig, getCourseTagStubs } from '../../db/courseDB';
-import { CardData, DisplayableData, DocType, Tag } from '../../db/types';
+import { Tag } from '../../db/types';
 import { CourseConfig } from '../../server/types';
 import SkldrVue from '../../SkldrVue';
 import CourseCardBrowser from './CourseCardBrowser.vue';
 
 @Component({
-  components: {
-    MidiConfig,
-    CardLoader,
-    CourseCardBrowser,
-  },
+  components: { MidiConfig, CourseCardBrowser },
 })
 export default class CourseInformation extends SkldrVue {
   @Prop({ required: true }) private _id: string;
@@ -110,16 +96,6 @@ export default class CourseInformation extends SkldrVue {
   private tags: Tag[] = [];
 
   private async created() {
-    // const courses = await getCachedCourseList();
-
-    // const thisCourse = courses.find((c) => c.name.replace(' ', '_') === this._id || c.courseID === this._id);
-    // if (thisCourse) {
-    //   console.log(`found ${JSON.stringify(thisCourse)}`);
-    //   this._id = thisCourse.courseID!;
-    // } else {
-    //   console.log(`No course found for ${this._id}`);
-    //   return;
-    // }
     this.courseDB = new CourseDB(this._id);
 
     const userCourses = await this.$store.state._user!.getCourseRegistrationsDoc();
@@ -139,7 +115,6 @@ export default class CourseInformation extends SkldrVue {
     if (res.ok) {
       this.userIsRegistered = true;
     }
-    // this.userIsRegistered = !this.userIsRegistered;
   }
   private async drop() {
     log(`Dropping course ${this._id}`);
@@ -147,7 +122,6 @@ export default class CourseInformation extends SkldrVue {
     if (res.ok) {
       this.userIsRegistered = false;
     }
-    // this.userIsRegistered = !this.userIsRegistered;
   }
 }
 </script>
@@ -157,8 +131,8 @@ export default class CourseInformation extends SkldrVue {
 .component-fade-leave-active {
   transition: opacity 0.5s ease;
 }
-.component-fade-enter, .component-fade-leave-to
-/* .component-fade-leave-active below version 2.1.8 */ {
+.component-fade-enter,
+.component-fade-leave-to {
   opacity: 0;
 }
 

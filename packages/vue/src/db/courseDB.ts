@@ -420,7 +420,8 @@ export async function addNote55(
   codeCourse: string,
   shape: DataShape,
   data: any,
-  author?: string,
+  author: string,
+  tags: string[],
   uploads?: { [x: string]: PouchDB.Core.FullAttachment }
 ) {
   const db = await getCourseDB(courseID);
@@ -507,7 +508,7 @@ export async function addNote55(
 
   if (result.ok) {
     // create cards
-    createCards(courseID, dataShapeId, result.id);
+    const cards = await createCards(courseID, dataShapeId, result.id, tags);
   }
 
   return result;
@@ -669,7 +670,8 @@ export async function getAppliedTags(id_course: string, id_card: string) {
 async function createCards(
   courseID: string,
   datashapeID: PouchDB.Core.DocumentId,
-  noteID: PouchDB.Core.DocumentId
+  noteID: PouchDB.Core.DocumentId,
+  tags: string[]
 ) {
   const cfg = await getCredentialledCourseConfig(courseID);
   const dsDescriptor = NameSpacer.getDataShapeDescriptor(datashapeID);
@@ -682,7 +684,7 @@ async function createCards(
   }
 
   for (const questionView of questionViewTypes) {
-    createCard(questionView, courseID, dsDescriptor, noteID);
+    createCard(questionView, courseID, dsDescriptor, noteID, tags);
   }
 }
 
@@ -690,8 +692,10 @@ async function createCard(
   questionViewName: string,
   courseID: string,
   dsDescriptor: ShapeDescriptor,
-  noteID: string
+  noteID: string,
+  tags: string[]
 ) {
+  tags.forEach((t) => console.log(`Adding ${t}!`));
   const qDescriptor = NameSpacer.getQuestionDescriptor(questionViewName);
   const cfg = await getCredentialledCourseConfig(courseID);
 
@@ -707,7 +711,8 @@ async function createCard(
             questionType: qDescriptor.questionType,
             view,
           }),
-          blankCourseElo()
+          blankCourseElo(),
+          tags
         );
       }
     }
@@ -732,20 +737,26 @@ export async function updateCardElo(courseID: string, cardID: string, elo: Cours
  * @param id_displayable_data C/PouchDB ID of the data used to hydrate the view
  * @param id_view C/PouchDB ID of the view used to display the card
  */
-function addCard(
+async function addCard(
   courseID: string,
   course: string,
   id_displayable_data: PouchDB.Core.DocumentId[],
   id_view: PouchDB.Core.DocumentId,
-  elo: CourseElo
+  elo: CourseElo,
+  tags: string[]
 ) {
-  return getCourseDB(courseID).post<CardData>({
+  const card = await getCourseDB(courseID).post<CardData>({
     course,
     id_displayable_data,
     id_view,
     docType: DocType.CARD,
     elo: elo || 990 + Math.round(20 * Math.random()),
   });
+  tags.forEach((tag) => {
+    console.log(`adding tag: ${tag} to card ${card.id}`);
+    addTagToCard(courseID, card.id, tag);
+  });
+  return card;
 }
 
 export async function getCredentialledCourseConfig(courseID: string) {

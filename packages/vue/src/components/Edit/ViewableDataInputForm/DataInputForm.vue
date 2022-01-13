@@ -454,7 +454,8 @@ export default class DataInputForm extends SkldrVue {
             this.datashapeDescriptor.course,
             this.dataShape,
             input,
-            this.$store.state._user!.username
+            this.$store.state._user!.username,
+            this.$refs.tagsInput.tags.map((t) => t.text)
             // generic (non-required by datashape) attachments here
           );
         })
@@ -467,10 +468,6 @@ export default class DataInputForm extends SkldrVue {
         });
         const ti = this.$refs.tagsInput;
         if (ti.tags.length) {
-          for (let i = 0; i < ti.tags.length; i++) {
-            // apply configured tags to the newly created card
-            await addTagToCard(this.courseCfg.courseID!, result[0].id, ti.tags[i].text);
-          }
           // pull down any tags just added for auto-complete suggest
           ti.updateAvailableCourseTags();
           // clear applied tags
@@ -505,6 +502,7 @@ export default class DataInputForm extends SkldrVue {
     this.shapeViews = [];
 
     for (const ds of this.courseCfg.dataShapes) {
+      // BUG: not finding blanks
       const descriptor = NameSpacer.getDataShapeDescriptor(ds.name);
       if (descriptor.dataShape === this.dataShape.name) {
         const crs = Courses.getCourse(descriptor.course)!;
