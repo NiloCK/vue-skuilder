@@ -55,7 +55,7 @@
       </template>
     </v-text-field>
 
-    <!-- todo: include card-browser -->
+    <course-card-browser v-bind:_id="_courseId" v-bind:_tag="_id" />
   </div>
 </template>
 
@@ -66,8 +66,11 @@ import { Status } from '@/enums/Status';
 import SkldrVue from '@/SkldrVue';
 import { Component, Prop } from 'vue-property-decorator';
 import { alertUser } from '../SnackbarService.vue';
+import CourseCardBrowser from './CourseCardBrowser.vue';
 
-@Component({})
+@Component({
+  components: { CourseCardBrowser },
+})
 export default class TagInformation extends SkldrVue {
   @Prop({ required: true }) _id: string = '';
   @Prop({ required: true }) _courseId: string = '';

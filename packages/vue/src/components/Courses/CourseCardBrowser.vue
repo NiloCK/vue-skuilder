@@ -82,7 +82,14 @@ export default class CourseCardBrowser extends SkldrVue {
       })
     ).docs.length;
 
-    this.cards = await this.courseDB.getCardsByEloLimits();
+    if (this._tag) {
+      const tag = await getTag(this._id, this._tag);
+      this.cards = tag.taggedCards.map((c) => `${this._id}-${c}`);
+    } else {
+      this.cards = await this.courseDB.getCardsByEloLimits();
+    }
+
+    console.log(this.cards);
 
     const hydratedCardData = (
       await getCourseDocs<CardData>(
@@ -93,6 +100,7 @@ export default class CourseCardBrowser extends SkldrVue {
         }
       )
     ).rows.map((r) => r.doc!);
+    console.log(JSON.stringify(hydratedCardData));
 
     hydratedCardData.forEach((c) => {
       this.cardData[c._id] = c.id_displayable_data;
@@ -104,7 +112,8 @@ export default class CourseCardBrowser extends SkldrVue {
       const _cardID: string = c.split('-')[1];
 
       const tmpCardData = hydratedCardData.find((c) => c._id == _cardID)!;
-      const tmpView = Courses.getView(tmpCardData.id_view);
+      // console.log(`tmpCardData: ${JSON.stringify(tmpCardData)}`);
+      const tmpView = Courses.getView(tmpCardData.id_view || 'default.question.BlanksCard.FillInView');
 
       // todo 143 / perf: this fetch is non-blocking, but is making a db
       // query for each card. much much better to batch query by allDocs
