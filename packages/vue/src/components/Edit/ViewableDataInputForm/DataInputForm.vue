@@ -502,6 +502,7 @@ export default class DataInputForm extends SkldrVue {
     this.shapeViews = [];
 
     for (const ds of this.courseCfg.dataShapes) {
+      // BUG: not finding blanks
       const descriptor = NameSpacer.getDataShapeDescriptor(ds.name);
       if (descriptor.dataShape === this.dataShape.name) {
         const crs = Courses.getCourse(descriptor.course)!;
