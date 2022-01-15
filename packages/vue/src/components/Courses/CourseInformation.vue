@@ -32,6 +32,7 @@
         </router-link>
       </div>
     </transition>
+    <midi-config v-if="isPianoCourse" :_id="_id" />
 
     <v-card>
       <v-toolbar dense>
@@ -50,72 +51,24 @@
       </v-card-text>
     </v-card>
 
-    <v-card>
-      <v-toolbar dense>
-        <v-toolbar-title>Exercises</v-toolbar-title>
-        <v-spacer></v-spacer>
-        {{ questionCount }}
-      </v-toolbar>
-      <v-list two-line dense>
-        <template v-for="c in cards">
-          <v-list-tile
-            v-bind:key="c"
-            v-bind:class="selectedCard == c ? 'elevation-4 font-weight-black teal lighten-5' : ''"
-          >
-            <v-list-tile-content>
-              <!-- <card-viewer v-if="selectedCard === c" /> -->
-              <template>
-                <v-list-tile-title>
-                  {{ cardPreview[c] }}
-                </v-list-tile-title>
-                <v-list-tile-sub-title>
-                  {{ c.split('-')[2] }}
-                </v-list-tile-sub-title>
-              </template>
-            </v-list-tile-content>
-            <v-list-tile-action>
-              <v-btn icon v-on:click="selectedCard = selectedCard == c ? '' : c">
-                <v-icon v-if="selectedCard !== c">open_in_full</v-icon>
-                <v-icon v-else>close</v-icon>
-              </v-btn>
-            </v-list-tile-action>
-          </v-list-tile>
-          <!-- <transition name="component-scale" mode="out-in" v-bind:key="c"> -->
-          <card-loader v-bind:key="c" v-if="selectedCard === c" v-bind:qualified_id="c" />
-          <!-- </transition> -->
-        </template>
-      </v-list>
-    </v-card>
-
-    <!-- <div style="background-color: red; padding: 15px; margin: 10px">
-      <v-text-field v-model="elo" label="elo" id="id" type="number"></v-text-field>
-      <v-text-field v-model="num" label="CardCount" id="id" type="number"></v-text-field>
-      <v-btn color="success" @click="getCards">GetCards!</v-btn>
-    </div> -->
-
-    <midi-config v-if="isPianoCourse" :_id="_id" />
+    <course-card-browser v-bind:_id="_id" />
   </div>
 </template>
 
 <script lang="ts">
-import CardLoader from '@/components/Study/CardLoader.vue';
 import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
-import Courses from '@/courses';
 import { log } from 'util';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import { getCourseDB, getCourseDoc, getCourseDocs } from '../../db';
-import { CourseDB, getCachedCourseList, getCourseConfig, getCourseList, getCourseTagStubs } from '../../db/courseDB';
-import { CardData, DisplayableData, DocType, Tag } from '../../db/types';
+import { getCourseDB } from '../../db';
+import { CourseDB, getCourseConfig, getCourseTagStubs } from '../../db/courseDB';
+import { Tag } from '../../db/types';
 import { CourseConfig } from '../../server/types';
 import SkldrVue from '../../SkldrVue';
-import { displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
+import CourseCardBrowser from './CourseCardBrowser.vue';
 
 @Component({
-  components: {
-    MidiConfig,
-    CardLoader,
-  },
+  components: { MidiConfig, CourseCardBrowser },
 })
 export default class CourseInformation extends SkldrVue {
   @Prop({ required: true }) private _id: string;
@@ -124,13 +77,6 @@ export default class CourseInformation extends SkldrVue {
   private get isPianoCourse(): boolean {
     return this._courseConfig.name.toLowerCase().includes('piano');
   }
-
-  private tagStr(t: Tag) {}
-
-  private cards: string[] = [];
-  private cardData: { [card: string]: string[] } = {};
-  private cardPreview: { [card: string]: string } = {};
-  private selectedCard: string = '';
 
   private nameRules: Array<(value: string) => string | boolean> = [
     (value) => {
@@ -145,75 +91,12 @@ export default class CourseInformation extends SkldrVue {
 
   private updatePending: boolean = true;
 
-  private addingContent: boolean = false;
-  private availableCourses: CourseConfig[] = [];
-  private selectedCourse: string = '';
-  private availableTags: Tag[] = [];
-  private selectedTags: string[] = [];
-
   private _courseConfig: CourseConfig;
   public userIsRegistered: boolean = false;
-  private questionCount: number;
   private tags: Tag[] = [];
 
   private async created() {
-    // const courses = await getCachedCourseList();
-
-    // const thisCourse = courses.find((c) => c.name.replace(' ', '_') === this._id || c.courseID === this._id);
-    // if (thisCourse) {
-    //   console.log(`found ${JSON.stringify(thisCourse)}`);
-    //   this._id = thisCourse.courseID!;
-    // } else {
-    //   console.log(`No course found for ${this._id}`);
-    //   return;
-    // }
     this.courseDB = new CourseDB(this._id);
-    this.cards = await this.courseDB.getCardsByEloLimits();
-
-    const hydratedCardData = (
-      await getCourseDocs<CardData>(
-        this._id,
-        this.cards.map((c) => c.split('-')[1]),
-        {
-          include_docs: true,
-        }
-      )
-    ).rows.map((r) => r.doc!);
-
-    hydratedCardData.forEach((c) => {
-      this.cardData[c._id] = c.id_displayable_data;
-    });
-
-    this.cards.forEach(async (c) => {
-      // console.log(`generating preview for ${c}`);
-      const _courseID: string = c.split('-')[0];
-      const _cardID: string = c.split('-')[1];
-
-      const tmpCardData = hydratedCardData.find((c) => c._id == _cardID)!;
-      const tmpView = Courses.getView(tmpCardData.id_view);
-
-      // todo 143 / perf: this fetch is non-blocking, but is making a db
-      // query for each card. much much better to batch query by allDocs
-      // with keys list
-      const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
-        return getCourseDoc<DisplayableData>(_courseID, id, {
-          attachments: false,
-          binary: true,
-        });
-      });
-
-      Promise.all(tmpDataDocs).then((docs) => {
-        docs.forEach((doc) => {
-          const tmpData = [];
-          tmpData.unshift(displayableDataToViewData(doc));
-
-          const view = new tmpView();
-          (view as any).data = tmpData;
-
-          this.cardPreview[c] = view.toString();
-        });
-      });
-    });
 
     const userCourses = await this.$store.state._user!.getCourseRegistrationsDoc();
     this.userIsRegistered =
@@ -222,14 +105,6 @@ export default class CourseInformation extends SkldrVue {
       }).length === 1;
     const db = await getCourseDB(this._id);
     this._courseConfig = (await getCourseConfig(this._id))!;
-    this.questionCount = (
-      await db.find({
-        selector: {
-          docType: DocType.CARD,
-        },
-        limit: 1000,
-      })
-    ).docs.length;
     this.tags = (await getCourseTagStubs(this._id)).rows.map((r) => r.doc!);
     this.updatePending = false;
   }
@@ -240,7 +115,6 @@ export default class CourseInformation extends SkldrVue {
     if (res.ok) {
       this.userIsRegistered = true;
     }
-    // this.userIsRegistered = !this.userIsRegistered;
   }
   private async drop() {
     log(`Dropping course ${this._id}`);
@@ -248,7 +122,6 @@ export default class CourseInformation extends SkldrVue {
     if (res.ok) {
       this.userIsRegistered = false;
     }
-    // this.userIsRegistered = !this.userIsRegistered;
   }
 }
 </script>
@@ -258,8 +131,8 @@ export default class CourseInformation extends SkldrVue {
 .component-fade-leave-active {
   transition: opacity 0.5s ease;
 }
-.component-fade-enter, .component-fade-leave-to
-/* .component-fade-leave-active below version 2.1.8 */ {
+.component-fade-enter,
+.component-fade-leave-to {
   opacity: 0;
 }
 

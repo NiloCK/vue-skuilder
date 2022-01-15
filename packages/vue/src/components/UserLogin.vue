@@ -84,6 +84,8 @@ export default class UserLogin extends SkldrVue {
     this.awaitingResponse = true;
 
     try {
+      // #172 starting point - why is the pre-existing _user being referenced here?
+      console.log(`Current state._user: ${JSON.stringify(this.$store.state._user)}`);
       const res = await this.$store.state._user!.login(this.username, this.password);
       this.$store.state._user!.getConfig().then((cfg) => {
         this.$store.state.config = cfg;
