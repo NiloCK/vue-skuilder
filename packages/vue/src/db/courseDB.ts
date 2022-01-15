@@ -76,6 +76,17 @@ export class CourseDB implements StudyContentSource {
       };
     });
   }
+
+  public async getInexperiencedCards(limit: number = 2): Promise<string[]> {
+    return (
+      await this.db.query('cardsByInexperience', {
+        limit,
+      })
+    ).rows.map((r) => {
+      return `${this.id}-${r.id}`;
+    });
+  }
+
   public async getCardsByEloLimits(low: number = 0, high: number = Number.MAX_SAFE_INTEGER) {
     return (
       await this.db.query('elo', {
