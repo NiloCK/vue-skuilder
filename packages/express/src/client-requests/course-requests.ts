@@ -6,7 +6,14 @@ import { postProcessCourse } from '../attachment-preprocessing';
 import CouchDB from '../couchdb';
 import AsyncProcessQueue from '../utils/processQueue';
 import nano = require('nano');
-import { emit } from 'cluster';
+
+/**
+ * Fake fcn to allow usage in couchdb map fcns which, after passing
+ * through `.toString()`, are applied to all courses
+ */
+function emit(key?: unknown, value?: unknown) {
+  return [key, value];
+}
 
 export const COURSE_DB_LOOKUP = 'coursedb-lookup';
 const courseHasher = new hashids(COURSE_DB_LOOKUP, 6, 'abcdefghijkmnopqrstuvwxyz23456789');
@@ -14,6 +21,24 @@ const courseHasher = new hashids(COURSE_DB_LOOKUP, 6, 'abcdefghijkmnopqrstuvwxyz
 function getCourseDBName(courseID: string): string {
   return `coursedb-${courseID}`;
 }
+
+const cardsByInexperienceDoc = {
+  _id: '_design/cardsByInexperience',
+  views: {
+    cardsByInexperience: {
+      map: function (doc) {
+        if (doc.docType && doc.docType === 'CARD') {
+          if (doc.elo && doc.elo.global && typeof doc.elo.global.count == 'number') {
+            emit(doc.elo.global.count, doc._id);
+          } else {
+            emit(0, doc._id);
+          }
+        }
+      }.toString(),
+    },
+  },
+  language: 'javascript',
+};
 
 const tagsDoc = {
   _id: '_design/getTags',
@@ -115,7 +140,7 @@ function insertDesignDoc(
     });
 }
 
-const courseDBDesignDocs: { _id: string }[] = [elodoc, tagsDoc];
+const courseDBDesignDocs: { _id: string }[] = [elodoc, tagsDoc, cardsByInexperienceDoc];
 
 export async function initCourseDBDesignDocInsert() {
   const lookup = await useOrCreateDB(COURSE_DB_LOOKUP);
