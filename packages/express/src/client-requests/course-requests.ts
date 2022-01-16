@@ -1,7 +1,7 @@
 import hashids from 'hashids';
 import { log } from 'util';
 import { CreateCourse } from '../../../vue/src/server/types';
-import { courseDBDesignDoc, SecurityObject, useOrCreateDB } from '../app';
+import { SecurityObject, useOrCreateDB } from '../app';
 import { postProcessCourse } from '../attachment-preprocessing';
 import CouchDB from '../couchdb';
 import AsyncProcessQueue from '../utils/processQueue';
@@ -29,7 +29,7 @@ const cardsByInexperienceDoc = {
       map: function (doc) {
         if (doc.docType && doc.docType === 'CARD') {
           if (doc.elo && doc.elo.global && typeof doc.elo.global.count == 'number') {
-            emit(doc.elo.global.count, doc._id);
+            emit(doc.elo.global.count, doc.elo);
           } else {
             emit(0, doc._id);
           }
@@ -126,11 +126,11 @@ function insertDesignDoc(
         _rev: priorDoc._rev,
       });
     })
-    .catch((notFound) => {
+    .catch(() => {
       courseDB
         .insert(doc)
         .catch((e) => {
-          log(`Error inserting design doc ${doc._id} in course-${courseID}`);
+          log(`Error inserting design doc ${doc._id} in course-${courseID}: ${e}`);
         })
         .then((resp) => {
           if (resp && resp.ok) {
@@ -142,7 +142,7 @@ function insertDesignDoc(
 
 const courseDBDesignDocs: { _id: string }[] = [elodoc, tagsDoc, cardsByInexperienceDoc];
 
-export async function initCourseDBDesignDocInsert() {
+export async function initCourseDBDesignDocInsert(): Promise<void> {
   const lookup = await useOrCreateDB(COURSE_DB_LOOKUP);
   lookup.list((err, body) => {
     if (!err) {

@@ -77,13 +77,19 @@ export class CourseDB implements StudyContentSource {
     });
   }
 
-  public async getInexperiencedCards(limit: number = 2): Promise<string[]> {
+  public async getInexperiencedCards(limit: number = 2) {
     return (
       await this.db.query('cardsByInexperience', {
         limit,
       })
     ).rows.map((r) => {
-      return `${this.id}-${r.id}`;
+      const ret = {
+        courseId: this.id,
+        cardId: r.id,
+        count: r.key,
+        elo: r.value,
+      };
+      return ret;
     });
   }
 
@@ -735,6 +741,7 @@ export async function updateCardElo(courseID: string, cardID: string, elo: Cours
     // checking against null, undefined, NaN
     const cDB = getCourseDB(courseID);
     const card = await cDB.get<CardData>(cardID);
+    console.log(`Replacing ${JSON.stringify(card.elo)} with ${JSON.stringify(elo)}`);
     card.elo = elo;
     return cDB.put(card); // race conditions - is it important? probably not (net-zero effect)
   }
