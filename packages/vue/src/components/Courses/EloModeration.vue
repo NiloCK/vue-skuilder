@@ -42,8 +42,12 @@ export default class ELOModerator extends SkldrVue {
   private updatePending: boolean = true;
   private _courseConfig: CourseConfig;
 
-  public card1: StudySessionItem;
-  public card2: StudySessionItem;
+  public cards: {
+    courseId: string;
+    cardId: string;
+    elo: CourseElo;
+    count: number;
+  }[] = [];
   public id1: string = '';
   public id2: string = '';
   public elo1: CourseElo;
@@ -61,43 +65,31 @@ export default class ELOModerator extends SkldrVue {
   }
 
   private vote(x: 'a' | 'b') {
-    const scoreA = parseInt(this.card1.qualifiedID.split('-')[2]);
-    const scoreB = parseInt(this.card2.qualifiedID.split('-')[2]);
-
     const scores = adjustCourseScores(this.elo1, this.elo2, x === 'a' ? 1 : 0, {
       globalOnly: true,
     });
 
-    console.log(`Updating:
-    ${this.card1.cardID}: ${scoreA} -> ${scores.userElo}
-    ${this.card2.cardID}: ${scoreB} -> ${scores.cardElo}`);
-
-    updateCardElo(this.card1.courseID, this.card1.cardID, scores.userElo);
-    updateCardElo(this.card2.courseID, this.card2.cardID, scores.cardElo);
+    updateCardElo(this._id, this.cards[0].cardId, scores.userElo);
+    updateCardElo(this._id, this.cards[1].cardId, scores.cardElo);
 
     this.getNewCards();
   }
 
   private async getNewCards() {
     this.updatePending = true;
-    const cards = await this.courseDB.getCardsCenteredAtELO({
-      limit: 2,
-      elo: 'random',
-    });
+    this.cards = await this.courseDB.getInexperiencedCards();
 
-    this.card1 = cards[0];
-    this.card2 = cards[1];
+    // console.log('Comparing:\n\t' + JSON.stringify(this.cards));
 
     this.id1 = '';
     this.id2 = '';
 
-    this.id1 = cards[0].qualifiedID;
-    this.id2 = cards[1].qualifiedID;
-    const eloData = await this.courseDB.getCardEloData([this.card1.cardID, this.card2.cardID]);
-    this.elo1 = eloData[0];
-    this.elo2 = eloData[1];
+    this.id1 = `${this._id}-${this.cards[0].cardId}`;
+    this.id2 = `${this._id}-${this.cards[1].cardId}`;
 
-    console.log(`Loaded cards: ${this.card1.cardID}, ${this.card2.cardID}`);
+    this.elo1 = this.cards[0].elo;
+    this.elo2 = this.cards[1].elo;
+
     this.updatePending = false;
   }
 }
