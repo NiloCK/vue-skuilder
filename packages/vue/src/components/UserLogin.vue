@@ -93,6 +93,10 @@ export default class UserLogin extends SkldrVue {
       this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
       this.$router.push('/study');
     } catch (e) {
+      // entry #186
+      console.log(`login error: ${JSON.stringify(e)}`);
+      // - differentiate response
+      // - return better message to UI
       this.initBadLogin();
     }
 
