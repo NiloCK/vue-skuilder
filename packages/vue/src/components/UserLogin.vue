@@ -85,7 +85,6 @@ export default class UserLogin extends SkldrVue {
 
     try {
       // #172 starting point - why is the pre-existing _user being referenced here?
-      console.log(`Current state._user: ${JSON.stringify(this.$store.state._user)}`);
       const res = await this.$store.state._user!.login(this.username, this.password);
       this.$store.state._user!.getConfig().then((cfg) => {
         this.$store.state.config = cfg;
@@ -94,7 +93,7 @@ export default class UserLogin extends SkldrVue {
       this.$router.push('/study');
     } catch (e) {
       // entry #186
-      console.log(`login error: ${JSON.stringify(e)}`);
+      console.log(`login error: ${e}`);
       // - differentiate response
       // - return better message to UI
       this.initBadLogin();
