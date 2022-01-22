@@ -7,30 +7,37 @@
     </v-toolbar>
     <v-list two-line dense>
       <template v-for="c in cards">
-        <v-list-tile
-          v-bind:key="c"
-          v-bind:class="selectedCard == c ? 'elevation-4 font-weight-black teal lighten-5' : ''"
-        >
+        <v-list-tile v-bind:key="c.id" v-bind:class="c.isOpen ? 'elevation-4 font-weight-black teal lighten-5' : ''">
           <v-list-tile-content>
-            <!-- <card-viewer v-if="selectedCard === c" /> -->
             <template>
               <v-list-tile-title>
-                {{ cardPreview[c] }}
+                {{ cardPreview[c.id] }}
               </v-list-tile-title>
               <v-list-tile-sub-title>
-                {{ c.split('-').length === 3 ? c.split('-')[2] : '' }}
+                {{ c.id.split('-').length === 3 ? c.id.split('-')[2] : '' }}
               </v-list-tile-sub-title>
             </template>
           </v-list-tile-content>
-          <v-list-tile-action>
-            <v-btn icon v-on:click="selectedCard = selectedCard == c ? '' : c">
-              <v-icon v-if="selectedCard !== c">open_in_full</v-icon>
-              <v-icon v-else>close</v-icon>
+          <!-- <v-list-tile-action> -->
+          <v-speed-dial v-model="c.isOpen" direction="left" transition="slide-x-reverse-transition">
+            <v-btn v-on:click="clearSelections(c.id)" slot="activator" color="primary" fab small v-model="c.isOpen">
+              <v-icon>open_in_full</v-icon>
+              <v-icon>close</v-icon>
             </v-btn>
-          </v-list-tile-action>
+            <v-btn fab small dark color="orange">
+              <v-icon>bookmark</v-icon>
+            </v-btn>
+            <v-btn fab small dark color="teal">
+              <v-icon>edit</v-icon>
+            </v-btn>
+            <v-btn fab small dark color="red">
+              <v-icon>flag</v-icon>
+            </v-btn>
+          </v-speed-dial>
+          <!-- </v-list-tile-action> -->
         </v-list-tile>
-        <!-- <transition name="component-scale" mode="out-in" v-bind:key="c"> -->
-        <card-loader v-bind:key="c" v-if="selectedCard === c" v-bind:qualified_id="c" />
+        <!-- <transition name="component-scale" mode="out-in" v-bind:key="c.id"> -->
+        <card-loader v-bind:key="c.id" v-if="c.isOpen" v-bind:qualified_id="c.id" />
         <!-- </transition> -->
       </template>
     </v-list>
@@ -59,10 +66,17 @@ export default class CourseCardBrowser extends SkldrVue {
 
   private courseDB: CourseDB;
 
-  private cards: string[] = [];
+  private cards: { id: string; isOpen: boolean }[] = [];
   private cardData: { [card: string]: string[] } = {};
   private cardPreview: { [card: string]: string } = {};
-  private selectedCard: string = '';
+
+  private clearSelections(exception: string = '') {
+    this.cards.forEach((card) => {
+      if (card.id !== exception) {
+        card.isOpen = false;
+      }
+    });
+  }
 
   private updatePending: boolean = true;
 
@@ -84,9 +98,16 @@ export default class CourseCardBrowser extends SkldrVue {
 
     if (this._tag) {
       const tag = await getTag(this._id, this._tag);
-      this.cards = tag.taggedCards.map((c) => `${this._id}-${c}`);
+      this.cards = tag.taggedCards.map((c) => {
+        return { id: `${this._id}-${c}`, isOpen: false };
+      });
     } else {
-      this.cards = await this.courseDB.getCardsByEloLimits();
+      this.cards = (await this.courseDB.getCardsByEloLimits()).map((c) => {
+        return {
+          id: c,
+          isOpen: false,
+        };
+      });
     }
 
     console.log(this.cards);
@@ -94,7 +115,7 @@ export default class CourseCardBrowser extends SkldrVue {
     const hydratedCardData = (
       await getCourseDocs<CardData>(
         this._id,
-        this.cards.map((c) => c.split('-')[1]),
+        this.cards.map((c) => c.id.split('-')[1]),
         {
           include_docs: true,
         }
@@ -108,8 +129,8 @@ export default class CourseCardBrowser extends SkldrVue {
 
     this.cards.forEach(async (c) => {
       // console.log(`generating preview for ${c}`);
-      const _courseID: string = c.split('-')[0];
-      const _cardID: string = c.split('-')[1];
+      const _courseID: string = c.id.split('-')[0];
+      const _cardID: string = c.id.split('-')[1];
 
       const tmpCardData = hydratedCardData.find((c) => c._id == _cardID)!;
       // console.log(`tmpCardData: ${JSON.stringify(tmpCardData)}`);
@@ -134,7 +155,7 @@ export default class CourseCardBrowser extends SkldrVue {
           const view = new tmpView();
           (view as any).data = tmpData;
 
-          this.cardPreview[c] = view.toString();
+          this.cardPreview[c.id] = view.toString();
         })
       );
 
