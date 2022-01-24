@@ -7,10 +7,7 @@
     </v-toolbar>
     <v-list two-line dense>
       <div v-for="c in cards" v-bind:key="c.id" v-bind:class="c.isOpen ? 'blue-grey lighten-5' : ''">
-        <v-list-tile
-          v-bind:key="c.id"
-          v-bind:class="c.isOpen ? 'elevation-4 font-weight-black blue-grey lighten-4' : ''"
-        >
+        <v-list-tile v-bind:class="c.isOpen ? 'elevation-4 font-weight-black blue-grey lighten-4' : ''">
           <v-list-tile-content>
             <template>
               <v-list-tile-title v-bind:class="c.isOpen ? 'blue-grey--text text--lighten-4' : ''">
@@ -58,13 +55,8 @@
           </v-speed-dial>
           <!-- </v-list-tile-action> -->
         </v-list-tile>
-        <!-- <transition name="component-scale" mode="out-in" v-bind:key="c.id"> -->
-        <card-loader
-          class="blue-grey lighten-5 elevation-1"
-          v-bind:key="c.id"
-          v-if="c.isOpen"
-          v-bind:qualified_id="c.id"
-        />
+        <!-- <transition name="component-scale" mode="out-in"> -->
+        <card-loader class="blue-grey lighten-5 elevation-1" v-if="c.isOpen" v-bind:qualified_id="c.id" />
         <!-- </transition> -->
         <tags-input
           class="ma-3"
