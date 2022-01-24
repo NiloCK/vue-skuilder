@@ -6,11 +6,14 @@
       {{ questionCount }}
     </v-toolbar>
     <v-list two-line dense>
-      <template v-for="c in cards">
-        <v-list-tile v-bind:key="c.id" v-bind:class="c.isOpen ? 'elevation-4 font-weight-black teal lighten-5' : ''">
+      <div v-for="c in cards" v-bind:key="c.id" v-bind:class="c.isOpen ? 'blue-grey lighten-5' : ''">
+        <v-list-tile
+          v-bind:key="c.id"
+          v-bind:class="c.isOpen ? 'elevation-4 font-weight-black blue-grey lighten-4' : ''"
+        >
           <v-list-tile-content>
             <template>
-              <v-list-tile-title>
+              <v-list-tile-title v-bind:class="c.isOpen ? 'blue-grey--text text--lighten-4' : ''">
                 {{ cardPreview[c.id] }}
               </v-list-tile-title>
               <v-list-tile-sub-title>
@@ -20,26 +23,63 @@
           </v-list-tile-content>
           <!-- <v-list-tile-action> -->
           <v-speed-dial v-model="c.isOpen" direction="left" transition="slide-x-reverse-transition">
-            <v-btn v-on:click="clearSelections(c.id)" slot="activator" color="primary" fab small v-model="c.isOpen">
-              <v-icon>open_in_full</v-icon>
+            <v-btn
+              v-on:click="clearSelections(c.id)"
+              slot="activator"
+              color="disabled"
+              icon
+              fab
+              small
+              v-model="c.isOpen"
+            >
+              <v-icon disabled>open_in_full</v-icon>
               <v-icon>close</v-icon>
             </v-btn>
-            <v-btn fab small dark color="orange">
+            <v-btn
+              fab
+              small
+              :outline="editMode != 'tags'"
+              :dark="editMode == 'tags'"
+              :color="editMode === 'tags' ? 'teal' : 'teal darken-3'"
+              @click.stop="editMode = 'tags'"
+            >
               <v-icon>bookmark</v-icon>
             </v-btn>
-            <v-btn fab small dark color="teal">
-              <v-icon>edit</v-icon>
-            </v-btn>
-            <v-btn fab small dark color="red">
+            <v-btn
+              fab
+              small
+              :outline="editMode != 'flag'"
+              :dark="editMode == 'flag'"
+              :color="editMode === 'flag' ? 'error' : 'error darken-3'"
+              @click.stop="editMode = 'flag'"
+            >
               <v-icon>flag</v-icon>
             </v-btn>
           </v-speed-dial>
           <!-- </v-list-tile-action> -->
         </v-list-tile>
         <!-- <transition name="component-scale" mode="out-in" v-bind:key="c.id"> -->
-        <card-loader v-bind:key="c.id" v-if="c.isOpen" v-bind:qualified_id="c.id" />
+        <card-loader
+          class="blue-grey lighten-5 elevation-1"
+          v-bind:key="c.id"
+          v-if="c.isOpen"
+          v-bind:qualified_id="c.id"
+        />
         <!-- </transition> -->
-      </template>
+        <tags-input
+          class="ma-3"
+          v-show="c.isOpen && editMode === 'tags'"
+          v-bind:courseID="_id"
+          v-bind:cardID="c.id.split('-')[1]"
+        />
+        <div class="ma-3" v-show="c.isOpen && editMode === 'flag'">
+          <v-btn outline color="error" v-on:click="delBtn = true">Delete this card</v-btn>
+          <span v-if="delBtn">
+            <span>Are you sure?</span>
+            <v-btn color="error" v-on:click="deleteCard(c.id)">Confirm</v-btn>
+          </span>
+        </div>
+      </div>
     </v-list>
   </v-card>
 </template>
@@ -54,10 +94,12 @@ import { getCourseDB, getCourseDoc, getCourseDocs } from '../../db';
 import { CourseDB, getTag } from '../../db/courseDB';
 import { CardData, DisplayableData, DocType, Tag } from '../../db/types';
 import SkldrVue from '../../SkldrVue';
+import TagsInput from '@/components/Edit/TagsInput.vue';
 
 @Component({
   components: {
     CardLoader,
+    TagsInput,
   },
 })
 export default class CourseCardBrowser extends SkldrVue {
@@ -70,19 +112,32 @@ export default class CourseCardBrowser extends SkldrVue {
   private cardData: { [card: string]: string[] } = {};
   private cardPreview: { [card: string]: string } = {};
 
+  private editMode: 'tags' | 'flag' | 'none' = 'none';
+  private delBtn: boolean = false;
+
   private clearSelections(exception: string = '') {
     this.cards.forEach((card) => {
       if (card.id !== exception) {
         card.isOpen = false;
       }
     });
+    this.editMode = 'none';
+    this.delBtn = false;
+  }
+
+  private async deleteCard(c: string) {
+    const res = await this.courseDB.removeCard(c.split('-')[1]);
+    if (res.ok) {
+      this.cards = this.cards.filter((card) => card.id != c);
+      this.clearSelections();
+    }
   }
 
   private updatePending: boolean = true;
 
   public userIsRegistered: boolean = false;
   private questionCount: number;
-  private tags: Tag[] = [];
+  private tags: Tag[] = []; // for filtering-by
 
   private async created() {
     this.courseDB = new CourseDB(this._id);
