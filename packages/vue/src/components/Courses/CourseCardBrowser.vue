@@ -5,72 +5,62 @@
       <v-spacer></v-spacer>
       {{ questionCount }}
     </v-toolbar>
-    <v-list two-line dense>
-      <div v-for="c in cards" v-bind:key="c.id" v-bind:class="c.isOpen ? 'blue-grey lighten-5' : ''">
-        <v-list-tile v-bind:class="c.isOpen ? 'elevation-4 font-weight-black blue-grey lighten-4' : ''">
-          <v-list-tile-content>
-            <template>
-              <v-list-tile-title v-bind:class="c.isOpen ? 'blue-grey--text text--lighten-4' : ''">
-                {{ cardPreview[c.id] }}
-              </v-list-tile-title>
-              <v-list-tile-sub-title>
-                {{ c.id.split('-').length === 3 ? c.id.split('-')[2] : '' }}
-              </v-list-tile-sub-title>
-            </template>
-          </v-list-tile-content>
-          <!-- <v-list-tile-action> -->
-          <v-speed-dial v-model="c.isOpen" direction="left" transition="slide-x-reverse-transition">
-            <v-btn
-              v-on:click="clearSelections(c.id)"
-              slot="activator"
-              color="disabled"
-              icon
-              fab
-              small
-              v-model="c.isOpen"
-            >
-              <v-icon disabled>open_in_full</v-icon>
-              <v-icon>close</v-icon>
-            </v-btn>
-            <v-btn
-              fab
-              small
-              :outline="editMode != 'tags'"
-              :dark="editMode == 'tags'"
-              :color="editMode === 'tags' ? 'teal' : 'teal darken-3'"
-              @click.stop="editMode = 'tags'"
-            >
-              <v-icon>bookmark</v-icon>
-            </v-btn>
-            <v-btn
-              fab
-              small
-              :outline="editMode != 'flag'"
-              :dark="editMode == 'flag'"
-              :color="editMode === 'flag' ? 'error' : 'error darken-3'"
-              @click.stop="editMode = 'flag'"
-            >
-              <v-icon>flag</v-icon>
-            </v-btn>
-          </v-speed-dial>
-          <!-- </v-list-tile-action> -->
-        </v-list-tile>
-        <!-- <transition name="component-scale" mode="out-in"> -->
-        <card-loader class="blue-grey lighten-5 elevation-1" v-if="c.isOpen" v-bind:qualified_id="c.id" />
-        <!-- </transition> -->
-        <tags-input
-          class="ma-3"
-          v-show="c.isOpen && editMode === 'tags'"
-          v-bind:courseID="_id"
-          v-bind:cardID="c.id.split('-')[1]"
-        />
-        <div class="ma-3" v-show="c.isOpen && editMode === 'flag'">
-          <v-btn outline color="error" v-on:click="delBtn = true">Delete this card</v-btn>
-          <span v-if="delBtn">
-            <span>Are you sure?</span>
-            <v-btn color="error" v-on:click="deleteCard(c.id)">Confirm</v-btn>
-          </span>
-        </div>
+    <v-list v-for="c in cards" v-bind:key="c.id" v-bind:class="c.isOpen ? 'blue-grey lighten-5' : ''" two-line dense>
+      <v-list-tile v-bind:class="c.isOpen ? 'elevation-4 font-weight-black blue-grey lighten-4' : ''">
+        <v-list-tile-content>
+          <template>
+            <v-list-tile-title v-bind:class="c.isOpen ? 'blue-grey--text text--lighten-4' : ''">
+              {{ cardPreview[c.id] }}
+            </v-list-tile-title>
+            <v-list-tile-sub-title>
+              {{ c.id.split('-').length === 3 ? c.id.split('-')[2] : '' }}
+            </v-list-tile-sub-title>
+          </template>
+        </v-list-tile-content>
+        <!-- <v-list-tile-action> -->
+        <v-speed-dial v-model="c.isOpen" direction="left" transition="slide-x-reverse-transition">
+          <v-btn v-on:click="clearSelections(c.id)" slot="activator" color="disabled" icon fab small v-model="c.isOpen">
+            <v-icon disabled>open_in_full</v-icon>
+            <v-icon>close</v-icon>
+          </v-btn>
+          <v-btn
+            fab
+            small
+            :outline="editMode != 'tags'"
+            :dark="editMode == 'tags'"
+            :color="editMode === 'tags' ? 'teal' : 'teal darken-3'"
+            @click.stop="editMode = 'tags'"
+          >
+            <v-icon>bookmark</v-icon>
+          </v-btn>
+          <v-btn
+            fab
+            small
+            :outline="editMode != 'flag'"
+            :dark="editMode == 'flag'"
+            :color="editMode === 'flag' ? 'error' : 'error darken-3'"
+            @click.stop="editMode = 'flag'"
+          >
+            <v-icon>flag</v-icon>
+          </v-btn>
+        </v-speed-dial>
+        <!-- </v-list-tile-action> -->
+      </v-list-tile>
+      <!-- <transition name="component-scale" mode="out-in"> -->
+      <card-loader class="blue-grey lighten-5 elevation-1" v-if="c.isOpen" v-bind:qualified_id="c.id" />
+      <!-- </transition> -->
+      <tags-input
+        class="ma-3"
+        v-show="c.isOpen && editMode === 'tags'"
+        v-bind:courseID="_id"
+        v-bind:cardID="c.id.split('-')[1]"
+      />
+      <div class="ma-3" v-show="c.isOpen && editMode === 'flag'">
+        <v-btn outline color="error" v-on:click="delBtn = true">Delete this card</v-btn>
+        <span v-if="delBtn">
+          <span>Are you sure?</span>
+          <v-btn color="error" v-on:click="deleteCard(c.id)">Confirm</v-btn>
+        </span>
       </div>
     </v-list>
   </v-card>
