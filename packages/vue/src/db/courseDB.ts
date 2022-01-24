@@ -143,6 +143,15 @@ export class CourseDB implements StudyContentSource {
     };
   }
 
+  public async removeCard(id: string) {
+    const doc = await this.db.get<CardData>(id);
+    if (!doc.docType || !(doc.docType === DocType.CARD)) {
+      throw new Error(`failed to remove ${id} from course ${this.id}. id does not point to a card`);
+    }
+    // TODO: remove card from tags lists (getTagsByCards)
+    return this.db.remove(doc);
+  }
+
   public async getCardDisplayableDataIDs(id: string[]) {
     console.log(id);
     const cards = await this.db.allDocs<CardData>({

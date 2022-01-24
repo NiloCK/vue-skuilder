@@ -5,34 +5,63 @@
       <v-spacer></v-spacer>
       {{ questionCount }}
     </v-toolbar>
-    <v-list two-line dense>
-      <template v-for="c in cards">
-        <v-list-tile
-          v-bind:key="c"
-          v-bind:class="selectedCard == c ? 'elevation-4 font-weight-black teal lighten-5' : ''"
-        >
-          <v-list-tile-content>
-            <!-- <card-viewer v-if="selectedCard === c" /> -->
-            <template>
-              <v-list-tile-title>
-                {{ cardPreview[c] }}
-              </v-list-tile-title>
-              <v-list-tile-sub-title>
-                {{ c.split('-').length === 3 ? c.split('-')[2] : '' }}
-              </v-list-tile-sub-title>
-            </template>
-          </v-list-tile-content>
-          <v-list-tile-action>
-            <v-btn icon v-on:click="selectedCard = selectedCard == c ? '' : c">
-              <v-icon v-if="selectedCard !== c">open_in_full</v-icon>
-              <v-icon v-else>close</v-icon>
-            </v-btn>
-          </v-list-tile-action>
-        </v-list-tile>
-        <!-- <transition name="component-scale" mode="out-in" v-bind:key="c"> -->
-        <card-loader v-bind:key="c" v-if="selectedCard === c" v-bind:qualified_id="c" />
-        <!-- </transition> -->
-      </template>
+    <v-list v-for="c in cards" v-bind:key="c.id" v-bind:class="c.isOpen ? 'blue-grey lighten-5' : ''" two-line dense>
+      <v-list-tile v-bind:class="c.isOpen ? 'elevation-4 font-weight-black blue-grey lighten-4' : ''">
+        <v-list-tile-content>
+          <template>
+            <v-list-tile-title v-bind:class="c.isOpen ? 'blue-grey--text text--lighten-4' : ''">
+              {{ cardPreview[c.id] }}
+            </v-list-tile-title>
+            <v-list-tile-sub-title>
+              {{ c.id.split('-').length === 3 ? c.id.split('-')[2] : '' }}
+            </v-list-tile-sub-title>
+          </template>
+        </v-list-tile-content>
+        <!-- <v-list-tile-action> -->
+        <v-speed-dial v-model="c.isOpen" direction="left" transition="slide-x-reverse-transition">
+          <v-btn v-on:click="clearSelections(c.id)" slot="activator" color="disabled" icon fab small v-model="c.isOpen">
+            <v-icon disabled>open_in_full</v-icon>
+            <v-icon>close</v-icon>
+          </v-btn>
+          <v-btn
+            fab
+            small
+            :outline="editMode != 'tags'"
+            :dark="editMode == 'tags'"
+            :color="editMode === 'tags' ? 'teal' : 'teal darken-3'"
+            @click.stop="editMode = 'tags'"
+          >
+            <v-icon>bookmark</v-icon>
+          </v-btn>
+          <v-btn
+            fab
+            small
+            :outline="editMode != 'flag'"
+            :dark="editMode == 'flag'"
+            :color="editMode === 'flag' ? 'error' : 'error darken-3'"
+            @click.stop="editMode = 'flag'"
+          >
+            <v-icon>flag</v-icon>
+          </v-btn>
+        </v-speed-dial>
+        <!-- </v-list-tile-action> -->
+      </v-list-tile>
+      <!-- <transition name="component-scale" mode="out-in"> -->
+      <card-loader class="blue-grey lighten-5 elevation-1" v-if="c.isOpen" v-bind:qualified_id="c.id" />
+      <!-- </transition> -->
+      <tags-input
+        class="ma-3"
+        v-show="c.isOpen && editMode === 'tags'"
+        v-bind:courseID="_id"
+        v-bind:cardID="c.id.split('-')[1]"
+      />
+      <div class="ma-3" v-show="c.isOpen && editMode === 'flag'">
+        <v-btn outline color="error" v-on:click="delBtn = true">Delete this card</v-btn>
+        <span v-if="delBtn">
+          <span>Are you sure?</span>
+          <v-btn color="error" v-on:click="deleteCard(c.id)">Confirm</v-btn>
+        </span>
+      </div>
     </v-list>
   </v-card>
 </template>
@@ -47,10 +76,12 @@ import { getCourseDB, getCourseDoc, getCourseDocs } from '../../db';
 import { CourseDB, getTag } from '../../db/courseDB';
 import { CardData, DisplayableData, DocType, Tag } from '../../db/types';
 import SkldrVue from '../../SkldrVue';
+import TagsInput from '@/components/Edit/TagsInput.vue';
 
 @Component({
   components: {
     CardLoader,
+    TagsInput,
   },
 })
 export default class CourseCardBrowser extends SkldrVue {
@@ -59,16 +90,36 @@ export default class CourseCardBrowser extends SkldrVue {
 
   private courseDB: CourseDB;
 
-  private cards: string[] = [];
+  private cards: { id: string; isOpen: boolean }[] = [];
   private cardData: { [card: string]: string[] } = {};
   private cardPreview: { [card: string]: string } = {};
-  private selectedCard: string = '';
+
+  private editMode: 'tags' | 'flag' | 'none' = 'none';
+  private delBtn: boolean = false;
+
+  private clearSelections(exception: string = '') {
+    this.cards.forEach((card) => {
+      if (card.id !== exception) {
+        card.isOpen = false;
+      }
+    });
+    this.editMode = 'none';
+    this.delBtn = false;
+  }
+
+  private async deleteCard(c: string) {
+    const res = await this.courseDB.removeCard(c.split('-')[1]);
+    if (res.ok) {
+      this.cards = this.cards.filter((card) => card.id != c);
+      this.clearSelections();
+    }
+  }
 
   private updatePending: boolean = true;
 
   public userIsRegistered: boolean = false;
   private questionCount: number;
-  private tags: Tag[] = [];
+  private tags: Tag[] = []; // for filtering-by
 
   private async created() {
     this.courseDB = new CourseDB(this._id);
@@ -84,9 +135,16 @@ export default class CourseCardBrowser extends SkldrVue {
 
     if (this._tag) {
       const tag = await getTag(this._id, this._tag);
-      this.cards = tag.taggedCards.map((c) => `${this._id}-${c}`);
+      this.cards = tag.taggedCards.map((c) => {
+        return { id: `${this._id}-${c}`, isOpen: false };
+      });
     } else {
-      this.cards = await this.courseDB.getCardsByEloLimits();
+      this.cards = (await this.courseDB.getCardsByEloLimits()).map((c) => {
+        return {
+          id: c,
+          isOpen: false,
+        };
+      });
     }
 
     console.log(this.cards);
@@ -94,7 +152,7 @@ export default class CourseCardBrowser extends SkldrVue {
     const hydratedCardData = (
       await getCourseDocs<CardData>(
         this._id,
-        this.cards.map((c) => c.split('-')[1]),
+        this.cards.map((c) => c.id.split('-')[1]),
         {
           include_docs: true,
         }
@@ -108,8 +166,8 @@ export default class CourseCardBrowser extends SkldrVue {
 
     this.cards.forEach(async (c) => {
       // console.log(`generating preview for ${c}`);
-      const _courseID: string = c.split('-')[0];
-      const _cardID: string = c.split('-')[1];
+      const _courseID: string = c.id.split('-')[0];
+      const _cardID: string = c.id.split('-')[1];
 
       const tmpCardData = hydratedCardData.find((c) => c._id == _cardID)!;
       // console.log(`tmpCardData: ${JSON.stringify(tmpCardData)}`);
@@ -134,7 +192,7 @@ export default class CourseCardBrowser extends SkldrVue {
           const view = new tmpView();
           (view as any).data = tmpData;
 
-          this.cardPreview[c] = view.toString();
+          this.cardPreview[c.id] = view.toString();
         })
       );
 
