@@ -34,9 +34,13 @@ interface TagObject {
   },
 })
 export default class SkTagsInput extends SkldrVue {
-  @Prop()
+  @Prop({
+    required: true,
+  })
   public courseID: string;
-  @Prop()
+  @Prop({
+    required: false,
+  })
   public cardID: string;
   @Prop({
     required: false,
