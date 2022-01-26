@@ -28,6 +28,13 @@ export type CourseElo = {
   };
 };
 
+type EloRank = {
+  score: number;
+  count: number;
+};
+
+type Eloish = number | EloRank | CourseElo;
+
 export function blankCourseElo(): CourseElo {
   return {
     global: {
@@ -39,12 +46,7 @@ export function blankCourseElo(): CourseElo {
   };
 }
 
-type EloRank = {
-  score: number;
-  count: number;
-};
-
-export function EloToNumber(elo: number | EloRank | CourseElo): number {
+export function EloToNumber(elo: Eloish): number {
   if (typeof elo === 'number') {
     return elo;
   } else if (isCourseElo(elo)) {
@@ -64,7 +66,7 @@ export function toElo(elo: number | EloRank): EloRank {
     return elo;
   }
 }
-export function toCourseElo(elo: number | EloRank | CourseElo | undefined): CourseElo {
+export function toCourseElo(elo: Eloish | undefined): CourseElo {
   if (typeof elo === 'number') {
     return {
       global: {
@@ -108,8 +110,8 @@ function isCourseElo(x: any): x is CourseElo {
  * @returns
  */
 export function adjustCourseScores(
-  userElo: CourseElo,
-  cardElo: CourseElo,
+  aElo: Eloish,
+  bElo: Eloish,
   userScore: number,
   options?: {
     globalOnly: boolean;
@@ -121,6 +123,9 @@ export function adjustCourseScores(
   if (userScore < 0 || userScore > 1) {
     throw new Error(`ELO performance rating must be between 0 and 1 - received ${userScore}`);
   }
+
+  const userElo: CourseElo = toCourseElo(aElo);
+  const cardElo: CourseElo = toCourseElo(bElo);
 
   if (options == undefined || !options.globalOnly) {
     // grade on each tag present for the card
