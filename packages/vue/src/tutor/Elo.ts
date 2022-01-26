@@ -1,5 +1,3 @@
-import { Course } from '@/base-course/Course';
-
 export class EloRanker {
   constructor(public k: number = 32) {}
 
@@ -166,6 +164,7 @@ function adjustScores(
 
   // todo: how to calculate here?
   // todo: should / must these be equal?
+  // todo: 176 - these K values should be a fcn of `.count` values of userElo and cardElo
   const userRanker = new EloRanker(16);
   const cardRanker = new EloRanker(16);
 
