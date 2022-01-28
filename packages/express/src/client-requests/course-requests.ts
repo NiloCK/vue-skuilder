@@ -30,8 +30,10 @@ const cardsByInexperienceDoc = {
         if (doc.docType && doc.docType === 'CARD') {
           if (doc.elo && doc.elo.global && typeof doc.elo.global.count == 'number') {
             emit(doc.elo.global.count, doc.elo);
+          } else if (doc.elo && typeof doc.elo == 'number') {
+            emit(0, doc.elo);
           } else {
-            emit(0, doc._id);
+            emit(0, 995 + Math.floor(10 * Math.random()));
           }
         }
       }.toString(),
