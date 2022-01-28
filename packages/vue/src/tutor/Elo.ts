@@ -65,6 +65,9 @@ export function toElo(elo: number | EloRank): EloRank {
   }
 }
 export function toCourseElo(elo: Eloish | undefined): CourseElo {
+  if (typeof elo === 'string') {
+    throw new Error('unsuitiably typed input to toCourseElo');
+  }
   if (typeof elo === 'number') {
     return {
       global: {
