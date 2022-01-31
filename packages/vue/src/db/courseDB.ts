@@ -93,12 +93,25 @@ export class CourseDB implements StudyContentSource {
     });
   }
 
-  public async getCardsByEloLimits(low: number = 0, high: number = Number.MAX_SAFE_INTEGER) {
+  public async getCardsByEloLimits(
+    options: {
+      low: number;
+      high: number;
+      limit: number;
+      page: number;
+    } = {
+      low: 0,
+      high: Number.MIN_SAFE_INTEGER,
+      limit: 25,
+      page: 0,
+    }
+  ) {
     return (
       await this.db.query('elo', {
-        startkey: low,
-        endkey: high,
-        limit: 25,
+        startkey: options.low,
+        endkey: options.high,
+        limit: options.limit,
+        skip: options.limit * options.page,
       })
     ).rows.map((r) => {
       return `${this.id}-${r.id}-${r.key}`;
@@ -687,8 +700,8 @@ export async function getAppliedTags(id_course: string, id_card: string) {
     // include_docs: true
   });
 
-  log(`getAppliedTags looked up: ${id_card}`);
-  log(`getAppliedTags returning: ${JSON.stringify(result)}`);
+  // log(`getAppliedTags looked up: ${id_card}`);
+  // log(`getAppliedTags returning: ${JSON.stringify(result)}`);
 
   return result;
 }
