@@ -1,10 +1,16 @@
 <template>
   <v-card v-if="!updatePending">
-    <v-toolbar dense>
-      <v-toolbar-title>Exercises</v-toolbar-title>
-      <v-spacer></v-spacer>
-      {{ questionCount }}
-    </v-toolbar>
+    <paginating-toolbar
+      title="Exercises"
+      v-bind:page="page"
+      v-bind:pages="pages"
+      v-bind:subtitle="`(${questionCount})`"
+      v-on:first="first"
+      v-on:prev="prev"
+      v-on:next="next"
+      v-on:last="last"
+      v-on:set-page="(n) => setPage(n)"
+    />
     <v-list v-for="c in cards" v-bind:key="c.id" v-bind:class="c.isOpen ? 'blue-grey lighten-5' : ''" two-line dense>
       <v-list-tile v-bind:class="c.isOpen ? 'elevation-4 font-weight-black blue-grey lighten-4' : ''">
         <v-list-tile-content>
@@ -63,12 +69,24 @@
         </span>
       </div>
     </v-list>
+    <paginating-toolbar
+      class="elevation-0"
+      v-bind:page="page"
+      v-bind:pages="pages"
+      @first="first"
+      @prev="prev"
+      @next="next"
+      @last="last"
+      @set-page="(n) => setPage(n)"
+    />
   </v-card>
 </template>
 
 <script lang="ts">
 import { displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
+import TagsInput from '@/components/Edit/TagsInput.vue';
 import CardLoader from '@/components/Study/CardLoader.vue';
+import PaginatingToolbar from '@/components/PaginatingToolbar.vue';
 import Courses from '@/courses';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
@@ -76,12 +94,12 @@ import { getCourseDB, getCourseDoc, getCourseDocs } from '../../db';
 import { CourseDB, getTag } from '../../db/courseDB';
 import { CardData, DisplayableData, DocType, Tag } from '../../db/types';
 import SkldrVue from '../../SkldrVue';
-import TagsInput from '@/components/Edit/TagsInput.vue';
 
 @Component({
   components: {
     CardLoader,
     TagsInput,
+    PaginatingToolbar,
   },
 })
 export default class CourseCardBrowser extends SkldrVue {
@@ -89,6 +107,29 @@ export default class CourseCardBrowser extends SkldrVue {
   @Prop({ required: false }) private _tag: string;
 
   private courseDB: CourseDB;
+  private page: number = 1;
+  private pages: number[] = [];
+
+  private first() {
+    this.page = 1;
+    this.populateTableData();
+  }
+  private prev() {
+    this.page--;
+    this.populateTableData();
+  }
+  private next() {
+    this.page++;
+    this.populateTableData();
+  }
+  private last() {
+    this.page = this.pages.length;
+    this.populateTableData();
+  }
+  private setPage(n: number) {
+    this.page = n;
+    this.populateTableData();
+  }
 
   private cards: { id: string; isOpen: boolean }[] = [];
   private cardData: { [card: string]: string[] } = {};
@@ -133,21 +174,34 @@ export default class CourseCardBrowser extends SkldrVue {
       })
     ).docs.length;
 
+    for (let i = 1; (i - 1) * 25 < this.questionCount; i++) {
+      this.pages.push(i);
+    }
+
+    await this.populateTableData();
+  }
+
+  private async populateTableData() {
     if (this._tag) {
       const tag = await getTag(this._id, this._tag);
       this.cards = tag.taggedCards.map((c) => {
         return { id: `${this._id}-${c}`, isOpen: false };
       });
     } else {
-      this.cards = (await this.courseDB.getCardsByEloLimits()).map((c) => {
+      this.cards = (
+        await this.courseDB.getCardsByEloLimits({
+          low: 0,
+          high: Number.MAX_SAFE_INTEGER,
+          limit: 25,
+          page: this.page - 1, // -1 for 0-index offset
+        })
+      ).map((c) => {
         return {
           id: c,
           isOpen: false,
         };
       });
     }
-
-    console.log(this.cards);
 
     const hydratedCardData = (
       await getCourseDocs<CardData>(
@@ -158,8 +212,6 @@ export default class CourseCardBrowser extends SkldrVue {
         }
       )
     ).rows.map((r) => r.doc!);
-    console.log(JSON.stringify(hydratedCardData));
-
     hydratedCardData.forEach((c) => {
       this.cardData[c._id] = c.id_displayable_data;
     });
