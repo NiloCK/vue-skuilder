@@ -34,7 +34,7 @@
     </transition>
     <midi-config v-if="isPianoCourse" :_id="_id" />
 
-    <v-card>
+    <v-card class="my-2">
       <v-toolbar dense>
         <v-toolbar-title>Tags</v-toolbar-title>
         <v-spacer></v-spacer>
@@ -51,7 +51,7 @@
       </v-card-text>
     </v-card>
 
-    <course-card-browser v-bind:_id="_id" />
+    <course-card-browser class="my-3" v-bind:_id="_id" />
   </div>
 </template>
 
