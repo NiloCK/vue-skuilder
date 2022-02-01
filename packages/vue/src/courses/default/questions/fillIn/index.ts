@@ -11,7 +11,19 @@ import _ from 'lodash';
 import marked from 'marked';
 import FillInView from './fillIn.vue';
 
-function chunk(text: string, l: string, r: string): string[] {
+/**
+ * recursively splits text according to the passed delimiters.
+ *
+ * eg: ("abcde", "b", "d")   => ["a", "bcd", "e"]
+ *     ("a[b][c]", "[", "]") => ["a", "[b]", "[c]"]
+ *
+ * it does not check that the delimiters are well formed in the text
+ * @param text the text to be split
+ * @param l the left delimiter
+ * @param r the right delimiter
+ * @returns the split result
+ */
+function splitByDelimiters(text: string, l: string, r: string): string[] {
   if (text.length === 0) return [];
 
   let ret: string[] = [];
@@ -20,10 +32,12 @@ function chunk(text: string, l: string, r: string): string[] {
   const right = text.indexOf(r, left);
 
   if (left >= 0 && right > left) {
+    // pre-delimited characters
     ret.push(text.substring(0, left));
+    // delimited section
     ret.push(text.substring(left, right + r.length));
-
-    ret = ret.concat(chunk(text.substring(right + r.length), l, r));
+    // recurse on remaining text
+    ret = ret.concat(splitByDelimiters(text.substring(right + r.length), l, r));
   } else {
     return [text];
   }
@@ -52,8 +66,8 @@ function splitText(
 
 export function splitTextToken(token: marked.Tokens.Text): marked.Tokens.Text[] {
   if (containsComponent(token)) {
-    const textChunks = chunk(token.text, '{{', '}}');
-    const rawChunks = chunk(token.raw, '{{', '}}');
+    const textChunks = splitByDelimiters(token.text, '{{', '}}');
+    const rawChunks = splitByDelimiters(token.raw, '{{', '}}');
 
     if (textChunks.length === rawChunks.length) {
       return textChunks.map((c, i) => {
@@ -83,8 +97,8 @@ export function splitParagraphToken(
   let ret: marked.Token[] = [];
 
   if (containsComponent(token)) {
-    const textChunks = chunk(token.text, '{{', '}}');
-    const rawChunks = chunk(token.raw, '{{', '}}');
+    const textChunks = splitByDelimiters(token.text, '{{', '}}');
+    const rawChunks = splitByDelimiters(token.raw, '{{', '}}');
     if (textChunks.length === rawChunks.length) {
       for (let i = 0; i < textChunks.length; i++) {
         const textToken = {
@@ -271,6 +285,14 @@ export class BlanksCard extends Question {
     }
 
     if ((tok as any).tokens) {
+      // 19 - "this is a question with {{ _three_ || one | two }} answers" gets split into tokens
+      //     this is a question with {{  // a text token
+      //     _three_                     // an em token
+      //     || one | two }} answers     // a text token
+
+      // must: recognise {{ x }} as a token
+      //       recognise ||, | as token delimiters
+      //       pass each contained thing down as raw... ?
       for (let i = 0; i < (tok as any).tokens.length; i++) {
         const candidate = this.findAnswers((tok as any).tokens[i]);
         if (candidate !== null) {
