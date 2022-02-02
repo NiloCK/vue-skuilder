@@ -11,7 +11,19 @@ import _ from 'lodash';
 import marked from 'marked';
 import FillInView from './fillIn.vue';
 
-function chunk(text: string, l: string, r: string): string[] {
+/**
+ * recursively splits text according to the passed delimiters.
+ *
+ * eg: ("abcde", "b", "d")   => ["a", "bcd", "e"]
+ *     ("a[b][c]", "[", "]") => ["a", "[b]", "[c]"]
+ *
+ * it does not check that the delimiters are well formed in the text
+ * @param text the text to be split
+ * @param l the left delimiter
+ * @param r the right delimiter
+ * @returns the split result
+ */
+function splitByDelimiters(text: string, l: string, r: string): string[] {
   if (text.length === 0) return [];
 
   let ret: string[] = [];
@@ -20,10 +32,12 @@ function chunk(text: string, l: string, r: string): string[] {
   const right = text.indexOf(r, left);
 
   if (left >= 0 && right > left) {
+    // pre-delimited characters
     ret.push(text.substring(0, left));
+    // delimited section
     ret.push(text.substring(left, right + r.length));
-
-    ret = ret.concat(chunk(text.substring(right + r.length), l, r));
+    // recurse on remaining text
+    ret = ret.concat(splitByDelimiters(text.substring(right + r.length), l, r));
   } else {
     return [text];
   }
@@ -52,8 +66,8 @@ function splitText(
 
 export function splitTextToken(token: marked.Tokens.Text): marked.Tokens.Text[] {
   if (containsComponent(token)) {
-    const textChunks = chunk(token.text, '{{', '}}');
-    const rawChunks = chunk(token.raw, '{{', '}}');
+    const textChunks = splitByDelimiters(token.text, '{{', '}}');
+    const rawChunks = splitByDelimiters(token.raw, '{{', '}}');
 
     if (textChunks.length === rawChunks.length) {
       return textChunks.map((c, i) => {
@@ -83,8 +97,8 @@ export function splitParagraphToken(
   let ret: marked.Token[] = [];
 
   if (containsComponent(token)) {
-    const textChunks = chunk(token.text, '{{', '}}');
-    const rawChunks = chunk(token.raw, '{{', '}}');
+    const textChunks = splitByDelimiters(token.text, '{{', '}}');
+    const rawChunks = splitByDelimiters(token.raw, '{{', '}}');
     if (textChunks.length === rawChunks.length) {
       for (let i = 0; i < textChunks.length; i++) {
         const textToken = {
@@ -239,25 +253,7 @@ export class BlanksCard extends Question {
 
     if (tok.type === 'text') {
       if (isComponent(tok)) {
-        const optsStr = tok.raw.substring(2, tok.raw.length - 2);
-        // console.log(`Opts string: ${optsStr}, start ${start}, length ${length}`);
-        console.log(`OptsStr trimmed to: ${optsStr}`);
-        const split = optsStr.split('||');
-        if (split.length > 1) {
-          const answers = split[0].split('|');
-          const distractors = split[1].split('|');
-
-          distractors.push(answers[randomInt(0, answers.length - 1)]);
-          return {
-            answers,
-            options: _.shuffle(distractors),
-          };
-        } else {
-          return {
-            answers: [optsStr],
-            options: null,
-          };
-        }
+        this.answersFromString(tok.raw.substring(2, tok.raw.length - 2));
       }
 
       if (containsComponent(tok)) {
@@ -282,18 +278,50 @@ export class BlanksCard extends Question {
     return null;
   }
 
+  private answersFromString(s: string) {
+    if (!s.startsWith('{{') || !s.endsWith('}}')) {
+      throw new Error(`string ${s} is not fill-in text - must look like "{{someText}}"`);
+    }
+    s = s.substring(2, s.length - 2);
+    const split = s.split('||');
+    if (split.length > 1) {
+      const answers = split[0].split('|');
+      const distractors = split[1].split('|');
+
+      distractors.push(answers[randomInt(0, answers.length - 1)]);
+      return {
+        answers,
+        options: _.shuffle(distractors),
+      };
+    } else {
+      return {
+        answers: [s.trim()],
+        options: null,
+      };
+    }
+  }
+
   constructor(data: ViewData[]) {
     super(data);
     this.mdText = (data[0].Input as any) as string;
-    const tokens = marked.lexer(this.mdText);
-    for (let i = 0; i < tokens.length; i++) {
-      const parsedOptions = this.findAnswers(tokens[i]);
-      if (parsedOptions !== null) {
+
+    const splits = splitByDelimiters(this.mdText, '{{', '}}');
+    const recombines = [];
+    for (let i = 0; i < splits.length; i++) {
+      try {
+        const parsedOptions = this.answersFromString(splits[i]);
         this.answers = parsedOptions.answers;
         this.options = parsedOptions.options;
-        break;
+        if (this.options?.length) {
+          recombines.push('{{ || }}'); // render a multiple-choice blank
+        } else {
+          recombines.push('{{ }}'); // render a fill-in blank
+        }
+      } catch {
+        recombines.push(splits[i]);
       }
     }
+    this.mdText = recombines.join('');
   }
 
   public isCorrect(answer: Answer) {
