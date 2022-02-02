@@ -267,14 +267,6 @@ export class BlanksCard extends Question {
     }
 
     if ((tok as any).tokens) {
-      // 19 - "this is a question with {{ _three_ || one | two }} answers" gets split into tokens
-      //     this is a question with {{  // a text token
-      //     _three_                     // an em token
-      //     || one | two }} answers     // a text token
-
-      // must: recognise {{ x }} as a token
-      //       recognise ||, | as token delimiters
-      //       pass each contained thing down as raw... ?
       for (let i = 0; i < (tok as any).tokens.length; i++) {
         const candidate = this.findAnswers((tok as any).tokens[i]);
         if (candidate !== null) {
