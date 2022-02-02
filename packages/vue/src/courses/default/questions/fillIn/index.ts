@@ -253,25 +253,7 @@ export class BlanksCard extends Question {
 
     if (tok.type === 'text') {
       if (isComponent(tok)) {
-        const optsStr = tok.raw.substring(2, tok.raw.length - 2);
-        // console.log(`Opts string: ${optsStr}, start ${start}, length ${length}`);
-        console.log(`OptsStr trimmed to: ${optsStr}`);
-        const split = optsStr.split('||');
-        if (split.length > 1) {
-          const answers = split[0].split('|');
-          const distractors = split[1].split('|');
-
-          distractors.push(answers[randomInt(0, answers.length - 1)]);
-          return {
-            answers,
-            options: _.shuffle(distractors),
-          };
-        } else {
-          return {
-            answers: [optsStr],
-            options: null,
-          };
-        }
+        this.answersFromString(tok.raw.substring(2, tok.raw.length - 2));
       }
 
       if (containsComponent(tok)) {
@@ -304,18 +286,50 @@ export class BlanksCard extends Question {
     return null;
   }
 
+  private answersFromString(s: string) {
+    if (!s.startsWith('{{') || !s.endsWith('}}')) {
+      throw new Error(`string ${s} is not fill-in text - must look like "{{someText}}"`);
+    }
+    s = s.substring(2, s.length - 2);
+    const split = s.split('||');
+    if (split.length > 1) {
+      const answers = split[0].split('|');
+      const distractors = split[1].split('|');
+
+      distractors.push(answers[randomInt(0, answers.length - 1)]);
+      return {
+        answers,
+        options: _.shuffle(distractors),
+      };
+    } else {
+      return {
+        answers: [s.trim()],
+        options: null,
+      };
+    }
+  }
+
   constructor(data: ViewData[]) {
     super(data);
     this.mdText = (data[0].Input as any) as string;
-    const tokens = marked.lexer(this.mdText);
-    for (let i = 0; i < tokens.length; i++) {
-      const parsedOptions = this.findAnswers(tokens[i]);
-      if (parsedOptions !== null) {
+
+    const splits = splitByDelimiters(this.mdText, '{{', '}}');
+    const recombines = [];
+    for (let i = 0; i < splits.length; i++) {
+      try {
+        const parsedOptions = this.answersFromString(splits[i]);
         this.answers = parsedOptions.answers;
         this.options = parsedOptions.options;
-        break;
+        if (this.options?.length) {
+          recombines.push('{{ || }}'); // render a multiple-choice blank
+        } else {
+          recombines.push('{{ }}'); // render a fill-in blank
+        }
+      } catch {
+        recombines.push(splits[i]);
       }
     }
+    this.mdText = recombines.join('');
   }
 
   public isCorrect(answer: Answer) {
