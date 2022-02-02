@@ -5,10 +5,8 @@
 </template>
 
 <script lang="ts">
-import marked from 'marked';
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
-import MarkdownRenderer from '@/base-course/Components/MarkdownRenderer.vue';
 
 @Component({
   components: {
@@ -34,12 +32,6 @@ export default class MultipleChoiceOption extends Vue {
       this.select();
       this.submit();
     }
-  }
-
-  get md(): string {
-    const md = marked.parseInline(this.content);
-    console.log(`parsed ${this.content} into ${md}`);
-    return marked.parseInline(this.content);
   }
 
   get className(): string {
