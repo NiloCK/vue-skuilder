@@ -173,6 +173,10 @@ blockquote {
   margin-right: 1px;
 }
 
+/* p {
+  margin-bottom: 0px;
+} */
+
 /* @import './../../../node_modules/highlight.js/styles/stackoverflow-light.css'; */
 /* @import './../../../node_modules/highlight.js/styles/xt256.css'; */
 /* @import './../../../node_modules/highlight.js/styles/zenburn.css'; */
