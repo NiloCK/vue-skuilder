@@ -92,7 +92,6 @@
   <span v-else-if="token.type === 'escape'">{{ token.text }}</span>
   <em v-else-if="token.type === 'em'">
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
-    <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
   </em>
 </template>
 
