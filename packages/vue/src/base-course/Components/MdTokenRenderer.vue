@@ -84,7 +84,7 @@
   <span v-else-if="token.type === 'html'" v-html="token.html"></span>
   <!-- ? -->
   <highlightjs v-else-if="token.type === 'code'" class="hljs_render pa-2" :language="token.lang" :code="token.text" />
-  <code class="codespan" v-else-if="token.type === 'codespan'">{{ token.text }}</code>
+  <code class="codespan" v-else-if="token.type === 'codespan'" v-html="token.text"></code>
   <!-- ? -->
   <blockquote v-else-if="token.type === 'blockquote'">
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
