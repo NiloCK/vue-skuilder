@@ -97,7 +97,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
-import marked from 'marked';
+import { marked } from 'marked';
 import hljs from 'highlight.js';
 import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
