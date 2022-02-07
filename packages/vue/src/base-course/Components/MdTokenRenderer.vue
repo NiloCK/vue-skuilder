@@ -80,11 +80,11 @@
 
   <table v-else-if="token.type === 'table'" :align="token.align">
     <thead>
-      <th v-for="(h, j) in token.header" :key="j">{{ h }}</th>
+      <th v-for="(h, j) in token.header" :key="j">{{ h.text }}</th>
     </thead>
     <tbody>
-      <tr v-for="(row, r) in token.cells" :key="r">
-        <td v-for="(cell, c) in row" :key="c">{{ cell }}</td>
+      <tr v-for="(row, r) in token.rows" :key="r">
+        <td v-for="(cell, c) in row" :key="c">{{ cell.text }}</td>
       </tr>
     </tbody>
   </table>
