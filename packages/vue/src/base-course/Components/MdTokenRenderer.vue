@@ -43,17 +43,17 @@
     <span v-if="containsComponent(token)">
       <md-token-renderer
         v-for="(splitTok, j) in splitParagraphToken(token)"
-        :key="j"
-        :token="splitTok"
-        :last="last && token.tokens.length === 1 && j === splitParagraphToken(token).length - 1"
+        v-bind:key="j"
+        v-bind:token="splitTok"
+        v-bind:last="last && token.tokens.length === 1 && j === splitParagraphToken(token).length - 1"
       />
     </span>
     <md-token-renderer
-      v-else
       v-for="(subTok, j) in token.tokens"
-      :key="j"
-      :token="subTok"
-      :last="last && token.tokens.length === 1"
+      v-bind:key="j"
+      v-bind:token="subTok"
+      v-else
+      v-bind:last="last && token.tokens.length === 1"
     />
   </p>
 
@@ -154,7 +154,7 @@ export default class MdTokenRenderer extends Vue {
   }
 
   public parsedComponent(
-    token: marked.Tokens.Em
+    token: marked.Tokens.Text
   ): {
     is: string;
     text: string;
