@@ -1,16 +1,19 @@
 <template>
-  <span v-if="token.type === 'text' && (!token.tokens || token.tokens.length === 0)">
-    <span v-if="isComponent(token)">
-      <component v-if="!last" v-bind:is="parsedComponent(token).is" v-bind:text="parsedComponent(token).text" />
+  <span v-if="isText(token)">
+    <span v-if="!token.tokens || token.tokens.length === 0">
+      <span v-if="isComponent(token)">
+        <component v-if="!last" v-bind:is="parsedComponent(token).is" v-bind:text="parsedComponent(token).text" />
+      </span>
+      <span v-else-if="containsComponent(token)">
+        <md-token-renderer v-for="(subTok, j) in splitTextToken(token)" v-bind:key="j" v-bind:token="subTok" />
+      </span>
+      <span v-else>{{ token.text }}</span>
     </span>
-    <span v-else-if="containsComponent(token)">
-      <md-token-renderer v-for="(subTok, j) in splitTextToken(token)" :key="j" :token="subTok" />
+    <span v-else-if="token.tokens && token.tokens.length !== 0">
+      <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
     </span>
-    <span v-else>{{ token.raw }}</span>
   </span>
-  <span v-else-if="token.type === 'text' && token.tokens && token.tokens.length !== 0">
-    <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
-  </span>
+
   <span v-else-if="token.type === 'heading'">
     <h1 class="display-3" v-if="token.depth === 1">
       <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
