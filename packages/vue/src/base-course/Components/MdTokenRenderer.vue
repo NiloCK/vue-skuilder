@@ -164,6 +164,10 @@ export default class MdTokenRenderer extends Vue {
       text: token.text,
     };
   }
+
+  private isText(tok: marked.Token): tok is marked.Tokens.Text {
+    return (tok as marked.Tokens.Tag).inLink === undefined && tok.type === 'text';
+  }
 }
 </script>
 
