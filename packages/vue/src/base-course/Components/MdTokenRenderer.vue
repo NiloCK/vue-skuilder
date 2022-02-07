@@ -185,7 +185,7 @@ blockquote {
 }
 
 /* p {
-  margin-bottom: 0px;
+  margin-bottom: 0px; // improves multiple choice rendering, but hurts paragraph spacing
 } */
 
 /* @import './../../../node_modules/highlight.js/styles/stackoverflow-light.css'; */
