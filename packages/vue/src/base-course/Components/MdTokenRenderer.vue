@@ -34,6 +34,7 @@
       <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
     </h6>
   </span>
+
   <strong v-else-if="token.type === 'strong'">
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
   </strong>
@@ -55,6 +56,7 @@
       :last="last && token.tokens.length === 1"
     />
   </p>
+
   <a v-else-if="token.type === 'link'" :href="token.href" :title="token.title">
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
   </a>
@@ -62,9 +64,11 @@
   <ul v-else-if="token.type === 'list' && token.ordered === false">
     <md-token-renderer v-for="(item, j) in token.items" :key="j" :token="item" />
   </ul>
+
   <ol v-else-if="token.type === 'list' && token.ordered === true">
     <md-token-renderer v-for="(item, j) in token.items" :key="j" :token="item" />
   </ol>
+
   <li v-else-if="token.type === 'list_item'">
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
   </li>
@@ -73,7 +77,7 @@
   <hr v-else-if="token.type === 'hr'" />
   <br v-else-if="token.type === 'br'" />
   <del v-else-if="token.type === 'del'" />
-  <!-- ? -->
+
   <table v-else-if="token.type === 'table'" :align="token.align">
     <thead>
       <th v-for="(h, j) in token.header" :key="j">{{ h }}</th>
@@ -84,15 +88,19 @@
       </tr>
     </tbody>
   </table>
-  <span v-else-if="token.type === 'html'" v-html="token.html"></span>
-  <!-- ? -->
+
+  <span v-else-if="token.type === 'html'" v-html="token.raw"></span>
+
   <highlightjs v-else-if="token.type === 'code'" class="hljs_render pa-2" :language="token.lang" :code="token.text" />
+
   <code class="codespan" v-else-if="token.type === 'codespan'" v-html="token.text"></code>
-  <!-- ? -->
+
   <blockquote v-else-if="token.type === 'blockquote'">
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
   </blockquote>
+
   <span v-else-if="token.type === 'escape'">{{ token.text }}</span>
+
   <em v-else-if="token.type === 'em'">
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
   </em>
