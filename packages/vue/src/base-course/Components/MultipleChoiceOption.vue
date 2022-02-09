@@ -82,9 +82,12 @@ export default class MultipleChoiceOption extends Vue {
   text-align: center;
   display: inline-block;
   border-radius: 4px;
-  padding: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 5px;
+  padding-bottom: 5px;
   margin: 10px;
-  min-width: 65px; /* prevent tiny click-btns on, eg, one-letter answers */
+  min-width: 75px; /* prevent tiny click-btns on, eg, one-letter answers */
 }
 
 .selected {
