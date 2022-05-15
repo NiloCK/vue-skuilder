@@ -6,5 +6,8 @@
     "files.exclude": {
         "/dist": true,
         "/node_modules": true
+    },
+    "search.exclude": {
+        "**/node_modules": true
     }
 }

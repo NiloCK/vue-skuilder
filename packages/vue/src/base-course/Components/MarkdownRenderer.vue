@@ -11,7 +11,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import MdTokenRenderer from './MdTokenRenderer.vue';
-import marked, { Tokenizer } from 'marked';
+import { marked, Tokenizer } from 'marked';
 import hljs from 'highlight.js';
 
 type SkldrToken =

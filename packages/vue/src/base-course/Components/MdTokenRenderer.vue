@@ -1,16 +1,19 @@
 <template>
-  <span v-if="token.type === 'text' && (!token.tokens || token.tokens.length === 0)">
-    <span v-if="isComponent(token)">
-      <component v-if="!last" v-bind:is="parsedComponent(token).is" v-bind:text="parsedComponent(token).text" />
+  <span v-if="isText(token)">
+    <span v-if="!token.tokens || token.tokens.length === 0">
+      <span v-if="isComponent(token)">
+        <component v-if="!last" v-bind:is="parsedComponent(token).is" v-bind:text="parsedComponent(token).text" />
+      </span>
+      <span v-else-if="containsComponent(token)">
+        <md-token-renderer v-for="(subTok, j) in splitTextToken(token)" v-bind:key="j" v-bind:token="subTok" />
+      </span>
+      <span v-else>{{ token.text }}</span>
     </span>
-    <span v-else-if="containsComponent(token)">
-      <md-token-renderer v-for="(subTok, j) in splitTextToken(token)" :key="j" :token="subTok" />
+    <span v-else-if="token.tokens && token.tokens.length !== 0">
+      <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
     </span>
-    <span v-else>{{ token.raw }}</span>
   </span>
-  <span v-else-if="token.type === 'text' && token.tokens && token.tokens.length !== 0">
-    <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
-  </span>
+
   <span v-else-if="token.type === 'heading'">
     <h1 class="display-3" v-if="token.depth === 1">
       <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
@@ -31,6 +34,7 @@
       <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
     </h6>
   </span>
+
   <strong v-else-if="token.type === 'strong'">
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
   </strong>
@@ -39,19 +43,20 @@
     <span v-if="containsComponent(token)">
       <md-token-renderer
         v-for="(splitTok, j) in splitParagraphToken(token)"
-        :key="j"
-        :token="splitTok"
-        :last="last && token.tokens.length === 1 && j === splitParagraphToken(token).length - 1"
+        v-bind:key="j"
+        v-bind:token="splitTok"
+        v-bind:last="last && token.tokens.length === 1 && j === splitParagraphToken(token).length - 1"
       />
     </span>
     <md-token-renderer
-      v-else
       v-for="(subTok, j) in token.tokens"
-      :key="j"
-      :token="subTok"
-      :last="last && token.tokens.length === 1"
+      v-bind:key="j"
+      v-bind:token="subTok"
+      v-else
+      v-bind:last="last && token.tokens.length === 1"
     />
   </p>
+
   <a v-else-if="token.type === 'link'" :href="token.href" :title="token.title">
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
   </a>
@@ -59,9 +64,11 @@
   <ul v-else-if="token.type === 'list' && token.ordered === false">
     <md-token-renderer v-for="(item, j) in token.items" :key="j" :token="item" />
   </ul>
+
   <ol v-else-if="token.type === 'list' && token.ordered === true">
     <md-token-renderer v-for="(item, j) in token.items" :key="j" :token="item" />
   </ol>
+
   <li v-else-if="token.type === 'list_item'">
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
   </li>
@@ -70,38 +77,38 @@
   <hr v-else-if="token.type === 'hr'" />
   <br v-else-if="token.type === 'br'" />
   <del v-else-if="token.type === 'del'" />
-  <!-- ? -->
+
   <table v-else-if="token.type === 'table'" :align="token.align">
     <thead>
-      <th v-for="(h, j) in token.header" :key="j">{{ h }}</th>
+      <th v-for="(h, j) in token.header" :key="j">{{ h.text }}</th>
     </thead>
     <tbody>
-      <tr v-for="(row, r) in token.cells" :key="r">
-        <td v-for="(cell, c) in row" :key="c">{{ cell }}</td>
+      <tr v-for="(row, r) in token.rows" :key="r">
+        <td v-for="(cell, c) in row" :key="c">{{ cell.text }}</td>
       </tr>
     </tbody>
   </table>
-  <span v-else-if="token.type === 'html'" v-html="token.html"></span>
-  <!-- ? -->
+
+  <span v-else-if="token.type === 'html'" v-html="token.raw"></span>
+
   <highlightjs v-else-if="token.type === 'code'" class="hljs_render pa-2" :language="token.lang" :code="token.text" />
-  <code class="codespan" v-else-if="token.type === 'codespan'">{{ token.text }}</code>
-  <!-- ? -->
+
+  <code class="codespan" v-else-if="token.type === 'codespan'" v-html="token.text"></code>
+
   <blockquote v-else-if="token.type === 'blockquote'">
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
   </blockquote>
+
   <span v-else-if="token.type === 'escape'">{{ token.text }}</span>
+
   <em v-else-if="token.type === 'em'">
-    <span v-if="isComponent(token)">
-      <component v-if="!last" :is="parsedComponent(token).is" :text="parsedComponent(token).text" />
-    </span>
-    <md-token-renderer v-else v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
   </em>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
-import marked from 'marked';
+import { marked } from 'marked';
 import hljs from 'highlight.js';
 import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
@@ -147,7 +154,7 @@ export default class MdTokenRenderer extends Vue {
   }
 
   public parsedComponent(
-    token: marked.Tokens.Em
+    token: marked.Tokens.Text
   ): {
     is: string;
     text: string;
@@ -156,6 +163,10 @@ export default class MdTokenRenderer extends Vue {
       is: 'fillIn',
       text: token.text,
     };
+  }
+
+  private isText(tok: marked.Token): tok is marked.Tokens.Text {
+    return (tok as marked.Tokens.Tag).inLink === undefined && tok.type === 'text';
   }
 }
 </script>
@@ -173,9 +184,10 @@ blockquote {
   margin-right: 1px;
 }
 
-/* p {
-  margin-bottom: 0px;
-} */
+p {
+  margin-bottom: 15px;
+  margin-top: 15px;
+}
 
 /* @import './../../../node_modules/highlight.js/styles/stackoverflow-light.css'; */
 /* @import './../../../node_modules/highlight.js/styles/xt256.css'; */
