@@ -16,7 +16,7 @@
         "cookie-parser": "^1.4.4",
         "cors": "^2.8.5",
         "dotenv": "^6.2.0",
-        "express": "^4.16.4",
+        "express": "^4.17.3",
         "ffmpeg-static": "^2.4.0",
         "hashids": "^1.2.2",
         "nano": "^8.0.0",
