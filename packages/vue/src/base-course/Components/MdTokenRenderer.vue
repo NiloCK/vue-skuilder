@@ -2,9 +2,12 @@
   <span v-if="isText(token)">
     <span v-if="!token.tokens || token.tokens.length === 0">
       <span v-if="isComponent(token)">
-        <component v-if="!last" v-bind:is="parsedComponent(token).is" v-bind:text="parsedComponent(token).text" />
+        isComponent
+        <component v-if="!last" v-bind:props="parsedComponent(token)" />
+        <!-- <component v-if="!last" v-bind:is="parsedComponent(token).is" v-bind:text="parsedComponent(token).text" /> -->
       </span>
       <span v-else-if="containsComponent(token)">
+        containsComponent
         <md-token-renderer v-for="(subTok, j) in splitTextToken(token)" v-bind:key="j" v-bind:token="subTok" />
       </span>
       <span v-else>{{ token.text }}</span>
@@ -159,6 +162,17 @@ export default class MdTokenRenderer extends Vue {
     is: string;
     text: string;
   } {
+    // need here a differentiation between rendered components
+
+    const demoustached = token.text.slice(2, token.text.length - 2);
+    const firstToken = demoustached.split(' ')[0];
+    if (firstToken.charAt(firstToken.length - 1) == '>') {
+      return {
+        is: firstToken.slice(0, firstToken.length - 1),
+        text: demoustached.slice(firstToken.length + 1, demoustached.length),
+      };
+    }
+
     return {
       is: 'fillIn',
       text: token.text,
