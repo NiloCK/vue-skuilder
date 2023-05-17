@@ -17,6 +17,12 @@
 import UserInput from '@/base-course/Components/UserInput/UserInput';
 import { Component, Prop } from 'vue-property-decorator';
 import MultipleChoiceOption from './MultipleChoiceOption.vue';
+import { Answer } from '../Displayable';
+
+export interface RadioSelectAnswer extends Answer {
+  choiceList: string[];
+  selection: number;
+}
 
 @Component({
   components: {
