@@ -35,7 +35,6 @@ export default class RadioSelect extends UserInput {
   })
   public choiceList: string[];
   @Prop() public MouseTrap: any;
-  // @Prop() public submit: (selection: number) => void;
 
   public currentSelection: number = -1;
   public incorrectSelections: number[] = [];
