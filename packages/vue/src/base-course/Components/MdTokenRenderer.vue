@@ -107,17 +107,17 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
-import { marked } from 'marked';
-import hljs from 'highlight.js';
-import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
 import {
   containsComponent,
   isComponent,
-  splitTextToken,
   splitParagraphToken,
+  splitTextToken,
 } from '@/courses/default/questions/fillIn';
+import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
+import hljs from 'highlight.js';
+import { marked } from 'marked';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 Vue.use(hljs.vuePlugin);
 
@@ -160,7 +160,7 @@ export default class MdTokenRenderer extends Vue {
     text: string;
   } {
     // todo: switching on component types & loading custom component
-    // 
+    //
     // sketch:
 
     // const demoustached = token.text.slice(2, token.text.length - 2);
