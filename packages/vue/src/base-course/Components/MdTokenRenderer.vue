@@ -7,7 +7,6 @@
         <!-- <component v-if="!last" v-bind:is="parsedComponent(token).is" v-bind:text="parsedComponent(token).text" /> -->
       </span>
       <span v-else-if="containsComponent(token)">
-        containsComponent
         <md-token-renderer v-for="(subTok, j) in splitTextToken(token)" v-bind:key="j" v-bind:token="subTok" />
       </span>
       <span v-else>{{ token.text }}</span>
