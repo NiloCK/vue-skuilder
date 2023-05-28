@@ -2,9 +2,7 @@
   <span v-if="isText(token)">
     <span v-if="!token.tokens || token.tokens.length === 0">
       <span v-if="isComponent(token)">
-        isComponent
-        <component v-if="!last" v-bind:props="parsedComponent(token)" />
-        <!-- <component v-if="!last" v-bind:is="parsedComponent(token).is" v-bind:text="parsedComponent(token).text" /> -->
+        <component v-if="!last" v-bind:is="parsedComponent(token).is" v-bind:text="parsedComponent(token).text" />
       </span>
       <span v-else-if="containsComponent(token)">
         <md-token-renderer v-for="(subTok, j) in splitTextToken(token)" v-bind:key="j" v-bind:token="subTok" />
