@@ -29,4 +29,7 @@ export enum DataShapeName {
 
   // Pitch
   PITCH_chroma = 'Pitch_chroma',
+
+  // SightSing
+  SIGHTSING_IdentifyKey = 'SightSing_IdentifyKey',
 }

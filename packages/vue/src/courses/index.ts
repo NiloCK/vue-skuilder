@@ -9,6 +9,7 @@ import defaultCourse from './default';
 import Viewable from '../base-course/Viewable';
 import { Displayable } from '@/base-course/Displayable';
 import pitch from './pitch';
+import sightSing from './sightsing';
 
 export class CourseList {
   private readonly courseList: Course[];
@@ -193,6 +194,7 @@ const courseList: CourseList = new CourseList([
   defaultCourse,
   piano,
   pitch,
+  sightSing,
 ]);
 
 export default courseList;
