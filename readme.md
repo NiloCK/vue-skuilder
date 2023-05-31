@@ -47,7 +47,7 @@ Check for relevant flags in `/src/ENVIRONMENT_VARS.ts` before building for produ
 
 Outputs a static web page in the `/build` folder.
 
-# Licence
+# License
 
 The project in general follows the AGPL-3.0 licence. However, materials in `/src/base-course/` fall under the MIT licence (this folder will eventually be pulled to its own repository/package - see #3).
 
