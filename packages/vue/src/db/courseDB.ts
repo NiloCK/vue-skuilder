@@ -62,8 +62,27 @@ export class CourseDB implements StudyContentSource {
     return newCards;
   }
   public async getPendingReviews(): Promise<(StudySessionReviewItem & ScheduledCard)[]> {
+    type ratedReview = ScheduledCard & CourseElo;
+
     const u = await User.instance();
-    return (await u.getPendingReviews(this.id)).map((r) => {
+    u.getCourseRegDoc(this.id);
+
+    const reviews = await u.getPendingReviews(this.id); // todo: this adds a db round trip - should be server side
+    const elo = await this.getCardEloData(reviews.map((r) => r.cardId));
+
+    const ratedReviews = reviews.map((r, i) => {
+      const ratedR: ratedReview = {
+        ...r,
+        ...elo[i],
+      };
+      return ratedR;
+    });
+
+    ratedReviews.sort((a, b) => {
+      return a.global.score - b.global.score;
+    });
+
+    return ratedReviews.map((r) => {
       return {
         ...r,
         contentSourceType: 'course',
