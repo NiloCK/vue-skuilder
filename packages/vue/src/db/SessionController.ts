@@ -10,6 +10,7 @@ import {
 import { Loggable } from './Loggable';
 import { CardRecord } from './types';
 import { ScheduledCard, User } from './userDB';
+import { CourseDB } from './courseDB';
 
 export interface StudySessionRecord {
   card: {
@@ -186,17 +187,27 @@ export default class SessionController extends Loggable {
     const reviews = await Promise.all(this.sources.map((c) => c.getPendingReviews()));
 
     let dueCards: (StudySessionReviewItem & ScheduledCard)[] = [];
-    for (let i = 0; i < reviews.length; i++) {
-      dueCards = dueCards.concat(reviews[i]);
+
+    while (reviews.length != 0 && reviews.some((r) => r.length > 0)) {
+      // pick a random review source
+      const index = randomInt(0, reviews.length - 1);
+      const source = reviews[index];
+
+      if (source.length === 0) {
+        reviews.splice(index, 1);
+        continue;
+      } else {
+        dueCards.push(source.shift()!);
+      }
     }
 
-    while (dueCards.length > 0) {
-      // push due reviews in a randomized order
-      const index = randomInt(0, dueCards.length - 1);
-      const item = dueCards.splice(index, 1)[0];
-      console.log(`Adding review: ${item.qualifiedID}`);
-      this.reviewQ.add(item);
+    let report = 'Review session created with:\n';
+    for (let i = 0; i < dueCards.length; i++) {
+      const card = dueCards[i];
+      this.reviewQ.add(card);
+      report += `\t${card.qualifiedID}}\n`;
     }
+    console.log(report);
   }
 
   private async getNewCards(n: number = 10) {
