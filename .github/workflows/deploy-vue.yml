@@ -5,6 +5,7 @@ on:
       - deploy
     paths:
       - 'packages/vue/**'
+      - '.github/workflows/deploy-vue.yml'
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
