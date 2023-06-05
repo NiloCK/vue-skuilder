@@ -528,6 +528,12 @@ export async function addNote55(
       });
     }
   }
+  if (data[`audio-11`]) {
+    throw new Error('Too many audio attachments');
+  }
+  if (data[`image-11`]) {
+    throw new Error('Too many image attachments');
+  }
 
   const attachments: { [index: string]: PouchDB.Core.FullAttachment } = {};
   const payload: DisplayableData = {
