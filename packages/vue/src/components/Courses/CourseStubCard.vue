@@ -20,23 +20,14 @@
 </template>
 
 <script lang="ts">
-import SkldrVue from '../../SkldrVue';
-import Component from 'vue-class-component';
-import {
-  CourseConfig,
-  CreateCourse,
-  ServerRequestType,
-  DataShape55,
-  QuestionType55,
-  ClassroomConfig,
-  CreateClassroom,
-} from '../../server/types';
-import serverRequest from '../../server';
 import { log } from 'util';
-import { Prop, Watch } from 'vue-property-decorator';
-import { getCourseList, getCourseTagStubs, getCourseConfig } from '../../db/courseDB';
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
+import SkldrVue from '../../SkldrVue';
 import { getCourseDB } from '../../db';
+import { getCourseConfig } from '../../db/courseDB';
 import { DocType } from '../../db/types';
+import { CourseConfig } from '../../server/types';
 
 @Component({})
 export default class CourseStubCard extends SkldrVue {
