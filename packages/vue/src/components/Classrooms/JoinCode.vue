@@ -14,28 +14,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import SkldrVue from '../../SkldrVue';
-import Component from 'vue-class-component';
-import {
-  CourseConfig,
-  CreateCourse,
-  ServerRequestType,
-  DataShape55,
-  QuestionType55,
-  ClassroomConfig,
-  CreateClassroom,
-} from '../../server/types';
-import serverRequest from '../../server';
-import { alertUser } from '../SnackbarService.vue';
-import { Status } from '../../enums/Status';
-import Mousetrap from 'mousetrap';
 import { log } from 'util';
-import moment from 'moment';
-import { registerUserForClassroom } from '../../db/userDB';
-import TeacherClassroomDB, { getClassroomDB, CLASSROOM_CONFIG, AssignedContent } from '../../db/classroomDB';
-import { Prop, Watch } from 'vue-property-decorator';
-import { getCourseList, getCourseTagStubs } from '../../db/courseDB';
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
+import SkldrVue from '../../SkldrVue';
+import TeacherClassroomDB from '../../db/classroomDB';
+import { ClassroomConfig } from '../../server/types';
 
 @Component({})
 export default class JoinCode extends SkldrVue {
