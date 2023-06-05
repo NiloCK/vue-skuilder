@@ -137,15 +137,20 @@ export class CourseDB implements StudyContentSource {
     });
   }
   public async getCardEloData(id: string[]): Promise<CourseElo[]> {
-    return (
-      await this.db.allDocs<CardData>({
-        keys: id,
-        include_docs: true,
-      })
-    ).rows.map((card) => {
-      // console.log(JSON.stringify(card));
-      return toCourseElo(card.doc!.elo);
+    const docs = await this.db.allDocs<CardData>({
+      keys: id,
+      include_docs: true,
     });
+    let ret: CourseElo[] = [];
+    docs.rows.forEach((r) => {
+      if (r.doc && r.doc.elo) {
+        ret.push(toCourseElo(r.doc.elo));
+      } else {
+        console.warn('no elo data for card: ' + r.id);
+        ret.push(blankCourseElo());
+      }
+    });
+    return ret;
   }
 
   /**
