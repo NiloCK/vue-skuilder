@@ -483,7 +483,7 @@ export async function addNote55(
   codeCourse: string,
   shape: DataShape,
   data: any,
-  author: string,
+  author: string, // todo: no auth here - can be spoofed? Maybe at the db insert this is checked.
   tags: string[],
   uploads?: { [x: string]: PouchDB.Core.FullAttachment }
 ) {
