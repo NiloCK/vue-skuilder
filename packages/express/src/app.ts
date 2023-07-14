@@ -17,6 +17,7 @@ import bodyParser = require('body-parser');
 import cors = require('cors');
 import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
+const version = '0.0.1';
 
 const port = 3000;
 export const classroomDbDesignDoc = fileSystem.readFileSync(
@@ -117,7 +118,7 @@ app.post('/', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  let status = 'Express service is running.\n';
+  let status = `Express service ${version} is running.\n`;
 
   CouchDB.session()
     .then((s) => {
