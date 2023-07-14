@@ -36,25 +36,16 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import SkldrVue from '../../SkldrVue';
-import Component from 'vue-class-component';
-import {
-  CourseConfig,
-  CreateCourse,
-  ServerRequestType,
-  DataShape55,
-  QuestionType55,
-  ClassroomConfig,
-  CreateClassroom,
-} from '../../server/types';
-import serverRequest from '../../server';
-import { alertUser } from '../SnackbarService.vue';
-import { Status } from '../../enums/Status';
+import moment from 'moment';
 import Mousetrap from 'mousetrap';
 import { log } from 'util';
-import moment from 'moment';
+import Component from 'vue-class-component';
+import SkldrVue from '../../SkldrVue';
 import { registerUserForClassroom } from '../../db/userDB';
+import { Status } from '../../enums/Status';
+import serverRequest from '../../server';
+import { ClassroomConfig, CreateClassroom, ServerRequestType } from '../../server/types';
+import { alertUser } from '../SnackbarService.vue';
 
 @Component({})
 export default class ClassroomEditor extends SkldrVue {
