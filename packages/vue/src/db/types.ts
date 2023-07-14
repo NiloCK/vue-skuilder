@@ -37,7 +37,7 @@ export interface TagStub {
 }
 
 export interface CardData extends SkuilderCourseData {
-  // DocType.CARD
+  docType: DocType.CARD;
   id_displayable_data: PouchDB.Core.DocumentId[];
   id_view: PouchDB.Core.DocumentId;
   elo: CourseElo;
@@ -52,7 +52,7 @@ export interface CourseListData extends PouchDB.Core.Response {
  * The data used to hydrate viewable components (questions, info, etc)
  */
 export interface DisplayableData extends SkuilderCourseData {
-  // DocType.DISPLAYABLE_DATA
+  docType: DocType.DISPLAYABLE_DATA;
   author?: string;
   id_datashape: PouchDB.Core.DocumentId;
   data: Field[];
@@ -65,11 +65,13 @@ export interface Field {
 }
 
 export interface DataShapeData extends SkuilderCourseData {
+  docType: DocType.DATASHAPE;
   _id: PouchDB.Core.DocumentId;
   questionTypes: PouchDB.Core.DocumentId[];
 }
 
 export interface QuestionData extends SkuilderCourseData {
+  docType: DocType.QUESTIONTYPE;
   _id: PouchDB.Core.DocumentId;
   viewList: string[];
   dataShapeList: PouchDB.Core.DocumentId[];

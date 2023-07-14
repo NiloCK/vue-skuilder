@@ -483,7 +483,7 @@ export async function addNote55(
   codeCourse: string,
   shape: DataShape,
   data: any,
-  author: string,
+  author: string, // todo: no auth here - can be spoofed? Maybe at the db insert this is checked.
   tags: string[],
   uploads?: { [x: string]: PouchDB.Core.FullAttachment }
 ) {
@@ -527,6 +527,12 @@ export async function addNote55(
         type: FieldType.IMAGE,
       });
     }
+  }
+  if (data[`audio-11`]) {
+    throw new Error('Too many audio attachments');
+  }
+  if (data[`image-11`]) {
+    throw new Error('Too many image attachments');
   }
 
   const attachments: { [index: string]: PouchDB.Core.FullAttachment } = {};
