@@ -17,6 +17,9 @@ import bodyParser = require('body-parser');
 import cors = require('cors');
 import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
+import { addNote55 } from '../../vue/src/db/courseDB';
+import { Status } from '../../vue/src/enums/Status';
+
 const version = '0.0.1';
 
 const port = 3000;
@@ -104,6 +107,22 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
       const id: number = CourseCreationQueue.addRequest(data.data);
       data.response = await CourseCreationQueue.getResult(id);
       res.json(data.response);
+    } else if (data.type === RequestEnum.ADD_COURSE_DATA) {
+      console.log(`\t\tADD_COURSE_DATA request made...`);
+      const result = await addNote55(
+        data.data.courseID,
+        data.data.codeCourse,
+        data.data.shape,
+        data.data.data,
+        data.data.author,
+        data.data.tags,
+        data.data.uploads
+      );
+      data.response = {
+        ok: result.ok,
+        status: result.ok ? Status.ok : Status.error,
+      };
+      res.json(Object.assign(result, result));
     }
   } else {
     console.log(`\tREQUEST UNAUTHORIZED!`);
