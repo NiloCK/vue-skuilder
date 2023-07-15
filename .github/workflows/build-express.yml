@@ -11,11 +11,9 @@ jobs:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - name: Check out repository code
         uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '12'
+      - uses: actions/setup-node@v1
       - run: npm install -g yarn@1.22.17
-      - run: npm install -g lerna@3.22.1
+      - run: npm install -g lerna@4.0.0 # 3.22.1 ?
       - run: npm install -g typescript@4.5.5
       - run: lerna bootstrap
       - name: Build
