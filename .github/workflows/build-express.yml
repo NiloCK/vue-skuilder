@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: '12'
       - run: npm install -g yarn@1.22.17
-      - run: npm install -g lerna@4.0.0 # 3.22.1 ?
+      - run: npm install -g lerna@3.22.1 # 4.0.0 ?
       - run: npm install -g typescript@4.5.5
       - run: lerna bootstrap
       - name: Build
