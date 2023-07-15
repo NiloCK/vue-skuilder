@@ -21,4 +21,5 @@ jobs:
       - name: Build
         run: |
           printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
+          cd ./packages/vue
           yarn build

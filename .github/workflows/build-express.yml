@@ -19,5 +19,6 @@ jobs:
       - name: Build
         run: |
           printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
+          cd ./packages/express
           yarn build
       # todo: add some tests to run haha
