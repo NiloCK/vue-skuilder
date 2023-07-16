@@ -820,7 +820,7 @@ async function addCard(
     id_displayable_data,
     id_view,
     docType: DocType.CARD,
-    elo: elo || 990 + Math.round(20 * Math.random()),
+    elo: elo || toCourseElo(990 + Math.round(20 * Math.random())),
   });
   tags.forEach((tag) => {
     console.log(`adding tag: ${tag} to card ${card.id}`);
