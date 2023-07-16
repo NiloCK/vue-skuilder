@@ -1,4 +1,4 @@
-import MarkdownRenderer from '@/base-course/Components/MarkdownRenderer.vue';
+import MarkdownRenderer from './base-course/Components/MarkdownRenderer.vue';
 import Vue from 'vue';
 import Router from 'vue-router';
 import ClassroomCtrlPanel from './components/Classrooms/ClassroomCtrlPanel.vue';

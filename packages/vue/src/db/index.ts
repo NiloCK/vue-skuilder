@@ -1,6 +1,12 @@
-import { CardHistory, CardRecord, DocType, getCardHistoryID, SkuilderCourseData } from '@/db/types';
-import ENV from '@/ENVIRONMENT_VARS';
-import { GuestUsername } from '@/store';
+import {
+  CardHistory,
+  CardRecord,
+  DocType,
+  getCardHistoryID,
+  SkuilderCourseData,
+} from '../db/types';
+import ENV from '../ENVIRONMENT_VARS';
+import { GuestUsername } from '../store';
 import moment, { Moment } from 'moment';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';

@@ -1,11 +1,11 @@
-import { Displayable, Question, Answer } from '@/base-course/Displayable';
-import { ViewData } from '@/base-course/Interfaces/ViewData';
-import { QuestionRecord, CardRecord } from '@/db/types';
+import { Displayable, Question, Answer } from '../base-course/Displayable';
+import { ViewData } from '../base-course/Interfaces/ViewData';
+import { QuestionRecord, CardRecord } from '../db/types';
 import moment, { duration } from 'moment';
 import MouseTrap from 'mousetrap';
 import { Prop, Vue } from 'vue-property-decorator';
 import { log } from 'util';
-import { HotKey } from '@/SkldrMouseTrap';
+import { HotKey } from '../SkldrMouseTrap';
 
 /**
  * Base class for card views in courses.

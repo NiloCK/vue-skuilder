@@ -1,10 +1,10 @@
-import { DataShape } from '@/base-course/Interfaces/DataShape';
-import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
-import Courses, { NameSpacer, ShapeDescriptor } from '@/courses';
-import { FieldType } from '@/enums/FieldType';
-import ENV from '@/ENVIRONMENT_VARS';
-import { CourseConfig } from '@/server/types';
-import { blankCourseElo, CourseElo, EloToNumber, toCourseElo } from '@/tutor/Elo';
+import { DataShape } from '../base-course/Interfaces/DataShape';
+import { FieldDefinition } from '../base-course/Interfaces/FieldDefinition';
+import Courses, { NameSpacer, ShapeDescriptor } from '../courses';
+import { FieldType } from '../enums/FieldType';
+import ENV from '../ENVIRONMENT_VARS';
+import { CourseConfig } from '../server/types';
+import { blankCourseElo, CourseElo, EloToNumber, toCourseElo } from '../tutor/Elo';
 import _ from 'lodash';
 import pouch from 'pouchdb-browser';
 import { log } from 'util';

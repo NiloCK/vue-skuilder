@@ -1,8 +1,8 @@
 import Vue, { VueConstructor } from 'vue';
-import { DataShape } from '@/base-course/Interfaces/DataShape';
-import { ViewData } from '@/base-course/Interfaces/ViewData';
+import { DataShape } from '../base-course/Interfaces/DataShape';
+import { ViewData } from '../base-course/Interfaces/ViewData';
 import Viewable from './Viewable';
-import { FieldType } from '@/enums/FieldType';
+import { FieldType } from '../enums/FieldType';
 
 export interface Answer {}
 

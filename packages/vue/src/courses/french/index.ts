@@ -1,4 +1,4 @@
-import { Course } from '@/base-course/Course';
+import { Course } from '../../base-course/Course';
 import { AudioParsingQuestion } from './questions/audioparse';
 import { VocabQuestion } from './questions/vocab';
 

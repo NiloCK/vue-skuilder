@@ -1,7 +1,7 @@
-import { Status } from '@/enums/Status';
-import ENV from '@/ENVIRONMENT_VARS';
-import { GuestUsername, UserConfig } from '@/store';
-import { CourseElo } from '@/tutor/Elo';
+import { Status } from '../enums/Status';
+import ENV from '../ENVIRONMENT_VARS';
+import { GuestUsername, UserConfig } from '../store';
+import { CourseElo } from '../tutor/Elo';
 import moment, { Moment } from 'moment';
 import pouch from 'pouchdb-browser';
 import { log } from 'util';
