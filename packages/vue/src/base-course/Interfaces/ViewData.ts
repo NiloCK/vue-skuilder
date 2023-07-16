@@ -1,4 +1,4 @@
-import { DisplayableData } from '@/db/types';
+import { DisplayableData } from '../../db/types';
 
 export interface ViewData {
   [index: string]: string | number | Blob | boolean;

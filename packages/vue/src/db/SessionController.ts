@@ -1,4 +1,4 @@
-import { randomInt } from '@/courses/math/utility';
+import { randomInt } from '../courses/math/utility';
 import {
   isReview,
   StudyContentSource,

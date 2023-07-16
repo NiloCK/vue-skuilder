@@ -1,4 +1,4 @@
-import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
+import { ValidatingFunction } from '../../base-course/Interfaces/ValidatingFunction';
 
 export interface Validator {
   instructions?: string;

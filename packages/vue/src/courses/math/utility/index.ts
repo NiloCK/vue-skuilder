@@ -1,5 +1,5 @@
-import { Validator } from '@/base-course/Interfaces/Validator';
-import { Status } from '@/enums/Status';
+import { Validator } from '../../../base-course/Interfaces/Validator';
+import { Status } from '../../../enums/Status';
 
 /**
  * Returns an integer between (inclusive) the two inputs
