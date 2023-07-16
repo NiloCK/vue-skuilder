@@ -5,6 +5,7 @@
     // "include": ["src"],
     "compilerOptions": {
         "module": "commonjs",
+        "esModuleInterop": true,
         "outDir": "dist",
         "sourceMap": true,
         "lib": ["es2015", "DOM"]
