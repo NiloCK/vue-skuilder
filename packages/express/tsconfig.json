@@ -5,7 +5,9 @@
     // "include": ["src"],
     "compilerOptions": {
         "module": "commonjs",
+        "target": "ES5",
         "esModuleInterop": true,
+        "experimentalDecorators": true,
         "outDir": "dist",
         "sourceMap": true,
         "lib": ["es2015", "DOM"]
