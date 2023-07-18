@@ -1,13 +1,10 @@
-import { DataShape } from '../base-course/Interfaces/DataShape';
-import Courses from '../courses';
-import { NameSpacer, ShapeDescriptor } from '../courses/NameSpacer';
-import ENV from '../ENVIRONMENT_VARS';
-import { CourseConfig } from '../server/types';
-import { blankCourseElo, CourseElo, EloToNumber, toCourseElo } from '../tutor/Elo';
 import _ from 'lodash';
 import pouch from 'pouchdb-browser';
 import { log } from 'util';
-import { filterAlldocsByPrefix, pouchDBincludeCredentialsConfig } from '.';
+import { filterAlldocsByPrefix, getCourseDB } from '.';
+import ENV from '../ENVIRONMENT_VARS';
+import { CourseConfig } from '../server/types';
+import { CourseElo, EloToNumber, blankCourseElo, toCourseElo } from '../tutor/Elo';
 import { GET_CACHED } from './clientCache';
 import {
   StudyContentSource,
@@ -15,7 +12,8 @@ import {
   StudySessionNewItem,
   StudySessionReviewItem,
 } from './contentSource';
-import { CardData, DisplayableData, DocType, Tag, TagStub } from './types';
+import { getCredentialledCourseConfig, getTagID } from './courseAPI';
+import { CardData, DocType, Tag, TagStub } from './types';
 import { ScheduledCard, User } from './userDB';
 
 const courseLookupDBTitle = 'coursedb-lookup';
@@ -346,14 +344,6 @@ above:\n${above.rows.map((r) => `\t${r.id}-${r.key}\n`)}`;
   }
 }
 
-export function getCourseDB(courseID: string): PouchDB.Database {
-  const dbName = `coursedb-${courseID}`;
-  return new pouch(
-    ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + dbName,
-    pouchDBincludeCredentialsConfig
-  );
-}
-
 // export async function incrementCourseMembership(courseID: string) {
 //   courseDB.get<CourseConfig>(courseID).then( (course) => {
 //     course.
@@ -435,15 +425,6 @@ export async function getCourseConfig(courseID: string) {
   return config.rows[0].doc;
 }
 
-function getTagID(tagName: string): string {
-  const tagPrefix = DocType.TAG.valueOf() + '-';
-  if (tagName.indexOf(tagPrefix) === 0) {
-    return tagName;
-  } else {
-    return tagPrefix + tagName;
-  }
-}
-
 // todo: this is actually returning full tag docs now.
 //       - performance issue when tags have lots of
 //         applied docs
@@ -502,40 +483,6 @@ export async function getTag(courseID: string, tagName: string) {
   return courseDB.get<Tag>(tagID);
 }
 
-export async function addTagToCard(
-  courseID: string,
-  cardID: string,
-  tagID: string
-): Promise<PouchDB.Core.Response> {
-  // todo: possible future perf. hit if tags have large #s of taggedCards.
-  // In this case, should be converted to a server-request
-  const prefixedTagID = getTagID(tagID);
-  const courseDB = getCourseDB(courseID);
-  const courseApi = new CourseDB(courseID);
-  try {
-    log(`Applying tag ${tagID} to card ${courseID + '-' + cardID}...`);
-    const tag = await courseDB.get<Tag>(prefixedTagID);
-    if (!tag.taggedCards.includes(cardID)) {
-      tag.taggedCards.push(cardID);
-
-      courseApi.getCardEloData([cardID]).then((eloData) => {
-        const elo = eloData[0];
-        elo.tags[tagID] = {
-          count: 0,
-          score: elo.global.score, // todo: or 1000?
-        };
-        updateCardElo(courseID, cardID, elo);
-      });
-
-      return courseDB.put<Tag>(tag);
-    } else throw new Error(`Card already has this tag`);
-  } catch (e) {
-    log(`Tag ${tagID} does not exist...`);
-    await createTag(courseID, tagID);
-    return addTagToCard(courseID, cardID, tagID);
-  }
-}
-
 export async function removeTagFromCard(courseID: string, cardID: string, tagID: string) {
   // todo: possible future perf. hit if tags have large #s of taggedCards.
   // In this case, should be converted to a server-request
@@ -588,58 +535,6 @@ export async function getAppliedTags(id_course: string, id_card: string) {
   return result;
 }
 
-export async function createCards(
-  courseID: string,
-  datashapeID: PouchDB.Core.DocumentId,
-  noteID: PouchDB.Core.DocumentId,
-  tags: string[]
-) {
-  const cfg = await getCredentialledCourseConfig(courseID);
-  const dsDescriptor = NameSpacer.getDataShapeDescriptor(datashapeID);
-  let questionViewTypes: string[] = [];
-
-  for (const ds of cfg.dataShapes) {
-    if (ds.name === datashapeID) {
-      questionViewTypes = ds.questionTypes;
-    }
-  }
-
-  for (const questionView of questionViewTypes) {
-    createCard(questionView, courseID, dsDescriptor, noteID, tags);
-  }
-}
-
-async function createCard(
-  questionViewName: string,
-  courseID: string,
-  dsDescriptor: ShapeDescriptor,
-  noteID: string,
-  tags: string[]
-) {
-  tags.forEach((t) => console.log(`Adding ${t}!`));
-  const qDescriptor = NameSpacer.getQuestionDescriptor(questionViewName);
-  const cfg = await getCredentialledCourseConfig(courseID);
-
-  for (const rQ of cfg.questionTypes) {
-    if (rQ.name === questionViewName) {
-      for (const view of rQ.viewList) {
-        addCard(
-          courseID,
-          dsDescriptor.course,
-          [noteID],
-          NameSpacer.getViewString({
-            course: qDescriptor.course,
-            questionType: qDescriptor.questionType,
-            view,
-          }),
-          blankCourseElo(),
-          tags
-        );
-      }
-    }
-  }
-}
-
 export async function updateCardElo(courseID: string, cardID: string, elo: CourseElo) {
   if (elo) {
     // checking against null, undefined, NaN
@@ -649,48 +544,6 @@ export async function updateCardElo(courseID: string, cardID: string, elo: Cours
     card.elo = elo;
     return cDB.put(card); // race conditions - is it important? probably not (net-zero effect)
   }
-}
-
-/**
- * Adds a card to the DB. This function is called
- * as a side effect of adding either a View or
- * DisplayableData item.
- * @param course The name of the course that the card belongs to
- * @param id_displayable_data C/PouchDB ID of the data used to hydrate the view
- * @param id_view C/PouchDB ID of the view used to display the card
- */
-async function addCard(
-  courseID: string,
-  course: string,
-  id_displayable_data: PouchDB.Core.DocumentId[],
-  id_view: PouchDB.Core.DocumentId,
-  elo: CourseElo,
-  tags: string[]
-) {
-  const card = await getCourseDB(courseID).post<CardData>({
-    course,
-    id_displayable_data,
-    id_view,
-    docType: DocType.CARD,
-    elo: elo || toCourseElo(990 + Math.round(20 * Math.random())),
-  });
-  tags.forEach((tag) => {
-    console.log(`adding tag: ${tag} to card ${card.id}`);
-    addTagToCard(courseID, card.id, tag);
-  });
-  return card;
-}
-
-export async function getCredentialledCourseConfig(courseID: string) {
-  const db = getCourseDB(courseID);
-  const ret = await db.get<CourseConfig>('CourseConfig');
-  ret.courseID = courseID;
-  log(`Returning corseconfig:
-
-  ${JSON.stringify(ret)}
-  `);
-
-  return ret;
 }
 
 export async function updateCredentialledCourseConfig(courseID: string, config: CourseConfig) {
