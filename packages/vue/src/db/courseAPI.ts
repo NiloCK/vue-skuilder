@@ -3,7 +3,7 @@ import { FieldDefinition } from '../base-course/Interfaces/FieldDefinition';
 import { FieldType } from '../enums/FieldType';
 import { DisplayableData, DocType } from './types';
 import { getCourseDB, createCards } from './courseDB';
-import { NameSpacer } from '@/courses/NameSpacer';
+import { NameSpacer } from '../courses/NameSpacer';
 
 /**
  *
