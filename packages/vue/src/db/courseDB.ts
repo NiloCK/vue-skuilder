@@ -1,5 +1,5 @@
 import { DataShape } from '../base-course/Interfaces/DataShape';
-import { NameSpacer, ShapeDescriptor } from '@/courses/ViewDescriptor';
+import { NameSpacer, ShapeDescriptor } from '../courses/NameSpacer';
 import ENV from '../ENVIRONMENT_VARS';
 import { CourseConfig } from '../server/types';
 import { blankCourseElo, CourseElo, EloToNumber, toCourseElo } from '../tutor/Elo';
