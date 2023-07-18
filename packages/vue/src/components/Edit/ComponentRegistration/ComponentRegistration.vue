@@ -32,12 +32,12 @@ import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import Courses from '@/courses';
-import { NameSpacer } from '@/courses/NameSpacer';
+import { NameSpacer, QuestionDescriptor } from '@/courses/NameSpacer';
 import * as _ from 'lodash';
 import { Question, Displayable } from '@/base-course/Displayable';
 import { QuestionData, QuestionRecord } from '@/db/types';
-import { getCredentialledCourseConfig, updateCredentialledCourseConfig } from '../../../db/courseDB';
-import { addNote55 } from '@/db/courseAPI';
+import { updateCredentialledCourseConfig } from '../../../db/courseDB';
+import { addNote55, getCredentialledCourseConfig } from '@/db/courseAPI';
 import { DataShape55, QuestionType55, CourseConfig } from '../../../server/types';
 import SkldrVue from '../../../SkldrVue';
 

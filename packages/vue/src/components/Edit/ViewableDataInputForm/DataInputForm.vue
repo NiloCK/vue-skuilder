@@ -104,7 +104,7 @@ import _ from 'lodash';
 import { log } from 'util';
 import Vue from 'vue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
-import { addTagToCard, getCourseTagStubs } from '../../../db/courseDB';
+import { getCourseTagStubs } from '../../../db/courseDB';
 import { addNote55 } from '@/db/courseAPI';
 import SkldrVue from '../../../SkldrVue';
 import AudioInput from './FieldInputs/AudioInput.vue';
