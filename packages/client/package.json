@@ -44,10 +44,11 @@
     }
   ],
   "dependencies": {
-    "command-line-args": "^5.2.1",
-    "new-skuilder": "file:../vue"
+    "axios": "^1.4.0",
+    "command-line-args": "^5.2.1"
   },
   "devDependencies": {
-    "@types/node": "^20.2.5"
+    "@types/node": "^20.2.5",
+    "tsdx": "^0.14.1"
   }
 }
