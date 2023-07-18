@@ -31,7 +31,8 @@
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
-import Courses, { NameSpacer, QuestionDescriptor } from '@/courses';
+import Courses from '@/courses';
+import { NameSpacer } from '@/courses/NameSpacer';
 import * as _ from 'lodash';
 import { Question, Displayable } from '@/base-course/Displayable';
 import { QuestionData, QuestionRecord } from '@/db/types';

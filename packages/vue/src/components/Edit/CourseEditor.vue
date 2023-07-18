@@ -26,7 +26,8 @@
 <script lang="ts">
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import ComponentRegistration from '@/components/Edit/ComponentRegistration/ComponentRegistration.vue';
-import Courses, { NameSpacer } from '@/courses';
+import Courses from '@/courses';
+import { NameSpacer } from '@/courses/NameSpacer';
 import { BlanksCard, BlanksCardDataShapes } from '@/courses/default/questions/fillIn';
 import SkldrVue from '@/SkldrVue';
 import { Component, Prop, Watch } from 'vue-property-decorator';

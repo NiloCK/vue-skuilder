@@ -170,7 +170,7 @@ import { Component, Emit, Prop } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import CardLoader from '@/components/Study/CardLoader.vue';
 import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
-import Courses, { NameSpacer } from '@/courses';
+import Courses from '@/courses';
 import {
   getRandomCards,
   putCardRecord,
