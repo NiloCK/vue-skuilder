@@ -5,7 +5,7 @@ import { ViewData } from './base-course/Interfaces/ViewData';
 import { TagStub } from './db/types';
 import ENV from './ENVIRONMENT_VARS';
 import { CourseConfig } from './server/types';
-import FormInput from './components/Edit/ViewableDataInputForm/FieldInputs/index.vue';
+import FormInput from './components/Edit/ViewableDataInputForm/FieldInput';
 import { User } from './db/userDB';
 
 Vue.use(Vuex);
