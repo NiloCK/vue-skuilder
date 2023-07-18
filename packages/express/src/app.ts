@@ -1,5 +1,5 @@
 import Nano = require('nano');
-import * as express from 'express';
+import express from 'express';
 import { ServerRequest, ServerRequestType as RequestEnum } from '../../vue/src/server/types';
 import PostProcess from './attachment-preprocessing';
 import {
@@ -17,7 +17,7 @@ import bodyParser = require('body-parser');
 import cors = require('cors');
 import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
-import { addNote55 } from '../../vue/src/db/courseDB';
+import { addNote55 } from '../../vue/src/db/courseAPI';
 import { Status } from '../../vue/src/enums/Status';
 
 const version = '0.0.1';
