@@ -1,9 +1,9 @@
 import { DataShape } from '../base-course/Interfaces/DataShape';
 import { FieldDefinition } from '../base-course/Interfaces/FieldDefinition';
-import { NameSpacer } from '@/courses/ViewDescriptor';
 import { FieldType } from '../enums/FieldType';
 import { DisplayableData, DocType } from './types';
 import { getCourseDB, createCards } from './courseDB';
+import { NameSpacer } from '@/courses/NameSpacer';
 
 /**
  *
