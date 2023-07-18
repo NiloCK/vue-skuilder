@@ -36,7 +36,8 @@ import { NameSpacer } from '@/courses/NameSpacer';
 import * as _ from 'lodash';
 import { Question, Displayable } from '@/base-course/Displayable';
 import { QuestionData, QuestionRecord } from '@/db/types';
-import { getCredentialledCourseConfig, updateCredentialledCourseConfig, addNote55 } from '../../../db/courseDB';
+import { getCredentialledCourseConfig, updateCredentialledCourseConfig } from '../../../db/courseDB';
+import { addNote55 } from '@/db/courseAPI';
 import { DataShape55, QuestionType55, CourseConfig } from '../../../server/types';
 import SkldrVue from '../../../SkldrVue';
 
