@@ -37,7 +37,7 @@ export default abstract class Viewable extends Vue {
    */
   protected getURL(item: string, dataShapeIndex: number = 0): string {
     if (this.data[dataShapeIndex][item]) {
-      return URL.createObjectURL(this.data[dataShapeIndex][item]);
+      return URL.createObjectURL(this.data[dataShapeIndex][item] as any);
     } else {
       return '';
     }
