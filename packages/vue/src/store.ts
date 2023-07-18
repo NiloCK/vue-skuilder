@@ -5,7 +5,7 @@ import { ViewData } from './base-course/Interfaces/ViewData';
 import { TagStub } from './db/types';
 import ENV from './ENVIRONMENT_VARS';
 import { CourseConfig } from './server/types';
-import FormInput from './components/Edit/ViewableDataInputForm/FieldInput';
+import { FieldInput } from './components/Edit/ViewableDataInputForm/FieldInput';
 import { User } from './db/userDB';
 
 Vue.use(Vuex);
@@ -20,7 +20,7 @@ interface DataInputForm {
   existingData: ViewData[];
   shapeViews: Array<VueConstructor<Vue>>;
 
-  fields: FormInput[];
+  fields: FieldInput[];
   localStore: any;
 
   uploading: boolean;
