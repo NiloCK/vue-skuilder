@@ -1,5 +1,6 @@
 import dotenv = require('dotenv');
 import Nano = require('nano');
+import process = require('process');
 
 dotenv.config({
   path: process.argv && process.argv.length == 3 ? process.argv[2] : '.env.development.local',
