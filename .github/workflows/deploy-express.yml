@@ -26,6 +26,7 @@ jobs:
       - name: Build
         run: |
           printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
+          printf "VERSION=${{ github.sha }}" >> ./packages/vue/.env.production
           yarn build
       - name: Deploy /express
         run: |
