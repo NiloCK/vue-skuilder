@@ -18,9 +18,9 @@ import cors = require('cors');
 import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
 import { prepareNote55 } from '../../vue/src/db/prepareNote55';
-import { Status } from '../../vue/src/enums/Status';
+import ENV from './utils/env';
 
-const version = '0.0.1';
+console.log(`Express app running version: ${ENV.VERSION}`);
 
 const port = 3000;
 export const classroomDbDesignDoc = fileSystem.readFileSync(
@@ -142,7 +142,7 @@ app.post('/', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  let status = `Express service ${version} is running.\n`;
+  let status = `Express service is running.\nVersion: ${ENV.VERSION}\n`;
 
   CouchDB.session()
     .then((s) => {

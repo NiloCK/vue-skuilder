@@ -1,19 +1,13 @@
-import dotenv = require('dotenv');
 import Nano = require('nano');
-import process = require('process');
+import process from 'process';
+import ENV from '../utils/env';
 
-dotenv.config({
-  path: process.argv && process.argv.length == 3 ? process.argv[2] : '.env.development.local',
-});
-
-const url = process.env.COUCHDB_SERVER;
-const protocol: string = process.env.COUCHDB_PROTOCOL;
-
-const debug = process.env.DEBUG;
+const url = ENV.COUCHDB_SERVER;
+const protocol: string = ENV.COUCHDB_PROTOCOL;
 
 const admin = {
-  username: process.env.COUCHDB_ADMIN,
-  password: process.env.COUCHDB_PASSWORD,
+  username: ENV.COUCHDB_ADMIN,
+  password: ENV.COUCHDB_PASSWORD,
 };
 const credentialCouchURL = `${protocol}://${admin.username}:${admin.password}@${url}`;
 
