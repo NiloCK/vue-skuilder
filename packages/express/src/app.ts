@@ -17,7 +17,7 @@ import bodyParser = require('body-parser');
 import cors = require('cors');
 import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
-import { addNote55 } from '../../vue/src/db/courseAPI';
+import { prepareNote55 } from '../../vue/src/db/prepareNote55';
 import { Status } from '../../vue/src/enums/Status';
 
 const version = '0.0.1';
