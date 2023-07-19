@@ -109,7 +109,7 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
       res.json(data.response);
     } else if (data.type === RequestEnum.ADD_COURSE_DATA) {
       console.log(`\t\tADD_COURSE_DATA request made...`);
-      const result = await addNote55(
+      const payload = await prepareNote55(
         data.data.courseID,
         data.data.codeCourse,
         data.data.shape,
@@ -118,11 +118,16 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
         data.data.tags,
         data.data.uploads
       );
-      data.response = {
-        ok: result.ok,
-        status: result.ok ? Status.ok : Status.error,
-      };
-      res.json(Object.assign(result, result));
+      CouchDB.use(`coursedb-${data.data.courseID}`)
+        .insert(payload as any)
+        .then((r) => {
+          console.log(`\t\t\tCouchDB insert result: ${JSON.stringify(r)}`);
+          res.json(r);
+        })
+        .catch((e) => {
+          console.log(`\t\t\tCouchDB insert error: ${JSON.stringify(e)}`);
+          res.json(e);
+        });
     }
   } else {
     console.log(`\tREQUEST UNAUTHORIZED!`);
