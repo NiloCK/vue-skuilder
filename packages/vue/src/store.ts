@@ -93,7 +93,6 @@ const Store = new Vuex.Store<AppState>({
 export default Store;
 
 export function setDefaultState() {
-  // console.log(`fweatifvzweatzvifwteazvifweta`);
   // Store.state._user = defaultState._user;
   Store.state.config = defaultState.config;
   // Store.replaceState(defaultState);
