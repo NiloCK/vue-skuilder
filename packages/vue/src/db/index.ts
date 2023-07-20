@@ -138,7 +138,7 @@ export function getCourseDoc<T extends SkuilderCourseData>(
 }
 
 /**
- * Returns *all* cards from the paramater courses, in
+ * Returns *all* cards from the parameter courses, in
  * 'qualified' card format ("courseid-cardid")
  *
  * @param courseIDs A list of all course_ids to get cards from
