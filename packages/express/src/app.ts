@@ -178,7 +178,7 @@ async function init() {
       (await useOrCreateDB('coursedb')).insert(
         {
           validate_doc_update: classroomDbDesignDoc,
-        } as any,
+        } as Nano.MaybeDocument,
         '_design/_auth'
       );
     } catch (e) {
