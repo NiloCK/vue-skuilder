@@ -547,7 +547,7 @@ export async function updateCardElo(courseID: string, cardID: string, elo: Cours
 }
 
 export async function updateCredentialledCourseConfig(courseID: string, config: CourseConfig) {
-  log(`Updating courseconfig:
+  log(`Updating course config:
 
 ${JSON.stringify(config)}
 `);
