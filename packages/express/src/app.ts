@@ -120,7 +120,7 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
         data.data.uploads
       );
       CouchDB.use(`coursedb-${data.data.courseID}`)
-        .insert(payload as any)
+        .insert(payload as Nano.MaybeDocument)
         .then((r) => {
           console.log(`\t\t\tCouchDB insert result: ${JSON.stringify(r)}`);
           res.json(r);
