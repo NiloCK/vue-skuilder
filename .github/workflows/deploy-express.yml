@@ -5,6 +5,7 @@ on:
       - deploy
     paths:
       - 'packages/express/**'
+      - '.github/workflows/deploy-express.yml'
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
