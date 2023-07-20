@@ -7,7 +7,7 @@ import pouch from 'pouchdb-browser';
 import { log } from 'util';
 import { getCourseConfigs } from './courseDB';
 import {
-  filterAlldocsByPrefix,
+  filterAllDocsByPrefix,
   getStartAndEndKeys,
   hexEncode,
   pouchDBincludeCredentialsConfig,
@@ -526,7 +526,7 @@ Currently logged-in as ${this._username}.`
     if (course_id) {
       prefix += course_id;
     }
-    const docs = await filterAlldocsByPrefix(this.localDB, prefix, {
+    const docs = await filterAllDocsByPrefix(this.localDB, prefix, {
       include_docs: false,
     });
     // const docs = await this.localDB.allDocs({});

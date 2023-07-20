@@ -276,7 +276,7 @@ export async function removeScheduledCardReview(user: string, reviewDocID: strin
     });
 }
 
-export function filterAlldocsByPrefix<T>(
+export function filterAllDocsByPrefix<T>(
   db: PouchDB.Database,
   prefix: string,
   opts?: PouchDB.Core.AllDocsOptions

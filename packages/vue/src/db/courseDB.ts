@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import pouch from 'pouchdb-browser';
 import { log } from 'util';
-import { filterAlldocsByPrefix, getCourseDB } from '.';
+import { filterAllDocsByPrefix, getCourseDB } from '.';
 import ENV from '../ENVIRONMENT_VARS';
 import { CourseConfig } from '../server/types';
 import { CourseElo, EloToNumber, blankCourseElo, toCourseElo } from '../tutor/Elo';
@@ -433,7 +433,7 @@ export async function getCourseTagStubs(
   courseID: string
 ): Promise<PouchDB.Core.AllDocsResponse<Tag>> {
   log(`Getting tag stubs for course: ${courseID}`);
-  const stubs = await filterAlldocsByPrefix<Tag>(
+  const stubs = await filterAllDocsByPrefix<Tag>(
     getCourseDB(courseID),
     DocType.TAG.valueOf() + '-'
   );
@@ -517,7 +517,7 @@ export function getAncestorTagIDs(courseID: string, tagID: string): string[] {
 }
 
 export async function getChildTagStubs(courseID: string, tagID: string) {
-  return await filterAlldocsByPrefix(getCourseDB(courseID), tagID + '>');
+  return await filterAllDocsByPrefix(getCourseDB(courseID), tagID + '>');
 }
 
 export async function getAppliedTags(id_course: string, id_card: string) {
