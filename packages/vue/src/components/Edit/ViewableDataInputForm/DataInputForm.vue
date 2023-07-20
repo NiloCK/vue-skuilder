@@ -418,8 +418,8 @@ export default class DataInputForm extends SkldrVue {
           replaced.forEach((obj) => {
             if (this.objectContainsFunction(obj)) {
               console.log('2nd pass...');
-              const recursiveExpance = this.expandO(obj);
-              ret = ret.concat(recursiveExpance);
+              const recursiveExpansion = this.expandO(obj);
+              ret = ret.concat(recursiveExpansion);
             } else {
               ret.push(obj);
             }
