@@ -1,5 +1,5 @@
-import { ValidationResult } from '@/base-course/Interfaces/ValidationResult';
-import { Status } from '@/enums/Status';
+import { ValidationResult } from '../../base-course/Interfaces/ValidationResult';
+import { Status } from '../../enums/Status';
 
 export type ValidatingFunction = (value: string) => ValidationResult;
 type VuetifyRule = (value: string) => true | string;

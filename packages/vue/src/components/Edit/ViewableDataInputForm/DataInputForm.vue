@@ -72,7 +72,7 @@
             type="submit"
             color="primary"
             v-bind:loading="uploading"
-            v-bind:disabled="!allowSumbit"
+            v-bind:disabled="!allowSubmit"
             v-on:click.native.prevent="submit"
           >
             Add card
@@ -81,7 +81,7 @@
         </v-form>
       </v-flex>
       <v-flex xl6>
-        <card-browser class="ml-4" v-if="allowSubmit" v-bind:views="shapeViews" v-bind:data="[previewInput]" />
+        <card-browser class="ml-4" v-if="inputIsValidated" v-bind:views="shapeViews" v-bind:data="[previewInput]" />
       </v-flex>
     </v-layout>
   </v-container>
@@ -95,7 +95,8 @@ import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue';
 import TagsInput from '@/components/Edit/TagsInput.vue';
 import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
 import { alertUser } from '@/components/SnackbarService.vue';
-import Courses, { NameSpacer, ShapeDescriptor } from '@/courses';
+import Courses from '@/courses';
+import { NameSpacer, ShapeDescriptor } from '@/courses/NameSpacer';
 import { fieldConverters, FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
 import { CourseConfig } from '@/server/types';
@@ -103,7 +104,8 @@ import _ from 'lodash';
 import { log } from 'util';
 import Vue from 'vue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
-import { addNote55, addTagToCard, getCourseTagStubs } from '../../../db/courseDB';
+import { getCourseTagStubs } from '../../../db/courseDB';
+import { addNote55 } from '@/db/courseAPI';
 import SkldrVue from '../../../SkldrVue';
 import AudioInput from './FieldInputs/AudioInput.vue';
 import ImageInput from './FieldInputs/ImageInput.vue';
@@ -232,7 +234,7 @@ export default class DataInputForm extends SkldrVue {
       };
     });
   }
-  public allowSumbit: boolean = false;
+  public allowSubmit: boolean = false;
 
   private expectedValidations(): number {
     const fieldCount = this.dataShape.fields.length;
@@ -268,12 +270,12 @@ export default class DataInputForm extends SkldrVue {
     if (inputIsValid) {
       this.convertInput();
     }
-    this.allowSumbit = inputIsValid;
+    this.allowSubmit = inputIsValid;
     console.log(`Form data is valid: ${inputIsValid}`);
     return inputIsValid;
   }
 
-  public get allowSubmit(): boolean {
+  public get inputIsValidated(): boolean {
     return this.checkInput();
   }
 
@@ -317,7 +319,7 @@ export default class DataInputForm extends SkldrVue {
   }
 
   public convertInput() {
-    const supplmentedFields = this.dataShape.fields.map((f) => {
+    const supplementedFields = this.dataShape.fields.map((f) => {
       const copiedFieldDefinition: FieldDefinition = {
         name: f.name,
         type: f.type,
@@ -328,7 +330,7 @@ export default class DataInputForm extends SkldrVue {
 
     for (let i = 1; i < 11; i++) {
       if (this.store[`audio-${i}`]) {
-        supplmentedFields.push({
+        supplementedFields.push({
           name: `audio-${i}`,
           type: FieldType.AUDIO,
         });
@@ -339,7 +341,7 @@ export default class DataInputForm extends SkldrVue {
 
     for (let i = 1; i < 11; i++) {
       if (this.store[`image-${i}`]) {
-        supplmentedFields.push({
+        supplementedFields.push({
           name: `image-${i}`,
           type: FieldType.IMAGE,
         });
@@ -348,7 +350,7 @@ export default class DataInputForm extends SkldrVue {
       }
     }
 
-    supplmentedFields.forEach((fieldDef) => {
+    supplementedFields.forEach((fieldDef) => {
       this.store.convertedInput[fieldDef.name] = fieldConverters[fieldDef.type].databaseConverter(
         this.store[fieldDef.name]
       );
@@ -416,8 +418,8 @@ export default class DataInputForm extends SkldrVue {
           replaced.forEach((obj) => {
             if (this.objectContainsFunction(obj)) {
               console.log('2nd pass...');
-              const recursiveExpance = this.expandO(obj);
-              ret = ret.concat(recursiveExpance);
+              const recursiveExpansion = this.expandO(obj);
+              ret = ret.concat(recursiveExpansion);
             } else {
               ret.push(obj);
             }

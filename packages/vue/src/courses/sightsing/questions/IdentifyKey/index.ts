@@ -1,8 +1,8 @@
-import { RadioSelectAnswer } from '@/base-course/Components/RadioMultipleChoice.vue';
-import { Question } from '@/base-course/Displayable';
-import { DataShapeName } from '@/enums/DataShapeNames';
-import { FieldType } from '@/enums/FieldType';
-import { Status } from '@/enums/Status';
+import { RadioSelectAnswer } from '../../../../base-course/Components/RadioMultipleChoice.vue';
+import { Question } from '../../../../base-course/Displayable';
+import { DataShapeName } from '../../../../enums/DataShapeNames';
+import { FieldType } from '../../../../enums/FieldType';
+import { Status } from '../../../../enums/Status';
 import IdentifyKeyView from './IdentifyKey.vue';
 
 /**

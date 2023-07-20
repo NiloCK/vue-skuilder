@@ -1,5 +1,5 @@
 import Nano = require('nano');
-import * as express from 'express';
+import express from 'express';
 import { ServerRequest, ServerRequestType as RequestEnum } from '../../vue/src/server/types';
 import PostProcess from './attachment-preprocessing';
 import {
@@ -17,10 +17,11 @@ import bodyParser = require('body-parser');
 import cors = require('cors');
 import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
-import { addNote55 } from '../../vue/src/db/courseDB';
-import { Status } from '../../vue/src/enums/Status';
+import { prepareNote55 } from '../../vue/src/db/prepareNote55';
+import ENV from './utils/env';
+import console from 'console';
 
-const version = '0.0.1';
+console.log(`Express app running version: ${ENV.VERSION}`);
 
 const port = 3000;
 export const classroomDbDesignDoc = fileSystem.readFileSync(
@@ -42,7 +43,7 @@ app.use(
   })
 );
 
-export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<{}>> {
+export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<unknown>> {
   const ret = CouchDB.use(dbName);
 
   try {
@@ -109,7 +110,7 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
       res.json(data.response);
     } else if (data.type === RequestEnum.ADD_COURSE_DATA) {
       console.log(`\t\tADD_COURSE_DATA request made...`);
-      const result = await addNote55(
+      const payload = await prepareNote55(
         data.data.courseID,
         data.data.codeCourse,
         data.data.shape,
@@ -118,11 +119,16 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
         data.data.tags,
         data.data.uploads
       );
-      data.response = {
-        ok: result.ok,
-        status: result.ok ? Status.ok : Status.error,
-      };
-      res.json(Object.assign(result, result));
+      CouchDB.use(`coursedb-${data.data.courseID}`)
+        .insert(payload as Nano.MaybeDocument)
+        .then((r) => {
+          console.log(`\t\t\tCouchDB insert result: ${JSON.stringify(r)}`);
+          res.json(r);
+        })
+        .catch((e) => {
+          console.log(`\t\t\tCouchDB insert error: ${JSON.stringify(e)}`);
+          res.json(e);
+        });
     }
   } else {
     console.log(`\tREQUEST UNAUTHORIZED!`);
@@ -137,7 +143,7 @@ app.post('/', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  let status = `Express service ${version} is running.\n`;
+  let status = `Express service is running.\nVersion: ${ENV.VERSION}\n`;
 
   CouchDB.session()
     .then((s) => {
@@ -161,7 +167,7 @@ init();
 
 async function init() {
   try {
-    // start the change-listner that does post-prodessing on user
+    // start the change-listener that does post-processing on user
     // media uploads
     PostProcess();
 
@@ -172,7 +178,7 @@ async function init() {
       (await useOrCreateDB('coursedb')).insert(
         {
           validate_doc_update: classroomDbDesignDoc,
-        } as any,
+        } as Nano.MaybeDocument,
         '_design/_auth'
       );
     } catch (e) {

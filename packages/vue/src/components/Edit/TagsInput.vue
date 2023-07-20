@@ -18,9 +18,10 @@ import SkldrVue from '@/SkldrVue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
 // @ts-ignore
 import VueTagsInput from '@johmun/vue-tags-input';
-import { getCourseTagStubs, getAppliedTags, removeTagFromCard, addTagToCard, createTag } from '@/db/courseDB';
+import { getCourseTagStubs, getAppliedTags, removeTagFromCard, createTag } from '@/db/courseDB';
 import { Tag } from '@/db/types';
 import { log } from 'util';
+import { addTagToCard } from '@/db/courseAPI';
 
 interface TagObject {
   text: string;

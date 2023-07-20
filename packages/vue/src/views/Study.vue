@@ -170,7 +170,7 @@ import { Component, Emit, Prop } from 'vue-property-decorator';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import CardLoader from '@/components/Study/CardLoader.vue';
 import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
-import Courses, { NameSpacer } from '@/courses';
+import Courses from '@/courses';
 import {
   getRandomCards,
   putCardRecord,
@@ -186,14 +186,7 @@ import moment, { Moment } from 'moment';
 import { ScheduledCard, getUserClassrooms, CourseRegistrationDoc, updateUserElo, User } from '../db/userDB';
 import { Watch } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
-import {
-  getCredentialledCourseConfig,
-  getCardDataShape,
-  updateCardElo,
-  getCourseList,
-  CourseDB,
-  getCourseName,
-} from '@/db/courseDB';
+import { updateCardElo, getCourseList, CourseDB, getCourseName } from '@/db/courseDB';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
 import { StudentClassroomDB } from '../db/classroomDB';
 import { alertUser } from '../components/SnackbarService.vue';
@@ -215,6 +208,8 @@ import {
 import SessionController, { StudySessionRecord } from '@/db/SessionController';
 import confetti from 'canvas-confetti';
 import { adjustCourseScores, toCourseElo } from '@/tutor/Elo';
+import { getCredentialledCourseConfig } from '@/db/courseAPI';
+import { getCardDataShape } from '@/db/getCardDataShape';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);

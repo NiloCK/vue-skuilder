@@ -1,6 +1,12 @@
-import { CardHistory, CardRecord, DocType, getCardHistoryID, SkuilderCourseData } from '@/db/types';
-import ENV from '@/ENVIRONMENT_VARS';
-import { GuestUsername } from '@/store';
+import {
+  CardHistory,
+  CardRecord,
+  DocType,
+  getCardHistoryID,
+  SkuilderCourseData,
+} from '../db/types';
+import ENV from '../ENVIRONMENT_VARS';
+import { GuestUsername } from '../store';
 import moment, { Moment } from 'moment';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
@@ -25,8 +31,8 @@ const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERV
 
 log(`Remote db: ${remoteStr}`);
 
-const GUEST_LOCALDB = `userdb-${GuestUsername}`;
-export const localUserDB: PouchDB.Database = new pouch(GUEST_LOCALDB);
+const GUEST_LOCAL_DB = `userdb-${GuestUsername}`;
+export const localUserDB: PouchDB.Database = new pouch(GUEST_LOCAL_DB);
 
 export function hexEncode(str: string): string {
   let hex: string;
@@ -132,7 +138,7 @@ export function getCourseDoc<T extends SkuilderCourseData>(
 }
 
 /**
- * Returns *all* cards from the paramater courses, in
+ * Returns *all* cards from the parameter courses, in
  * 'qualified' card format ("courseid-cardid")
  *
  * @param courseIDs A list of all course_ids to get cards from
@@ -270,7 +276,7 @@ export async function removeScheduledCardReview(user: string, reviewDocID: strin
     });
 }
 
-export function filterAlldocsByPrefix<T>(
+export function filterAllDocsByPrefix<T>(
   db: PouchDB.Database,
   prefix: string,
   opts?: PouchDB.Core.AllDocsOptions
