@@ -12,16 +12,18 @@ jobs:
       - run: echo "🎉 The job was triggered by a ${{ github.event_name }} on commit ${{ github.SHA }}"
       - name: Check out repository code
         uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '12'
       - name: Upload to DO
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.DO_SSH_KEY }}
           name: id_rsa
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
-      - run: npm install -g yarn
-      - run: npm install -g lerna
-      - run: npm install -g typescript
+      - run: npm install -g yarn@1.22.17
+      - run: npm install -g lerna@3.22.1
+      # - run: npm install -g typescript
       - run: lerna bootstrap
       - name: Build
         run: |
