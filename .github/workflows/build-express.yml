@@ -1,0 +1,26 @@
+name: build-express
+on:
+  pull_request:
+    paths:
+      - 'packages/express/**'
+      - '.github/workflows/build-express.yml'
+jobs:
+  build-express-app:
+    runs-on: ubuntu-latest # todo: use whatever is on the DO droplet
+    steps:
+      - run: echo "🎉 The job was triggered by a ${{ github.event_name }} on commit ${{ github.SHA }}"
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '12'
+      - run: npm install -g yarn@1.22.17
+      - run: npm install -g lerna@3.22.1 # 4.0.0 ?
+      #- run: npm install -g typescript@4.5.5
+      - run: lerna bootstrap
+      - name: Build
+        run: |
+          printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
+          cd ./packages/express
+          yarn build
+      # todo: add some tests to run haha

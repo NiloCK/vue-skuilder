@@ -1,4 +1,4 @@
-import { areQuestionRecords, CardHistory, CardRecord, QuestionRecord } from '@/db/types';
+import { areQuestionRecords, CardHistory, CardRecord, QuestionRecord } from '../db/types';
 import moment, { duration, Moment } from 'moment';
 import { log } from 'util';
 import { User } from './userDB';

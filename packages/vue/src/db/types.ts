@@ -1,5 +1,5 @@
-import { Answer, Evaluation } from '@/base-course/Displayable';
-import { CourseElo } from '@/tutor/Elo';
+import { Answer, Evaluation } from '../base-course/Displayable';
+import { CourseElo } from '../tutor/Elo';
 import { Moment } from 'moment';
 
 export enum DocType {

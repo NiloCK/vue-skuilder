@@ -1,4 +1,4 @@
-import ENV from '@/ENVIRONMENT_VARS';
+import ENV from '../ENVIRONMENT_VARS';
 import { ServerRequest } from './types';
 
 const SERVER = ENV.EXPRESS_SERVER_PROTOCOL + '://' + ENV.EXPRESS_SERVER_URL;

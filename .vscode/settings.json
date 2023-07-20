@@ -4,5 +4,27 @@
     },
     "eslint.packageManager": "yarn",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "cSpell.words": [
+        "cardid",
+        "chttpd",
+        "classdb",
+        "coursedb",
+        "courseid",
+        "Credentialled",
+        "Datashapes",
+        "docroot",g
+        "endkey",
+        "keyvalue",
+        "momentify",
+        "mrview",
+        "namespacing",
+        "pluggable",
+        "recbuf",
+        "sndbuf",
+        "startkey",
+        "userdb",
+        "Vuex",
+        "xframe"
+    ]
 }

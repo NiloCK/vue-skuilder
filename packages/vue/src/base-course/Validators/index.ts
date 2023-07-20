@@ -1,5 +1,5 @@
 import { Validator } from '../Interfaces/Validator';
-import { Status } from '@/enums/Status';
+import { Status } from '../../enums/Status';
 
 export const NonEmptyString: Validator = {
   instructions: '',

@@ -1,9 +1,8 @@
-// import { Displayable, Question } from '@/base-course/Course';
-import { DataShapeName } from '@/enums/DataShapeNames';
-import { FieldType } from '@/enums/FieldType';
+import { DataShapeName } from '../../../../enums/DataShapeNames';
+import { FieldType } from '../../../../enums/FieldType';
 import BasicView from './BasicCardView.vue';
-import { ViewData } from '@/base-course/Interfaces/ViewData';
-import { Question } from '@/base-course/Displayable';
+import { ViewData } from '../../../../base-course/Interfaces/ViewData';
+import { Question } from '../../../../base-course/Displayable';
 import { DataShape } from '../../../../base-course/Interfaces/DataShape';
 
 export const BasicCardDataShapes: DataShape[] = [

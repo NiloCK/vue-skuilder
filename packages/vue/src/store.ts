@@ -5,7 +5,7 @@ import { ViewData } from './base-course/Interfaces/ViewData';
 import { TagStub } from './db/types';
 import ENV from './ENVIRONMENT_VARS';
 import { CourseConfig } from './server/types';
-import FormInput from '@/components/Edit/ViewableDataInputForm/FieldInputs/index.vue';
+import { FieldInput } from './components/Edit/ViewableDataInputForm/FieldInput';
 import { User } from './db/userDB';
 
 Vue.use(Vuex);
@@ -20,7 +20,7 @@ interface DataInputForm {
   existingData: ViewData[];
   shapeViews: Array<VueConstructor<Vue>>;
 
-  fields: FormInput[];
+  fields: FieldInput[];
   localStore: any;
 
   uploading: boolean;
@@ -93,7 +93,6 @@ const Store = new Vuex.Store<AppState>({
 export default Store;
 
 export function setDefaultState() {
-  // console.log(`fweatifvzweatzvifwteazvifweta`);
   // Store.state._user = defaultState._user;
   Store.state.config = defaultState.config;
   // Store.replaceState(defaultState);
@@ -104,7 +103,6 @@ checkAuthCookie();
 function checkAuthCookie() {
   const authXML = new XMLHttpRequest();
   authXML.withCredentials = true;
-  // tslint:disable-next-line: space-before-function-paren
   authXML.addEventListener('load', async function () {
     // todo add link to couchdb doc of this json shape
     const resp: {

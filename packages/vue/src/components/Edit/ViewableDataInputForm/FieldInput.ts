@@ -1,13 +1,13 @@
 import {
   ValidatingFunction,
   validationFunctionToVuetifyRule,
-} from '@/base-course/Interfaces/ValidatingFunction';
+} from '../../../base-course/Interfaces/ValidatingFunction';
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
-import { ValidationResult } from '@/base-course/Interfaces/ValidationResult';
-import { Status } from '@/enums/Status';
-import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
-import SkldrVue from '@/SkldrVue';
+import { ValidationResult } from '../../../base-course/Interfaces/ValidationResult';
+import { Status } from '../../../enums/Status';
+import { FieldDefinition } from '../../../base-course/Interfaces/FieldDefinition';
+import SkldrVue from '../../../SkldrVue';
 
 export interface ValidatedInput {
   getValidators: () => ValidatingFunction[];

@@ -73,11 +73,14 @@ export interface ClassroomConfig {
   joinCode: string;
 }
 
+/**
+ * metadata about a defined course
+ *
+ * Note: `courseID` is generated server-side. It is not present on
+ * new courses at the time of writing, client-side, but always
+ * present (!) when a CourseConfig is retrieved from the database
+ */
 export interface CourseConfig {
-  /** courseID is generated server-side. It is not present on
-   * new courses at the time of writing, client-side, but always
-   * present (!) when a CourseConfig is retrieved from the database
-   */
   courseID?: string;
   name: string;
   description: string;

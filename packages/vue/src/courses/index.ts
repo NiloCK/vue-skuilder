@@ -1,5 +1,5 @@
-import { Course } from '@/base-course/Course';
-import { DataShape } from '@/base-course/Interfaces/DataShape';
+import { Course } from '../base-course/Course';
+import { DataShape } from '../base-course/Interfaces/DataShape';
 import Vue, { VueConstructor } from 'vue';
 import french from './french';
 import math from './math';
@@ -7,9 +7,10 @@ import wordWork from './word-work';
 import piano from './piano';
 import defaultCourse from './default';
 import Viewable from '../base-course/Viewable';
-import { Displayable } from '@/base-course/Displayable';
+import { Displayable } from '../base-course/Displayable';
 import pitch from './pitch';
 import sightSing from './sightsing';
+import { NameSpacer, ShapeDescriptor, ViewDescriptor } from './NameSpacer';
 
 export class CourseList {
   private readonly courseList: Course[];
@@ -112,79 +113,6 @@ export class CourseList {
       throw new Error(`DataShape ${NameSpacer.getDataShapeString(description)} not found`);
     }
   }
-}
-
-// tslint:disable-next-line:max-classes-per-file
-export class NameSpacer {
-  public static getDataShapeDescriptor(shapeStr: string): ShapeDescriptor {
-    const splitArray = shapeStr.split('.');
-
-    if (splitArray.length !== 3) {
-      throw new Error('shapeStr not valid');
-    } else {
-      return {
-        course: splitArray[0],
-        dataShape: splitArray[2],
-      };
-    }
-  }
-  public static getDataShapeString(shapeDescription: ShapeDescriptor) {
-    return `${shapeDescription.course}.datashape.${shapeDescription.dataShape}`;
-  }
-
-  public static getViewDescriptor(viewStr: string): ViewDescriptor {
-    const splitArray = viewStr.split('.');
-
-    if (splitArray.length !== 4) {
-      throw new Error('viewStr not valid');
-    } else {
-      return {
-        course: splitArray[0],
-        questionType: splitArray[2],
-        view: splitArray[3],
-      };
-    }
-  }
-
-  public static getViewString(viewDescription: ViewDescriptor): string {
-    return (
-      `${viewDescription.course}.question.` +
-      `${viewDescription.questionType}.${viewDescription.view}`
-    );
-  }
-
-  public static getQuestionDescriptor(questionStr: string): QuestionDescriptor {
-    const splitArray = questionStr.split('.');
-
-    if (splitArray.length !== 3) {
-      throw new Error('questionStr not valid');
-    } else {
-      return {
-        course: splitArray[0],
-        questionType: splitArray[2],
-      };
-    }
-  }
-
-  public static getQuestionString(questionDescription: QuestionDescriptor): string {
-    return `${questionDescription.course}.question.${questionDescription.questionType}`;
-  }
-}
-
-export interface ShapeDescriptor {
-  course: string;
-  dataShape: string;
-}
-
-export interface QuestionDescriptor {
-  course: string;
-  questionType: string;
-}
-
-export interface ViewDescriptor {
-  course: string;
-  questionType: string;
-  view: string;
 }
 
 const courseList: CourseList = new CourseList([

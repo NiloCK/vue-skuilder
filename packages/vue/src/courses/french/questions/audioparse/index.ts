@@ -1,10 +1,10 @@
-import { Question, Answer } from '@/base-course/Displayable';
-import { DataShapeName } from '@/enums/DataShapeNames';
-import { FieldType } from '@/enums/FieldType';
-import { ViewData } from '@/base-course/Interfaces/ViewData';
+import { Question, Answer } from '../../../../base-course/Displayable';
+import { DataShapeName } from '../../../../enums/DataShapeNames';
+import { FieldType } from '../../../../enums/FieldType';
+import { ViewData } from '../../../../base-course/Interfaces/ViewData';
 import AudioParseView from './view.vue';
-import { DataShape } from '@/base-course/Interfaces/DataShape';
-import { Status } from '@/enums/Status';
+import { DataShape } from '../../../../base-course/Interfaces/DataShape';
+import { Status } from '../../../../enums/Status';
 
 export class AudioParsingQuestion extends Question {
   public static dataShapes: DataShape[] = [

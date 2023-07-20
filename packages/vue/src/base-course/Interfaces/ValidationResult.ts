@@ -1,4 +1,4 @@
-import { Status } from '@/enums/Status';
+import { Status } from '../../enums/Status';
 
 export interface ValidationResult {
   status: Status;

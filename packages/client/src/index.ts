@@ -2,12 +2,17 @@ import * as fs from 'fs';
 // import { addNote55 } from '../../vue/src/db/courseDB';
 // import PouchDb from 'pouchdb-core';
 import console from 'console';
+import Blob from 'buffer';
+import axios from 'axios';
 // import { addNote55 } from 'new-skuilder';
+
+// const spellingCourseID = 'a9fae15687220aa6ce62018005087c95';
+// testAPI();
 
 makeSpellingNotes();
 makeSelectionNotes();
 
-hitAPI();
+// createCard();
 
 function makeSelectionNotes() {
   // todo
@@ -15,6 +20,15 @@ function makeSelectionNotes() {
   // 2. batch groups w/ low hamming distance ... ?
   // 3. create notes
   // 4. tag according to hamming diff (eg, what is the target phoneme different than given alternatives)
+}
+
+testAPI();
+
+function testAPI() {
+  // works!
+  axios.get('https://eduquilt.com/express').then((res) => {
+    console.log(res);
+  });
 }
 
 function isCVCword(w: string): boolean {
@@ -69,16 +83,44 @@ function spellingCardTags(w: string): string[] {
   return ret;
 }
 
-function hitAPI() {
-  const url = 'http://eduquilt.com/express';
-  // get request
+// async function createCard() {
+//   // get request
+//   const req = http.request(
+//     {
+//       method: 'POST',
+//       host: 'eduquilt.com',
+//       port: 3000,
+//       path: '/express',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       auth: 'colin:colin', // todo
+//       username: 'colin',
+//       password: 'colin',
+//     },
+//     (res) => {
+//       if (res.statusCode !== 200) {
+//         console.warn(`Request failed with status code ${res.statusCode}`);
+//       }
+//       console.error(res);
+//     }
+//   );
+//   const data = JSON.stringify({
+//     request: 'getCourse',
+//     courseID: spellingCourseID,
+//   });
+//   req.write(data);
+// }
 
-  fetch(url).then((res) => {
-    console.log(JSON.stringify(res));
-  });
-}
+type spellingNote = {
+  md: string;
+  audio: Blob.Blob;
+  tags: string[];
+};
 
-function makeSpellingNotes() {
+function makeSpellingNotes(): spellingNote[] {
+  const ret: spellingNote[] = [];
+
   const recordingsDir = '/home/colin/dev/eqrecordings';
   const recordings = fs.readdirSync(recordingsDir);
   recordings.sort((a, b) => a.length - b.length);
@@ -104,20 +146,19 @@ function makeSpellingNotes() {
       if (isCVCeWord(word)) {
         console.log(`CVCe word: ${word}`);
       }
+      const note = {
+        md: card,
+        audio: fs.readFileSync(recordingsDir + '/' + recording),
+        tags: tags,
+      };
+      // ret.push(note);
 
+      console.log(note);
       console.log(card);
       console.log(tags);
     }
+
     // fs.writeFileSync(`./src/spelling/${word}.md`, `# ${word}`);
   });
-
-  // addNote55(
-  //   'courseID', // todo
-  //   'codeCourse', // todo
-  //   'shape', // todo
-  //   'data', // (includes audio + markdown of spelling card)
-  //   'Colin', // author,
-  //   ['spelling', 'todo']
-  //   // { Uploads: null }
-  // );
+  return ret;
 }
