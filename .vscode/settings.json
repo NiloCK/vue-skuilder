@@ -9,6 +9,7 @@
         "chttpd",
         "classdb",
         "coursedb",
+        "Credentialled",
         "docroot",
         "keyvalue",
         "mrview",
