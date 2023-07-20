@@ -19,6 +19,7 @@ import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
 import { prepareNote55 } from '../../vue/src/db/prepareNote55';
 import ENV from './utils/env';
+import console from 'console';
 
 console.log(`Express app running version: ${ENV.VERSION}`);
 
