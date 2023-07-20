@@ -72,7 +72,7 @@
             type="submit"
             color="primary"
             v-bind:loading="uploading"
-            v-bind:disabled="!allowSubmit"
+            v-bind:disabled="!allowSumbit"
             v-on:click.native.prevent="submit"
           >
             Add card
@@ -234,7 +234,7 @@ export default class DataInputForm extends SkldrVue {
       };
     });
   }
-  public allowSubmit: boolean = false;
+  public allowSumbit: boolean = false;
 
   private expectedValidations(): number {
     const fieldCount = this.dataShape.fields.length;
@@ -270,7 +270,7 @@ export default class DataInputForm extends SkldrVue {
     if (inputIsValid) {
       this.convertInput();
     }
-    this.allowSubmit = inputIsValid;
+    this.allowSumbit = inputIsValid;
     console.log(`Form data is valid: ${inputIsValid}`);
     return inputIsValid;
   }
