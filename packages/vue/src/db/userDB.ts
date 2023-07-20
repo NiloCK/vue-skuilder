@@ -90,7 +90,7 @@ export class User {
 
   private remoteDB: PouchDB.Database;
   private localDB: PouchDB.Database;
-  private upadteQueue: UpdateQueue;
+  private updateQueue: UpdateQueue;
 
   public async createAccount(username: string, password: string) {
     let ret = {
@@ -175,7 +175,7 @@ Currently logged-in as ${this._username}.`
   }
 
   public update<T extends PouchDB.Core.Document<{}>>(id: string, update: Update<T>) {
-    return this.upadteQueue.update(id, update);
+    return this.updateQueue.update(id, update);
   }
 
   public async getCourseRegistrationsDoc(): Promise<
@@ -431,7 +431,7 @@ Currently logged-in as ${this._username}.`
     } else {
       this.remoteDB = getUserDB(this._username);
     }
-    this.upadteQueue = new UpdateQueue(this.localDB);
+    this.updateQueue = new UpdateQueue(this.localDB);
 
     pouch.sync(this.localDB, this.remoteDB, {
       live: true,
