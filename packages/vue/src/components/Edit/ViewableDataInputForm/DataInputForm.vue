@@ -319,7 +319,7 @@ export default class DataInputForm extends SkldrVue {
   }
 
   public convertInput() {
-    const supplmentedFields = this.dataShape.fields.map((f) => {
+    const supplementedFields = this.dataShape.fields.map((f) => {
       const copiedFieldDefinition: FieldDefinition = {
         name: f.name,
         type: f.type,
@@ -330,7 +330,7 @@ export default class DataInputForm extends SkldrVue {
 
     for (let i = 1; i < 11; i++) {
       if (this.store[`audio-${i}`]) {
-        supplmentedFields.push({
+        supplementedFields.push({
           name: `audio-${i}`,
           type: FieldType.AUDIO,
         });
@@ -341,7 +341,7 @@ export default class DataInputForm extends SkldrVue {
 
     for (let i = 1; i < 11; i++) {
       if (this.store[`image-${i}`]) {
-        supplmentedFields.push({
+        supplementedFields.push({
           name: `image-${i}`,
           type: FieldType.IMAGE,
         });
@@ -350,7 +350,7 @@ export default class DataInputForm extends SkldrVue {
       }
     }
 
-    supplmentedFields.forEach((fieldDef) => {
+    supplementedFields.forEach((fieldDef) => {
       this.store.convertedInput[fieldDef.name] = fieldConverters[fieldDef.type].databaseConverter(
         this.store[fieldDef.name]
       );
