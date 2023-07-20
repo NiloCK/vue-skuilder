@@ -31,8 +31,8 @@ const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERV
 
 log(`Remote db: ${remoteStr}`);
 
-const GUEST_LOCALDB = `userdb-${GuestUsername}`;
-export const localUserDB: PouchDB.Database = new pouch(GUEST_LOCALDB);
+const GUEST_LOCAL_DB = `userdb-${GuestUsername}`;
+export const localUserDB: PouchDB.Database = new pouch(GUEST_LOCAL_DB);
 
 export function hexEncode(str: string): string {
   let hex: string;
