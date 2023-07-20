@@ -4,5 +4,19 @@
     },
     "eslint.packageManager": "yarn",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "cSpell.words": [
+        "chttpd",
+        "classdb",
+        "coursedb",
+        "docroot",
+        "keyvalue",
+        "mrview",
+        "pluggable",
+        "recbuf",
+        "sndbuf",
+        "userdb",
+        "Vuex",
+        "xframe"
+    ]
 }
