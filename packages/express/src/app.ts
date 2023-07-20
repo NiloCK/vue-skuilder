@@ -43,7 +43,7 @@ app.use(
   })
 );
 
-export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<{}>> {
+export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<unknown>> {
   const ret = CouchDB.use(dbName);
 
   try {
