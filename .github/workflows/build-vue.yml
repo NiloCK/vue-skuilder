@@ -8,8 +8,7 @@ jobs:
   build-vue-spa:
     runs-on: ubuntu-latest # todo: use whatever is on the DO droplet
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event"
-      - run: echo "with commit ${{ github.SHA }}"
+      - run: echo "🎉 The job was triggered by a ${{ github.event_name }} on commit ${{ github.SHA }}"
       - name: Check out repository code
         uses: actions/checkout@v2
       - uses: actions/setup-node@v3
