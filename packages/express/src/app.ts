@@ -167,7 +167,7 @@ init();
 
 async function init() {
   try {
-    // start the change-listner that does post-prodessing on user
+    // start the change-listener that does post-processing on user
     // media uploads
     PostProcess();
 
