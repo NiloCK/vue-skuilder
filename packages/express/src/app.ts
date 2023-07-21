@@ -11,7 +11,7 @@ import {
   CourseCreationQueue,
   initCourseDBDesignDocInsert,
 } from './client-requests/course-requests';
-import CouchDB from './couchdb';
+import CouchDB, { useOrCreateDB } from './couchdb';
 import { requestIsAuthenticated } from './couchdb/authentication';
 import bodyParser = require('body-parser');
 import cors = require('cors');
@@ -42,35 +42,6 @@ app.use(
     origin: true,
   })
 );
-
-export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<unknown>> {
-  const ret = CouchDB.use(dbName);
-
-  try {
-    await ret.info();
-    return ret;
-  } catch (err) {
-    await CouchDB.db.create(dbName);
-    return CouchDB.use(dbName);
-  }
-}
-
-export async function docCount(dbName: string): Promise<number> {
-  const db = await useOrCreateDB(dbName);
-  const info = await db.info();
-  return info.doc_count;
-}
-
-export interface SecurityObject extends Nano.MaybeDocument {
-  admins: {
-    names: string[];
-    roles: string[];
-  };
-  members: {
-    names: string[];
-    roles: string[];
-  };
-}
 
 export interface VueClientRequest extends express.Request {
   body: ServerRequest;

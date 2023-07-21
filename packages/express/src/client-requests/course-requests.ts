@@ -1,7 +1,7 @@
 import hashids from 'hashids';
 import { log } from 'util';
 import { CreateCourse } from '../../../vue/src/server/types';
-import { SecurityObject, useOrCreateDB } from '../app';
+import { SecurityObject, useOrCreateDB } from '../couchdb';
 import { postProcessCourse } from '../attachment-preprocessing';
 import CouchDB from '../couchdb';
 import AsyncProcessQueue from '../utils/processQueue';
