@@ -1,8 +1,7 @@
-import CouchDB from '../couchdb';
+import CouchDB, { useOrCreateDB } from '../couchdb';
 import nano = require('nano');
 import { normalize } from './normalize';
 import AsyncProcessQueue, { Result } from '../utils/processQueue';
-import { useOrCreateDB } from '../app';
 import { COURSE_DB_LOOKUP } from '../client-requests/course-requests';
 
 const Q = new AsyncProcessQueue<AttachmentProcessingRequest, Result>(processDocAttachments);
