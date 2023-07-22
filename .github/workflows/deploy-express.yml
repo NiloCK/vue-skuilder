@@ -32,20 +32,23 @@ jobs:
           printf "VERSION=${{ github.sha }}" >> ./packages/vue/.env.production
           yarn build
       - name: Deploy /express
-        run: |
+        run: |  
           ecount=$(ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ls -1v /home/skuilder/dist/express/ | tail -n1)
           ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/dist/express/$(($ecount+1))
           ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/dist/express/$(($ecount+1))/assets
+      # upload built dist files to versioned folder (todo: get rid of this numbering scheme)
           rsync -rl ./packages/express/dist/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/$(($ecount+1))
           rsync -rl ./packages/express/assets/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/$(($ecount+1))/assets
+      # link new dist folder to `~/api` (the service runs from here)
           ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ln -sfn /home/skuilder/dist/express/$(($ecount+1)) /home/skuilder/api
-          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo ${{ secrets.EXPRESS_ENV }} > /home/skuilder/.env.production'
+      # replace prior .env.production file
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com rm /home/skuilder/.env.production
+
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo VERSION=${{ github.SHA }} >> /home/skuilder/.env.production'
-
-          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo ${{ secrets.EXPRESS_ENV }} > /home/skuilder/EXPRESS_ENV.secret'
-          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo ${{ secrets.DO_USERNAME }} > /home/skuilder/DO_USERNAME.secret'
-          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo ${{ secrets.DO_PASSWORD }} > /home/skuilder/DO_PASSWORD.secret'
-          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo ${{ secrets.VUE_ENV }} > /home/skuilder/VUE_ENV.secret'
-
+          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo COUCHDB_ADMIN=${{ secrets.COUCHDB_ADMIN }} >> /home/skuilder/.env.production'
+          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo COUCHDB_PASSWORD=${{ secrets.COUCHDB_PASSWORD }} >> /home/skuilder/.env.production'
+          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo COUCHDB_PROTOCOL=${{ secrets.COUCHDB_PROTOCOL }} >> /home/skuilder/.env.production'
+          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo COUCHDB_SERVER=${{ secrets.COUCHDB_SERVER }} >> /home/skuilder/.env.production'
+      # restart the service
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo ${{ secrets.DO_PASSWORD }} | sudo -S systemctl restart eqExpress'
       # todo: toss a buildinfo.md file into the (ecount+1) folder, linking PR, listing time, logging build errors, etc
