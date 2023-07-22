@@ -23,10 +23,11 @@ jobs:
           name: id_rsa
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
       - name: Build
-        run: npm install -g yarn@1.22.17
-        run: npm install -g lerna@3.22.1
-        run: lerna bootstrap
-        run: yarn build
+        run: |
+         npm install -g yarn@1.22.17
+         npm install -g lerna@3.22.1
+         lerna bootstrap
+         yarn build
       - name: Deploy and run
         run: |  
           ecount=$(ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ls -1v /home/skuilder/dist/express/ | tail -n1)
