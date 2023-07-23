@@ -29,13 +29,16 @@ jobs:
          lerna bootstrap
          yarn build
       - name: Deploy and run
-        run: |  
+        run: | # count existing deploys, create target dist/${n} folders
           ecount=$(ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ls -1v /home/skuilder/dist/express/ | tail -n1)
           ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/dist/express/$(($ecount+1))
           ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/dist/express/$(($ecount+1))/assets
+        run: | # upload built dist files to versioned folder
           rsync -rl ./packages/express/dist/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/$(($ecount+1))
           rsync -rl ./packages/express/assets/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/$(($ecount+1))/assets
+        run : | # link new dist folder to `~/api` (the service runs from here)
           ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ln -sfn /home/skuilder/dist/express/$(($ecount+1)) /home/skuilder/api
+        run: | # replace prior .env.production file
           ssh ${{ secrets.DO_USERNAME }}@eduquilt.com rm /home/skuilder/.env.production
 
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo VERSION=${{ github.SHA }} >> /home/skuilder/.env.production'
@@ -43,6 +46,6 @@ jobs:
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo COUCHDB_PASSWORD=${{ secrets.COUCHDB_PASSWORD }} >> /home/skuilder/.env.production'
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo COUCHDB_PROTOCOL=${{ secrets.COUCHDB_PROTOCOL }} >> /home/skuilder/.env.production'
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo COUCHDB_SERVER=${{ secrets.COUCHDB_SERVER }} >> /home/skuilder/.env.production'
-          
+        run: | # restart the service
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo ${{ secrets.DO_PASSWORD }} | sudo -S systemctl restart eqExpress'
       # todo: toss a buildinfo.md file into the (ecount+1) folder, linking PR, listing time, logging build errors, etc
