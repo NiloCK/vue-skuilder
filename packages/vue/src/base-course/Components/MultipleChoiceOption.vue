@@ -1,16 +1,17 @@
 <template>
   <v-card v-bind:class="`${className}`" v-on:mouseover="select" v-on:click="submitThisOption">
-    <MarkdownRenderer v-bind:md="content" />
+    <mdr v-bind:md="content" />
   </v-card>
 </template>
 
 <script lang="ts">
+import MarkdownRenderer from '@/base-course/Components/MarkdownRenderer.vue';
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 
 @Component({
   components: {
-    MarkdownRenderer: () => import('@/base-course/Components/MarkdownRenderer.vue'),
+    "mdr": MarkdownRenderer,
   },
 })
 export default class MultipleChoiceOption extends Vue {

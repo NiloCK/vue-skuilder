@@ -1,7 +1,7 @@
 <template>
   <div>
     <audio-auto-player v-if="hasAudio" v-bind:src="audioURL" />
-    <markdown-renderer v-bind:md="question.mdText" />
+    <mdr v-bind:md="question.mdText" />
     <radio-multiple-choice v-if="question.options" v-bind:choiceList="truncatedOptions" v-bind:MouseTrap="MouseTrap" />
     <center v-else-if="priorAttempts == 1" class="title">
       <span>
@@ -40,7 +40,7 @@ const typeMap: {
 
 @Component({
   components: {
-    MarkdownRenderer,
+    'mdr': MarkdownRenderer, // fix against "unknown custom element" bug (?).
     RadioMultipleChoice,
     blankType: FillInInput,
     textType: FillInText,

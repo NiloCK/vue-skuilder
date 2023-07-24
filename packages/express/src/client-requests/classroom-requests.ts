@@ -6,8 +6,8 @@ import {
   LeaveClassroom,
 } from '../../../vue/src/server/types';
 import { Status } from '../../../vue/src/enums/Status';
-import { classroomDbDesignDoc, docCount, SecurityObject, useOrCreateDB } from '../app';
-import CouchDB from '../couchdb';
+import { classroomDbDesignDoc} from '../app';
+import CouchDB, { SecurityObject, docCount, useOrCreateDB } from '../couchdb';
 import AsyncProcessQueue, { Result } from '../utils/processQueue';
 
 export const CLASSROOM_DB_LOOKUP = 'classdb-lookup';

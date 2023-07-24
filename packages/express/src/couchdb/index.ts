@@ -24,6 +24,35 @@ console.log(
 
 const CouchDB = Nano(credentialCouchURL);
 
+export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<unknown>> {
+  const ret = CouchDB.use(dbName);
+
+  try {
+    await ret.info();
+    return ret;
+  } catch (err) {
+    await CouchDB.db.create(dbName);
+    return CouchDB.use(dbName);
+  }
+}
+
+export async function docCount(dbName: string): Promise<number> {
+  const db = await useOrCreateDB(dbName);
+  const info = await db.info();
+  return info.doc_count;
+}
+
+export interface SecurityObject extends Nano.MaybeDocument {
+  admins: {
+    names: string[];
+    roles: string[];
+  };
+  members: {
+    names: string[];
+    roles: string[];
+  };
+}
+
 export const COUCH_URL_WITH_PROTOCOL = protocol + '://' + process.env.COUCHDB_SERVER;
 
 export default CouchDB;
