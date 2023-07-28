@@ -24,4 +24,4 @@ jobs:
           cd ./packages/express
           yarn remove @types/jest
           yarn build
-      # todo: add some tests to run haha
+          yarn test
