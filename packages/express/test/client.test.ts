@@ -1,6 +1,5 @@
 import { ChildProcess, exec } from 'child_process';
 import getClient from '../src/client';
-import init from '../src/app';
 import env from '../src/utils/env';
 
 let serverProcess: ChildProcess;
