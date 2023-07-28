@@ -22,5 +22,6 @@ jobs:
         run: |
           printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
           cd ./packages/express
+          yarn remove @types/jest
           yarn build
       # todo: add some tests to run haha
