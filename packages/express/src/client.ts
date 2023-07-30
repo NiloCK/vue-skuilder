@@ -1,50 +1,46 @@
 import axios from "axios";
 
-interface SkldrClient {
-    getCourse(id: string) : SkldrCourse // promisify w/ a check the course exists
-    getVersion(): Promise<string>
-    getRoles(): Promise<string[]>
+export default class SkldrClient {
+    server: string;
+    
+    constructor(server: string) {
+        this.server = server;
+    }
+
+    // promisify w/ a check the course exists
+    getCourse(id: string) : SkldrCourse {
+        return {} as SkldrCourse;
+    }
+    async getVersion(): Promise<string> {
+        const resp = await axios.get(`${this.server}/version`);
+        return resp.data;
+    }
+    async getRoles(): Promise<string[]> {
+        const resp = await axios.get(`${this.server}/roles`);
+        return resp.data;
+    }
 }
 
-interface SkldrCourse {
-    addData: (
+class SkldrCourse {
+    id: string;
+    server: string;
+    
+    constructor(server: string, id: string) {
+        this.server = server;
+        this.id = id;
+    }
+
+    addData(
      codeCourse: string,
      datashape: string,
      data: any,
      author: string,
      tags: string[],
      uploads: Blob[],
-    ) => Promise<Express.Response>
-}
-
-export default function createClient(server: string): SkldrClient {
-    const client = {} as SkldrClient;
-
-    client.getCourse = function(courseID: string) {
-
-        const course: SkldrCourse = {} as SkldrCourse;
-
-        course.addData = function(
-            codeCourse: string,
-            shape: string,
-            data: any,
-            author: string,
-            tags: string[],
-            uploads: Blob[]
-        ) {
-            return axios.get(`${server}`, {
-                method: 'POST',
-                // body: 'todo',
-            });
-        }
-
-        return course;
-    };
-
-    client.getVersion = async function() {
-        const resp = await axios.get(`${server}/version`);
-        return resp.data;
+    ): Promise<Express.Response> {
+        return axios.get(`${this.server}/${this.id}`, {
+            method: 'GET',
+            // body: 'todo',
+        });
     }
-
-    return client;
 }

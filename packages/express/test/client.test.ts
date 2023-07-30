@@ -1,5 +1,5 @@
 import { ChildProcess, exec } from 'child_process';
-import getClient from '../src/client';
+import Client from '../src/client';
 import env from '../src/utils/env';
 
 let serverProcess: ChildProcess;
@@ -13,7 +13,7 @@ beforeAll(async () => {
 }, 10_000)
 
 test('getVersion', async () => {
-    const client = getClient('http://localhost:3000');
+    const client = new Client('http://localhost:3000');
     const version = await client.getVersion();
     expect(version).toBe(env.VERSION);
 });
