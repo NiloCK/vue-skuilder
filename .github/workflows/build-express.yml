@@ -25,6 +25,7 @@ jobs:
           printf COUCHDB_ADMIN=admin >> ./packages/express/.env.development.local
           printf COUCHDB_PASSWORD=password >> ./packages/express/.env.development.local
           printf VERSION=${{ github.SHA }} >> ./packages/express/.env.development.local
+          cat ./packages/express/.env.development.local
           cd ./packages/express
           yarn remove @types/jest
           yarn build
