@@ -114,6 +114,10 @@ app.post('/', (req, res) => {
   postHandler(req, res);
 });
 
+app.get('/version', (req, res) => {
+  res.send(ENV.VERSION);
+});
+
 app.get('/', (req, res) => {
   let status = `Express service is running.\nVersion: ${ENV.VERSION}\n`;
 

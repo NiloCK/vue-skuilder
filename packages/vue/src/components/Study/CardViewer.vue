@@ -26,16 +26,17 @@ import { Component, Emit, Prop } from 'vue-property-decorator';
 export default class CardViewer extends Vue {
   @Prop({
     required: false,
+    default: 0,
   })
-  public sessionOrder: number = 0;
+  public sessionOrder: number;
   @Prop({
-    required: false,
+    required: true,
   })
-  public card_id: PouchDB.Core.DocumentId = '';
+  public card_id: PouchDB.Core.DocumentId;
   @Prop({
-    required: false,
+    required: true,
   })
-  public course_id: string = '';
+  public course_id: string;
   @Prop() public view: VueConstructor<Viewable>;
   @Prop() public data: ViewData[];
 
