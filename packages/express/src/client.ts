@@ -7,7 +7,7 @@ export default class SkldrClient {
         this.server = server;
     }
 
-    // promisify w/ a check the course exists
+    // [ ] promisify w/ a check the course exists
     getCourse(id: string) : SkldrCourse {
         return {} as SkldrCourse;
     }
