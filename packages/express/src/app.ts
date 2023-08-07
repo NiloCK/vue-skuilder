@@ -47,6 +47,18 @@ export interface VueClientRequest extends express.Request {
   body: ServerRequest;
 }
 
+app.get('/courses', async (req, res) => {
+  const coursesDB = await useOrCreateDB(COURSE_DB_LOOKUP);
+  
+  const courseStubs = await coursesDB.list({
+    include_docs: true
+  })
+  const courses = courseStubs.rows.map((stub) => {
+    return `${stub.id} - ${stub.doc["name"]}`
+  })
+  res.send(courses);
+});
+
 app.delete('/course/:courseID', async (req, res) => {
   console.log(`Delete request made on course ${req.params.courseID}...`);
   const auth = await requestIsAuthenticated(req);
