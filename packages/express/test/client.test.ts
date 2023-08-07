@@ -3,6 +3,7 @@ import Client from '../src/client';
 import env from '../src/utils/env';
 
 let serverProcess: ChildProcess;
+const client: Client = new Client('http://localhost:3000');
 
 beforeAll(async () => {
     serverProcess = exec('yarn serve', (err, stdout, stderr) => {});
@@ -13,7 +14,6 @@ beforeAll(async () => {
 }, 10_000)
 
 test('getVersion', async () => {
-    const client = new Client('http://localhost:3000');
     const version = await client.getVersion();
     expect(version).toBe(env.VERSION);
 });
