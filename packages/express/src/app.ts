@@ -8,6 +8,7 @@ import {
   ClassroomLeaveQueue,
 } from './client-requests/classroom-requests';
 import {
+  COURSE_DB_LOOKUP,
   CourseCreationQueue,
   initCourseDBDesignDocInsert,
 } from './client-requests/course-requests';
