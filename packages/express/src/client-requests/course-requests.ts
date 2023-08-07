@@ -211,6 +211,9 @@ async function createCourse(cfg: CourseConfig): Promise<any> {
   };
 }
 
+
+export type CreateCourseResp = CreateCourse['response'];
+
 export const CourseCreationQueue = new AsyncProcessQueue<
   CreateCourse['data'],
   CreateCourse['response']
