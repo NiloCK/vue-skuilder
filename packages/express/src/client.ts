@@ -21,7 +21,7 @@ export default class SkldrClient {
     }
 }
 
-class SkldrCourse {
+class SkldrCourseClient {
     id: string;
     server: string;
     
@@ -29,18 +29,26 @@ class SkldrCourse {
         this.server = server;
         this.id = id;
     }
-
+    
     addData(
-     codeCourse: string,
-     datashape: string,
-     data: any,
-     author: string,
-     tags: string[],
-     uploads: Blob[],
+        codeCourse: string,
+        datashape: string,
+        data: any,
+        author: string,
+        tags: string[],
+        uploads: Blob[],
     ): Promise<Express.Response> {
         return axios.get(`${this.server}/${this.id}`, {
             method: 'GET',
             // body: 'todo',
         });
     }
+        
+    async deleteCourse(auth?: AxiosBasicCredentials): Promise<Express.Response> {
+        // [ ] Consider auth / permanence of "destructive" actions
+        return axios.delete(`${this.server}/course/${this.id}`, {
+            auth,
+        });
+    }
 }
+    
