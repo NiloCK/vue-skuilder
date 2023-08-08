@@ -68,8 +68,8 @@ class SkldrCourseClient {
         tags: string[],
         uploads: Blob[],
     ): Promise<Express.Response> {
-        return axios.get(`${this.server}/${this.id}`, {
-            method: 'GET',
+        return axios.post(`${this.server}/${this.id}`, {
+            method: 'POST',
             // body: 'todo',
         });
     }
