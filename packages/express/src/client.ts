@@ -1,5 +1,5 @@
 import axios, { AxiosBasicCredentials, AxiosResponse } from "axios";
-import { CourseConfig, CreateCourse, ServerRequestType } from "../../vue/src/server/types";
+import { AddCourseDataPayload, CourseConfig, CreateCourse, ServerRequestType } from "../../vue/src/server/types";
 import { CreateCourseResp } from './client-requests/course-requests';
 
 export default class SkldrClient {
@@ -79,6 +79,12 @@ class SkldrCourseClient {
         return axios.delete(`${this.server}/course/${this.id}`, {
             auth,
         });
+    }
+
+    async getConfig(): Promise<CourseConfig> {
+        const resp = await axios.get<any, AxiosResponse<CourseConfig>>(
+            `${this.server}/course/${this.id}/config`);
+        return resp.data;
     }
 }
     

@@ -60,6 +60,13 @@ app.get('/courses', async (req, res) => {
   res.send(courses);
 });
 
+app.get('/course/:courseID/config', async (req, res) => {
+  const courseDB = await useOrCreateCourseDB(req.params.courseID);
+  const cfg = await courseDB.get('CourseConfig'); // [ ] pull courseConfig docName into global const
+  
+  res.json(cfg);
+});
+
 app.delete('/course/:courseID', async (req, res) => {
   console.log(`Delete request made on course ${req.params.courseID}...`);
   const auth = await requestIsAuthenticated(req);
