@@ -107,17 +107,20 @@ export interface DeleteCourse extends IServerRequest {
   type: ServerRequestType.DELETE_COURSE;
   courseID: string;
 }
+
+export interface AddCourseDataPayload {
+  courseID: string;
+  codeCourse: string;
+  shape: DataShape;
+  data: any;
+  author: string;
+  tags: string[];
+  uploads?: { [x: string]: PouchDB.Core.FullAttachment };
+}
+
 export interface AddCourseData extends IServerRequest {
   type: ServerRequestType.ADD_COURSE_DATA;
-  data: {
-    courseID: string;
-    codeCourse: string;
-    shape: DataShape;
-    data: any;
-    author: string;
-    tags: string[];
-    uploads?: { [x: string]: PouchDB.Core.FullAttachment };
-  };
+  data: AddCourseDataPayload;
   response: {
     status: Status;
     ok: boolean;
