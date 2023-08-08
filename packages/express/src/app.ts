@@ -12,7 +12,7 @@ import {
   CourseCreationQueue,
   initCourseDBDesignDocInsert,
 } from './client-requests/course-requests';
-import CouchDB, { useOrCreateDB } from './couchdb';
+import CouchDB, { useOrCreateCourseDB, useOrCreateDB } from './couchdb';
 import { requestIsAuthenticated } from './couchdb/authentication';
 import bodyParser = require('body-parser');
 import cors = require('cors');
