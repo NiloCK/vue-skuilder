@@ -84,26 +84,21 @@ app.delete('/course/:courseID', async (req, res) => {
 });
 
 async function postHandler(req: VueClientRequest, res: express.Response) {
-  console.log(`Request made...`);
   const auth = await requestIsAuthenticated(req);
   if (auth) {
-    console.log(`\tAuthenticated request made...`);
     const body = req.body;
+    console.log(`Authorized ${body.type ? body.type : '[unspecified request type]'} request made...`);
 
     if (body.type === RequestEnum.CREATE_CLASSROOM) {
-      console.log(`\t\tCREATE_CLASSROOM request made...`);
       const id: number = ClassroomCreationQueue.addRequest(body.data);
       body.response = await ClassroomCreationQueue.getResult(id);
       res.json(body.response);
     } else if (body.type === RequestEnum.DELETE_CLASSROOM) {
-      console.log(`\t\tDELETE_CLASSROOM request made...`);
     } else if (body.type === RequestEnum.JOIN_CLASSROOM) {
-      console.log(`\t\tJOIN_CLASSROOM request made...`);
       const id: number = ClassroomJoinQueue.addRequest(body.data);
       body.response = await ClassroomJoinQueue.getResult(id);
       res.json(body.response);
     } else if (body.type === RequestEnum.LEAVE_CLASSROOM) {
-      console.log(`\t\tLEAVE_CLASSROOM request made...`);
       const id: number = ClassroomLeaveQueue.addRequest({
         username: req.body.user,
         ...body.data,
@@ -111,12 +106,10 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
       body.response = await ClassroomLeaveQueue.getResult(id);
       res.json(body.response);
     } else if (body.type === RequestEnum.CREATE_COURSE) {
-      console.log(`\t\tCREATE_COURSE request made...`);
       const id: number = CourseCreationQueue.addRequest(body.data);
       body.response = await CourseCreationQueue.getResult(id);
       res.json(body.response);
     } else if (body.type === RequestEnum.ADD_COURSE_DATA) {
-      console.log(`\t\tADD_COURSE_DATA request made...`);
       const payload = await prepareNote55(
         body.data.courseID,
         body.data.codeCourse,
