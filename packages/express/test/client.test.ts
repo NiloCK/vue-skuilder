@@ -15,7 +15,7 @@ beforeAll(async () => {
 
     // startup time for server.
     // [ ] replace w/ an actual ready check
-    return await new Promise((resolve) => setTimeout(resolve, 7000));
+    return await new Promise((resolve) => setTimeout(resolve, 1000));
 }, 10_000)
 
 test('getVersion', async () => {
