@@ -48,6 +48,18 @@ function logRequest(req: VueClientRequest) {
 export async function requestIsAuthenticated(req: VueClientRequest) {
   logRequest(req);
 
+  if (req.headers.authorization) {
+    const auth = Buffer.from(req.headers.authorization.split(' ')[1], 'base64').toString('ascii').split(':');
+    const username = auth[0];
+    const password = auth[1];
+    
+    const authResult = await Nano({
+      url: COUCH_URL_WITH_PROTOCOL,
+    }).auth(username, password);
+
+    return authResult.ok;
+  }
+
   const username = req.body.user;
   const authCookie: string = req.cookies.AuthSession ? req.cookies.AuthSession : 'null';
 
