@@ -61,16 +61,11 @@ class SkldrCourseClient {
     }
     
     addData(
-        codeCourse: string,
-        datashape: string,
-        data: any,
-        author: string,
-        tags: string[],
-        uploads: Blob[],
+        data: AddCourseDataPayload
     ): Promise<Express.Response> {
         return axios.post(`${this.server}/${this.id}`, {
             method: 'POST',
-            // body: 'todo',
+            body: data,
         });
     }
         
