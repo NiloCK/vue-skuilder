@@ -1,5 +1,5 @@
-import ENV from '@/ENVIRONMENT_VARS';
-import { ClassroomConfig } from '@/server/types';
+import ENV from '../ENVIRONMENT_VARS';
+import { ClassroomConfig } from '../server/types';
 import moment from 'moment';
 import pouch from 'pouchdb-browser';
 import {

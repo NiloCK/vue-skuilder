@@ -1,18 +1,13 @@
-import dotenv = require('dotenv');
 import Nano = require('nano');
+import process from 'process';
+import ENV from '../utils/env';
 
-dotenv.config({
-  path: process.argv && process.argv.length == 3 ? process.argv[2] : '.env.development.local',
-});
-
-const url = process.env.COUCHDB_SERVER;
-const protocol: string = process.env.COUCHDB_PROTOCOL;
-
-const debug = process.env.DEBUG;
+const url = ENV.COUCHDB_SERVER;
+const protocol: string = ENV.COUCHDB_PROTOCOL;
 
 const admin = {
-  username: process.env.COUCHDB_ADMIN,
-  password: process.env.COUCHDB_PASSWORD,
+  username: ENV.COUCHDB_ADMIN,
+  password: ENV.COUCHDB_PASSWORD,
 };
 const credentialCouchURL = `${protocol}://${admin.username}:${admin.password}@${url}`;
 
@@ -28,6 +23,35 @@ console.log(
 );
 
 const CouchDB = Nano(credentialCouchURL);
+
+export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<unknown>> {
+  const ret = CouchDB.use(dbName);
+
+  try {
+    await ret.info();
+    return ret;
+  } catch (err) {
+    await CouchDB.db.create(dbName);
+    return CouchDB.use(dbName);
+  }
+}
+
+export async function docCount(dbName: string): Promise<number> {
+  const db = await useOrCreateDB(dbName);
+  const info = await db.info();
+  return info.doc_count;
+}
+
+export interface SecurityObject extends Nano.MaybeDocument {
+  admins: {
+    names: string[];
+    roles: string[];
+  };
+  members: {
+    names: string[];
+    roles: string[];
+  };
+}
 
 export const COUCH_URL_WITH_PROTOCOL = protocol + '://' + process.env.COUCHDB_SERVER;
 

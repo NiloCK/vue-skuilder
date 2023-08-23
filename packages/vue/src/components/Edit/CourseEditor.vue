@@ -26,13 +26,14 @@
 <script lang="ts">
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import ComponentRegistration from '@/components/Edit/ComponentRegistration/ComponentRegistration.vue';
-import Courses, { NameSpacer } from '@/courses';
+import Courses from '@/courses';
+import { NameSpacer } from '@/courses/NameSpacer';
 import { BlanksCard, BlanksCardDataShapes } from '@/courses/default/questions/fillIn';
 import SkldrVue from '@/SkldrVue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
-import { getCredentialledCourseConfig } from '../../db/courseDB';
 import { CourseConfig } from '../../server/types';
 import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
+import { getCredentialledCourseConfig } from '@/db/courseAPI';
 
 @Component({
   components: {

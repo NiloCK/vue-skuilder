@@ -1,8 +1,7 @@
-import CouchDB from '../couchdb';
+import CouchDB, { useOrCreateDB } from '../couchdb';
 import nano = require('nano');
 import { normalize } from './normalize';
 import AsyncProcessQueue, { Result } from '../utils/processQueue';
-import { useOrCreateDB } from '../app';
 import { COURSE_DB_LOOKUP } from '../client-requests/course-requests';
 
 const Q = new AsyncProcessQueue<AttachmentProcessingRequest, Result>(processDocAttachments);
@@ -47,6 +46,8 @@ function filterFactory(courseID: string) {
   return async function filterChanges(error, response: DatabaseChangesResultItemWithDoc, headers?) {
     // console.log(`Change detected: ${JSON.stringify(response['seq'])}`);
     if (
+      response &&
+      response.doc &&
       response.doc._attachments &&
       (response.doc['processed'] === undefined || response.doc['processed'] === false)
     ) {

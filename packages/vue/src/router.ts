@@ -1,5 +1,5 @@
-import MarkdownRenderer from '@/base-course/Components/MarkdownRenderer.vue';
-import Vue from 'vue';
+import MarkdownRenderer from './base-course/Components/MarkdownRenderer.vue';
+import Vue, { Component } from 'vue';
 import Router from 'vue-router';
 import ClassroomCtrlPanel from './components/Classrooms/ClassroomCtrlPanel.vue';
 import JoinCode from './components/Classrooms/JoinCode.vue';
@@ -22,9 +22,20 @@ import User from './views/User.vue';
 
 Vue.use(Router);
 
+// todo: storybook style render locations for each compoent
+//
+// beforeEnter: () => authenticateAdmin ?
+//
+// const components: Component[] = [];
+
 export default new Router({
   mode: 'history',
   routes: [
+    // {
+    //   path: '/debug/:component',
+    //   name: 'componentPreviews',
+    //   component: components[component]
+    // }
     {
       path: '/md',
       component: MarkdownRenderer,

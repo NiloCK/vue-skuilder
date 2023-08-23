@@ -1,9 +1,9 @@
-import { Answer, Question } from '@/base-course/Displayable';
-import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
-import { ViewData } from '@/base-course/Interfaces/ViewData';
-import { DataShapeName } from '@/enums/DataShapeNames';
-import { FieldType } from '@/enums/FieldType';
-import { Status } from '@/enums/Status';
+import { Answer, Question } from '../../../../base-course/Displayable';
+import { FieldDefinition } from '../../../../base-course/Interfaces/FieldDefinition';
+import { ViewData } from '../../../../base-course/Interfaces/ViewData';
+import { DataShapeName } from '../../../../enums/DataShapeNames';
+import { FieldType } from '../../../../enums/FieldType';
+import { Status } from '../../../../enums/Status';
 import MultiplicationHorizontal from './blorizontal.vue';
 import VerbalMultiplication from './verbal.vue';
 

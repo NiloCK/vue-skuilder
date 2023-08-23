@@ -1,0 +1,26 @@
+name: build-vue
+on:
+  pull_request:
+    paths:
+      - 'packages/vue/**'
+      - '.github/workflows/build-vue.yml'
+jobs:
+  build-vue-spa:
+    runs-on: ubuntu-latest # todo: use whatever is on the DO droplet
+    steps:
+      - run: echo "🎉 The job was triggered by a ${{ github.event_name }} on commit ${{ github.SHA }}"
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - run: npm install -g yarn@1.22.17 # version? 1.22.17 -> 1.22.19 current
+      - run: npm install -g lerna@3.22.1 # version? 3.22.1 -> 6.6.2 current
+      - run: npm install -g typescript@4.5.5 # version? 4.5.5 -> 5.1.3 current
+      - run: lerna bootstrap
+      - name: Build
+        run: |
+          printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
+          cd ./packages/vue
+          yarn build
+          yarn test:unit

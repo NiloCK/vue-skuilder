@@ -1,5 +1,5 @@
 import Nano = require('nano');
-import * as express from 'express';
+import express from 'express';
 import { ServerRequest, ServerRequestType as RequestEnum } from '../../vue/src/server/types';
 import PostProcess from './attachment-preprocessing';
 import {
@@ -8,15 +8,21 @@ import {
   ClassroomLeaveQueue,
 } from './client-requests/classroom-requests';
 import {
+  COURSE_DB_LOOKUP,
   CourseCreationQueue,
   initCourseDBDesignDocInsert,
 } from './client-requests/course-requests';
-import CouchDB from './couchdb';
+import CouchDB, { useOrCreateDB } from './couchdb';
 import { requestIsAuthenticated } from './couchdb/authentication';
 import bodyParser = require('body-parser');
 import cors = require('cors');
 import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
+import { prepareNote55 } from '../../vue/src/db/prepareNote55';
+import ENV from './utils/env';
+import console from 'console';
+
+console.log(`Express app running version: ${ENV.VERSION}`);
 
 const port = 3000;
 export const classroomDbDesignDoc = fileSystem.readFileSync(
@@ -38,38 +44,44 @@ app.use(
   })
 );
 
-export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<{}>> {
-  const ret = CouchDB.use(dbName);
-
-  try {
-    await ret.info();
-    return ret;
-  } catch (err) {
-    await CouchDB.db.create(dbName);
-    return CouchDB.use(dbName);
-  }
-}
-
-export async function docCount(dbName: string): Promise<number> {
-  const db = await useOrCreateDB(dbName);
-  const info = await db.info();
-  return info.doc_count;
-}
-
-export interface SecurityObject extends Nano.MaybeDocument {
-  admins: {
-    names: string[];
-    roles: string[];
-  };
-  members: {
-    names: string[];
-    roles: string[];
-  };
-}
-
 export interface VueClientRequest extends express.Request {
   body: ServerRequest;
 }
+
+app.get('/courses', async (req, res) => {
+  const coursesDB = await useOrCreateDB(COURSE_DB_LOOKUP);
+  
+  const courseStubs = await coursesDB.list({
+    include_docs: true
+  })
+  const courses = courseStubs.rows.map((stub) => {
+    return `${stub.id} - ${stub.doc["name"]}`
+  })
+  res.send(courses);
+});
+
+app.delete('/course/:courseID', async (req, res) => {
+  console.log(`Delete request made on course ${req.params.courseID}...`);
+  const auth = await requestIsAuthenticated(req);
+  if (auth) {
+    console.log(`\tAuthenticated delete request made...`);
+    const dbResp = await CouchDB.db.destroy(`coursedb-${req.params.courseID}`);
+    if (!dbResp.ok) {
+      res.json({ success: false, error: dbResp });
+      return;
+    }
+    const lookupDB = await useOrCreateDB(COURSE_DB_LOOKUP);
+    const lookupDoc = await lookupDB.get(req.params.courseID);
+    const lookupResp = await lookupDB.destroy(req.params.courseID, lookupDoc._rev);
+    if (lookupResp.ok) {
+      res.json({ success: true });
+    } else {
+      res.json({ success: false, error: lookupResp });
+    }
+  } else {
+    res.json({ success: false, error: 'Not authenticated' });
+  }
+});
 
 async function postHandler(req: VueClientRequest, res: express.Response) {
   console.log(`Request made...`);
@@ -103,6 +115,27 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
       const id: number = CourseCreationQueue.addRequest(data.data);
       data.response = await CourseCreationQueue.getResult(id);
       res.json(data.response);
+    } else if (data.type === RequestEnum.ADD_COURSE_DATA) {
+      console.log(`\t\tADD_COURSE_DATA request made...`);
+      const payload = await prepareNote55(
+        data.data.courseID,
+        data.data.codeCourse,
+        data.data.shape,
+        data.data.data,
+        data.data.author,
+        data.data.tags,
+        data.data.uploads
+      );
+      CouchDB.use(`coursedb-${data.data.courseID}`)
+        .insert(payload as Nano.MaybeDocument)
+        .then((r) => {
+          console.log(`\t\t\tCouchDB insert result: ${JSON.stringify(r)}`);
+          res.json(r);
+        })
+        .catch((e) => {
+          console.log(`\t\t\tCouchDB insert error: ${JSON.stringify(e)}`);
+          res.json(e);
+        });
     }
   } else {
     console.log(`\tREQUEST UNAUTHORIZED!`);
@@ -112,12 +145,17 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
   }
 }
 
+
 app.post('/', (req, res) => {
   postHandler(req, res);
 });
 
+app.get('/version', (req, res) => {
+  res.send(ENV.VERSION);
+});
+
 app.get('/', (req, res) => {
-  let status = 'Express service is running.\n';
+  let status = `Express service is running.\nVersion: ${ENV.VERSION}\n`;
 
   CouchDB.session()
     .then((s) => {
@@ -141,7 +179,7 @@ init();
 
 async function init() {
   try {
-    // start the change-listner that does post-prodessing on user
+    // start the change-listener that does post-processing on user
     // media uploads
     PostProcess();
 
@@ -152,7 +190,7 @@ async function init() {
       (await useOrCreateDB('coursedb')).insert(
         {
           validate_doc_update: classroomDbDesignDoc,
-        } as any,
+        } as Nano.MaybeDocument,
         '_design/_auth'
       );
     } catch (e) {

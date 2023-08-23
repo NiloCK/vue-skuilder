@@ -31,8 +31,9 @@ import { getCourseDoc } from '@/db';
 export default class CardLoader extends SkldrVue {
   @Prop({
     required: false,
+    default: 0,
   })
-  public sessionOrder: number = 0;
+  public sessionOrder: number;
   @Prop({
     required: true,
   })

@@ -5,36 +5,44 @@ on:
       - deploy
     paths:
       - 'packages/express/**'
+      - '.github/workflows/deploy-express.yml'
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🎉 The job was triggered by a ${{ github.event_name }} on commit ${{ github.SHA }}"
       - name: Check out repository code
         uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-      - name: Upload to DO
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - name: SSH to DO
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.DO_SSH_KEY }}
           name: id_rsa
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
-      - run: npm install -g yarn
-      - run: npm install -g lerna
-      - run: npm install -g typescript
-      - run: lerna bootstrap
       - name: Build
         run: |
-          printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
-          yarn build
-      - name: Deploy /express
-        run: |
-          ecount=$(ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ls -1v /home/skuilder/dist/express/ | tail -n1)
-          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/dist/express/$(($ecount+1))
-          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/dist/express/$(($ecount+1))/assets
-          rsync -rl ./packages/express/dist/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/$(($ecount+1))
-          rsync -rl ./packages/express/assets/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/$(($ecount+1))/assets
-          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ln -sfn /home/skuilder/dist/express/$(($ecount+1)) /home/skuilder/api
-          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo ${{ secrets.EXPRESS_ENV }} > /home/skuilder/.env.production'
+         npm install -g yarn@1.22.17
+         npm install -g lerna@3.22.1
+         lerna bootstrap
+         yarn build
+      - name: Deploy and run
+        run: | 
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/dist/express/${{github.SHA}}
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/dist/express/${{github.SHA}}/assets
+          rsync -rl ./packages/express/dist/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/${{github.SHA}}
+          rsync -rl ./packages/express/assets/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/${{github.SHA}}/assets
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ln -sfn /home/skuilder/dist/express/${{github.SHA}} /home/skuilder/api
+        
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com rm /home/skuilder/.env.production
+
+          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo VERSION=${{ github.SHA }} >> /home/skuilder/.env.production'
+          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo COUCHDB_ADMIN=${{ secrets.COUCHDB_ADMIN }} >> /home/skuilder/.env.production'
+          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo COUCHDB_PASSWORD=${{ secrets.COUCHDB_PASSWORD }} >> /home/skuilder/.env.production'
+          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo COUCHDB_PROTOCOL=${{ secrets.COUCHDB_PROTOCOL }} >> /home/skuilder/.env.production'
+          ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo COUCHDB_SERVER=${{ secrets.COUCHDB_SERVER }} >> /home/skuilder/.env.production'
+        
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo ${{ secrets.DO_PASSWORD }} | sudo -S systemctl restart eqExpress'
       # todo: toss a buildinfo.md file into the (ecount+1) folder, linking PR, listing time, logging build errors, etc

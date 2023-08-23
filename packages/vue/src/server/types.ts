@@ -1,3 +1,4 @@
+import { DataShape } from '../base-course/Interfaces/DataShape';
 import { Status } from '../enums/Status';
 
 export interface IServerRequest {
@@ -50,6 +51,7 @@ export interface LeaveClassroom extends IServerRequest {
 type NamespacedDatashape = string; // ${course}.datashape.${datashape}
 
 export interface DataShape55 {
+  // [ ] rename this to something else - disambiguate from DataShape in base-course
   name: NamespacedDatashape;
   questionTypes: PouchDB.Core.DocumentId[];
 }
@@ -71,11 +73,14 @@ export interface ClassroomConfig {
   joinCode: string;
 }
 
+/**
+ * metadata about a defined course
+ *
+ * Note: `courseID` is generated server-side. It is not present on
+ * new courses at the time of writing, client-side, but always
+ * present (!) when a CourseConfig is retrieved from the database
+ */
 export interface CourseConfig {
-  /** courseID is generated server-side. It is not present on
-   * new courses at the time of writing, client-side, but always
-   * present (!) when a CourseConfig is retrieved from the database
-   */
   courseID?: string;
   name: string;
   description: string;
@@ -102,6 +107,22 @@ export interface DeleteCourse extends IServerRequest {
   type: ServerRequestType.DELETE_COURSE;
   courseID: string;
 }
+export interface AddCourseData extends IServerRequest {
+  type: ServerRequestType.ADD_COURSE_DATA;
+  data: {
+    courseID: string;
+    codeCourse: string;
+    shape: DataShape;
+    data: any;
+    author: string;
+    tags: string[];
+    uploads?: { [x: string]: PouchDB.Core.FullAttachment };
+  };
+  response: {
+    status: Status;
+    ok: boolean;
+  };
+}
 
 export type ServerRequest =
   | CreateClassroom
@@ -109,7 +130,8 @@ export type ServerRequest =
   | JoinClassroom
   | LeaveClassroom
   | CreateCourse
-  | DeleteCourse;
+  | DeleteCourse
+  | AddCourseData;
 
 export enum ServerRequestType {
   CREATE_CLASSROOM = 'CREATE_CLASSROOM',
@@ -118,4 +140,5 @@ export enum ServerRequestType {
   LEAVE_CLASSROOM = 'LEAVE_CLASSROOM',
   CREATE_COURSE = 'CREATE_COURSE',
   DELETE_COURSE = 'DELETE_COURSE',
+  ADD_COURSE_DATA = 'ADD_COURSE_DATA',
 }

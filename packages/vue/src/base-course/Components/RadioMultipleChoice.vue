@@ -17,6 +17,12 @@
 import UserInput from '@/base-course/Components/UserInput/UserInput';
 import { Component, Prop } from 'vue-property-decorator';
 import MultipleChoiceOption from './MultipleChoiceOption.vue';
+import { Answer } from '../Displayable';
+
+export interface RadioSelectAnswer extends Answer {
+  choiceList: string[];
+  selection: number;
+}
 
 @Component({
   components: {
@@ -29,7 +35,6 @@ export default class RadioSelect extends UserInput {
   })
   public choiceList: string[];
   @Prop() public MouseTrap: any;
-  // @Prop() public submit: (selection: number) => void;
 
   public currentSelection: number = -1;
   public incorrectSelections: number[] = [];
@@ -52,12 +57,13 @@ export default class RadioSelect extends UserInput {
     if (this.choiceIsWrong(this.choiceList[this.currentSelection])) {
       return; // do not 'resubmit' greyed-out choices
     } else if (this.currentSelection !== -1) {
-      const rec = this.submitAnswer({
+      const ans: RadioSelectAnswer = {
         choiceList: this.choiceList,
         selection: this.currentSelection,
-      });
+      };
+      const record = this.submitAnswer(ans);
 
-      if (!rec.isCorrect) {
+      if (!record.isCorrect) {
         this.incorrectSelections.push(this.currentSelection);
       }
     }
@@ -79,7 +85,6 @@ export default class RadioSelect extends UserInput {
   }
 
   public decrementSelection() {
-    // alert('dencrement');
     if (this.currentSelection === -1) {
       this.currentSelection = Math.floor(this.choiceList.length / 2 - 1);
     } else {
@@ -87,7 +92,7 @@ export default class RadioSelect extends UserInput {
     }
   }
 
-  private choiceIsWrong(choice: string): boolean {
+  public choiceIsWrong(choice: string): boolean {
     let ret: boolean = false;
     this.incorrectSelections.forEach((sel) => {
       if (this.choiceList[sel] === choice) {

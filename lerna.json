@@ -1,7 +1,5 @@
 {
-  "packages": [
-    "packages/*"
-  ],
-  "version": "0.0.0",
-  "npmClient": "yarn"
+    "packages": ["packages/vue", "packages/express"],
+    "version": "0.0.0",
+    "npmClient": "yarn"
 }

@@ -1,9 +1,9 @@
-import SkldrVue from '@/SkldrVue';
+import SkldrVue from '../../../SkldrVue';
 import { Prop, Vue } from 'vue-property-decorator';
-import { Answer, Question } from '@/base-course/Displayable';
-import { QuestionView } from '@/base-course/Viewable';
+import { Answer, Question } from '../../../base-course/Displayable';
+import { QuestionView } from '../../../base-course/Viewable';
 import { log } from 'util';
-import { QuestionRecord } from '@/db/types';
+import { QuestionRecord } from '../../../db/types';
 
 export default abstract class UserInput extends SkldrVue {
   public $el: HTMLElement;
