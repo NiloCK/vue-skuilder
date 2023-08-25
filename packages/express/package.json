@@ -21,7 +21,7 @@
         "ffmpeg-static": "^2.4.0",
         "hashids": "^1.2.2",
         "nano": "^8.0.0",
-        "pouchdb": "7.2.2"
+        "pouchdb": "8.0.1"
     },
     "devDependencies": {
         "@babel/core": "^7.22.9",
