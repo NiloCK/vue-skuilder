@@ -24,20 +24,7 @@ test('getVersion', async () => {
 });
 
 test('Course Methods', async () => {
-    const salt = Math.random();
-    const name = 'test-course-' + salt;
-
-    const testCourse: CourseConfig = {
-        name,
-        description: 'test-course',
-        admins: ['test-admin'],
-        creator: 'test-creator',
-        dataShapes: [],
-        questionTypes: [],
-        deleted: false,
-        moderators: [],
-        public: true,
-    }
+    const testCourse: CourseConfig = createTestCourse();
 
     // assert non-existence of test course
     const courses = await client.getCourses();
@@ -72,3 +59,25 @@ afterAll(async () => {
     serverProcess.kill();
     serverProcess.unref();
 });
+
+/**
+ * @returns a course config with a randomized name
+ */
+function createTestCourse(): CourseConfig {
+    const salt = Math.random();
+    const name = 'test-course-' + salt;
+
+    const testCourse: CourseConfig = {
+        name,
+        description: 'test-course',
+        admins: ['test-admin'],
+        creator: 'test-creator',
+        dataShapes: [],
+        questionTypes: [],
+        deleted: false,
+        moderators: [],
+        public: true,
+    };
+    return testCourse;
+}
+
