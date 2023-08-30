@@ -11,16 +11,25 @@ jobs:
       - run: echo "🎉 The job was triggered by a ${{ github.event_name }} on commit ${{ github.SHA }}"
       - name: Check out repository code
         uses: actions/checkout@v2
+      - name: Start CouchDB
+        uses: iamssen/couchdb-github-action@master
+        with:
+          couchdb-version: 3.3.2
       - uses: actions/setup-node@v3
         with:
-          node-version: '12'
+          node-version: 14
       - run: npm install -g yarn@1.22.17
       - run: npm install -g lerna@3.22.1 # 4.0.0 ?
       #- run: npm install -g typescript@4.5.5
       - run: lerna bootstrap
       - name: Build
         run: |
-          printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
+          echo COUCHDB_SERVER=localhost:5984 >> ./packages/express/.env.development.local
+          echo COUCHDB_PROTOCOL=http >> ./packages/express/.env.development.local
+          echo COUCHDB_ADMIN=admin >> ./packages/express/.env.development.local
+          echo COUCHDB_PASSWORD=password >> ./packages/express/.env.development.local
+          echo VERSION=${{ github.SHA }} >> ./packages/express/.env.development.local
           cd ./packages/express
+          yarn remove @types/jest
           yarn build
-      # todo: add some tests to run haha
+          yarn test

@@ -6,6 +6,7 @@ import { postProcessCourse } from '../attachment-preprocessing';
 import CouchDB from '../couchdb';
 import AsyncProcessQueue from '../utils/processQueue';
 import nano = require('nano');
+import { Status } from '../../../vue/src/enums/Status';
 
 /**
  * Fake fcn to allow usage in couchdb map fcns which, after passing
@@ -165,6 +166,15 @@ async function createCourse(cfg: CourseConfig): Promise<any> {
   const lookupInsert = await lookup.insert({
     ...cfg,
   } as nano.MaybeDocument);
+
+  if (!lookupInsert.ok) {
+    return {
+      courseID: '',
+      ok: false,
+      status: Status.error,
+    };
+  }
+  
   const courseID = lookupInsert.id;
   cfg.courseID = courseID;
 
@@ -210,6 +220,9 @@ async function createCourse(cfg: CourseConfig): Promise<any> {
     courseID: courseID,
   };
 }
+
+
+export type CreateCourseResp = CreateCourse['response'];
 
 export const CourseCreationQueue = new AsyncProcessQueue<
   CreateCourse['data'],

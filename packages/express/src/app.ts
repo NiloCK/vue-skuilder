@@ -8,6 +8,7 @@ import {
   ClassroomLeaveQueue,
 } from './client-requests/classroom-requests';
 import {
+  COURSE_DB_LOOKUP,
   CourseCreationQueue,
   initCourseDBDesignDocInsert,
 } from './client-requests/course-requests';
@@ -46,6 +47,41 @@ app.use(
 export interface VueClientRequest extends express.Request {
   body: ServerRequest;
 }
+
+app.get('/courses', async (req, res) => {
+  const coursesDB = await useOrCreateDB(COURSE_DB_LOOKUP);
+  
+  const courseStubs = await coursesDB.list({
+    include_docs: true
+  })
+  const courses = courseStubs.rows.map((stub) => {
+    return `${stub.id} - ${stub.doc["name"]}`
+  })
+  res.send(courses);
+});
+
+app.delete('/course/:courseID', async (req, res) => {
+  console.log(`Delete request made on course ${req.params.courseID}...`);
+  const auth = await requestIsAuthenticated(req);
+  if (auth) {
+    console.log(`\tAuthenticated delete request made...`);
+    const dbResp = await CouchDB.db.destroy(`coursedb-${req.params.courseID}`);
+    if (!dbResp.ok) {
+      res.json({ success: false, error: dbResp });
+      return;
+    }
+    const lookupDB = await useOrCreateDB(COURSE_DB_LOOKUP);
+    const lookupDoc = await lookupDB.get(req.params.courseID);
+    const lookupResp = await lookupDB.destroy(req.params.courseID, lookupDoc._rev);
+    if (lookupResp.ok) {
+      res.json({ success: true });
+    } else {
+      res.json({ success: false, error: lookupResp });
+    }
+  } else {
+    res.json({ success: false, error: 'Not authenticated' });
+  }
+});
 
 async function postHandler(req: VueClientRequest, res: express.Response) {
   console.log(`Request made...`);
@@ -112,6 +148,10 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
 
 app.post('/', (req, res) => {
   postHandler(req, res);
+});
+
+app.get('/version', (req, res) => {
+  res.send(ENV.VERSION);
 });
 
 app.get('/', (req, res) => {

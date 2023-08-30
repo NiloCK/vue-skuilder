@@ -46,6 +46,8 @@ function filterFactory(courseID: string) {
   return async function filterChanges(error, response: DatabaseChangesResultItemWithDoc, headers?) {
     // console.log(`Change detected: ${JSON.stringify(response['seq'])}`);
     if (
+      response &&
+      response.doc &&
       response.doc._attachments &&
       (response.doc['processed'] === undefined || response.doc['processed'] === false)
     ) {

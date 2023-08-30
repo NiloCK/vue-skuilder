@@ -30,11 +30,11 @@ import { Component, Prop } from 'vue-property-decorator';
 
 @Component
 export default class PaginatingToolbar extends SkldrVue {
-  @Prop({ required: true }) private pages: number[] = [];
-  @Prop({ required: true }) private page: number = 1;
+  @Prop({ required: true }) private pages: number[];
+  @Prop({ required: true }) private page: number;
 
-  @Prop({ required: false }) private title: string = '';
-  @Prop({ required: false }) private subtitle: string = '';
+  @Prop({ required: false }) private title: string;
+  @Prop({ required: false }) private subtitle: string;
 }
 </script>
 
