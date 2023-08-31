@@ -27,6 +27,9 @@ jobs:
          npm install -g yarn@1.22.17
          npm install -g lerna@3.22.1
          lerna bootstrap
+         cd ./packages/express
+         yarn remove @types/jest
+         cd ../..
          yarn build
       - name: Deploy and run
         run: | 
