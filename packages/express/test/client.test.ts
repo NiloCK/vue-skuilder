@@ -50,6 +50,29 @@ test('Course Methods', async () => {
     expect( courses3.find((c) => c.split(' - ')[0] === courseID) ).toBeUndefined();
 });
 
+test('createNote', async () => {
+    const crs = createTestCourse();
+    const createResp = await client.createCourse(crs, credentials);
+
+    const crsClient = client.getCourseClient(createResp.data!.courseID);
+    const cfg = await crsClient.getConfig();
+
+    for (const k in crs) {
+        expect(cfg[k]).toEqual(crs[k]);
+    }
+    // expect(cfg).toEqual(crs);
+    crsClient.addData({
+        author: 'test-author',
+        data: "this is a test",
+        tags: ['test-tag'],
+        courseID: crsClient.id,
+        codeCourse: 'test-code-course-id',
+        shape: {
+            fields: [],
+            name: DataShapeName.Blanks,
+        },
+    })
+});
 afterAll(async () => {
     // see https://stackoverflow.com/questions/54562879/jest-open-handle-when-using-node-exec/75830272#75830272
     serverProcess.stdin.destroy();
