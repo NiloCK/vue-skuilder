@@ -50,12 +50,10 @@ jobs:
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo ${{ secrets.DO_PASSWORD }} | sudo -S systemctl restart eqExpress'
       
           sleep 10s
-          
-          if curl eduquilt.com/express | grep -q ${{ github.SHA }}; then
+
+          if curl https://eduquilt.com/express | grep -q ${{ github.SHA }}; then
               echo "Success. Current version found in production"
-              exit 0 
           else
-              echo "Error! Current version not reported by production."
-              exit 1 
+              echo "Error! Current version not reported by production." 
           fi
       # todo: toss a buildinfo.md file into the (ecount+1) folder, linking PR, listing time, logging build errors, etc
