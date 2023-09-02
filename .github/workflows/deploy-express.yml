@@ -53,7 +53,9 @@ jobs:
 
           if curl https://eduquilt.com/express | grep -q ${{ github.SHA }}; then
               echo "Success. Current version found in production"
+              exit 0 
           else
-              echo "Error! Current version not reported by production." 
+              echo "Error! Current version not reported by production."
+              exit 1 
           fi
       # todo: toss a buildinfo.md file into the (ecount+1) folder, linking PR, listing time, logging build errors, etc
