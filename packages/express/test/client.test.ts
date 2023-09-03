@@ -24,20 +24,7 @@ test('getVersion', async () => {
 });
 
 test('Course Methods', async () => {
-    const salt = Math.random();
-    const name = 'test-course-' + salt;
-
-    const testCourse: CourseConfig = {
-        name,
-        description: 'test-course',
-        admins: ['test-admin'],
-        creator: 'test-creator',
-        dataShapes: [],
-        questionTypes: [],
-        deleted: false,
-        moderators: [],
-        public: true,
-    }
+    const testCourse: CourseConfig = createTestCourse();
 
     // assert non-existence of test course
     const courses = await client.getCourses();
@@ -63,6 +50,29 @@ test('Course Methods', async () => {
     expect( courses3.find((c) => c.split(' - ')[0] === courseID) ).toBeUndefined();
 });
 
+test('createNote', async () => {
+    const crs = createTestCourse();
+    const createResp = await client.createCourse(crs, credentials);
+
+    const crsClient = client.getCourseClient(createResp.data!.courseID);
+    const cfg = await crsClient.getConfig();
+
+    for (const k in crs) {
+        expect(cfg[k]).toEqual(crs[k]);
+    }
+    // expect(cfg).toEqual(crs);
+    crsClient.addData({
+        author: 'test-author',
+        data: "this is a test",
+        tags: ['test-tag'],
+        courseID: crsClient.id,
+        codeCourse: 'test-code-course-id',
+        shape: {
+            fields: [],
+            name: DataShapeName.Blanks,
+        },
+    })
+});
 afterAll(async () => {
     // see https://stackoverflow.com/questions/54562879/jest-open-handle-when-using-node-exec/75830272#75830272
     serverProcess.stdin.destroy();
@@ -72,3 +82,25 @@ afterAll(async () => {
     serverProcess.kill();
     serverProcess.unref();
 });
+
+/**
+ * @returns a course config with a randomized name
+ */
+function createTestCourse(): CourseConfig {
+    const salt = Math.random();
+    const name = 'test-course-' + salt;
+
+    const testCourse: CourseConfig = {
+        name,
+        description: 'test-course',
+        admins: ['test-admin'],
+        creator: 'test-creator',
+        dataShapes: [],
+        questionTypes: [],
+        deleted: false,
+        moderators: [],
+        public: true,
+    };
+    return testCourse;
+}
+

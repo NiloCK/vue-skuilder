@@ -24,6 +24,10 @@ console.log(
 
 const CouchDB = Nano(credentialCouchURL);
 
+export async function useOrCreateCourseDB(courseID: string) {
+  return useOrCreateDB(`coursedb-${courseID}`);
+}
+
 export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<unknown>> {
   const ret = CouchDB.use(dbName);
 

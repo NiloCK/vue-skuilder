@@ -12,7 +12,7 @@ import {
   CourseCreationQueue,
   initCourseDBDesignDocInsert,
 } from './client-requests/course-requests';
-import CouchDB, { useOrCreateDB } from './couchdb';
+import CouchDB, { useOrCreateCourseDB, useOrCreateDB } from './couchdb';
 import { requestIsAuthenticated } from './couchdb/authentication';
 import bodyParser = require('body-parser');
 import cors = require('cors');
@@ -60,6 +60,13 @@ app.get('/courses', async (req, res) => {
   res.send(courses);
 });
 
+app.get('/course/:courseID/config', async (req, res) => {
+  const courseDB = await useOrCreateCourseDB(req.params.courseID);
+  const cfg = await courseDB.get('CourseConfig'); // [ ] pull courseConfig docName into global const
+  
+  res.json(cfg);
+});
+
 app.delete('/course/:courseID', async (req, res) => {
   console.log(`Delete request made on course ${req.params.courseID}...`);
   const auth = await requestIsAuthenticated(req);
@@ -84,49 +91,42 @@ app.delete('/course/:courseID', async (req, res) => {
 });
 
 async function postHandler(req: VueClientRequest, res: express.Response) {
-  console.log(`Request made...`);
   const auth = await requestIsAuthenticated(req);
   if (auth) {
-    console.log(`\tAuthenticated request made...`);
-    const data = req.body;
+    const body = req.body;
+    console.log(`Authorized ${body.type ? body.type : '[unspecified request type]'} request made...`);
 
-    if (data.type === RequestEnum.CREATE_CLASSROOM) {
-      console.log(`\t\tCREATE_CLASSROOM request made...`);
-      const id: number = ClassroomCreationQueue.addRequest(data.data);
-      data.response = await ClassroomCreationQueue.getResult(id);
-      res.json(data.response);
-    } else if (data.type === RequestEnum.DELETE_CLASSROOM) {
-      console.log(`\t\tDELETE_CLASSROOM request made...`);
-    } else if (data.type === RequestEnum.JOIN_CLASSROOM) {
-      console.log(`\t\tJOIN_CLASSROOM request made...`);
-      const id: number = ClassroomJoinQueue.addRequest(data.data);
-      data.response = await ClassroomJoinQueue.getResult(id);
-      res.json(data.response);
-    } else if (data.type === RequestEnum.LEAVE_CLASSROOM) {
-      console.log(`\t\tLEAVE_CLASSROOM request made...`);
+    if (body.type === RequestEnum.CREATE_CLASSROOM) {
+      const id: number = ClassroomCreationQueue.addRequest(body.data);
+      body.response = await ClassroomCreationQueue.getResult(id);
+      res.json(body.response);
+    } else if (body.type === RequestEnum.DELETE_CLASSROOM) {
+    } else if (body.type === RequestEnum.JOIN_CLASSROOM) {
+      const id: number = ClassroomJoinQueue.addRequest(body.data);
+      body.response = await ClassroomJoinQueue.getResult(id);
+      res.json(body.response);
+    } else if (body.type === RequestEnum.LEAVE_CLASSROOM) {
       const id: number = ClassroomLeaveQueue.addRequest({
         username: req.body.user,
-        ...data.data,
+        ...body.data,
       });
-      data.response = await ClassroomLeaveQueue.getResult(id);
-      res.json(data.response);
-    } else if (data.type === RequestEnum.CREATE_COURSE) {
-      console.log(`\t\tCREATE_COURSE request made...`);
-      const id: number = CourseCreationQueue.addRequest(data.data);
-      data.response = await CourseCreationQueue.getResult(id);
-      res.json(data.response);
-    } else if (data.type === RequestEnum.ADD_COURSE_DATA) {
-      console.log(`\t\tADD_COURSE_DATA request made...`);
+      body.response = await ClassroomLeaveQueue.getResult(id);
+      res.json(body.response);
+    } else if (body.type === RequestEnum.CREATE_COURSE) {
+      const id: number = CourseCreationQueue.addRequest(body.data);
+      body.response = await CourseCreationQueue.getResult(id);
+      res.json(body.response);
+    } else if (body.type === RequestEnum.ADD_COURSE_DATA) {
       const payload = await prepareNote55(
-        data.data.courseID,
-        data.data.codeCourse,
-        data.data.shape,
-        data.data.data,
-        data.data.author,
-        data.data.tags,
-        data.data.uploads
+        body.data.courseID,
+        body.data.codeCourse,
+        body.data.shape,
+        body.data.data,
+        body.data.author,
+        body.data.tags,
+        body.data.uploads
       );
-      CouchDB.use(`coursedb-${data.data.courseID}`)
+      CouchDB.use(`coursedb-${body.data.courseID}`)
         .insert(payload as Nano.MaybeDocument)
         .then((r) => {
           console.log(`\t\t\tCouchDB insert result: ${JSON.stringify(r)}`);
