@@ -72,6 +72,22 @@ export class CourseList {
     }
   }
 
+  public allDataShapesRaw(): DataShape[] {
+    const ret: DataShape[] = [];
+
+    this.courseList.forEach((course) => {
+      course.questions.forEach((question) => {
+        question.dataShapes.forEach((shape) => {
+          if (!ret.includes(shape)) {
+            ret.push(shape);
+          }
+        });
+      });
+    });
+
+    return ret;
+  }
+
   public allDataShapes(): (ShapeDescriptor & { displayable: typeof Displayable })[] {
     const ret: (ShapeDescriptor & { displayable: typeof Displayable })[] = [];
 

@@ -74,6 +74,10 @@ export default class ComponentRegistration extends SkldrVue {
 
     const dataShapeData = Courses.allDataShapes();
 
+    Courses.allDataShapesRaw().forEach(ds => {
+      console.log(`Datashape:\n${JSON.stringify(ds)}`);
+    })
+
     dataShapeData.forEach((shape) => {
       const index = this.courseDatashapes.find((test) => {
         return test.name === NameSpacer.getDataShapeString(shape);
