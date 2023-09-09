@@ -94,6 +94,9 @@ export class CourseList {
     this.courseList.forEach((course) => {
       course.questions.forEach((question) => {
         question.dataShapes.forEach((shape) => {
+          // [ ] need to de-dup shapes here. Currently, if a shape is used in multiple courses
+          //     it will be returned multiple times.
+          //     `Blanks` shape is is hard coded into new courses, so gets returned many times
           if (
             ret.findIndex((testShape) => {
               return testShape.course === course.name && testShape.dataShape === shape.name;
