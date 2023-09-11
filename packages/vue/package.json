@@ -70,7 +70,7 @@
         "sass-loader": "^7.1.0",
         "terser-webpack-plugin": "^1.4.1",
         "ts-jest": "^23.10.5",
-        "typescript": "^3.5.3",
+        "typescript": "^5.2.2",
         "vue-cli-plugin-vuetify": "^0.2.0",
         "vue-template-compiler": "^2.6.10"
     }
