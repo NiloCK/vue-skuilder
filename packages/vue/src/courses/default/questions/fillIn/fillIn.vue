@@ -40,7 +40,7 @@ const typeMap: {
 
 @Component({
   components: {
-    'mdr': MarkdownRenderer, // fix against "unknown custom element" bug (?).
+    "MarkdownRenderer": () => import('@/base-course/Components/MarkdownRenderer.vue'), // fix against "unknown custom element" bug (?).
     RadioMultipleChoice,
     blankType: FillInInput,
     textType: FillInText,
