@@ -11,7 +11,7 @@
     "author": "Colin Kennedy",
     "license": "GPL-3.0-or-later",
     "dependencies": {
-        "axios": "^1.4.0",
+        "axios": "^1.6.0",
         "body-parser": "^1.18.3",
         "child-process-promise": "^2.2.1",
         "cookie-parser": "^1.4.4",
