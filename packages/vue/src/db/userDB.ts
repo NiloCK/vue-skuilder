@@ -594,6 +594,7 @@ Currently logged-in as ${this._username}.`
       }
     }
 
+    console.log(`Returning classroom registrations doc: ${JSON.stringify(ret)}`);
     return ret;
   }
 

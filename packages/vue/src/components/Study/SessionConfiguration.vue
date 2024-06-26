@@ -154,6 +154,8 @@ export default class SessionConfiguration extends SkldrVue {
     const classes = await (await User.instance()).getActiveClasses();
     const activeClasses : ({ classID: string } & SessionConfigMetaData)[] = []
 
+    console.log(`Active classes: ${JSON.stringify(classes)}`);
+
     await Promise.all(
       classes.map((c) =>
         (async (classID: string) => {
