@@ -152,12 +152,15 @@ export default class SessionConfiguration extends SkldrVue {
 
   private async getActiveClassrooms() {
     const classes = await (await User.instance()).getActiveClasses();
+    const activeClasses : ({ classID: string } & SessionConfigMetaData)[] = []
 
-    Promise.all(
+    console.log(`Active classes: ${JSON.stringify(classes)}`);
+
+    await Promise.all(
       classes.map((c) =>
         (async (classID: string) => {
           const classDb = await StudentClassroomDB.factory(classID);
-          this.activeClasses.push({
+          activeClasses.push({
             classID,
             name: classDb.getConfig().name,
             selected: true,
@@ -166,6 +169,7 @@ export default class SessionConfiguration extends SkldrVue {
         })(c)
       )
     );
+    this.activeClasses = activeClasses;
   }
 
   private async getActiveCourses() {
