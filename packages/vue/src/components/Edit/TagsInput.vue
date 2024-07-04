@@ -7,7 +7,16 @@
       :separators="separators"
       :add-on-key="separators"
       @tags-changed="tagsChanged"
-    />
+    >
+      <template v-slot:autocomplete-item="props">
+        <div class="autocomplete-item">
+          <div class="tag-name">{{ props.item.text }}</div>
+          <div v-if="props.item.data && props.item.data.snippet" class="tag-snippet">
+            {{ props.item.data.snippet }}
+          </div>
+        </div>
+      </template>
+    </vue-tags-input>
 
     <v-btn v-if="!hideSubmit" color="success" @click="submit" :loading="loading">Save Changes</v-btn>
   </div>
@@ -25,8 +34,11 @@ import { addTagToCard } from '@/db/courseAPI';
 
 interface TagObject {
   text: string;
-  style: string;
-  classes: string;
+  style?: string;
+  classes?: string;
+  data? : {
+    snippet: string;
+  };
 }
 
 @Component({
@@ -71,8 +83,9 @@ export default class SkTagsInput extends SkldrVue {
       .map((availableTag) => {
         return {
           text: availableTag.name,
-          style: '',
-          classes: '',
+          data: {
+            snippet: availableTag.snippet,
+          },
         };
       });
   }
@@ -119,7 +132,7 @@ export default class SkTagsInput extends SkldrVue {
     try {
       this.availableCourseTags = (await getCourseTagStubs(this.courseID)).rows.map((row) => {
         log(`available tag: ${JSON.stringify(row)}`);
-        return row.doc!;
+        return row.doc! as Tag;
       });
     } catch (e) {
       log(`Error in init-availableCourseTags: ${JSON.stringify(e)}`);
@@ -164,3 +177,26 @@ export default class SkTagsInput extends SkldrVue {
   }
 }
 </script>
+
+<style scoped>
+.vue-tags-input {
+  max-width: 100%;
+}
+
+.autocomplete-item {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}
+
+.tag-name {
+  font-weight: bold;
+}
+
+.tag-snippet {
+  font-size: 0.9em;
+  color: #666;
+  text-align: right;
+  margin-top: 2px;
+}
+</style>
