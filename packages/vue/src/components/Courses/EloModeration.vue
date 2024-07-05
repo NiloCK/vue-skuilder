@@ -25,9 +25,9 @@ import { adjustCourseScores, CourseElo } from '@/tutor/Elo';
 import { log } from 'util';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import { CourseDB, getCourseConfig, updateCardElo } from '../../db/courseDB';
-import { CourseConfig } from '../../server/types';
-import SkldrVue from '../../SkldrVue';
+import { CourseDB, getCourseConfig, updateCardElo } from '@/db/courseDB';
+import { CourseConfig } from '@/server/types';
+import SkldrVue from '@/SkldrVue';
 
 @Component({
   components: {

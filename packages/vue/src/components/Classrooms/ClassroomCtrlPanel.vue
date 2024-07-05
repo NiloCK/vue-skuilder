@@ -79,15 +79,13 @@
 
 <script lang="ts">
 import moment from 'moment';
-import Mousetrap from 'mousetrap';
-import { log } from 'util';
 import Component from 'vue-class-component';
 import { Prop, Watch } from 'vue-property-decorator';
-import TeacherClassroomDB, { AssignedContent, AssignedTag } from '../../db/classroomDB';
-import { getCourseList, getCourseTagStubs } from '../../db/courseDB';
-import { Tag } from '../../db/types';
-import { ClassroomConfig, CourseConfig } from '../../server/types';
-import SkldrVue from '../../SkldrVue';
+import TeacherClassroomDB, { AssignedContent, AssignedTag } from '@/db/classroomDB';
+import { getCourseList, getCourseTagStubs } from '@/db/courseDB';
+import { Tag } from '@/db/types';
+import { ClassroomConfig, CourseConfig } from '@/server/types';
+import SkldrVue from '@/SkldrVue';
 
 @Component({})
 export default class ClassroomCtrlPanel extends SkldrVue {
@@ -133,8 +131,8 @@ export default class ClassroomCtrlPanel extends SkldrVue {
       (this._assignedContent = await this.classroomDB.getAssignedContent()),
       (this._classroomCfg = await this.classroomDB.getConfig()),
     ]);
-    log(`Route loaded w/ (prop) _id: ${this._id}`);
-    log(`Config: 
+    console.log(`Route loaded w/ (prop) _id: ${this._id}`);
+    console.log(`Config: 
     ${JSON.stringify(this._classroomCfg)}`);
 
     this.availableCourses = (await getCourseList()).rows.map((r) => r.doc!);
