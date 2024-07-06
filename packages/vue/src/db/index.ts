@@ -197,7 +197,7 @@ export async function putCardRecord<T extends CardRecord>(
 
     momentifyCardHistory<T>(cardHistory);
     return cardHistory;
-  } catch (reason: any) {
+  } catch (reason) {
     if (reason.status === 404) {
       const initCardHistory: CardHistory<T> = {
         _id: cardHistoryID,
