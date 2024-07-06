@@ -19,6 +19,7 @@ import ReleaseNotes from './views/ReleaseNotes.vue';
 import SignUp from './views/SignUp.vue';
 import Study from './views/Study.vue';
 import User from './views/User.vue';
+import SkTagsInputMock from './components/Edit/TagsInput.mock.vue';
 
 Vue.use(Router);
 
@@ -166,5 +167,9 @@ export default new Router({
       alias: ['/u/:_id/stats'],
       component: Stats,
     },
+    {
+      path: '/uimocks',
+      component: SkTagsInputMock,
+    }
   ],
 });
