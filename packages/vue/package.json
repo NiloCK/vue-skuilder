@@ -4,7 +4,7 @@
     "private": true,
     "scripts": {
         "serve": "vue-cli-service serve --host localhost",
-        "test:ui": "vue-cli-service serve --host local --mode mock",
+        "test:ui": "vue-cli-service serve --host localhost --mode mock",
         "build": "vue-cli-service build",
         "test:unit": "vue-cli-service test:unit",
         "test:e2e": "vue-cli-service test:e2e",
