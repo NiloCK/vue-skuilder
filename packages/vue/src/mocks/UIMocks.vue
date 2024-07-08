@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import SkTagsInput from './TagsInput.vue'; // Adjust the import path as necessary
+import SkTagsInput from '@/components/Edit/TagsInput.vue';
 
 console.log(process.env.NODE_ENV);
 
