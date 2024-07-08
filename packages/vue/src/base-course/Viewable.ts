@@ -1,11 +1,10 @@
-import { Displayable, Question, Answer } from '../base-course/Displayable';
-import { ViewData } from '../base-course/Interfaces/ViewData';
-import { QuestionRecord, CardRecord } from '../db/types';
-import moment, { duration } from 'moment';
+import moment from 'moment';
 import MouseTrap from 'mousetrap';
 import { Prop, Vue } from 'vue-property-decorator';
-import { log } from 'util';
 import { HotKey } from '../SkldrMouseTrap';
+import { Answer, Displayable, Question } from '../base-course/Displayable';
+import { ViewData } from '../base-course/Interfaces/ViewData';
+import { CardRecord, QuestionRecord } from '../db/types';
 
 /**
  * Base class for card views in courses.
@@ -72,7 +71,7 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
   public maxAttemptsPerView: number = 3;
 
   public submitAnswer(answer: Answer): QuestionRecord {
-    log('QuestionView.submitAnswer called...');
+    console.log('QuestionView.submitAnswer called...');
     const evaluation = this.question.evaluate(answer, this.timeSpent);
 
     const record: QuestionRecord = {

@@ -19,10 +19,11 @@ import ReleaseNotes from './views/ReleaseNotes.vue';
 import SignUp from './views/SignUp.vue';
 import Study from './views/Study.vue';
 import User from './views/User.vue';
+import UIMocks from '@/mocks/UIMocks.vue';
 
 Vue.use(Router);
 
-// todo: storybook style render locations for each compoent
+// todo: 
 //
 // beforeEnter: () => authenticateAdmin ?
 //
@@ -166,5 +167,9 @@ export default new Router({
       alias: ['/u/:_id/stats'],
       component: Stats,
     },
+    {
+      path: '/uimocks',
+      component: UIMocks,
+    }
   ],
 });

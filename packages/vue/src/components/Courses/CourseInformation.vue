@@ -60,11 +60,11 @@ import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
 import { log } from 'util';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import { getCourseDB } from '../../db';
-import { CourseDB, getCourseConfig, getCourseTagStubs } from '../../db/courseDB';
-import { Tag } from '../../db/types';
-import { CourseConfig } from '../../server/types';
-import SkldrVue from '../../SkldrVue';
+import { getCourseDB } from '@/db';
+import { CourseDB, getCourseConfig, getCourseTagStubs } from '@/db/courseDB';
+import { Tag } from '@/db/types';
+import { CourseConfig } from '@/server/types';
+import SkldrVue from '@/SkldrVue';
 import CourseCardBrowser from './CourseCardBrowser.vue';
 
 @Component({

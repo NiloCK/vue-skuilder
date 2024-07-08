@@ -28,6 +28,12 @@ This project is scaffolded with [vue-cli 3](https://cli.vuejs.org/). See the vue
 
 Does an in-memory build of the project and hosts with the webpack dev server. Hot reloading and source maps included for in-browser debugging.
 
+## UI Component browsing with mock data
+
+- `npm run test:ui` or `yarn test:ui` from `./packages/vue`
+
+Builds and runs the front-end with mock data sources. Navigate to `localhost:8080/uimocks`.
+
 ## Debugging
 
 The project can be debugged inside of VSCode using the existing settings from `./vscode/launch.json`. After starting a development server with `yarn serve` / `npm run serve`, hitting F5 will launch VSCode's debugger and attach to the process. Launch configurations for Firefox and Chrome are present. They need the VSCode [debugger for firefox](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-firefox-debug) and [debugger for chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) exensions, respectively.

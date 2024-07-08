@@ -28,18 +28,16 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import { Displayable } from '@/base-course/Displayable';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import Courses from '@/courses';
 import { NameSpacer, QuestionDescriptor } from '@/courses/NameSpacer';
-import * as _ from 'lodash';
-import { Question, Displayable } from '@/base-course/Displayable';
-import { QuestionData, QuestionRecord } from '@/db/types';
-import { updateCredentialledCourseConfig } from '../../../db/courseDB';
 import { addNote55, getCredentialledCourseConfig } from '@/db/courseAPI';
-import { DataShape55, QuestionType55, CourseConfig } from '../../../server/types';
-import SkldrVue from '../../../SkldrVue';
+import { updateCredentialledCourseConfig } from '@/db/courseDB';
+import { CourseConfig, DataShape55, QuestionType55 } from '@/server/types';
+import SkldrVue from '@/SkldrVue';
+import * as _ from 'lodash';
+import { Component, Prop } from 'vue-property-decorator';
 
 interface DataShapeRegistrationStatus {
   name: string;

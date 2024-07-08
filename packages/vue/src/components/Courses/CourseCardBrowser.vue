@@ -85,15 +85,15 @@
 <script lang="ts">
 import { displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import TagsInput from '@/components/Edit/TagsInput.vue';
-import CardLoader from '@/components/Study/CardLoader.vue';
 import PaginatingToolbar from '@/components/PaginatingToolbar.vue';
+import CardLoader from '@/components/Study/CardLoader.vue';
 import Courses from '@/courses';
+import { getCourseDB, getCourseDoc, getCourseDocs } from '@/db';
+import { CourseDB, getTag } from '@/db/courseDB';
+import { CardData, DisplayableData, DocType, Tag } from '@/db/types';
+import SkldrVue from '@/SkldrVue';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import { getCourseDB, getCourseDoc, getCourseDocs } from '../../db';
-import { CourseDB, getTag } from '../../db/courseDB';
-import { CardData, DisplayableData, DocType, Tag } from '../../db/types';
-import SkldrVue from '../../SkldrVue';
 
 @Component({
   components: {
