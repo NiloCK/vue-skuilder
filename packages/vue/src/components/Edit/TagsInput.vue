@@ -133,7 +133,7 @@ export default class SkTagsInput extends SkldrVue {
   }
 
   public async submit() {
-    log(`tagsInput is submitting...`);
+    console.log(`tagsInput is submitting...`);
     this.loading = true;
 
     try {
@@ -141,12 +141,17 @@ export default class SkTagsInput extends SkldrVue {
       await Promise.all(
         this.tags.map(async currentTag => {
           if (!this.initialTags.includes(currentTag.text)) {
-            await addTagToCard(this.courseID, this.cardID, currentTag.text);
+            try {
+              await addTagToCard(this.courseID, this.cardID, currentTag.text);
+              console.log(`Successfully added tag: ${currentTag.text}`);
+            } catch (error) {
+              console.error(`Failed to add tag ${currentTag.text}:`, error);
+            }
           }
         })
       );
     } catch (e) {
-      log(`Exception adding tags: ${JSON.stringify(e)}`);
+      console.error(`Exception adding tags: ${JSON.stringify(e)}`);
     }
 
     try {
