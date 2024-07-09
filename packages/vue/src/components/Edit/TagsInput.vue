@@ -9,7 +9,7 @@
       @tags-changed="tagsChanged"
     >
       <template v-slot:autocomplete-item="props">
-        <div class="autocomplete-item">
+        <div class="autocomplete-item" :class="{ 'is-active': props.selected }">
           <span class="tag-name">{{ props.item.text }}</span>
           <span v-if="props.item.data && props.item.data.snippet" class="tag-snippet">
             - {{ props.item.data.snippet }}
@@ -188,6 +188,10 @@ export default class SkTagsInput extends SkldrVue {
   padding: 5px;
 }
 
+.autocomplete-item.is-active {
+  background-color: #e8e8e8;
+}
+
 .tag-name {
   background-color: #e0e0e0;
   color: #333;
@@ -200,5 +204,9 @@ export default class SkTagsInput extends SkldrVue {
 .tag-snippet {
   color: #666;
   font-size: 0.9em;
+}
+
+.autocomplete-item.is-active .tag-snippet {
+  color: #333; /* Ensure snippet text is visible when item is active */
 }
 </style>
