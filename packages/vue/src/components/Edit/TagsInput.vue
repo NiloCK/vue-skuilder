@@ -109,9 +109,7 @@ export default class SkTagsInput extends SkldrVue {
           classes: '',
         });
       });
-      this.tags.forEach(tag => {
-        this.initialTags.push(tag.text);
-      });
+      this.initialTags = this.tags.map(tag => tag.text);
     } catch (e) {
       console.error(`Error in init-getAppliedTags: ${JSON.stringify(e)}, ${e}`);
     } finally {
