@@ -70,7 +70,7 @@ export default class SkTagsInput extends SkldrVue {
 
   public readonly separators: string[] = [';', ',', ' '];
 
-  public tagsChanged(newTags: any) {
+  public tagsChanged(newTags: TagObject[]) {
     log(`Tags changing: ${JSON.stringify(newTags)}`);
     this.tags = newTags;
   }
@@ -156,17 +156,24 @@ export default class SkTagsInput extends SkldrVue {
 
     try {
       // 'remove' initialTags that are no longer in 'tags'
-      this.initialTags.forEach(async tag => {
-        if (
-          this.tags.filter(initTag => {
-            return initTag.text === tag;
-          }).length === 0
-        ) {
-          await removeTagFromCard(this.courseID, this.cardID, tag);
-        }
-      });
+      await Promise.all(
+        this.initialTags.map(async initialTag => {
+          if (
+            this.tags.filter(tag => {
+              return tag.text === initialTag;
+            }).length === 0
+          ) {
+            try {
+              await removeTagFromCard(this.courseID, this.cardID, initialTag);
+              console.log(`Successfully removed tag: ${initialTag}`);
+            } catch (error) {
+              console.error(`Failed to remove tag ${initialTag}:`, error);
+            }
+          }
+        })
+      );
     } catch (e) {
-      log(`Exception removing tags: ${JSON.stringify(e)}`);
+      console.error(`Exception removing tags: ${JSON.stringify(e)}`);
     }
     this.loading = false;
   }
