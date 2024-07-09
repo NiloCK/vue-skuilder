@@ -70,7 +70,7 @@ export default class SkTagsInput extends SkldrVue {
   public readonly separators: string[] = [';', ',', ' '];
 
   public tagsChanged(newTags: TagObject[]) {
-    log(`Tags changing: ${JSON.stringify(newTags)}`);
+    console.log(`Tags changing: ${JSON.stringify(newTags)}`);
     this.tags = newTags;
   }
 
@@ -101,7 +101,7 @@ export default class SkTagsInput extends SkldrVue {
     try {
       const appliedDocsFindResult = await getAppliedTags(this.courseID, this.cardID);
       appliedDocsFindResult.rows.forEach(row => {
-        log(`The following tag is applied:
+        console.log(`The following tag is applied:
 \t${JSON.stringify(row)}`);
         this.tags.push({
           text: row!.value.name,
@@ -113,7 +113,7 @@ export default class SkTagsInput extends SkldrVue {
         this.initialTags.push(tag.text);
       });
     } catch (e) {
-      log(`Error in init-getAppliedTags: ${JSON.stringify(e)}, ${e}`);
+      console.error(`Error in init-getAppliedTags: ${JSON.stringify(e)}, ${e}`);
     } finally {
       this.loading = false;
     }
@@ -123,11 +123,11 @@ export default class SkTagsInput extends SkldrVue {
   public async updateAvailableCourseTags() {
     try {
       this.availableCourseTags = (await getCourseTagStubs(this.courseID)).rows.map(row => {
-        log(`available tag: ${JSON.stringify(row)}`);
+        console.log(`available tag: ${JSON.stringify(row)}`);
         return row.doc! as Tag;
       });
     } catch (e) {
-      log(`Error in init-availableCourseTags: ${JSON.stringify(e)}`);
+      console.error(`Error in init-availableCourseTags: ${JSON.stringify(e)}`);
     }
   }
 
