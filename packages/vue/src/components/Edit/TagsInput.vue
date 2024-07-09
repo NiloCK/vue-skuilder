@@ -145,16 +145,13 @@ export default class SkTagsInput extends SkldrVue {
 
     try {
       // 'upload' each 'tag' that's not an initialTag
-      this.tags.forEach(async currentTag => {
-        if (
-          this.initialTags.find(initTag => {
-            return initTag === currentTag.text;
-          }) === undefined
-        ) {
-          log(`adding tag: ${currentTag.text}...`);
-          await addTagToCard(this.courseID, this.cardID, currentTag.text);
-        }
-      });
+      await Promise.all(
+        this.tags.map(async currentTag => {
+          if (!this.initialTags.includes(currentTag.text)) {
+            await addTagToCard(this.courseID, this.cardID, currentTag.text);
+          }
+        })
+      );
     } catch (e) {
       log(`Exception adding tags: ${JSON.stringify(e)}`);
     }
