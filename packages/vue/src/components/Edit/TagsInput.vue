@@ -25,12 +25,11 @@
 <script lang="ts">
 import SkldrVue from '@/SkldrVue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
-// @ts-ignore
 import { addTagToCard } from '@/db/courseAPI';
 import { getAppliedTags, getCourseTagStubs, removeTagFromCard } from '@/db/courseDB';
 import { Tag } from '@/db/types';
+// @ts-ignore
 import VueTagsInput from '@johmun/vue-tags-input';
-import { log } from 'util';
 
 interface TagObject {
   text: string;
