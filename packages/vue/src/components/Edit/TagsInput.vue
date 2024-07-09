@@ -192,6 +192,11 @@ export default class SkTagsInput extends SkldrVue {
   background-color: #e8e8e8;
 }
 
+.autocomplete-item.is-active > .tag-name {
+  background-color: #5c6bc0;
+  color: white;
+}
+
 .tag-name {
   background-color: #e0e0e0;
   color: #333;
