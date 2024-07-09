@@ -101,13 +101,6 @@ export default class SkTagsInput extends SkldrVue {
     this.tags = [];
     try {
       const appliedDocsFindResult = await getAppliedTags(this.courseID, this.cardID);
-      // this.tags = appliedDocsFindResult.map((doc) => {
-      //   return {
-      //     text: doc._id,
-      //     style: '',
-      //     classes: ''
-      //   };
-      // });
       appliedDocsFindResult.rows.forEach(row => {
         log(`The following tag is applied:
 \t${JSON.stringify(row)}`);
