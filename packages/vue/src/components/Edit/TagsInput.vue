@@ -9,11 +9,11 @@
       @tags-changed="tagsChanged"
     >
       <template v-slot:autocomplete-item="props">
-        <div class="autocomplete-item">
-          <div class="tag-name">{{ props.item.text }}</div>
-          <div v-if="props.item.data && props.item.data.snippet" class="tag-snippet">
-            {{ props.item.data.snippet }}
-          </div>
+        <div class="autocomplete-item" :class="{ 'is-active': props.selected }">
+          <span class="tag-name">{{ props.item.text }}</span>
+          <span v-if="props.item.data && props.item.data.snippet" class="tag-snippet">
+            - {{ props.item.data.snippet }}
+          </span>
         </div>
       </template>
     </vue-tags-input>
@@ -25,18 +25,17 @@
 <script lang="ts">
 import SkldrVue from '@/SkldrVue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
+import { addTagToCard } from '@/db/courseAPI';
+import { getAppliedTags, getCourseTagStubs, removeTagFromCard } from '@/db/courseDB';
+import { Tag } from '@/db/types';
 // @ts-ignore
 import VueTagsInput from '@johmun/vue-tags-input';
-import { getCourseTagStubs, getAppliedTags, removeTagFromCard, createTag } from '@/db/courseDB';
-import { Tag } from '@/db/types';
-import { log } from 'util';
-import { addTagToCard } from '@/db/courseAPI';
 
 interface TagObject {
   text: string;
   style?: string;
   classes?: string;
-  data? : {
+  data?: {
     snippet: string;
   };
 }
@@ -70,17 +69,17 @@ export default class SkTagsInput extends SkldrVue {
 
   public readonly separators: string[] = [';', ',', ' '];
 
-  public tagsChanged(newTags: any) {
-    log(`Tags changing: ${JSON.stringify(newTags)}`);
+  public tagsChanged(newTags: TagObject[]) {
+    console.log(`Tags changing: ${JSON.stringify(newTags)}`);
     this.tags = newTags;
   }
 
   public get autoCompleteSuggestions(): TagObject[] {
     return this.availableCourseTags
-      .filter((availableTag) => {
+      .filter(availableTag => {
         return availableTag.name.toLowerCase().indexOf(this.tag.toLowerCase()) !== -1;
       })
-      .map((availableTag) => {
+      .map(availableTag => {
         return {
           text: availableTag.name,
           data: {
@@ -101,15 +100,8 @@ export default class SkTagsInput extends SkldrVue {
     this.tags = [];
     try {
       const appliedDocsFindResult = await getAppliedTags(this.courseID, this.cardID);
-      // this.tags = appliedDocsFindResult.map((doc) => {
-      //   return {
-      //     text: doc._id,
-      //     style: '',
-      //     classes: ''
-      //   };
-      // });
-      appliedDocsFindResult.rows.forEach((row) => {
-        log(`The following tag is applied:
+      appliedDocsFindResult.rows.forEach(row => {
+        console.log(`The following tag is applied:
 \t${JSON.stringify(row)}`);
         this.tags.push({
           text: row!.value.name,
@@ -117,11 +109,9 @@ export default class SkTagsInput extends SkldrVue {
           classes: '',
         });
       });
-      this.tags.forEach((tag) => {
-        this.initialTags.push(tag.text);
-      });
+      this.initialTags = this.tags.map(tag => tag.text);
     } catch (e) {
-      log(`Error in init-getAppliedTags: ${JSON.stringify(e)}, ${e}`);
+      console.error(`Error in init-getAppliedTags: ${JSON.stringify(e)}, ${e}`);
     } finally {
       this.loading = false;
     }
@@ -130,48 +120,57 @@ export default class SkTagsInput extends SkldrVue {
   @Watch('courseID')
   public async updateAvailableCourseTags() {
     try {
-      this.availableCourseTags = (await getCourseTagStubs(this.courseID)).rows.map((row) => {
-        log(`available tag: ${JSON.stringify(row)}`);
+      this.availableCourseTags = (await getCourseTagStubs(this.courseID)).rows.map(row => {
+        console.log(`available tag: ${JSON.stringify(row)}`);
         return row.doc! as Tag;
       });
     } catch (e) {
-      log(`Error in init-availableCourseTags: ${JSON.stringify(e)}`);
+      console.error(`Error in init-availableCourseTags: ${JSON.stringify(e)}`);
     }
   }
 
   public async submit() {
-    log(`tagsInput is submitting...`);
+    console.log(`tagsInput is submitting...`);
     this.loading = true;
 
     try {
       // 'upload' each 'tag' that's not an initialTag
-      this.tags.forEach(async (currentTag) => {
-        if (
-          this.initialTags.find((initTag) => {
-            return initTag === currentTag.text;
-          }) === undefined
-        ) {
-          log(`adding tag: ${currentTag.text}...`);
-          await addTagToCard(this.courseID, this.cardID, currentTag.text);
-        }
-      });
+      await Promise.all(
+        this.tags.map(async currentTag => {
+          if (!this.initialTags.includes(currentTag.text)) {
+            try {
+              await addTagToCard(this.courseID, this.cardID, currentTag.text);
+              console.log(`Successfully added tag: ${currentTag.text}`);
+            } catch (error) {
+              console.error(`Failed to add tag ${currentTag.text}:`, error);
+            }
+          }
+        })
+      );
     } catch (e) {
-      log(`Exception adding tags: ${JSON.stringify(e)}`);
+      console.error(`Exception adding tags: ${JSON.stringify(e)}`);
     }
 
     try {
       // 'remove' initialTags that are no longer in 'tags'
-      this.initialTags.forEach(async (tag) => {
-        if (
-          this.tags.filter((initTag) => {
-            return initTag.text === tag;
-          }).length === 0
-        ) {
-          await removeTagFromCard(this.courseID, this.cardID, tag);
-        }
-      });
+      await Promise.all(
+        this.initialTags.map(async initialTag => {
+          if (
+            this.tags.filter(tag => {
+              return tag.text === initialTag;
+            }).length === 0
+          ) {
+            try {
+              await removeTagFromCard(this.courseID, this.cardID, initialTag);
+              console.log(`Successfully removed tag: ${initialTag}`);
+            } catch (error) {
+              console.error(`Failed to remove tag ${initialTag}:`, error);
+            }
+          }
+        })
+      );
     } catch (e) {
-      log(`Exception removing tags: ${JSON.stringify(e)}`);
+      console.error(`Exception removing tags: ${JSON.stringify(e)}`);
     }
     this.loading = false;
   }
@@ -185,18 +184,34 @@ export default class SkTagsInput extends SkldrVue {
 
 .autocomplete-item {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   padding: 5px;
 }
 
+.autocomplete-item.is-active {
+  background-color: #e8e8e8;
+}
+
+.autocomplete-item.is-active > .tag-name {
+  background-color: #5c6bc0;
+  color: white;
+}
+
 .tag-name {
+  background-color: #e0e0e0;
+  color: #333;
+  padding: 2px 6px;
+  border-radius: 3px;
   font-weight: bold;
+  margin-right: 5px;
 }
 
 .tag-snippet {
-  font-size: 0.9em;
   color: #666;
-  text-align: right;
-  margin-top: 2px;
+  font-size: 0.9em;
+}
+
+.autocomplete-item.is-active .tag-snippet {
+  color: #333; /* Ensure snippet text is visible when item is active */
 }
 </style>

@@ -139,6 +139,10 @@ export async function getCredentialledCourseConfig(courseID: string) {
   return ret;
 }
 
+// Associates a tag with a card.
+//
+// NB: DB stores tags as separate documents, with a list of card IDs.
+//     Consider renaming to `addCardToTag` to reflect this.
 export async function addTagToCard(
   courseID: string,
   cardID: string,
