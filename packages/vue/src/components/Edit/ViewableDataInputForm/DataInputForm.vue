@@ -97,16 +97,15 @@ import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
 import { alertUser } from '@/components/SnackbarService.vue';
 import Courses from '@/courses';
 import { NameSpacer, ShapeDescriptor } from '@/courses/NameSpacer';
+import { addNote55 } from '@/db/courseAPI';
+import { getCourseTagStubs } from '@/db/courseDB';
 import { fieldConverters, FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
 import { CourseConfig } from '@/server/types';
+import SkldrVue from '@/SkldrVue';
 import _ from 'lodash';
-import { log } from 'util';
 import Vue from 'vue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
-import { getCourseTagStubs } from '@/db/courseDB';
-import { addNote55 } from '@/db/courseAPI';
-import SkldrVue from '@/SkldrVue';
 import AudioInput from './FieldInputs/AudioInput.vue';
 import ImageInput from './FieldInputs/ImageInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
@@ -146,7 +145,7 @@ export default class DataInputForm extends SkldrVue {
   };
 
   public get fieldInputs(): FieldInput[] {
-    return this.$refs.fieldInputWraps.map<FieldInput>((div) => {
+    return this.$refs.fieldInputWraps.map<FieldInput>(div => {
       // if ((div.children[0] as any).__vue__.clearData !==)
       //     return (div.children[0] as any).__vue__ as FieldInput;
       const child: Vue = (div.children[0] as any).__vue__;
@@ -222,13 +221,13 @@ export default class DataInputForm extends SkldrVue {
   private readonly uploader: string = FieldType.MEDIA_UPLOADS;
 
   public updateTags(newTags: string[]) {
-    log(`tags updated: ${JSON.stringify(newTags)}`);
+    console.log(`tags updated: ${JSON.stringify(newTags)}`);
     this.tags = newTags;
   }
 
   public async getCourseTags() {
     const existingTags = await getCourseTagStubs(this.courseCfg.courseID!);
-    this.autoCompleteSuggestions = existingTags.rows.map((tag) => {
+    this.autoCompleteSuggestions = existingTags.rows.map(tag => {
       return {
         text: tag.doc!.name,
       };
@@ -240,9 +239,9 @@ export default class DataInputForm extends SkldrVue {
     const fieldCount = this.dataShape.fields.length;
 
     // as far as I can imagine, this should only ever be zero or one
-    const mediaUploadCount = this.dataShape.fields.filter((f) => f.type === FieldType.MEDIA_UPLOADS).length;
+    const mediaUploadCount = this.dataShape.fields.filter(f => f.type === FieldType.MEDIA_UPLOADS).length;
 
-    const uploadedItems = Object.getOwnPropertyNames(this.store.validation).filter((f) => {
+    const uploadedItems = Object.getOwnPropertyNames(this.store.validation).filter(f => {
       return /audio-[\d]+/.test(f) || /image-[\d]+/.test(f);
     }).length;
 
@@ -254,11 +253,11 @@ export default class DataInputForm extends SkldrVue {
       Object.getOwnPropertyNames(this.store.validation).length === this.expectedValidations() + 1; // +1 here b/c of the validation key
 
     const invalidFields = Object.getOwnPropertyNames(this.store.validation).filter(
-      (fieldName) => this.store.validation[fieldName] === false
+      fieldName => this.store.validation[fieldName] === false
     );
 
     console.log(
-      `Invalid Fields: ${invalidFields.map((f) => {
+      `Invalid Fields: ${invalidFields.map(f => {
         return `\n${f}`;
       })}`
     );
@@ -319,7 +318,7 @@ export default class DataInputForm extends SkldrVue {
   }
 
   public convertInput() {
-    const supplementedFields = this.dataShape.fields.map((f) => {
+    const supplementedFields = this.dataShape.fields.map(f => {
       const copiedFieldDefinition: FieldDefinition = {
         name: f.name,
         type: f.type,
@@ -350,7 +349,7 @@ export default class DataInputForm extends SkldrVue {
       }
     }
 
-    supplementedFields.forEach((fieldDef) => {
+    supplementedFields.forEach(fieldDef => {
       this.store.convertedInput[fieldDef.name] = fieldConverters[fieldDef.type].databaseConverter(
         this.store[fieldDef.name]
       );
@@ -405,7 +404,7 @@ export default class DataInputForm extends SkldrVue {
           // one of its outputs
           const replaced: StringIndexable[] = [];
 
-          (o[fKey]() as Array<any>).forEach((fcnOutput) => {
+          (o[fKey]() as Array<any>).forEach(fcnOutput => {
             let copy: StringIndexable = {};
             copy = _.cloneDeep(o);
             copy[fKey] = fcnOutput;
@@ -415,7 +414,7 @@ export default class DataInputForm extends SkldrVue {
             replaced.push(copy);
           });
 
-          replaced.forEach((obj) => {
+          replaced.forEach(obj => {
             if (this.objectContainsFunction(obj)) {
               console.log('2nd pass...');
               const recursiveExpansion = this.expandO(obj);
@@ -434,8 +433,8 @@ export default class DataInputForm extends SkldrVue {
 
   public async submit() {
     if (this.checkInput()) {
-      log(`Store: ${JSON.stringify(this.store)}`);
-      log(`ConvertedStore: ${JSON.stringify(this.convertedInput)}`);
+      console.log(`Store: ${JSON.stringify(this.store)}`);
+      console.log(`ConvertedStore: ${JSON.stringify(this.convertedInput)}`);
       this.uploading = true;
 
       let inputs = [];
@@ -450,14 +449,14 @@ export default class DataInputForm extends SkldrVue {
       }
 
       const result = await Promise.all(
-        inputs.map(async (input) => {
+        inputs.map(async input => {
           return await addNote55(
             this.courseCfg.courseID!,
             this.datashapeDescriptor.course,
             this.dataShape,
             input,
             this.$store.state._user!.username,
-            this.$refs.tagsInput.tags.map((t) => t.text)
+            this.$refs.tagsInput.tags.map(t => t.text)
             // generic (non-required by datashape) attachments here
           );
         })
@@ -481,7 +480,7 @@ export default class DataInputForm extends SkldrVue {
           text: `A problem occurred. Content has not been added.`,
           status: Status.error,
         });
-        log(`Error in DataInputForm.submit(). Result from addNote:
+        console.error(`Error in DataInputForm.submit(). Result from addNote:
 
         ${JSON.stringify(result)}
       `);
@@ -537,7 +536,7 @@ export default class DataInputForm extends SkldrVue {
       const descriptor = NameSpacer.getDataShapeDescriptor(ds.name);
       if (descriptor.dataShape === this.dataShape.name) {
         const crs = Courses.getCourse(descriptor.course)!;
-        crs.getBaseQTypes().forEach((qType) => {
+        crs.getBaseQTypes().forEach(qType => {
           if (qType.dataShapes[0].name === this.dataShape.name) {
             // qType.views.forEach((view) => {
             //   this.shapeViews.push(view);
@@ -550,7 +549,7 @@ export default class DataInputForm extends SkldrVue {
         for (const q of ds.questionTypes) {
           const qDescriptor = NameSpacer.getQuestionDescriptor(q);
 
-          crs.getQuestion(qDescriptor.questionType)!.views.forEach((view) => {
+          crs.getQuestion(qDescriptor.questionType)!.views.forEach(view => {
             this.shapeViews.push(view);
           });
         }
