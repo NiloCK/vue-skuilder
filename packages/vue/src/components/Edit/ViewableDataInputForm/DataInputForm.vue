@@ -493,9 +493,38 @@ export default class DataInputForm extends SkldrVue {
   private reset() {
     this.uploading = false;
 
-    this.fieldInputs.forEach((input) => {
+    // Clear all field inputs
+    this.fieldInputs.forEach(input => {
       input.clearData();
     });
+
+    // Clear media data from store
+    for (let i = 1; i < 11; i++) {
+      const audioKey = `audio-${i}`;
+      if (this.store[audioKey]) {
+        this.$delete(this.store, audioKey);
+        this.$delete(this.store.convertedInput, audioKey);
+        this.$delete(this.store.previewInput, audioKey);
+      } else {
+        break;
+      }
+      const imageKey = `image-${i}`;
+      if (this.store[imageKey]) {
+        this.$delete(this.store, imageKey);
+        this.$delete(this.store.convertedInput, imageKey);
+        this.$delete(this.store.previewInput, imageKey);
+      } else {
+        break;
+      }
+    }
+
+    // Reset validation
+    this.store.validation = {};
+
+    // Reset converted and preview inputs
+    this.store.convertedInput = {};
+    this.store.previewInput = {};
+
     this.fieldInputs[0].focus();
     this.convertInput();
   }
