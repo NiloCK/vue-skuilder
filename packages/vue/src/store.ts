@@ -21,7 +21,7 @@ interface DataInputForm {
   shapeViews: Array<VueConstructor<Vue>>;
 
   fields: FieldInput[];
-  localStore: any;
+  localStore: any; // [ ] type this...
 
   uploading: boolean;
 }
