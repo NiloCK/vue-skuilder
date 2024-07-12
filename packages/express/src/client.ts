@@ -74,6 +74,8 @@ class SkldrCourseClient {
         return axios.delete(`${this.server}/course/${this.id}`, {
             auth,
         });
+
+        // [ ] remove also from the `coursedb-lookup` database (?)
     }
 
     async getConfig(): Promise<CourseConfig> {

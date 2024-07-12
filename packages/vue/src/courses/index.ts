@@ -72,12 +72,31 @@ export class CourseList {
     }
   }
 
+  public allDataShapesRaw(): DataShape[] {
+    const ret: DataShape[] = [];
+
+    this.courseList.forEach((course) => {
+      course.questions.forEach((question) => {
+        question.dataShapes.forEach((shape) => {
+          if (!ret.includes(shape)) {
+            ret.push(shape);
+          }
+        });
+      });
+    });
+
+    return ret;
+  }
+
   public allDataShapes(): (ShapeDescriptor & { displayable: typeof Displayable })[] {
     const ret: (ShapeDescriptor & { displayable: typeof Displayable })[] = [];
 
     this.courseList.forEach((course) => {
       course.questions.forEach((question) => {
         question.dataShapes.forEach((shape) => {
+          // [ ] need to de-dup shapes here. Currently, if a shape is used in multiple courses
+          //     it will be returned multiple times.
+          //     `Blanks` shape is is hard coded into new courses, so gets returned many times
           if (
             ret.findIndex((testShape) => {
               return testShape.course === course.name && testShape.dataShape === shape.name;

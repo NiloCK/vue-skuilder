@@ -1,7 +1,7 @@
 <template>
   <div>
     <audio-auto-player v-if="hasAudio" v-bind:src="audioURL" />
-    <mdr v-bind:md="question.mdText" />
+    <markdown-renderer v-bind:md="question.mdText" />
     <radio-multiple-choice v-if="question.options" v-bind:choiceList="truncatedOptions" v-bind:MouseTrap="MouseTrap" />
     <center v-else-if="priorAttempts == 1" class="title">
       <span>
@@ -22,7 +22,6 @@
 
 <script lang="ts">
 import AudioAutoPlayer from '@/base-course/Components/AudioAutoPlayer.vue';
-import MarkdownRenderer from '@/base-course/Components/MarkdownRenderer.vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
 import { QuestionView } from '@/base-course/Viewable';
 import _ from 'lodash';
@@ -40,7 +39,7 @@ const typeMap: {
 
 @Component({
   components: {
-    'mdr': MarkdownRenderer, // fix against "unknown custom element" bug (?).
+    MarkdownRenderer: () => import('@/base-course/Components/MarkdownRenderer.vue'), // fix against "unknown custom element" bug (?).
     RadioMultipleChoice,
     blankType: FillInInput,
     textType: FillInText,

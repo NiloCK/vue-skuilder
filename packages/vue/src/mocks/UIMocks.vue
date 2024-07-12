@@ -1,5 +1,6 @@
 <template>
   <div class="mock-environment">
+
     <!-- <h2>DataInputForm</h2>
     <data-input-form
       :course-id="mockCourseId"
@@ -59,6 +60,7 @@ import SkTagsInput from '@/components/Edit/TagsInput.vue';
 // import DataInputForm from '@/components/Edit/DataInputForm.vue';
 import MediaUploader from '@/components/Edit/ViewableDataInputForm/FieldInputs/MediaUploader.vue';
 import ImageInput from '@/components/Edit/ViewableDataInputForm/FieldInputs/ImageInput.vue';
+
 
 @Component({
   components: {
