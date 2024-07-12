@@ -4,6 +4,7 @@
     <span v-for="(token, i) in tokens" v-bind:key="i">
       <md-token-renderer v-if="token.type" v-bind:token="token" v-bind:last="i === tokens.length - 1" />
       <audio-auto-player v-else-if="token.audio" v-bind:src="token.audio" />
+      <!-- // [ ] insert img display here.  "if token.image ? (also see if the audio aboke is functional)" -->
     </span>
   </div>
 </template>
@@ -53,7 +54,7 @@ export default class MarkdownRenderer extends Vue {
     // })
     const tokens = marked.lexer(this.md);
     if (this.testRoute) {
-      tokens.forEach((t) => {
+      tokens.forEach(t => {
         console.log(JSON.stringify(t));
       });
     }
