@@ -1,7 +1,7 @@
 <template>
   <div>
     <label v-bind:for="field.name">{{ field.name }}: </label>
-    <div v-on:drop="dropHandler" v-on:dragover="dragHandler" v-on:click="dragHandler">
+    <div v-on:drop="dropHandler" v-on:dragover.prevent="dragHandler">
       Drop a file here...
       <input
         ref="inputField"
@@ -46,9 +46,12 @@ export default class ImageInput extends FieldInput {
     }
   }
   public dragHandler(ev: DragEvent) {
-    if (ev) {
-      ev.preventDefault();
       console.log(`Dragging... ${JSON.stringify(ev)}`);
+      console.log(`Dragging... ${JSON.stringify(ev)}`);
+    } else {
+      console.warn('no event');
+    }
+    console.log(`Dragging... ${JSON.stringify(ev)}`);
     } else {
       console.warn('no event');
     }
