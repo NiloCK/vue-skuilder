@@ -9,16 +9,23 @@
       @dragenter.prevent="dragEnterHandler"
       @dragleave.prevent="dragLeaveHandler"
     >
-      Drop a file here...
-      <input
-        ref="inputField"
-        v-bind:id="blobInputID"
-        v-bind:name="field.name"
-        @change="processInput"
-        @click.stop
-        type="file"
-        v-bind:class="validationStatus.status"
-      />
+      <template v-if="!thumbnailUrl">
+        Drop a file here...
+        <input
+          ref="inputField"
+          v-bind:id="blobInputID"
+          v-bind:name="field.name"
+          @change="processInput"
+          @click.stop
+          type="file"
+          v-bind:class="validationStatus.status"
+          accept="image/*"
+        />
+      </template>
+      <template v-else>
+        <img :src="thumbnailUrl" alt="Uploaded image thumbnail" class="thumbnail" />
+        <button @click="clearImage">Clear Image</button>
+      </template>
     </div>
   </div>
 </template>
@@ -32,6 +39,7 @@ import { FieldInput } from '../FieldInput';
 export default class ImageInput extends FieldInput {
   isDragging = false;
   private dragCounter = 0;
+  thumbnailUrl: string | null = null;
 
   public dragOverHandler(ev: DragEvent) {
     ev.preventDefault();
@@ -87,6 +95,7 @@ File type: ${file.type}
       content_type: file.type,
       data: file.slice(),
     } as PouchDB.Core.FullAttachment);
+    this.createThumbnail(file);
     this.validate();
   }
 
@@ -103,6 +112,7 @@ File type: ${file.type}
         content_type: file.type,
         data: file.slice(),
       });
+      this.createThumbnail(file);
       this.validate();
     } catch (error) {
       console.error('Error fetching image:', error);
@@ -151,19 +161,25 @@ File type: ${file.type}
         content_type: file.type,
         data: file.slice(),
       } as PouchDB.Core.FullAttachment);
+      this.createThumbnail(file);
       this.validate();
     }
   }
 
-  private blobHandler(blob: Blob | null): void {
-    if (blob === null) {
-      alert('nullBlob');
-    } else {
-      (this as any).store[this.field.name] = {
-        content_type: 'image/png',
-        data: blob,
-      };
-      this.validate();
+  private createThumbnail(file: File) {
+    const reader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      this.thumbnailUrl = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  private clearImage() {
+    this.thumbnailUrl = null;
+    this.setData(null);
+    this.validate();
+    if (this.$refs.inputField) {
+      (this.$refs.inputField as HTMLInputElement).value = '';
     }
   }
 }
@@ -183,5 +199,11 @@ File type: ${file.type}
 .drop-zone--over {
   border-color: #000;
   background-color: rgba(0, 0, 0, 0.1);
+}
+
+.thumbnail {
+  max-width: 100%;
+  max-height: 200px;
+  margin-bottom: 10px;
 }
 </style>
