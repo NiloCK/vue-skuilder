@@ -8,6 +8,7 @@
         v-bind:id="blobInputID"
         v-bind:name="field.name"
         @change="processInput"
+        @click.stop
         type="file"
         v-bind:class="validationStatus.status"
       />
