@@ -16,12 +16,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
-import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
+import { Component } from 'vue-property-decorator';
 import { FieldInput } from '../FieldInput';
-import { log } from 'util';
 
 @Component
 export default class ImageInput extends FieldInput {
@@ -41,18 +38,18 @@ export default class ImageInput extends FieldInput {
       const imgURL = ev.dataTransfer!.getData('text');
       this.fetchImg(imgURL);
 
-      log(`Dropped: ${imgURL}`);
+      console.log(`Dropped: ${imgURL}`);
       //   this.removeDragData(ev as DragEvent);
     } else {
-      log('no event');
+      console.warn('dropHandler triggered with no event');
     }
   }
   public dragHandler(ev: DragEvent) {
     if (ev) {
       ev.preventDefault();
-      log(`Dragging... ${JSON.stringify(ev)}`);
+      console.log(`Dragging... ${JSON.stringify(ev)}`);
     } else {
-      log('no event');
+      console.warn('no event');
     }
   }
 
@@ -97,7 +94,7 @@ export default class ImageInput extends FieldInput {
   private async processInput() {
     if (this.blobInputElement.files) {
       const file = this.blobInputElement.files[0];
-      log(`
+      console.log(`
 Processing input file:
 
 Filename: ${file.name}
