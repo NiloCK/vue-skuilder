@@ -1,7 +1,14 @@
 <template>
   <div>
     <label v-bind:for="field.name">{{ field.name }}: </label>
-    <div v-on:drop="dropHandler" v-on:dragover.prevent="dragHandler">
+    <div 
+      class="drop-zone"
+      :class="{ 'drop-zone--over': isDragging }"
+      @drop="dropHandler"
+      @dragover.prevent="dragOverHandler"
+      @dragenter.prevent="dragEnterHandler"
+      @dragleave.prevent="dragLeaveHandler"
+    >
       Drop a file here...
       <input
         ref="inputField"
@@ -23,9 +30,33 @@ import { FieldInput } from '../FieldInput';
 
 @Component
 export default class ImageInput extends FieldInput {
+  isDragging = false;
+  private dragCounter = 0;
+
+  public dragOverHandler(ev: DragEvent) {
+    ev.preventDefault();
+  }
+
+  public dragEnterHandler(ev: DragEvent) {
+    ev.preventDefault();
+    this.dragCounter++;
+    this.isDragging = true;
+  }
+
+  public dragLeaveHandler(ev: DragEvent) {
+    ev.preventDefault();
+    this.dragCounter--;
+    if (this.dragCounter === 0) {
+      this.isDragging = false;
+    }
+  }
+
   public dropHandler(ev: DragEvent) {
     if (ev) {
       ev.preventDefault();
+
+      this.isDragging = false;
+      this.dragCounter = 0;
 
       // const item = ev.dataTransfer.items[0];
       // const img = item.getAsFile()!;
@@ -121,4 +152,17 @@ File type: ${file.type}
 
 <style scoped>
 @import './FieldInput.css';
+
+.drop-zone {
+  border: 2px dashed #ccc;
+  border-radius: 4px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.drop-zone--over {
+  border-color: #000;
+  background-color: rgba(0, 0, 0, 0.1);
+}
 </style>
