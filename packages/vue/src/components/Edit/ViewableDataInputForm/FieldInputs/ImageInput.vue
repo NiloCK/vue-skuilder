@@ -58,24 +58,57 @@ export default class ImageInput extends FieldInput {
       this.isDragging = false;
       this.dragCounter = 0;
 
-      // const item = ev.dataTransfer.items[0];
-      // const img = item.getAsFile()!;
-
-      // this.setData({
-      //   content_type: img.type,
-      //   data: img.slice()
-      // });
-      // this.validate();
-
-      const imgURL = ev.dataTransfer!.getData('text');
-      this.fetchImg(imgURL);
-
-      console.log(`Dropped: ${imgURL}`);
-      //   this.removeDragData(ev as DragEvent);
+      if (ev.dataTransfer?.files.length) {
+        // Handle file drop
+        const file = ev.dataTransfer.files[0];
+        this.processDroppedFile(file);
+      } else if (ev.dataTransfer?.types.includes('text/plain') || ev.dataTransfer?.types.includes('text/uri-list')) {
+        // Handle image URL drop
+        const imgURL = ev.dataTransfer.getData('text');
+        this.fetchImg(imgURL);
+        console.log(`Dropped URL: ${imgURL}`);
+      } else {
+        console.warn('Unsupported drop type');
+      }
     } else {
       console.warn('dropHandler triggered with no event');
     }
   }
+
+  private processDroppedFile(file: File) {
+    console.log(`
+Processing dropped file:
+
+Filename: ${file.name}
+File size: ${file.size}
+File type: ${file.type}
+`);
+    this.setData({
+      content_type: file.type,
+      data: file.slice(),
+    } as PouchDB.Core.FullAttachment);
+    this.validate();
+  }
+
+  private async fetchImg(url: string) {
+    try {
+      const img = await fetch(url, {
+        mode: 'no-cors',
+        'content-type': 'image',
+      } as any);
+      const blob = await (img.body as any).blob();
+
+      const file = new File([blob], 'dropped_image', { type: blob.type });
+      this.setData({
+        content_type: file.type,
+        data: file.slice(),
+      });
+      this.validate();
+    } catch (error) {
+      console.error('Error fetching image:', error);
+    }
+  }
+
   public dragHandler(ev: DragEvent) {
     console.log(`Dragging... ${JSON.stringify(ev)}`);
   }
@@ -102,20 +135,6 @@ export default class ImageInput extends FieldInput {
 
   private get blobInputElement(): HTMLInputElement {
     return document.getElementById(this.blobInputID) as HTMLInputElement;
-  }
-
-  private async fetchImg(url: string) {
-    const img = await fetch(url, {
-      mode: 'no-cors',
-      'content-type': 'image',
-    } as any);
-    const blob = await (img.body as any).blob();
-
-    const file = new File(blob, '');
-    this.setData({
-      content_type: file.type,
-      data: file.slice(),
-    });
   }
 
   private async processInput() {
