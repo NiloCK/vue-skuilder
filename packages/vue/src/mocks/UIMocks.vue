@@ -58,14 +58,14 @@ import { Component, Vue } from 'vue-property-decorator';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
 // import DataInputForm from '@/components/Edit/DataInputForm.vue';
 import MediaUploader from '@/components/Edit/ViewableDataInputForm/FieldInputs/MediaUploader.vue';
-
-console.log(process.env.NODE_ENV);
+import ImageInput from '@/components/Edit/ViewableDataInputForm/FieldInputs/ImageInput.vue';
 
 @Component({
   components: {
     SkTagsInput,
     // DataInputForm,
     MediaUploader,
+    ImageInput,
   },
 })
 export default class SkTagsInputMock extends Vue {
@@ -92,7 +92,7 @@ export default class SkTagsInputMock extends Vue {
 }
 
 h2 {
-  margin-bottom: 10px;
+  margin-bottom: 25px;
   font-size: 1.5em;
   font-weight: bold;
   color: #333;
