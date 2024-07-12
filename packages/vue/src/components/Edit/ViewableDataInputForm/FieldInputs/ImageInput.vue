@@ -46,15 +46,7 @@ export default class ImageInput extends FieldInput {
     }
   }
   public dragHandler(ev: DragEvent) {
-      console.log(`Dragging... ${JSON.stringify(ev)}`);
-      console.log(`Dragging... ${JSON.stringify(ev)}`);
-    } else {
-      console.warn('no event');
-    }
     console.log(`Dragging... ${JSON.stringify(ev)}`);
-    } else {
-      console.warn('no event');
-    }
   }
 
   public getValidators(): ValidatingFunction[] {
