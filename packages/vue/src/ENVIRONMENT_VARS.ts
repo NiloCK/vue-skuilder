@@ -20,6 +20,11 @@ interface Environment {
    * in the project.
    */
   DEBUG: boolean;
+
+  /**
+   * A flag to enable the use of mock data instead of real data.
+   */
+  MOCK: boolean;
 }
 
 type ProtocolString = 'http' | 'https';
@@ -30,6 +35,7 @@ const ENV: Environment = {
   EXPRESS_SERVER_URL: '',
   EXPRESS_SERVER_PROTOCOL: 'http',
   DEBUG: false,
+  MOCK: false,
 };
 
 ENV.COUCHDB_SERVER_URL = process.env.VUE_APP_COUCHDB_SERVER!;
@@ -40,6 +46,10 @@ ENV.EXPRESS_SERVER_PROTOCOL = process.env.VUE_APP_EXPRESS_PROTOCOL! as ProtocolS
 
 if (process.env.VUE_APP_DEBUG !== undefined) {
   ENV.DEBUG = process.env.VUE_APP_DEBUG === 'true';
+}
+
+if (process.env.VUE_APP_MOCK !== undefined) {
+  ENV.MOCK = process.env.VUE_APP_MOCK === 'true';
 }
 
 if (ENV.DEBUG) {
