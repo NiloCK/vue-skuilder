@@ -5,14 +5,14 @@ const path = require('path');
 module.exports = {
   configureWebpack: (config) => {
     console.log('[config] NODE_ENV:', process.env.NODE_ENV); // prints `development`
-    console.log('[config] MOCK:', process.env.MOCK); // prints true
+    console.log('[config] VUE_APP_MOCK:', process.env.VUE_APP_MOCK); // prints true
 
     if (process.env.NODE_ENV === 'production') {
       config.optimization.minimizer[0] = new TerserPlugin(terserOptions);
     } else {
       console.log('[config] Setting up source maps and aliases')
       config.devtool = 'source-map';
-      if (process.env.MOCK) {
+      if (process.env.VUE_APP_MOCK) {
         console.log('[config] Using mocks');
 
         const courseDB = path.resolve(__dirname, 'src/db/courseDB.mock.ts');

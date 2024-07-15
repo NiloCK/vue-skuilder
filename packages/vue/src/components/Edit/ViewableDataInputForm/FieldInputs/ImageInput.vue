@@ -196,6 +196,10 @@ File type: ${file.type}
   transition: all 0.3s ease;
 }
 
+input[type='file'] {
+  box-shadow: none !important; /* uncertain where this is coming from */
+}
+
 .drop-zone--over {
   border-color: #000;
   background-color: rgba(0, 0, 0, 0.1);

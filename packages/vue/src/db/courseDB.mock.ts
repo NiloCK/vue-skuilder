@@ -15,7 +15,7 @@ export const mockAvailableTags: Tag[] = [
 
 export const mockAppliedTags: string[] = ['JavaScript', 'Vue.js'];
 
-export const getCourseTagStubs = async () => {
+export const getCourseTagStubs = async (courseID: string) => {
   return {
     rows: mockAvailableTags.map(tag => ({ doc: tag })),
   };
