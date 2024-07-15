@@ -15,14 +15,12 @@
 </template>
 
 <script lang="ts">
-import { VueConstructor } from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
-import Vue from 'vue';
-import SkldrVue from '@/SkldrVue';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable from '@/base-course/Viewable';
 import CardViewer from '@/components/Study/CardViewer.vue';
-import { ViewData } from '@/base-course/Interfaces/ViewData';
-import { log } from 'util';
+import SkldrVue from '@/SkldrVue';
+import { VueConstructor } from 'vue';
+import { Component, Prop } from 'vue-property-decorator';
 
 @Component({
   components: {
@@ -38,11 +36,11 @@ export default class CardBrowser extends SkldrVue {
   }
 
   private created() {
-    log(`Card browser created. Cards now in 'prewviewMode'`);
+    console.log(`Card browser created. Cards now in 'prewviewMode'`);
     this.$store.state.cardPreviewMode = true;
   }
   private destroyed() {
-    log(`Card browser destroyed. Cards no longer in 'prewviewMode'`);
+    console.log(`Card browser destroyed. Cards no longer in 'prewviewMode'`);
     this.$store.state.cardPreviewMode = false;
   }
 

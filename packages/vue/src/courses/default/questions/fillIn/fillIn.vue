@@ -1,6 +1,7 @@
 <template>
   <div>
     <audio-auto-player v-if="hasAudio" v-bind:src="audioURL" />
+    <img v-if="hasImage" v-bind:src="imageURL" />
     <markdown-renderer v-bind:md="question.mdText" />
     <radio-multiple-choice v-if="question.options" v-bind:choiceList="truncatedOptions" v-bind:MouseTrap="MouseTrap" />
     <center v-else-if="priorAttempts == 1" class="title">
@@ -53,6 +54,28 @@ export default class FillInView extends QuestionView<BlanksCard> {
   get question() {
     return new BlanksCard(this.data);
   }
+  get hasImage() {
+    if (this.data[0]['image-1']) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  get imageURL(): string[] {
+    if (this.hasImage) {
+      let urls: string[] = [];
+      let i = 1;
+      while (this.data[0][`image-${i}`]) {
+        urls.push(URL.createObjectURL(this.data[0][`image-${i}`]));
+        i++;
+      }
+      return urls;
+    } else {
+      return [''];
+    }
+  }
+
   get hasAudio() {
     if (this.data[0]['audio-1']) {
       return true;
@@ -97,9 +120,7 @@ export default class FillInView extends QuestionView<BlanksCard> {
         // include one answer
         let truncatedList = [this.question.answers![Math.floor(Math.random() * this.question.answers!.length)]];
         // construct a list of all non-answers
-        let tmpList: string[] = _.shuffle(
-          this.question.options.filter((o) => this.question.answers?.indexOf(o) === -1)
-        );
+        let tmpList: string[] = _.shuffle(this.question.options.filter(o => this.question.answers?.indexOf(o) === -1));
         // push 5 of them to the returned list
         truncatedList.push(...tmpList.slice(0, 5));
 
@@ -138,6 +159,15 @@ canvas {
   display: block;
   margin-left: auto;
   margin-right: auto;
+  padding: 10px;
+}
+
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%;
+  max-height: 60vh;
   padding: 10px;
 }
 </style>

@@ -91,16 +91,18 @@
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
-import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue';
+import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue'; // [ ] remove? unused?
 import TagsInput from '@/components/Edit/TagsInput.vue';
 import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
 import { alertUser } from '@/components/SnackbarService.vue';
 import Courses from '@/courses';
+import FillInView from '@/courses/default/questions/fillIn/fillIn.vue';
 import { NameSpacer, ShapeDescriptor } from '@/courses/NameSpacer';
 import { addNote55 } from '@/db/courseAPI';
 import { getCourseTagStubs } from '@/db/courseDB';
 import { fieldConverters, FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
+import ENV from '@/ENVIRONMENT_VARS';
 import { CourseConfig } from '@/server/types';
 import SkldrVue from '@/SkldrVue';
 import _ from 'lodash';
@@ -529,7 +531,10 @@ export default class DataInputForm extends SkldrVue {
   }
 
   private getImplementingViews() {
-    this.shapeViews = [];
+    if (ENV.VUE_APP_MOCK) {
+      this.shapeViews = [FillInView]; // [ ] mock this properly
+      return;
+    }
 
     for (const ds of this.courseCfg.dataShapes) {
       // BUG: not finding blanks
