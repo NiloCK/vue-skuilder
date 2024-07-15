@@ -531,7 +531,7 @@ export default class DataInputForm extends SkldrVue {
   }
 
   private getImplementingViews() {
-    if (ENV.VUE_APP_MOCK) {
+    if (ENV.MOCK) {
       this.shapeViews = [FillInView]; // [ ] mock this properly
       return;
     }
