@@ -24,13 +24,20 @@ This project is scaffolded with [vue-cli 3](https://cli.vuejs.org/). See the vue
 
 ## Development Build / Serve
 
-- `npm run serve` or `yarn serve`
+**Prerequisites**:
+- initialize the test database submodule with `git submodule init`
+- install `docker`
 
-Does an in-memory build of the project and hosts with the webpack dev server. Hot reloading and source maps included for in-browser debugging.
+`npm run serve` or `yarn serve` from the project root.
+
+Does:
+- in-memory build of the project and hosts with the webpack dev server.  Hot reloading and source maps included for in-browser debugging.
+- runs the express server backend.
+- launches a couchdb backend with [test data](http://github.com/nilock/skuilder-test-data) as a docker container
 
 ## UI Component browsing with mock data
 
-- `npm run test:ui` or `yarn test:ui` from `./packages/vue`
+`npm run test:ui` or `yarn test:ui` from `./packages/vue`
 
 Builds and runs the front-end with mock data sources. Navigate to `localhost:8080/uimocks`.
 

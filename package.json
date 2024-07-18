@@ -13,7 +13,7 @@
     },
     "name": "vue-skuilder",
     "scripts": {
-        "serve": "lerna run serve --stream",
+        "serve": "./test-couch/test-couch.sh start && lerna run serve --stream",
         "build": "lerna run --no-bail --stream build"
     }
 }
