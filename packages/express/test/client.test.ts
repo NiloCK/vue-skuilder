@@ -11,7 +11,8 @@ const credentials = {
 }
 
 beforeAll(async () => {
-    serverProcess = exec('yarn serve', (err, stdout, stderr) => {});
+    serverProcess = exec('yarn serve', (err, stdout, stderr) => { });
+    console.log('Server starting...');
 
     // startup time for server.
     // [ ] replace w/ an actual ready check
@@ -28,7 +29,7 @@ test('Course Methods', async () => {
 
     // assert non-existence of test course
     const courses = await client.getCourses();
-    expect( courses.find((c) => c.split(' - ')[1] === testCourse.name) ).toBeUndefined();
+    expect(courses.find((c) => c.split(' - ')[1] === testCourse.name)).toBeUndefined();
 
     // create test course
     const createResp = await client.createCourse(testCourse, credentials);
@@ -38,16 +39,16 @@ test('Course Methods', async () => {
 
     // assert existence of test course
     const courses2 = await client.getCourses();
-    expect( courses2.find((c) => c.split(' - ')[1] === testCourse.name) ).toBeDefined();
-    expect( courses2.find((c) => c.split(' - ')[0] === courseID) ).toBeDefined();
-    
+    expect(courses2.find((c) => c.split(' - ')[1] === testCourse.name)).toBeDefined();
+    expect(courses2.find((c) => c.split(' - ')[0] === courseID)).toBeDefined();
+
     // delete test course
     const crsClient = client.getCourseClient(courseID);
     await crsClient.deleteCourse(credentials);
 
     // assert non-existence of test course
     const courses3 = await client.getCourses();
-    expect( courses3.find((c) => c.split(' - ')[0] === courseID) ).toBeUndefined();
+    expect(courses3.find((c) => c.split(' - ')[0] === courseID)).toBeUndefined();
 });
 
 test('createNote', async () => {
@@ -78,7 +79,7 @@ afterAll(async () => {
     serverProcess.stdin.destroy();
     serverProcess.stdout.destroy();
     serverProcess.stderr.destroy();
-    
+
     serverProcess.kill();
     serverProcess.unref();
 });
