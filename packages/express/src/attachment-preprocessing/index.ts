@@ -17,6 +17,10 @@ async function init() {
   }
 }
 
+/**
+ * Apply post-processing to a course database. Runs continuously.
+ * @param courseID 
+ */
 export function postProcessCourse(courseID: string) {
   console.log(`Following course ${courseID}`);
 
