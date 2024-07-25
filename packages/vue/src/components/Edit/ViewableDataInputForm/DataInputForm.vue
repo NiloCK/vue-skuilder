@@ -499,23 +499,29 @@ export default class DataInputForm extends SkldrVue {
       input.clearData();
     });
 
-    // Clear media data from store
-    for (let i = 1; i < 11; i++) {
+    const max_media_inputs = 10;
+
+    // Clear audio data
+    for (let i = 1; i <= max_media_inputs; i++) {
       const audioKey = `audio-${i}`;
-      if (this.store[audioKey]) {
+      if (this.store.hasOwnProperty(audioKey)) {
         this.$delete(this.store, audioKey);
         this.$delete(this.store.convertedInput, audioKey);
         this.$delete(this.store.previewInput, audioKey);
       } else {
-        break;
+        break; // No need to continue if we've reached a non-existent key
       }
+    }
+
+    // Clear image data
+    for (let i = 1; i <= max_media_inputs; i++) {
       const imageKey = `image-${i}`;
-      if (this.store[imageKey]) {
+      if (this.store.hasOwnProperty(imageKey)) {
         this.$delete(this.store, imageKey);
         this.$delete(this.store.convertedInput, imageKey);
         this.$delete(this.store.previewInput, imageKey);
       } else {
-        break;
+        break; // No need to continue if we've reached a non-existent key
       }
     }
 
