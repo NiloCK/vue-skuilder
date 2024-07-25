@@ -213,6 +213,29 @@ Currently logged-in as ${this._username}.`
     });
   }
 
+  /**
+   * Returns a promise of the card IDs that the user has
+   * a scheduled review for.
+   * 
+   * @param course_id 
+   * @returns 
+   */
+  public async getActiveCards(course_id?: string) {
+    const keys = getStartAndEndKeys(REVIEW_PREFIX);
+    const docs = await filterAllDocsByPrefix(this.localDB, 'cardH-', {
+      include_docs: true,
+    });
+
+    const reviews = await this.remoteDB.allDocs<ScheduledCard>({
+      startkey: keys.startkey,
+      endkey: keys.endkey,
+      include_docs: true,
+    });
+
+
+    return reviews.rows.map((r) => `${r.doc!.courseId}-${r.doc!.cardId}`);
+  }
+
   private async getReviewstoDate(targetDate: Moment, course_id?: string) {
     const keys = getStartAndEndKeys(REVIEW_PREFIX);
 
@@ -223,8 +246,7 @@ Currently logged-in as ${this._username}.`
     });
 
     log(
-      `Fetching ${this._username}'s scheduled reviews${
-        course_id ? ` for course ${course_id}` : ''
+      `Fetching ${this._username}'s scheduled reviews${course_id ? ` for course ${course_id}` : ''
       }.`
     );
     return reviews.rows
@@ -517,11 +539,11 @@ Currently logged-in as ${this._username}.`
 
   /**
    * Returns a promise of the card IDs that the user has
-   * previously studied
+   * encountered in the past.
    *
    * @param course_id optional specification of individual course
    */
-  async getActiveCards(course_id?: string) {
+  async getSeenCards(course_id?: string) {
     let prefix = 'cardH-';
     if (course_id) {
       prefix += course_id;
@@ -804,7 +826,7 @@ export async function registerUserForClassroom(
 /**
  * This noop exists to facilitate writing couchdb filter fcns
  */
-function emit(x: any, y: any): any {}
+function emit(x: any, y: any): any { }
 
 export async function dropUserFromClassroom(user: string, classID: string) {
   return getOrCreateClassroomRegistrationsDoc(user).then((doc) => {

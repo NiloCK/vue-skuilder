@@ -116,11 +116,11 @@ export class CourseDB implements StudyContentSource {
       limit: number;
       page: number;
     } = {
-      low: 0,
-      high: Number.MIN_SAFE_INTEGER,
-      limit: 25,
-      page: 0,
-    }
+        low: 0,
+        high: Number.MIN_SAFE_INTEGER,
+        limit: 25,
+        page: 0,
+      }
   ) {
     return (
       await this.db.query('elo', {
@@ -213,9 +213,9 @@ export class CourseDB implements StudyContentSource {
       limit: number;
       elo: 'user' | 'random' | number;
     } = {
-      limit: 99,
-      elo: 'user',
-    },
+        limit: 99,
+        elo: 'user',
+      },
     filter?: (a: string) => boolean
   ): Promise<StudySessionItem[]> {
     let targetElo: number;
