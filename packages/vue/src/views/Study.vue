@@ -155,61 +155,35 @@
 </template>
 
 <script lang="ts">
-import Vue, { VueConstructor } from 'vue';
-import {
-  DisplayableData,
-  DocType,
-  CardData,
-  CardRecord,
-  QuestionRecord,
-  isQuestionRecord,
-  CardHistory,
-} from '@/db/types';
+import { displayableDataToViewData, ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable, { isQuestionView } from '@/base-course/Viewable';
-import { Component, Emit, Prop } from 'vue-property-decorator';
-import CardViewer from '@/components/Study/CardViewer.vue';
+import SkTagsInput from '@/components/Edit/TagsInput.vue';
 import CardLoader from '@/components/Study/CardLoader.vue';
+import CardViewer from '@/components/Study/CardViewer.vue';
 import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
 import Courses from '@/courses';
-import {
-  getRandomCards,
-  putCardRecord,
-  scheduleCardReview,
-  getCourseDoc,
-  removeScheduledCardReview,
-  getCourseDB,
-} from '@/db';
-import { ViewData, displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
-import { log } from 'util';
-import { newInterval } from '@/db/SpacedRepetition';
-import moment, { Moment } from 'moment';
-import { ScheduledCard, getUserClassrooms, CourseRegistrationDoc, updateUserElo, User } from '../db/userDB';
-import { Watch } from 'vue-property-decorator';
-import SkldrVue from '@/SkldrVue';
-import { updateCardElo, getCourseList, CourseDB, getCourseName } from '@/db/courseDB';
-import SkTagsInput from '@/components/Edit/TagsInput.vue';
-import { StudentClassroomDB } from '../db/classroomDB';
-import { alertUser } from '../components/SnackbarService.vue';
-import { Status } from '../enums/Status';
-import { randomInt } from '../courses/math/utility';
-import { GuestUsername } from '@/store';
-import { CourseConfig } from '../server/types';
-import SkldrControlsView from '../components/SkMouseTrap.vue';
-import {
-  ContentSourceID,
-  getStudySource,
-  isReview,
-  StudyContentSource,
-  StudySessionFailedItem,
-  StudySessionItem,
-  StudySessionNewItem,
-  StudySessionReviewItem,
-} from '@/db/contentSource';
-import SessionController, { StudySessionRecord } from '@/db/SessionController';
-import confetti from 'canvas-confetti';
-import { adjustCourseScores, toCourseElo } from '@/tutor/Elo';
+import { getCourseDoc, putCardRecord, removeScheduledCardReview, scheduleCardReview } from '@/db';
+import { ContentSourceID, getStudySource, isReview, StudyContentSource, StudySessionItem } from '@/db/contentSource';
 import { getCredentialledCourseConfig } from '@/db/courseAPI';
+import { CourseDB, getCourseList, getCourseName, updateCardElo } from '@/db/courseDB';
 import { getCardDataShape } from '@/db/getCardDataShape';
+import SessionController, { StudySessionRecord } from '@/db/SessionController';
+import { newInterval } from '@/db/SpacedRepetition';
+import { CardData, CardHistory, CardRecord, DisplayableData, isQuestionRecord } from '@/db/types';
+import SkldrVue from '@/SkldrVue';
+import { adjustCourseScores, toCourseElo } from '@/tutor/Elo';
+import confetti from 'canvas-confetti';
+import moment from 'moment';
+import { log } from 'util';
+import { VueConstructor } from 'vue';
+import { Component, Emit, Prop, Watch } from 'vue-property-decorator';
+import SkldrControlsView from '../components/SkMouseTrap.vue';
+import { alertUser } from '../components/SnackbarService.vue';
+import { randomInt } from '../courses/math/utility';
+import { StudentClassroomDB } from '../db/classroomDB';
+import { CourseRegistrationDoc, updateUserElo, User } from '../db/userDB';
+import { Status } from '../enums/Status';
+import { CourseConfig } from '../server/types';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
@@ -392,12 +366,12 @@ export default class Study extends SkldrVue {
 
     if (this.randomPreview) {
       // set a .previewCourseID
-      const allCourses = (await getCourseList()).rows.map((r) => r.id);
+      const allCourses = (await getCourseList()).rows.map(r => r.id);
       log(`RANDOMPREVIEW:
       Courses:
       ${allCourses.toString()}`);
-      const unRegisteredCourses = allCourses.filter((c) => {
-        return !this.userCourseRegDoc.courses.some((rc) => rc.courseID === c);
+      const unRegisteredCourses = allCourses.filter(c => {
+        return !this.userCourseRegDoc.courses.some(rc => rc.courseID === c);
       });
       if (unRegisteredCourses.length > 0) {
         this.previewCourseID = unRegisteredCourses[randomInt(0, unRegisteredCourses.length)];
@@ -409,8 +383,8 @@ export default class Study extends SkldrVue {
         // set metadata for displaying a signup CTA
 
         this.previewMode = true;
-        getCourseList().then((courses) => {
-          courses.rows.forEach((c) => {
+        getCourseList().then(courses => {
+          courses.rows.forEach(c => {
             if (c.id === this.previewCourseID) {
               this.previewCourseConfig = c.doc!;
               this.previewCourseConfig.courseID = c.id;
@@ -441,17 +415,17 @@ export default class Study extends SkldrVue {
   private async initStudySession(sources: ContentSourceID[]) {
     console.log(`starting study session w/ sources: ${JSON.stringify(sources)}`);
 
-    this.sessionContentSources = await Promise.all(sources.map((s) => getStudySource(s)));
+    this.sessionContentSources = await Promise.all(sources.map(s => getStudySource(s)));
 
     this.sessionClassroomDBs = await Promise.all(
       sources
-        .filter((s) => s.type === 'classroom')
-        .map(async (c) => {
+        .filter(s => s.type === 'classroom')
+        .map(async c => {
           return StudentClassroomDB.factory(c.id);
         })
     );
 
-    this.sessionClassroomDBs.forEach((db) => {
+    this.sessionClassroomDBs.forEach(db => {
       db.setChangeFcn(this.handleClassroomMessage());
     });
 
@@ -467,17 +441,15 @@ export default class Study extends SkldrVue {
     this.sessionPrepared = true;
 
     // Populate course names from IDs
-    sources
-      .filter((s) => s.type === 'course')
-      .forEach(async (c) => (this.courseNames[c.id] = await getCourseName(c.id)));
+    sources.filter(s => s.type === 'course').forEach(async c => (this.courseNames[c.id] = await getCourseName(c.id)));
 
     log(`Session created:
 ${this.sessionController.toString()}
 User courses: ${sources
-      .filter((s) => s.type === 'course')
-      .map((c) => c.id)
+      .filter(s => s.type === 'course')
+      .map(c => c.id)
       .toString()}
-User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
+User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
 `);
 
     this.$store.state.views.study.inSession = true;
@@ -495,7 +467,7 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
   }
 
   private countCardViews(course_id: string, card_id: string): number {
-    return this.sessionRecord.filter((r) => r.card.course_id === course_id && r.card.card_id === card_id).length;
+    return this.sessionRecord.filter(r => r.card.course_id === course_id && r.card.card_id === card_id).length;
   }
 
   @Emit('emitResponse')
@@ -539,7 +511,7 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
           // this.nextCard(`${r.courseID}-${r.cardID}-${this.currentCard.card.card_elo}`, 'dismiss-success');
 
           // elo win for the user
-          cardHistory.then((history) => {
+          cardHistory.then(history => {
             this.scheduleReview(history, item);
             if (history.records.length === 1) {
               // correct answer on first sight: elo win for student
@@ -562,7 +534,7 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
       } else {
         this.$refs.shadowWrapper.classList.add('incorrect');
         // elo loss for the user
-        cardHistory.then((history) => {
+        cardHistory.then(history => {
           if (history.records.length !== 1 && r.priorAttemps === 0) {
             // incorrect answer on a scheduled review: elo win for card
             this.updateUserAndCardElo(0, this.courseID, this.cardID);
@@ -601,19 +573,19 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
   }
 
   private async updateUserAndCardElo(userScore: number, course_id: string, card_id: string, k?: number) {
-    const userElo = toCourseElo(this.userCourseRegDoc.courses.find((c) => c.courseID === course_id)!.elo);
+    const userElo = toCourseElo(this.userCourseRegDoc.courses.find(c => c.courseID === course_id)!.elo);
     const cardElo = (
       await new CourseDB(this.currentCard.card.course_id).getCardEloData([this.currentCard.card.card_id])
     )[0];
 
     if (cardElo && userElo) {
       const eloUpdate = adjustCourseScores(userElo, cardElo, userScore);
-      this.userCourseRegDoc.courses.find((c) => c.courseID === course_id)!.elo = eloUpdate.userElo;
+      this.userCourseRegDoc.courses.find(c => c.courseID === course_id)!.elo = eloUpdate.userElo;
 
       Promise.all([
         updateUserElo(this.$store.state._user!.username, course_id, eloUpdate.userElo),
         updateCardElo(course_id, card_id, eloUpdate.cardElo),
-      ]).then((results) => {
+      ]).then(results => {
         const user = results[0];
         const card = results[1];
 
@@ -686,7 +658,7 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
       // const tmpCardData = await CardCache.getDoc<CardData>(qualified_id);
       const tmpCardData = await getCourseDoc<CardData>(_courseID, _cardID);
       const tmpView = Courses.getView(tmpCardData.id_view);
-      const tmpDataDocs = await tmpCardData.id_displayable_data.map((id) => {
+      const tmpDataDocs = await tmpCardData.id_displayable_data.map(id => {
         return getCourseDoc<DisplayableData>(_courseID, id, {
           attachments: true,
           binary: true,
