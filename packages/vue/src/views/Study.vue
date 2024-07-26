@@ -61,6 +61,8 @@
           :card_id="cardID"
           :course_id="courseID"
           :session-order="cardCount"
+          :user_elo="user_elo(courseID)"
+          :card_elo="card_elo"
           v-on:emitResponse="processResponse($event)"
         />
         <!-- <pre>
@@ -218,6 +220,7 @@ export default class Study extends SkldrVue {
   public constructedView: Viewable;
   public data: ViewData[] = [];
   public courseID: string = '';
+  public card_elo: number = 1000;
 
   public courseNames: { [courseID: string]: string } = {};
   // public courseName(id: string): string {
@@ -294,6 +297,10 @@ export default class Study extends SkldrVue {
 
   private sessionContentSources: StudyContentSource[] = [];
   private sessionClassroomDBs: StudentClassroomDB[] = [];
+
+  public user_elo(courseID: string) {
+    return toCourseElo(this.userCourseRegDoc.courses.find(c => c.courseID === this.courseID)!.elo);
+  }
 
   public checkLoggedIn(): boolean {
     // return !this.$store.state._user!.username.startsWith(GuestUsername);
@@ -677,6 +684,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
       this.view = tmpView;
       this.cardID = _cardID;
       this.courseID = _courseID;
+      this.card_elo = tmpCardData.elo.global.score;
 
       // bleeding memory? Do these get GCd?
       this.constructedView = new this.view() as Viewable;
@@ -685,7 +693,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
         card: {
           course_id: _courseID,
           card_id: _cardID,
-          card_elo: parseInt(_cardElo),
+          card_elo: tmpCardData.elo.global.score,
         },
         item: item,
         records: [],
