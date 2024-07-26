@@ -57,6 +57,17 @@ export default abstract class Viewable extends Vue {
 // tslint:disable-next-line:max-classes-per-file
 export abstract class QuestionView<Q extends Question> extends Viewable {
   static seedData: any[];
+  /**
+   * Represents an ELO spread between the user and the question.
+   * 
+   * Negative values indicate that the user is likely to get the question
+   * wrong, while positive values indicate that the user is likely to get
+   * the question right.
+   * 
+   * Questions may be presented to the user in a way that is more or less
+   * difficult than the question's default difficulty.
+   */
+  @Prop() public modifyDifficulty: number;
 
   protected priorSessionViews: number = 0;
   protected priorAttempts: number = 0; // starts at the 1st attempt

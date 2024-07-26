@@ -117,12 +117,32 @@ export default class FillInView extends QuestionView<BlanksCard> {
       if (this.question.options.length <= 6) {
         return this.question.options;
       } else {
+        let truncatedList = [];
         // include one answer
-        let truncatedList = [this.question.answers![Math.floor(Math.random() * this.question.answers!.length)]];
+        truncatedList.push(this.question.answers![Math.floor(Math.random() * this.question.answers!.length)]);
+
         // construct a list of all non-answers
-        let tmpList: string[] = _.shuffle(this.question.options.filter(o => this.question.answers?.indexOf(o) === -1));
+        let distractors: string[] = _.shuffle(
+          this.question.options.filter(o => this.question.answers?.indexOf(o) === -1)
+        );
+
+        console.log(`Modifying difficulty: ${this.modifyDifficulty}`);
+
+        // if the question is hard for the user, show fewer distractors
+        // [ ] todo: this should also affect the elo adjustments after the question is answered
+        if (this.modifyDifficulty < -200) {
+          distractors = distractors.slice(0, 1);
+        } else if (this.modifyDifficulty < -150) {
+          distractors = distractors.slice(0, 2);
+        } else if (this.modifyDifficulty < -100) {
+          distractors = distractors.slice(0, 3);
+        } else if (this.modifyDifficulty < -50) {
+          distractors = distractors.slice(0, 4);
+        } else {
+          distractors = distractors.slice(0, 5);
+        }
         // push 5 of them to the returned list
-        truncatedList.push(...tmpList.slice(0, 5));
+        truncatedList.push(...distractors);
 
         // and SHUFFLE before passing to the radioMC renderer.
         // because it displays items in the order recieved (dumb UI component)
