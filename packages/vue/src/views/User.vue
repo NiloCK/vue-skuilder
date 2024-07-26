@@ -25,11 +25,9 @@
 </template>
 
 <script lang="ts">
-import Vue, { VueConstructor } from 'vue';
-import { Component, Prop, Emit, Watch } from 'vue-property-decorator';
-import { log } from 'util';
-import SkldrVue from '../SkldrVue';
 import confetti from 'canvas-confetti';
+import { Component, Prop } from 'vue-property-decorator';
+import SkldrVue from '../SkldrVue';
 
 @Component({})
 export default class User extends SkldrVue {
@@ -86,7 +84,7 @@ export default class User extends SkldrVue {
   }
 
   created() {
-    this.configLanguages.forEach((l) => {
+    this.configLanguages.forEach(l => {
       console.log(`afweatifvwzeatfvwzeta` + l.name);
     });
   }
