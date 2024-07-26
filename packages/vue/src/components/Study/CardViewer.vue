@@ -6,6 +6,7 @@
         v-bind:is="view"
         v-bind:data="data"
         v-bind:key="course_id + '-' + card_id + '-' + sessionOrder"
+        v-bind:modifyDifficulty="user_elo.global.score - card_elo"
         v-on:emitResponse="processResponse($event)"
       />
     </transition>
@@ -17,6 +18,7 @@ import { ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable from '@/base-course/Viewable';
 import Courses from '@/courses';
 import { CardRecord } from '@/db/types';
+import { CourseElo } from '@/tutor/Elo';
 import Vue, { VueConstructor } from 'vue';
 import { Component, Emit, Prop } from 'vue-property-decorator';
 
@@ -39,6 +41,8 @@ export default class CardViewer extends Vue {
   public course_id: string;
   @Prop() public view: VueConstructor<Viewable>;
   @Prop() public data: ViewData[];
+  @Prop() public user_elo: CourseElo;
+  @Prop() public card_elo: number;
 
   @Emit('emitResponse')
   private processResponse(r: CardRecord) {
