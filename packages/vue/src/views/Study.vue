@@ -174,7 +174,6 @@ import SkldrVue from '@/SkldrVue';
 import { adjustCourseScores, toCourseElo } from '@/tutor/Elo';
 import confetti from 'canvas-confetti';
 import moment from 'moment';
-import { log } from 'util';
 import { VueConstructor } from 'vue';
 import { Component, Emit, Prop, Watch } from 'vue-property-decorator';
 import SkldrControlsView from '../components/SkMouseTrap.vue';
@@ -316,7 +315,7 @@ export default class Study extends SkldrVue {
       // clear any stale data from the inputForm 'store'
       for (const oldField in this.$store.state.dataInputForm.localStore) {
         if (oldField) {
-          log(`Removing old data: ${oldField}`);
+          console.log(`Removing old data: ${oldField}`);
           delete this.$store.state.dataInputForm.localStore[oldField];
         }
       }
@@ -324,7 +323,7 @@ export default class Study extends SkldrVue {
       // repopulate the inputForm store w/ this card's data
       for (const field in this.data[0]) {
         if (field) {
-          log(`Writing ${field}: ${this.data[0][field]} to the dataInputForm state...`);
+          console.log(`Writing ${field}: ${this.data[0][field]} to the dataInputForm state...`);
           this.$store.state.dataInputForm.localStore[field] = this.data[0][field];
         }
       }
@@ -343,9 +342,9 @@ export default class Study extends SkldrVue {
         text: this.$store.state._user!.username,
         status: Status.ok,
       });
-      log(`There was a change in the classroom DB:`);
-      log(`change: ${v}`);
-      log(`Stringified change: ${JSON.stringify(v)}`);
+      console.log(`There was a change in the classroom DB:`);
+      console.log(`change: ${v}`);
+      console.log(`Stringified change: ${JSON.stringify(v)}`);
       return {};
     };
   }
@@ -367,7 +366,7 @@ export default class Study extends SkldrVue {
     if (this.randomPreview) {
       // set a .previewCourseID
       const allCourses = (await getCourseList()).rows.map(r => r.id);
-      log(`RANDOMPREVIEW:
+      console.log(`RANDOMPREVIEW:
       Courses:
       ${allCourses.toString()}`);
       const unRegisteredCourses = allCourses.filter(c => {
@@ -393,12 +392,12 @@ export default class Study extends SkldrVue {
         });
       }
 
-      log(`COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
+      console.log(`COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
       await this.user.registerForCourse(this.previewCourseID, true);
 
       this.initStudySession([{ type: 'course', id: this.previewCourseID }]);
     } else if (this.focusCourseID) {
-      log(`FOCUS study session: ${this.focusCourseID}`);
+      console.log(`FOCUS study session: ${this.focusCourseID}`);
 
       this.initStudySession([{ type: 'course', id: this.focusCourseID }]);
     }
@@ -443,7 +442,7 @@ export default class Study extends SkldrVue {
     // Populate course names from IDs
     sources.filter(s => s.type === 'course').forEach(async c => (this.courseNames[c.id] = await getCourseName(c.id)));
 
-    log(`Session created:
+    console.log(`Session created:
 ${this.sessionController.toString()}
 User courses: ${sources
       .filter(s => s.type === 'course')
@@ -480,11 +479,11 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
     r.courseID = this.courseID;
     this.currentCard.records.push(r);
 
-    log(`Study.processResponse is running...`);
+    console.log(`Study.processResponse is running...`);
     const cardHistory = this.logCardRecord(r);
 
     if (isQuestionRecord(r)) {
-      log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
+      console.log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
       if (r.isCorrect) {
         this.$refs.shadowWrapper.setAttribute('style', `--r: ${255 * (1 - (r.performance as number))}; --g:${255}`);
         this.$refs.shadowWrapper.classList.add('correct');
@@ -616,7 +615,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
     const nextReviewTime = moment.utc().add(nextInterval, 'seconds');
 
     if (isReview(item)) {
-      log(`Removing previously scheduled review for: ${item.cardID}`);
+      console.log(`Removing previously scheduled review for: ${item.cardID}`);
       removeScheduledCardReview(this.user.username, item.reviewID);
     }
 
@@ -692,7 +691,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
         records: [],
       });
     } catch (e) {
-      log(`Error loading card: ${JSON.stringify(e)}, ${e}`);
+      console.log(`Error loading card: ${JSON.stringify(e)}, ${e}`);
       // this.nextCard(qualified_id, 'dismiss-error');
       this.loadCard(this.sessionController.nextCard('dismiss-error'));
     } finally {
