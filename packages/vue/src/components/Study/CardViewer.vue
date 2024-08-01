@@ -41,8 +41,20 @@ export default class CardViewer extends Vue {
   public course_id: string;
   @Prop() public view: VueConstructor<Viewable>;
   @Prop() public data: ViewData[];
-  @Prop() public user_elo: CourseElo;
-  @Prop() public card_elo: number;
+  @Prop({
+    default: {
+      global: {
+        score: 1000,
+      },
+      tags: {},
+      misc: {},
+    },
+  })
+  public user_elo: CourseElo;
+  @Prop({
+    default: 1000,
+  })
+  public card_elo: number;
 
   @Emit('emitResponse')
   private processResponse(r: CardRecord) {
