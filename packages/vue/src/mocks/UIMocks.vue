@@ -1,5 +1,11 @@
 <template>
   <div class="mock-environment">
+    <div class="component">
+      <h2>Heatmap</h2>
+      <HeatMap :data="{}"
+       />
+    </div>
+
 
     <div class="component">
       <h2>DataInputForm</h2>
@@ -66,6 +72,7 @@ import ImageInput from '@/components/Edit/ViewableDataInputForm/FieldInputs/Imag
 import { BlanksCardDataShapes } from '@/courses/default/questions/fillIn/index';
 import SkldrVue from '@/SkldrVue';
 import FillInView from '@/courses/default/questions/fillIn/fillIn.vue';
+import HeatMap from '@/components/HeatMap.vue';
 
 @Component({
   components: {
@@ -73,6 +80,7 @@ import FillInView from '@/courses/default/questions/fillIn/fillIn.vue';
     DataInputForm,
     MediaUploader,
     ImageInput,
+    HeatMap,
   },
 })
 export default class SkTagsInputMock extends SkldrVue {
