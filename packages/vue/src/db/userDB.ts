@@ -17,6 +17,7 @@ import {
 } from './index';
 import UpdateQueue, { Update } from './updateQueue';
 
+const cardHistoryPrefix = 'cardH-';
 const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + 'skuilder';
 const remoteCouchRootDB: PouchDB.Database = new pouch(remoteStr, {
   skip_setup: true,
@@ -540,7 +541,7 @@ Currently logged-in as ${this._username}.`
    * @param course_id optional specification of individual course
    */
   async getSeenCards(course_id?: string) {
-    let prefix = 'cardH-';
+    let prefix = cardHistoryPrefix;
     if (course_id) {
       prefix += course_id;
     }
@@ -550,8 +551,8 @@ Currently logged-in as ${this._username}.`
     // const docs = await this.localDB.allDocs({});
     const ret: PouchDB.Core.DocumentId[] = [];
     docs.rows.forEach((row) => {
-      if (row.id.startsWith('cardH-')) {
-        ret.push(row.id.substr('cardH-'.length));
+      if (row.id.startsWith(cardHistoryPrefix)) {
+        ret.push(row.id.substr(cardHistoryPrefix.length));
       }
     });
     return ret;
