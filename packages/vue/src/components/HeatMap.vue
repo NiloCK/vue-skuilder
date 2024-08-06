@@ -1,7 +1,22 @@
 <template>
   <div>
-    <div v-for="[date, count] in Object.entries(heatmapData)" :key="date">
-      {{ date }}: {{ count }} review{{ count > 1 ? 's' : '' }}
+    <svg :width="width" :height="height">
+      <g v-for="(week, weekIndex) in weeks" :key="weekIndex" :transform="`translate(${weekIndex * (cellSize + cellMargin)}, 0)`">
+        <rect
+          v-for="(day, dayIndex) in week"
+          :key="day.date"
+          :x="0"
+          :y="dayIndex * (cellSize + cellMargin)"
+          :width="cellSize"
+          :height="cellSize"
+          :fill="getColor(day.count)"
+          @mouseover="showTooltip(day)"
+          @mouseout="hideTooltip"
+        />
+      </g>
+    </svg>
+    <div v-if="tooltipData" class="tooltip" :style="tooltipStyle">
+      {{ tooltipData.date }}: {{ tooltipData.count }} review{{ tooltipData.count !== 1 ? 's' : '' }}
     </div>
   </div>
 </template>
@@ -13,9 +28,32 @@ import SkldrVue from '@/SkldrVue';
 import { CardHistory, CardRecord } from '@/db/types';
 import moment from 'moment';
 
+interface DayData {
+  date: string;
+  count: number;
+}
+
+interface Color {
+  h: number;
+  s: number;
+  l: number;
+}
+
 @Component({})
 export default class HeatMap extends SkldrVue {
   heatmapData: { [key: string]: number } = {};
+
+  weeks: DayData[][] = [];
+  cellSize = 10;
+  cellMargin = 2;
+  width = 53 * (this.cellSize + this.cellMargin);
+  height = 7 * (this.cellSize + this.cellMargin);
+  tooltipData: DayData | null = null;
+  tooltipStyle: { [key: string]: string } = {};
+  maxInRange = 0;
+
+  inactiveColor: Color = { h: 0, s: 0, l: 0.9 };
+  activeColor: Color = { h: 155, s: 1, l: 0.5 };
 
   async created() {
     this.log('Heatmap created');
@@ -29,6 +67,7 @@ export default class HeatMap extends SkldrVue {
     }
 
     this.processHistory(allHist);
+    this.createWeeksData();
   }
 
   processHistory(history: CardHistory<CardRecord>[]) {
@@ -37,21 +76,79 @@ export default class HeatMap extends SkldrVue {
     history.forEach(item => {
       if (item && item.records) {
         item.records.forEach((record: CardRecord) => {
-          this.log(`Processing timestamp: ${record.timeStamp}`);
           const date = moment(record.timeStamp).format('YYYY-MM-DD');
-          this.log(`parsed Data: ${date}`);
-          // if (moment(date).isBetween(start, end, null, '[]')) {
           data[date] = (data[date] || 0) + 1;
-          // }
         });
       }
     });
     this.heatmapData = data;
   }
 
-  beforeDestroy() {}
+  createWeeksData() {
+    const end = moment();
+    const start = end.clone().subtract(52, 'weeks');
+    let day = start.clone().startOf('week');
+
+    while (day.isSameOrBefore(end)) {
+      const weekData: DayData[] = [];
+      for (let i = 0; i < 7; i++) {
+        const date = day.format('YYYY-MM-DD');
+        const dayData: DayData = {
+          date,
+          count: this.heatmapData[date] || 0,
+        };
+        weekData.push(dayData);
+        if (dayData.count > this.maxInRange) {
+          this.maxInRange = dayData.count;
+        }
+
+        day.add(1, 'day');
+      }
+      this.weeks.push(weekData);
+    }
+  }
+
+  getColor(count: number): string {
+    if (this.maxInRange === 0) return this.hslToString(this.inactiveColor);
+
+    const t = Math.min(count / this.maxInRange, 1);
+
+    const h = this.interpolate(this.inactiveColor.h, this.activeColor.h, t);
+    const s = this.interpolate(this.inactiveColor.s, this.activeColor.s, t);
+    const l = this.interpolate(this.inactiveColor.l, this.activeColor.l, t);
+
+    return this.hslToString({ h, s, l });
+  }
+
+  private interpolate(start: number, end: number, t: number): number {
+    return start + (end - start) * t;
+  }
+
+  private hslToString(color: Color): string {
+    return `hsl(${color.h}, ${color.s * 100}%, ${color.l * 100}%)`;
+  }
+
+  showTooltip(day: DayData) {
+    this.tooltipData = day;
+    this.tooltipStyle = {
+      position: 'absolute',
+      left: `${event?.pageX + 10}px`,
+      top: `${event?.pageY + 10}px`,
+    };
+  }
+
+  hideTooltip() {
+    this.tooltipData = null;
+  }
 }
 </script>
 
 <style scoped>
+.tooltip {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px;
+  border-radius: 3px;
+  font-size: 12px;
+}
 </style>
