@@ -133,12 +133,12 @@ export default class HeatMap extends SkldrVue {
     return `hsl(${color.h}, ${color.s * 100}%, ${color.l * 100}%)`;
   }
 
-  showTooltip(day: DayData) {
+  showTooltip(day: DayData, event: MouseEvent) {
     this.tooltipData = day;
     this.tooltipStyle = {
       position: 'absolute',
-      left: `${event?.pageX + 10}px`,
-      top: `${event?.pageY + 10}px`,
+      left: `${event.pageX + 10}px`,
+      top: `${event.pageY + 10}px`,
     };
   }
 
