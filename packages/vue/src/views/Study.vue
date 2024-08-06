@@ -291,7 +291,7 @@ export default class Study extends SkldrVue {
   }
 
   public loading: boolean = false;
-  public user: User;
+  // public user: User;
 
   public $refs: {
     shadowWrapper: HTMLDivElement;
@@ -367,8 +367,8 @@ export default class Study extends SkldrVue {
     this.sessionPrepared = false;
     this.$store.state.views.study.inSession = false;
 
-    this.user = await User.instance();
-    this.userCourseRegDoc = await this.user.getCourseRegistrationsDoc();
+    // this.user = await User.instance();
+    this.userCourseRegDoc = await this.user().getCourseRegistrationsDoc();
 
     // handle special cases from the router:
     // preview, randomPreview, focusCourse / focusClass
@@ -403,7 +403,7 @@ export default class Study extends SkldrVue {
       }
 
       console.log(`COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
-      await this.user.registerForCourse(this.previewCourseID, true);
+      await this.user().registerForCourse(this.previewCourseID, true);
 
       this.initStudySession([{ type: 'course', id: this.previewCourseID }]);
     } else if (this.focusCourseID) {
@@ -466,7 +466,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
   }
 
   private registerUserForPreviewCourse() {
-    this.user
+    this.user()
       .registerForCourse(this.previewCourseConfig!.courseID!)
       .then(() => this.$router.push(`/quilts/${this.previewCourseConfig!.courseID!}`));
   }
@@ -626,7 +626,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
 
     if (isReview(item)) {
       console.log(`Removing previously scheduled review for: ${item.cardID}`);
-      removeScheduledCardReview(this.user.username, item.reviewID);
+      removeScheduledCardReview(this.user().username, item.reviewID);
     }
 
     scheduleCardReview({
