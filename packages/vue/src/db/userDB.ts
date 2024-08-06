@@ -16,6 +16,7 @@ import {
   updateGuestAccountExpirationDate,
 } from './index';
 import UpdateQueue, { Update } from './updateQueue';
+import { CardHistory, CardRecord } from './types';
 
 const cardHistoryPrefix = 'cardH-';
 const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + 'skuilder';
@@ -556,6 +557,18 @@ Currently logged-in as ${this._username}.`
       }
     });
     return ret;
+  }
+
+  /**
+   * 
+   * @returns A promise of the cards that the user has seen in the past.
+   */
+  async getHistory() {
+    let cards = await filterAllDocsByPrefix<CardHistory<CardRecord>>(this.remoteDB, cardHistoryPrefix, {
+      include_docs: true,
+      attachments: false,
+    })
+    return cards.rows.map((r) => r.doc);
   }
 
   async updateCourseSettings(

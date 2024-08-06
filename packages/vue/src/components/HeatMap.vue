@@ -1,70 +1,57 @@
 <template>
-  <div class="cal-heatmap-wrapper">
-    <div ref="calHeatmap" id="hm"></div>
+  <div>
+    <div v-for="[date, count] in Object.entries(heatmapData)" :key="date">
+      {{ date }}: {{ count }} review{{ count > 1 ? 's' : '' }}
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-// import 'cal-heatmap/cal-heatmap.css';
-import CalHeatmap from 'cal-heatmap';
+import SkldrVue from '@/SkldrVue';
+import { CardHistory, CardRecord } from '@/db/types';
+import moment from 'moment';
 
-@Component
-export default class HeatMap extends Vue {
-  @Prop({ type: Object, required: true }) data!: { [key: string]: number };
-  @Prop({ type: String, default: 'day' }) subDomain!: string;
-  @Prop({ type: Number, default: 12 }) range!: number;
-  @Prop({ type: String, default: 'month' }) domain!: string;
-  @Prop({ type: String, default: 'now' }) start!: string;
+@Component({})
+export default class HeatMap extends SkldrVue {
+  heatmapData: { [key: string]: number } = {};
 
-  private cal: CalHeatmap | null = null;
+  async created() {
+    this.log('Heatmap created');
+    const history = await this.user().getHistory();
 
-  mounted() {
-    console.log('HMHMHM mounted');
-    this.initCalHeatmap();
-  }
-
-  beforeDestroy() {
-    if (this.cal) {
-      this.cal.destroy();
+    let allHist: CardHistory<CardRecord>[] = [];
+    for (let i = 0; i < history.length; i++) {
+      if (history[i]) {
+        allHist.push(history[i]!);
+      }
     }
+
+    this.processHistory(allHist);
   }
 
-  initCalHeatmap() {
-    this.cal = new CalHeatmap();
-    console.log('HMHMHM');
-    prompt('hello');
-    this.cal.fill([
-      {
-        date: '2012-01-01',
-        value: 1,
-      },
-    ]);
-    this.cal.paint();
-    // this.cal.
-    // this.cal.fill();
-    this.cal.paint({
-      // itemSelector: this.$refs.calHeatmap as HTMLElement,
-      itemSelector: '#hm',
-      // data: this.data,
-      // // domain: this.domain,
-      // // subDomain: this.subDomain,
-      // // start: new Date(this.start),
-      // range: this.range,
-      // cellSize: 10,
-      // cellPadding: 2,
-      // domainGutter: 10,
-      // legend: [2, 4, 6, 8],
-      // tooltip: true,
+  processHistory(history: CardHistory<CardRecord>[]) {
+    this.log(`Processing ${history.length} records`);
+    const data: { [key: string]: number } = {};
+    history.forEach(item => {
+      if (item && item.records) {
+        item.records.forEach((record: CardRecord) => {
+          this.log(`Processing timestamp: ${record.timeStamp}`);
+          const date = moment(record.timeStamp).format('YYYY-MM-DD');
+          this.log(`parsed Data: ${date}`);
+          // if (moment(date).isBetween(start, end, null, '[]')) {
+          data[date] = (data[date] || 0) + 1;
+          // }
+        });
+      }
     });
+    this.heatmapData = data;
   }
+
+  beforeDestroy() {}
 }
 </script>
 
 <style scoped>
-.cal-heatmap-wrapper {
-  font-family: Arial, sans-serif;
-}
 </style>
