@@ -222,16 +222,12 @@ Currently logged-in as ${this._username}.`
    */
   public async getActiveCards(course_id?: string) {
     const keys = getStartAndEndKeys(REVIEW_PREFIX);
-    const docs = await filterAllDocsByPrefix(this.localDB, 'cardH-', {
-      include_docs: true,
-    });
 
     const reviews = await this.remoteDB.allDocs<ScheduledCard>({
       startkey: keys.startkey,
       endkey: keys.endkey,
       include_docs: true,
     });
-
 
     return reviews.rows.map((r) => `${r.doc!.courseId}-${r.doc!.cardId}`);
   }
