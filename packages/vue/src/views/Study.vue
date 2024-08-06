@@ -51,6 +51,7 @@
           Start <a @click="refreshRoute">another study session</a>, or try
           <router-link :to="`/edit/${courseID}`">adding some new content</router-link> to challenge yourself and others!
         </p>
+        <heat-map />
       </div>
 
       <div v-else ref="shadowWrapper">
@@ -160,6 +161,7 @@
 import { displayableDataToViewData, ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable, { isQuestionView } from '@/base-course/Viewable';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
+import HeatMap from '@/components/HeatMap.vue';
 import CardLoader from '@/components/Study/CardLoader.vue';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
@@ -197,6 +199,7 @@ function randInt(n: number) {
     SkldrControlsView,
     SkTagsInput,
     SessionConfiguration,
+    HeatMap,
   },
 })
 export default class Study extends SkldrVue {
