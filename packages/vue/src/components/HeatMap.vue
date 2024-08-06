@@ -16,7 +16,7 @@
       </g>
     </svg>
     <div v-if="tooltipData" class="tooltip" :style="tooltipStyle">
-      {{ tooltipData.date }}: {{ tooltipData.count }} review{{ tooltipData.count !== 1 ? 's' : '' }}
+      {{ tooltipData.count }} review{{ tooltipData.count !== 1 ? 's' : '' }} on {{ toDateString(tooltipData.date) }}
     </div>
   </div>
 </template>
@@ -54,6 +54,11 @@ export default class HeatMap extends SkldrVue {
 
   inactiveColor: Color = { h: 0, s: 0, l: 0.9 };
   activeColor: Color = { h: 155, s: 1, l: 0.5 };
+
+  toDateString(d: string): string {
+    const m = moment(d);
+    return moment.months()[m.month()] + ' ' + m.date();
+  }
 
   async created() {
     this.log('Heatmap created');
@@ -151,4 +156,9 @@ export default class HeatMap extends SkldrVue {
   border-radius: 3px;
   font-size: 12px;
 }
+
+/* div {
+  display: flex;
+  justify-content: center;
+} */
 </style>
