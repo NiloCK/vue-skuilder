@@ -44,8 +44,8 @@ export default class HeatMap extends SkldrVue {
   heatmapData: { [key: string]: number } = {};
 
   weeks: DayData[][] = [];
-  cellSize = 10;
-  cellMargin = 2;
+  cellSize = 12;
+  cellMargin = 3;
   width = 53 * (this.cellSize + this.cellMargin);
   height = 7 * (this.cellSize + this.cellMargin);
   tooltipData: DayData | null = null;
