@@ -10,7 +10,7 @@
           :width="cellSize"
           :height="cellSize"
           :fill="getColor(day.count)"
-          @mouseover="showTooltip(day)"
+          @mouseover="showTooltip(day, $event)"
           @mouseout="hideTooltip"
         />
       </g>
