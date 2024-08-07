@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- todo: -->
-    <h1><router-link :to="`/q/${_courseId}`">[Course]</router-link> > Tag: {{ tag.name }}</h1>
+    <h1><router-link :to="`/q/${course.name}`">{{course.name}}</router-link> > Tag: {{ tag.name }}</h1>
     <br />
     <p>{{ tag.taggedCards.length }} card{{ tag.taggedCards.length === 1 ? '' : 's' }}</p>
 
@@ -60,9 +60,11 @@
 </template>
 
 <script lang="ts">
+import { getCredentialledCourseConfig } from '@/db/courseAPI';
 import { getTag, updateTag } from '@/db/courseDB';
 import { DocType, Tag } from '@/db/types';
 import { Status } from '@/enums/Status';
+import { CourseConfig } from '@/server/types';
 import SkldrVue from '@/SkldrVue';
 import { Component, Prop } from 'vue-property-decorator';
 import { alertUser } from '../SnackbarService.vue';
@@ -95,6 +97,20 @@ export default class TagInformation extends SkldrVue {
     wiki: '',
     taggedCards: [],
     docType: DocType.TAG,
+  };
+  public course: CourseConfig = {
+    courseID: this._courseId,
+    name: '',
+    description: '',
+    public: false,
+    deleted: false,
+
+    dataShapes: [],
+    questionTypes: [],
+
+    creator: '',
+    admins: [],
+    moderators: [],
   };
 
   public editSnippet() {
@@ -178,6 +194,7 @@ export default class TagInformation extends SkldrVue {
     this.tag = await getTag(this._courseId, this._id);
     this.snippetModel = this.tag.snippet;
     this.wikiModel = this.tag.wiki;
+    this.course = await getCredentialledCourseConfig(this._courseId);
   }
 }
 </script>
