@@ -139,7 +139,7 @@ export default class CourseCardBrowser extends SkldrVue {
   private delBtn: boolean = false;
 
   private clearSelections(exception: string = '') {
-    this.cards.forEach((card) => {
+    this.cards.forEach(card => {
       if (card.id !== exception) {
         card.isOpen = false;
       }
@@ -151,7 +151,7 @@ export default class CourseCardBrowser extends SkldrVue {
   private async deleteCard(c: string) {
     const res = await this.courseDB.removeCard(c.split('-')[1]);
     if (res.ok) {
-      this.cards = this.cards.filter((card) => card.id != c);
+      this.cards = this.cards.filter(card => card.id != c);
       this.clearSelections();
     }
   }
@@ -184,7 +184,7 @@ export default class CourseCardBrowser extends SkldrVue {
   private async populateTableData() {
     if (this._tag) {
       const tag = await getTag(this._id, this._tag);
-      this.cards = tag.taggedCards.map((c) => {
+      this.cards = tag.taggedCards.map(c => {
         return { id: `${this._id}-${c}`, isOpen: false };
       });
     } else {
@@ -195,7 +195,7 @@ export default class CourseCardBrowser extends SkldrVue {
           limit: 25,
           page: this.page - 1, // -1 for 0-index offset
         })
-      ).map((c) => {
+      ).map(c => {
         return {
           id: c,
           isOpen: false,
@@ -206,7 +206,7 @@ export default class CourseCardBrowser extends SkldrVue {
     const hydratedCardData = (
       await getCourseDocs<CardData>(
         this._id,
-        this.cards.map((c) => c.id.split('-')[1]),
+        this.cards.map(c => c.id.split('-')[1]),
         {
           include_docs: true,
         }
@@ -216,19 +216,19 @@ export default class CourseCardBrowser extends SkldrVue {
       this.cardData[c._id] = c.id_displayable_data;
     });
 
-    this.cards.forEach(async (c) => {
+    this.cards.forEach(async c => {
       // console.log(`generating preview for ${c}`);
       const _courseID: string = c.id.split('-')[0];
       const _cardID: string = c.id.split('-')[1];
 
-      const tmpCardData = hydratedCardData.find((c) => c._id == _cardID)!;
+      const tmpCardData = hydratedCardData.find(c => c._id == _cardID)!;
       // console.log(`tmpCardData: ${JSON.stringify(tmpCardData)}`);
       const tmpView = Courses.getView(tmpCardData.id_view || 'default.question.BlanksCard.FillInView');
 
       // todo 143 / perf: this fetch is non-blocking, but is making a db
       // query for each card. much much better to batch query by allDocs
       // with keys list
-      const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
+      const tmpDataDocs = tmpCardData.id_displayable_data.map(id => {
         return getCourseDoc<DisplayableData>(_courseID, id, {
           attachments: false,
           binary: true,
@@ -237,7 +237,7 @@ export default class CourseCardBrowser extends SkldrVue {
 
       const allDocs = await Promise.all(tmpDataDocs);
       await Promise.all(
-        allDocs.map((doc) => {
+        allDocs.map(doc => {
           const tmpData = [];
           tmpData.unshift(displayableDataToViewData(doc));
 
