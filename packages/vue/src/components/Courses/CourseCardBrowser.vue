@@ -90,6 +90,7 @@ import CardLoader from '@/components/Study/CardLoader.vue';
 import Courses from '@/courses';
 import { getCourseDB, getCourseDoc, getCourseDocs } from '@/db';
 import { CourseDB, getTag } from '@/db/courseDB';
+import { removeTagFromCard } from '@/db/courseDB';
 import { CardData, DisplayableData, DocType, Tag } from '@/db/types';
 import SkldrVue from '@/SkldrVue';
 import Component from 'vue-class-component';
@@ -203,6 +204,7 @@ export default class CourseCardBrowser extends SkldrVue {
       });
     }
 
+    const toRemove: string[] = [];
     const hydratedCardData = (
       await getCourseDocs<CardData>(
         this._id,
@@ -211,9 +213,26 @@ export default class CourseCardBrowser extends SkldrVue {
           include_docs: true,
         }
       )
-    ).rows.map((r) => r.doc!);
-    hydratedCardData.forEach((c) => {
-      this.cardData[c._id] = c.id_displayable_data;
+    ).rows
+      .filter(r => {
+        if (r.doc) {
+          return true;
+        } else {
+          this.error(`Card ${r.id} not found`);
+          toRemove.push(r.id);
+          removeTagFromCard(this._id, r.id, this._tag);
+          return false;
+        }
+      })
+      .map(r => r.doc!);
+
+    this.cards = this.cards.filter(c => !toRemove.includes(c.id.split('-')[1]));
+
+    hydratedCardData.forEach(c => {
+      if (c && c.id_displayable_data) {
+        // this allowed display. still not finished
+        this.cardData[c._id] = c.id_displayable_data;
+      }
     });
 
     this.cards.forEach(async c => {
