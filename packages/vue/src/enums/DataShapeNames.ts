@@ -32,4 +32,7 @@ export enum DataShapeName {
 
   // SightSing
   SIGHTSING_IdentifyKey = 'SightSing_IdentifyKey',
+
+  // Chess
+  CHESS_puzzle = 'CHESS_puzzle',
 }

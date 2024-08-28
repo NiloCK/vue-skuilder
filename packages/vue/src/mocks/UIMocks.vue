@@ -1,6 +1,15 @@
 <template>
   <div class="mock-environment">
     <div class="component">
+      <h2>Chess PuzzleView</h2>
+      <PuzzleView
+        :course-id="mockCourseId"
+        :card-id="mockCardId"
+        :modifyDifficulty="0"
+        :data="[{'fen': validFenString}]"
+        />
+    </div>
+    <div class="component">
       <h2>Heatmap</h2>
       <HeatMap :data="{}"
        />
@@ -64,15 +73,16 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
-import DataInputForm from '../components/Edit/ViewableDataInputForm/DataInputForm.vue';
-import MediaUploader from '@/components/Edit/ViewableDataInputForm/FieldInputs/MediaUploader.vue';
 import ImageInput from '@/components/Edit/ViewableDataInputForm/FieldInputs/ImageInput.vue';
+import MediaUploader from '@/components/Edit/ViewableDataInputForm/FieldInputs/MediaUploader.vue';
+import HeatMap from '@/components/HeatMap.vue';
+import PuzzleView from '@/courses/chess/questions/puzzle/puzzle.vue';
+import FillInView from '@/courses/default/questions/fillIn/fillIn.vue';
 import { BlanksCardDataShapes } from '@/courses/default/questions/fillIn/index';
 import SkldrVue from '@/SkldrVue';
-import FillInView from '@/courses/default/questions/fillIn/fillIn.vue';
-import HeatMap from '@/components/HeatMap.vue';
+import { Component } from 'vue-property-decorator';
+import DataInputForm from '../components/Edit/ViewableDataInputForm/DataInputForm.vue';
 
 @Component({
   components: {
@@ -81,11 +91,14 @@ import HeatMap from '@/components/HeatMap.vue';
     MediaUploader,
     ImageInput,
     HeatMap,
+    PuzzleView,
   },
 })
 export default class SkTagsInputMock extends SkldrVue {
   mockCourseId: string = 'mock-course-001';
   mockCardId: string = 'mock-card-001';
+
+  validFenString: string = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
   BlanksCardDataShapes = BlanksCardDataShapes;
   FillInView = FillInView;
@@ -102,7 +115,6 @@ export default class SkTagsInputMock extends SkldrVue {
   margin: 0 auto;
   padding: 20px;
 }
-
 .component {
   margin-bottom: 40px;
   border: #333;
@@ -112,7 +124,6 @@ export default class SkTagsInputMock extends SkldrVue {
   border-radius: 3px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
-
 h2 {
   margin-bottom: 25px;
   font-size: 1.5em;
