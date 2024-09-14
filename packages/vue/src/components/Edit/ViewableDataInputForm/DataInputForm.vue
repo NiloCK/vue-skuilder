@@ -137,6 +137,11 @@ type StringIndexable = { [x: string]: any };
 export default class DataInputForm extends SkldrVue {
   @Prop({
     required: true,
+    default: () => {
+      return {
+        courseID: 'default-test',
+      };
+    },
   })
   public courseCfg: CourseConfig;
 
