@@ -69,7 +69,7 @@ export default class CardLoader extends SkldrVue {
       // const tmpCardData = await CardCache.getDoc<CardData>(qualified_id);
       const tmpCardData = await getCourseDoc<CardData>(_courseID, _cardID);
       const tmpView = Courses.getView(tmpCardData.id_view);
-      const tmpDataDocs = await tmpCardData.id_displayable_data.map((id) => {
+      const tmpDataDocs = await tmpCardData.id_displayable_data.map(id => {
         return getCourseDoc<DisplayableData>(_courseID, id, {
           attachments: true,
           binary: true,

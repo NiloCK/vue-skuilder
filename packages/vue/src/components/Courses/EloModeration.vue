@@ -79,7 +79,7 @@ export default class ELOModerator extends SkldrVue {
     this.updatePending = true;
     this.cards = await this.courseDB.getInexperiencedCards();
 
-    // console.log('Comparing:\n\t' + JSON.stringify(this.cards));
+    // this.log('Comparing:\n\t' + JSON.stringify(this.cards));
 
     this.id1 = '';
     this.id2 = '';

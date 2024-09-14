@@ -5,11 +5,12 @@ import { HotKey } from '../SkldrMouseTrap';
 import { Answer, Displayable, Question } from '../base-course/Displayable';
 import { ViewData } from '../base-course/Interfaces/ViewData';
 import { CardRecord, QuestionRecord } from '../db/types';
+import SkldrVue from '@/SkldrVue';
 
 /**
  * Base class for card views in courses.
  */
-export default abstract class Viewable extends Vue {
+export default abstract class Viewable extends SkldrVue {
   @Prop() public data: ViewData[];
   public toString(): string {
     return '!!! preview not implemented !!!';

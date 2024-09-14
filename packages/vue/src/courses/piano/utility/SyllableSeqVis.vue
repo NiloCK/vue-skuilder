@@ -54,8 +54,8 @@ export default class SyllableSeqVis extends SkldrVue {
   get getHeight(): number {
     let high = 0;
     let low = 500;
-    this.seq.syllables.forEach((s) => {
-      s.notes.forEach((n) => {
+    this.seq.syllables.forEach(s => {
+      s.notes.forEach(n => {
         if (n.note.number > high) {
           high = n.note.number;
         }
@@ -75,8 +75,8 @@ export default class SyllableSeqVis extends SkldrVue {
 
       this.lastTS = Math.max(dataTS, suggestedTS);
     } catch {}
-    this.seq.syllables.forEach((s) => {
-      s.notes.forEach((n) => {
+    this.seq.syllables.forEach(s => {
+      s.notes.forEach(n => {
         if (n.note.number > this.high) {
           this.high = n.note.number;
         }
