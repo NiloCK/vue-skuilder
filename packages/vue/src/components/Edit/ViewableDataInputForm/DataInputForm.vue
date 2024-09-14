@@ -273,7 +273,7 @@ export default class DataInputForm extends SkldrVue {
       this.convertInput();
     }
     this.allowSubmit = inputIsValid;
-    console.log(`Form data is valid: ${inputIsValid}`);
+    this.log(`Form data is valid: ${inputIsValid}`);
     return inputIsValid;
   }
 
