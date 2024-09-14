@@ -54,8 +54,8 @@
     <div class="component">
       <h2>SkTagsInput</h2>
       <sk-tags-input
-        :course-id="mockCourseId"
-        :card-id="mockCardId"
+        :courseID="mockCourseId"
+        :cardID="mockCardId"
         :hide-submit="false"
       />
     </div>

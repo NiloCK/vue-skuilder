@@ -33,21 +33,25 @@ export default class CardViewer extends Vue {
   public sessionOrder: number;
   @Prop({
     required: true,
+    default: '',
   })
   public card_id: PouchDB.Core.DocumentId;
   @Prop({
     required: true,
+    default: '',
   })
   public course_id: string;
   @Prop() public view: VueConstructor<Viewable>;
   @Prop() public data: ViewData[];
   @Prop({
-    default: {
-      global: {
-        score: 1000,
-      },
-      tags: {},
-      misc: {},
+    default: () => {
+      return {
+        global: {
+          score: 1000,
+        },
+        tags: {},
+        misc: {},
+      };
     },
   })
   public user_elo: CourseElo;
