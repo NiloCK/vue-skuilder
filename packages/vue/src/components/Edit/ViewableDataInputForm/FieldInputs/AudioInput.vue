@@ -133,7 +133,7 @@ File type: ${file.type}
 
     navigator.mediaDevices
       .getUserMedia(mediaConstraints)
-      .then((stream) => {
+      .then(stream => {
         this.log(`stream ${JSON.stringify(stream)} found...`);
         this.mediaRecorder = new MediaStreamRecorder(stream);
         this.mediaRecorder.mimeType = 'audio/webm'; // audio/webm or audio/ogg or audio/wav
@@ -145,7 +145,7 @@ File type: ${file.type}
         };
         this.mediaRecorder.start(0);
       })
-      .catch((e) => {
+      .catch(e => {
         this.error('media error', e);
       });
   }

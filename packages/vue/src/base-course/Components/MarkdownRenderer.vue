@@ -14,6 +14,7 @@ import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import MdTokenRenderer from './MdTokenRenderer.vue';
 import { marked, Tokenizer } from 'marked';
 import hljs from 'highlight.js';
+import SkldrVue from '@/SkldrVue';
 
 type SkldrToken =
   | marked.Token
@@ -35,7 +36,7 @@ export default class MarkdownRenderer extends SkldrVue {
   md: string;
 
   public get testRoute(): boolean {
-    // console.log(`Route: ${this.$route.path}`);
+    // this.log(`Route: ${this.$route.path}`);
 
     if (this.$route.path === '/md') {
       this.md = 'test md';

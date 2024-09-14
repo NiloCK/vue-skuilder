@@ -40,7 +40,7 @@ export default class IdentifyChroma extends QuestionView<ChromaQuestion> {
     return ret;
   }
   public created() {
-    this.octaves(295).forEach((t) => this.tone(t));
+    this.octaves(295).forEach(t => this.tone(t));
     // this.tone(3520) // audible
     // this.tone(1760) // audible
     // this.tone(880) // audible

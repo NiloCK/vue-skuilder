@@ -76,10 +76,10 @@ export default class ImageInput extends FieldInput {
         this.fetchImg(imgURL);
         this.log(`Dropped URL: ${imgURL}`);
       } else {
-        console.warn('Unsupported drop type');
+        this.error('Unsupported drop type');
       }
     } else {
-      console.warn('dropHandler triggered with no event');
+      this.error('dropHandler triggered with no event');
     }
   }
 

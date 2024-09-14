@@ -257,16 +257,16 @@ export default class MidiConfig extends SkldrVue {
     if (this.midiSupported) {
       this.midi.addNoteonListenter(this.indicateHeardNotes);
       this.inputs = this.midi.inputs
-        .filter((i) => i.state === 'connected')
-        .map((i) => {
+        .filter(i => i.state === 'connected')
+        .map(i => {
           return {
             text: `${i.manufacturer}: ${i.name}`,
             value: i.id,
           };
         });
       this.outputs = this.midi.outputs
-        .filter((i) => i.state === 'connected')
-        .map((i) => {
+        .filter(i => i.state === 'connected')
+        .map(i => {
           return {
             text: `${i.manufacturer}: ${i.name}`,
             value: i.id,
@@ -288,7 +288,7 @@ export default class MidiConfig extends SkldrVue {
 
   public async retrieveSettings() {
     //todo
-    this.$store.state._user!.getCourseSettings(this._id).then((s) => {
+    this.$store.state._user!.getCourseSettings(this._id).then(s => {
       if (s && s.midiinput) {
         this.selectedInput = s.midiinput.toString();
       }
