@@ -228,7 +228,7 @@ export default class DataInputForm extends SkldrVue {
   private readonly uploader: string = FieldType.MEDIA_UPLOADS;
 
   public updateTags(newTags: string[]) {
-    console.log(`tags updated: ${JSON.stringify(newTags)}`);
+    this.log(`tags updated: ${JSON.stringify(newTags)}`);
     this.tags = newTags;
   }
 
@@ -402,7 +402,7 @@ export default class DataInputForm extends SkldrVue {
     if (this.objectContainsFunction(o)) {
       for (let fKey in o) {
         if (typeof o[fKey] === 'function') {
-          console.log(`Key ${fKey} is a function.`);
+          this.log(`Key ${fKey} is a function.`);
           // array of objs w/ the fcn value replaced by
           // one of its outputs
           const replaced: StringIndexable[] = [];
@@ -412,14 +412,14 @@ export default class DataInputForm extends SkldrVue {
             copy = _.cloneDeep(o);
             copy[fKey] = fcnOutput;
 
-            console.log(`Replaced Copy: ${JSON.stringify(copy)}`);
+            this.log(`Replaced Copy: ${JSON.stringify(copy)}`);
 
             replaced.push(copy);
           });
 
           replaced.forEach(obj => {
             if (this.objectContainsFunction(obj)) {
-              console.log('2nd pass...');
+              this.log('2nd pass...');
               const recursiveExpansion = this.expandO(obj);
               ret = ret.concat(recursiveExpansion);
             } else {
@@ -436,18 +436,18 @@ export default class DataInputForm extends SkldrVue {
 
   public async submit() {
     if (this.checkInput()) {
-      console.log(`Store: ${JSON.stringify(this.store)}`);
-      console.log(`ConvertedStore: ${JSON.stringify(this.convertedInput)}`);
+      this.log(`Store: ${JSON.stringify(this.store)}`);
+      this.log(`ConvertedStore: ${JSON.stringify(this.convertedInput)}`);
       this.uploading = true;
 
       let inputs = [];
 
       if (this.inputContainsTranspositionFcns()) {
-        console.log(`Expanded input:
+        this.log(`Expanded input:
         ${JSON.stringify(this.expandO(this.convertedInput))}`);
         inputs = this.expandO(this.convertedInput);
       } else {
-        console.log(`No Transposition fcn detected`);
+        this.log(`No Transposition fcn detected`);
         inputs = [this.convertedInput];
       }
 
@@ -483,7 +483,7 @@ export default class DataInputForm extends SkldrVue {
           text: `A problem occurred. Content has not been added.`,
           status: Status.error,
         });
-        console.error(`Error in DataInputForm.submit(). Result from addNote:
+        this.error(`Error in DataInputForm.submit(). Result from addNote:
 
         ${JSON.stringify(result)}
       `);

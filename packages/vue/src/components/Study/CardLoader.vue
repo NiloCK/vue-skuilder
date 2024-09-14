@@ -59,7 +59,7 @@ export default class CardLoader extends SkldrVue {
   // @Watch('qualified_id')
   private async created() {
     const qualified_id = this.qualified_id;
-    console.log(`Card Loader displaying: ${qualified_id}`);
+    this.log(`Card Loader displaying: ${qualified_id}`);
 
     this.loading = true;
     const _courseID = qualified_id.split('-')[0];

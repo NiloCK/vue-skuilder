@@ -86,14 +86,14 @@ export default class UserLogin extends SkldrVue {
     try {
       // #172 starting point - why is the pre-existing _user being referenced here?
       const res = await this.$store.state._user!.login(this.username, this.password);
-      this.$store.state._user!.getConfig().then((cfg) => {
+      this.$store.state._user!.getConfig().then(cfg => {
         this.$store.state.config = cfg;
       });
       this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
       this.$router.push('/study');
     } catch (e) {
       // entry #186
-      console.log(`login error: ${e}`);
+      this.log(`login error: ${e}`);
       // - differentiate response
       // - return better message to UI
       this.initBadLogin();

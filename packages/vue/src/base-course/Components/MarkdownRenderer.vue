@@ -27,7 +27,7 @@ type SkldrToken =
     MdTokenRenderer,
   },
 })
-export default class MarkdownRenderer extends Vue {
+export default class MarkdownRenderer extends SkldrVue {
   @Prop({
     required: true,
     type: String,
@@ -48,14 +48,14 @@ export default class MarkdownRenderer extends Vue {
   public get tokens(): SkldrToken[] {
     // marked.setOptions({
     //   highlight: (code, lang, cb) => {
-    //     console.log(`highlighting!`);
+    //     this.log(`highlighting!`);
     //     hljs.highlight(lang, code)
     //   }
     // })
     const tokens = marked.lexer(this.md);
     if (this.testRoute) {
       tokens.forEach(t => {
-        console.log(JSON.stringify(t));
+        this.log(JSON.stringify(t));
       });
     }
     return tokens;

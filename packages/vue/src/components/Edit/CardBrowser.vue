@@ -36,11 +36,11 @@ export default class CardBrowser extends SkldrVue {
   }
 
   private created() {
-    console.log(`Card browser created. Cards now in 'prewviewMode'`);
+    this.log(`Card browser created. Cards now in 'prewviewMode'`);
     this.$store.state.cardPreviewMode = true;
   }
   private destroyed() {
-    console.log(`Card browser destroyed. Cards no longer in 'prewviewMode'`);
+    this.log(`Card browser destroyed. Cards no longer in 'prewviewMode'`);
     this.$store.state.cardPreviewMode = false;
   }
 

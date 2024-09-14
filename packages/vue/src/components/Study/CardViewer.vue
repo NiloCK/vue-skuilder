@@ -18,6 +18,7 @@ import { ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable from '@/base-course/Viewable';
 import Courses from '@/courses';
 import { CardRecord } from '@/db/types';
+import SkldrVue from '@/SkldrVue';
 import { CourseElo } from '@/tutor/Elo';
 import Vue, { VueConstructor } from 'vue';
 import { Component, Emit, Prop } from 'vue-property-decorator';
@@ -25,7 +26,7 @@ import { Component, Emit, Prop } from 'vue-property-decorator';
 @Component({
   components: Courses.allViews(),
 })
-export default class CardViewer extends Vue {
+export default class CardViewer extends SkldrVue {
   @Prop({
     required: false,
     default: 0,
@@ -62,7 +63,7 @@ export default class CardViewer extends Vue {
 
   @Emit('emitResponse')
   private processResponse(r: CardRecord) {
-    console.log(`
+    this.log(`
         Card was displayed at ${r.timeStamp}
         User spent ${r.timeSpent} milliseconds with the card.
         `);

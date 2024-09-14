@@ -64,7 +64,7 @@ export default class AudioInput extends FieldInput {
   private async processInput() {
     if (this.blobInputElement.files) {
       const file = this.blobInputElement.files[0];
-      console.log(`
+      this.log(`
 Processing input file:
 Filename: ${file.name}
 File size: ${file.size}
@@ -97,7 +97,7 @@ File type: ${file.type}
   }
 
   private play() {
-    console.log(this.blobURL);
+    this.log(this.blobURL);
     this.wavesurfer.playPause();
   }
 
@@ -134,7 +134,7 @@ File type: ${file.type}
     navigator.mediaDevices
       .getUserMedia(mediaConstraints)
       .then((stream) => {
-        console.log(`stream ${JSON.stringify(stream)} found...`);
+        this.log(`stream ${JSON.stringify(stream)} found...`);
         this.mediaRecorder = new MediaStreamRecorder(stream);
         this.mediaRecorder.mimeType = 'audio/webm'; // audio/webm or audio/ogg or audio/wav
         this.mediaRecorder.ondataavailable = (blob: any) => {
@@ -146,7 +146,7 @@ File type: ${file.type}
         this.mediaRecorder.start(0);
       })
       .catch((e) => {
-        console.error('media error', e);
+        this.error('media error', e);
       });
   }
 }

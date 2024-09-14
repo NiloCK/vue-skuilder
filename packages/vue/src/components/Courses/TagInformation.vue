@@ -114,12 +114,12 @@ export default class TagInformation extends SkldrVue {
   };
 
   public editSnippet() {
-    console.log('EditSnip');
+    this.log('EditSnip');
     this.editingSnippet = true;
     this.$refs.snippetEditor.focus(); // not doing anything
   }
   public editWiki() {
-    console.log('EditWiki');
+    this.log('EditWiki');
     this.editingWiki = true;
     this.$refs.wikiEditor.focus(); // not doing anything
   }
@@ -133,7 +133,7 @@ export default class TagInformation extends SkldrVue {
     });
 
     if (update.ok) {
-      console.log('OK');
+      this.log('OK');
       // update local copy
       this.tag.snippet = this.snippetModel;
       alertUser({
@@ -180,7 +180,7 @@ export default class TagInformation extends SkldrVue {
   }
 
   public cancelEditSnippet() {
-    console.log('Cancelling EditSnip');
+    this.log('Cancelling EditSnip');
     this.editingSnippet = false;
     // this.snippetModel = 'test';
     this.snippetModel = this.tag.snippet;
