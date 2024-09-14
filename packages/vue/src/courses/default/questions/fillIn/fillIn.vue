@@ -126,7 +126,7 @@ export default class FillInView extends QuestionView<BlanksCard> {
           this.question.options.filter(o => this.question.answers?.indexOf(o) === -1)
         );
 
-        console.log(`Modifying difficulty: ${this.modifyDifficulty}`);
+        this.log(`Modifying difficulty: ${this.modifyDifficulty}`);
 
         // if the question is hard for the user, show fewer distractors
         // [ ] todo: this should also affect the elo adjustments after the question is answered

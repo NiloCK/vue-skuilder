@@ -73,7 +73,7 @@ export default class ComponentRegistration extends SkldrVue {
     const dataShapeData = Courses.allDataShapes();
 
     Courses.allDataShapesRaw().forEach(ds => {
-      console.log(`Datashape:\n${JSON.stringify(ds)}`);
+      this.log(`Datashape:\n${JSON.stringify(ds)}`);
     })
 
     dataShapeData.forEach((shape) => {
@@ -145,7 +145,7 @@ export default class ComponentRegistration extends SkldrVue {
       // notes in the db and create associated cards.
       //
       // if (shape.displayable.seedData) {
-      //   console.log(`Datashape has seed data!`);
+      //   this.log(`Datashape has seed data!`);
       //   shape.displayable.seedData.forEach((d) => {
       //     addNote55(
       //       this.course,
@@ -156,7 +156,7 @@ export default class ComponentRegistration extends SkldrVue {
       //     );
       //   });
       // } else {
-      //   console.log(`Datashape has NO seed data!`);
+      //   this.log(`Datashape has NO seed data!`);
       // }
     }
   }
@@ -200,12 +200,12 @@ export default class ComponentRegistration extends SkldrVue {
 
     if (update.ok) {
       question.registered = true;
-      console.log(`
+      this.log(`
 Question: ${JSON.stringify(question)}
 CourseID: ${this.course}
       `);
       if (question.question.seedData) {
-        console.log(`Question has seed data!`);
+        this.log(`Question has seed data!`);
         question.question.seedData.forEach((d) => {
           addNote55(
             this.course,
@@ -217,7 +217,7 @@ CourseID: ${this.course}
           );
         });
       } else {
-        console.log(`Question has NO seed data!`);
+        this.log(`Question has NO seed data!`);
       }
     }
   }

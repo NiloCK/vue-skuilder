@@ -56,7 +56,7 @@ export default class IdentifyChroma extends QuestionView<ChromaQuestion> {
     osc.frequency.value = freq;
 
     let g = this.ctx.createGain();
-    console.log('Max Gain: ' + g.gain.maxValue);
+    this.log('Max Gain: ' + g.gain.maxValue);
     // g.gain.value = 0.01;
     g.gain.setValueAtTime(0, 0);
     // g.gain.setValueAtTime(0.025, 1);

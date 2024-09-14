@@ -64,7 +64,7 @@ export default class Admin extends SkldrVue {
   }
 
   public removeCourse(id: string) {
-    console.log(`Removing ${id}`);
+    this.log(`Removing ${id}`);
     this.db.removeCourse(id);
   }
 }

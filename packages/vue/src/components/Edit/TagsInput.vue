@@ -72,7 +72,7 @@ export default class SkTagsInput extends SkldrVue {
   public readonly separators: string[] = [';', ',', ' '];
 
   public tagsChanged(newTags: TagObject[]) {
-    console.log(`Tags changing: ${JSON.stringify(newTags)}`);
+    this.log(`Tags changing: ${JSON.stringify(newTags)}`);
     this.tags = newTags;
   }
 
@@ -103,7 +103,7 @@ export default class SkTagsInput extends SkldrVue {
     try {
       const appliedDocsFindResult = await getAppliedTags(this.courseID, this.cardID);
       appliedDocsFindResult.rows.forEach(row => {
-        console.log(`The following tag is applied:
+        this.log(`The following tag is applied:
 \t${JSON.stringify(row)}`);
         this.tags.push({
           text: row!.value.name,
@@ -113,7 +113,7 @@ export default class SkTagsInput extends SkldrVue {
       });
       this.initialTags = this.tags.map(tag => tag.text);
     } catch (e) {
-      console.error(`Error in init-getAppliedTags: ${JSON.stringify(e)}, ${e}`);
+      this.error(`Error in init-getAppliedTags: ${JSON.stringify(e)}, ${e}`);
     } finally {
       this.loading = false;
     }
@@ -123,16 +123,16 @@ export default class SkTagsInput extends SkldrVue {
   public async updateAvailableCourseTags() {
     try {
       this.availableCourseTags = (await getCourseTagStubs(this.courseID)).rows.map(row => {
-        console.log(`available tag: ${JSON.stringify(row)}`);
+        this.log(`available tag: ${JSON.stringify(row)}`);
         return row.doc! as Tag;
       });
     } catch (e) {
-      console.error(`Error in init-availableCourseTags: ${JSON.stringify(e)}`);
+      this.error(`Error in init-availableCourseTags: ${JSON.stringify(e)}`);
     }
   }
 
   public async submit() {
-    console.log(`tagsInput is submitting...`);
+    this.log(`tagsInput is submitting...`);
     this.loading = true;
 
     try {
@@ -142,15 +142,15 @@ export default class SkTagsInput extends SkldrVue {
           if (!this.initialTags.includes(currentTag.text)) {
             try {
               await addTagToCard(this.courseID, this.cardID, currentTag.text);
-              console.log(`Successfully added tag: ${currentTag.text}`);
+              this.log(`Successfully added tag: ${currentTag.text}`);
             } catch (error) {
-              console.error(`Failed to add tag ${currentTag.text}:`, error);
+              this.error(`Failed to add tag ${currentTag.text}:`, error);
             }
           }
         })
       );
     } catch (e) {
-      console.error(`Exception adding tags: ${JSON.stringify(e)}`);
+      this.error(`Exception adding tags: ${JSON.stringify(e)}`);
     }
 
     try {
@@ -164,15 +164,15 @@ export default class SkTagsInput extends SkldrVue {
           ) {
             try {
               await removeTagFromCard(this.courseID, this.cardID, initialTag);
-              console.log(`Successfully removed tag: ${initialTag}`);
+              this.log(`Successfully removed tag: ${initialTag}`);
             } catch (error) {
-              console.error(`Failed to remove tag ${initialTag}:`, error);
+              this.error(`Failed to remove tag ${initialTag}:`, error);
             }
           }
         })
       );
     } catch (e) {
-      console.error(`Exception removing tags: ${JSON.stringify(e)}`);
+      this.error(`Exception removing tags: ${JSON.stringify(e)}`);
     }
     this.loading = false;
   }

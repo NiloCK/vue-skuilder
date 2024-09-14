@@ -325,7 +325,7 @@ export default class Study extends SkldrVue {
       // clear any stale data from the inputForm 'store'
       for (const oldField in this.$store.state.dataInputForm.localStore) {
         if (oldField) {
-          console.log(`Removing old data: ${oldField}`);
+          this.log(`Removing old data: ${oldField}`);
           delete this.$store.state.dataInputForm.localStore[oldField];
         }
       }
@@ -333,7 +333,7 @@ export default class Study extends SkldrVue {
       // repopulate the inputForm store w/ this card's data
       for (const field in this.data[0]) {
         if (field) {
-          console.log(`Writing ${field}: ${this.data[0][field]} to the dataInputForm state...`);
+          this.log(`Writing ${field}: ${this.data[0][field]} to the dataInputForm state...`);
           this.$store.state.dataInputForm.localStore[field] = this.data[0][field];
         }
       }
@@ -352,9 +352,9 @@ export default class Study extends SkldrVue {
         text: this.$store.state._user!.username,
         status: Status.ok,
       });
-      console.log(`There was a change in the classroom DB:`);
-      console.log(`change: ${v}`);
-      console.log(`Stringified change: ${JSON.stringify(v)}`);
+      this.log(`There was a change in the classroom DB:`);
+      this.log(`change: ${v}`);
+      this.log(`Stringified change: ${JSON.stringify(v)}`);
       return {};
     };
   }
@@ -376,7 +376,7 @@ export default class Study extends SkldrVue {
     if (this.randomPreview) {
       // set a .previewCourseID
       const allCourses = (await getCourseList()).rows.map(r => r.id);
-      console.log(`RANDOMPREVIEW:
+      this.log(`RANDOMPREVIEW:
       Courses:
       ${allCourses.toString()}`);
       const unRegisteredCourses = allCourses.filter(c => {
@@ -402,12 +402,12 @@ export default class Study extends SkldrVue {
         });
       }
 
-      console.log(`COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
+      this.log(`COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
       await this.user().registerForCourse(this.previewCourseID, true);
 
       this.initStudySession([{ type: 'course', id: this.previewCourseID }]);
     } else if (this.focusCourseID) {
-      console.log(`FOCUS study session: ${this.focusCourseID}`);
+      this.log(`FOCUS study session: ${this.focusCourseID}`);
 
       this.initStudySession([{ type: 'course', id: this.focusCourseID }]);
     }
@@ -422,7 +422,7 @@ export default class Study extends SkldrVue {
    *     component
    */
   private async initStudySession(sources: ContentSourceID[]) {
-    console.log(`starting study session w/ sources: ${JSON.stringify(sources)}`);
+    this.log(`starting study session w/ sources: ${JSON.stringify(sources)}`);
 
     this.sessionContentSources = await Promise.all(sources.map(s => getStudySource(s)));
 
@@ -452,7 +452,7 @@ export default class Study extends SkldrVue {
     // Populate course names from IDs
     sources.filter(s => s.type === 'course').forEach(async c => (this.courseNames[c.id] = await getCourseName(c.id)));
 
-    console.log(`Session created:
+    this.log(`Session created:
 ${this.sessionController.toString()}
 User courses: ${sources
       .filter(s => s.type === 'course')
@@ -489,11 +489,11 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
     r.courseID = this.courseID;
     this.currentCard.records.push(r);
 
-    console.log(`Study.processResponse is running...`);
+    this.log(`Study.processResponse is running...`);
     const cardHistory = this.logCardRecord(r);
 
     if (isQuestionRecord(r)) {
-      console.log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
+      this.log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
       if (r.isCorrect) {
         this.$refs.shadowWrapper.setAttribute('style', `--r: ${255 * (1 - (r.performance as number))}; --g:${255}`);
         this.$refs.shadowWrapper.classList.add('correct');
@@ -599,7 +599,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
         const card = results[1];
 
         if (user.ok && card && card.ok) {
-          console.log(
+          this.log(
             `Updated ELOS:
 \tUser: ${JSON.stringify(eloUpdate.userElo)})
 \tCard: ${JSON.stringify(eloUpdate.cardElo)})
@@ -625,7 +625,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
     const nextReviewTime = moment.utc().add(nextInterval, 'seconds');
 
     if (isReview(item)) {
-      console.log(`Removing previously scheduled review for: ${item.cardID}`);
+      this.log(`Removing previously scheduled review for: ${item.cardID}`);
       removeScheduledCardReview(this.user().username, item.reviewID);
     }
 
@@ -647,7 +647,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
    * and then display the card to the user.
    */
   private async loadCard(item: StudySessionItem | null) {
-    console.log(`loading: ${JSON.stringify(item)}`);
+    this.log(`loading: ${JSON.stringify(item)}`);
     if (item === null) {
       this.sessionFinished = true; // ??
       return;
@@ -661,7 +661,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
     const _cardID = qualified_id.split('-')[1];
     const _cardElo = qualified_id.split('-')[2];
 
-    console.log(`Now displaying: ${qualified_id}`);
+    this.log(`Now displaying: ${qualified_id}`);
 
     try {
       // const tmpCardData = await CardCache.getDoc<CardData>(qualified_id);
@@ -702,7 +702,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
         records: [],
       });
     } catch (e) {
-      console.log(`Error loading card: ${JSON.stringify(e)}, ${e}`);
+      this.log(`Error loading card: ${JSON.stringify(e)}, ${e}`);
       // this.nextCard(qualified_id, 'dismiss-error');
       this.loadCard(this.sessionController.nextCard('dismiss-error'));
     } finally {

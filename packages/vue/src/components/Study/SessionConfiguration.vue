@@ -107,33 +107,33 @@ export default class SessionConfiguration extends SkldrVue {
   public startFcn: (sources: ContentSourceID[]) => void;
 
   private update() {
-    console.log(JSON.stringify(this.activeCourses));
-    console.log(JSON.stringify(this.activeClasses));
+    this.log(JSON.stringify(this.activeCourses));
+    this.log(JSON.stringify(this.activeClasses));
   }
 
   private toggleAll(): void {
-    console.log(`Toggling all courses`);
+    this.log(`Toggling all courses`);
 
-    this.activeCourses.forEach((crs) => {
+    this.activeCourses.forEach(crs => {
       crs.selected = this.allSelected;
     });
-    this.activeClasses.forEach((cl) => {
+    this.activeClasses.forEach(cl => {
       cl.selected = this.allSelected;
     });
 
-    console.log(JSON.stringify(this.activeCourses));
+    this.log(JSON.stringify(this.activeCourses));
   }
 
   private startSession() {
     SkldrMouseTrap.reset();
     const selectedCourses: ContentSourceID[] = this.activeCourses
-      .filter((c) => c.selected)
-      .map((c) => {
+      .filter(c => c.selected)
+      .map(c => {
         return { type: 'course', id: c.courseID };
       });
     const selectedClassrooms: ContentSourceID[] = this.activeClasses
-      .filter((cl) => cl.selected)
-      .map((cl) => {
+      .filter(cl => cl.selected)
+      .map(cl => {
         return { type: 'classroom', id: cl.classID };
       });
 
@@ -152,12 +152,12 @@ export default class SessionConfiguration extends SkldrVue {
 
   private async getActiveClassrooms() {
     const classes = await (await User.instance()).getActiveClasses();
-    const activeClasses : ({ classID: string } & SessionConfigMetaData)[] = []
+    const activeClasses: ({ classID: string } & SessionConfigMetaData)[] = [];
 
-    console.log(`Active classes: ${JSON.stringify(classes)}`);
+    this.log(`Active classes: ${JSON.stringify(classes)}`);
 
     await Promise.all(
-      classes.map((c) =>
+      classes.map(c =>
         (async (classID: string) => {
           const classDb = await StudentClassroomDB.factory(classID);
           activeClasses.push({
@@ -173,7 +173,7 @@ export default class SessionConfiguration extends SkldrVue {
   }
 
   private async getActiveCourses() {
-    this.activeCourses = (await this.$store.state._user!.getActiveCourses()).map((c) => {
+    this.activeCourses = (await this.$store.state._user!.getActiveCourses()).map(c => {
       return {
         ...c,
         selected: true,

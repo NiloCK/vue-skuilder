@@ -9,10 +9,9 @@ export default class SkldrVue extends Vue {
   /**
    * Print a message to the console. Prefixes the message with the component
    * name.
-   * @param message
    */
-  protected log(message: string): void {
-    console.log(`[SK.${this.$options.name}]: ${message}`);
+  protected log(message?: any, ...optionalParams: any[]): void {
+    console.log(`[SK.${this.$options.name}]: `, message, ...optionalParams);
   }
 
   /**
@@ -20,8 +19,8 @@ export default class SkldrVue extends Vue {
    * component name.
    * @param message 
    */
-  protected error(message: string): void {
-    console.error(`[SK.${this.$options.name}]: ${message}`);
+  protected error(message?: any, ...optionalParams: any[]): void {
+    console.error(`[SK.${this.$options.name}]: `, message, ...optionalParams);
   }
 
   /**

@@ -37,7 +37,7 @@ export default class User extends SkldrVue {
   }
 
   updateConfetti() {
-    console.log(`Confetti updated...`);
+    this.log(`Confetti updated...`);
     this.u.setConfig({
       likesConfetti: this.confetti,
     });
