@@ -263,14 +263,10 @@ export default class DataInputForm extends SkldrVue {
       fieldName => this.store.validation[fieldName] === false
     );
 
-    console.log(
-      `Invalid Fields: ${invalidFields.map(f => {
-        return `\n${f}`;
-      })}`
-    );
-
     if (invalidFields.length > 0) {
       inputIsValid = false;
+
+      this.error(`Invalid Fields: ${invalidFields.map(f => `\n ${f}`)}`);
     }
 
     if (inputIsValid) {
