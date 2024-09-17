@@ -1,6 +1,11 @@
 <template>
   <v-layout column wrap align-center justify-center>
-    <CardViewer :view="views[viewIndex]" :data="data" />
+    <CardViewer
+     :view="views[viewIndex]"
+     :data="data" 
+     :course_id="'[browsing]'" 
+     :card_id="'[browsing]'"
+    />
     <br /><br />
     <div class="subheading pa-2">
       <v-btn v-if="spinner" @click="decrementView" icon color="accent">
