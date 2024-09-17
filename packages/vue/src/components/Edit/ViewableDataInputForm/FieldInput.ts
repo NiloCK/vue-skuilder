@@ -60,7 +60,7 @@ export abstract class FieldInput extends SkldrVue {
 
   public vuetifyRules() {
     if (this.field.validator) {
-      return this.validators.map((f) => {
+      return this.validators.map(f => {
         return validationFunctionToVuetifyRule(f);
       });
     } else {
@@ -82,6 +82,7 @@ export abstract class FieldInput extends SkldrVue {
     let index = 0;
     while (ret.status === Status.ok && index < validators.length) {
       ret = validators[index](this.userInput());
+      this.log(`validation[${index}]\n ${ret.status}\n  ${ret.msg}`);
       index++;
     }
 
