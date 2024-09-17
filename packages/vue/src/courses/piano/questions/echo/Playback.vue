@@ -47,6 +47,8 @@ import { EchoQuestion } from '.';
 import moment from 'moment';
 import SyllableSeqVis from '../../utility/SyllableSeqVis.vue';
 import NoteDisplay from '../../NoteDisplay.vue';
+import { alertUser } from '@/components/SnackbarService.vue';
+import { Status } from '@/enums/Status';
 
 @Component({
   components: {
@@ -74,7 +76,7 @@ export default class Playback extends QuestionView<EchoQuestion> {
   public inputSeq: SyllableSequence = eventsToSyllableSequence([]);
   public lastTSsuggestion: number = 0;
 
-  public error: string = '';
+  public errMsg: string = '';
 
   public get promptText(): string {
     if (eventsToSyllableSequence(this.question.midi).syllables[0].notes.length > 1) {
@@ -98,7 +100,7 @@ export default class Playback extends QuestionView<EchoQuestion> {
       // return this.question.midi[0].note.name;
       return eventsToSyllableSequence(this.question.midi).rootNote.name;
     } else {
-      return `... I don't know! ${this.error}`;
+      return `... I don't know! ${this.errMsg}`;
     }
   }
   public notesOn: number = 0;
@@ -134,7 +136,11 @@ export default class Playback extends QuestionView<EchoQuestion> {
       });
       this.initialized = true;
     } catch (error) {
-      this.error = error;
+      alertUser({
+        status: Status.error,
+        text: 'Midi device not supported',
+      });
+      this.errMsg = error;
       this.state = 'notsupported';
       this.initialized = true;
     }
