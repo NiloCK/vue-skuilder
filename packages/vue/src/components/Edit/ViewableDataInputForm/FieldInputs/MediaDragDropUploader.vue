@@ -3,11 +3,11 @@
     <label class="headline">Add media:</label>
     <div
       class="drop-zone"
-      :class="{ 'drop-zone--over': isDragging }"
-      @drop="dropHandler"
-      @dragover.prevent="dragOverHandler"
-      @dragenter.prevent="dragEnterHandler"
-      @dragleave.prevent="dragLeaveHandler"
+      v-bind:class="{ 'drop-zone--over': isDragging }"
+      v-on:drop="dropHandler"
+      v-on:dragover.prevent="dragOverHandler"
+      v-on:dragenter.prevent="dragEnterHandler"
+      v-on:dragleave.prevent="dragLeaveHandler"
     >
       <input
         ref="fileInput"
@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
+import { Component, Ref } from 'vue-property-decorator';
 import { FieldInput } from '../FieldInput';
 import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
@@ -50,13 +50,23 @@ interface MediaItem {
   thumbnailUrl?: string;
 }
 
+type MDDURefs = FieldInput['$refs'] & {
+  fileInput: HTMLInputElement;
+};
+
 @Component
 export default class MediaDragDropUploader extends FieldInput {
   isDragging = false;
   mediaItems: MediaItem[] = [];
 
+  $refs!: MDDURefs;
+
   get hasMedia(): boolean {
     return this.mediaItems.length > 0;
+  }
+
+  created() {
+    this.validate();
   }
 
   dragOverHandler(event: DragEvent) {
@@ -144,12 +154,27 @@ export default class MediaDragDropUploader extends FieldInput {
   }
 
   updateStore() {
+    let images: MediaItem[] = [];
+    let audios: MediaItem[] = [];
+
     this.mediaItems.forEach((item, index) => {
-      const name = `${item.type}-${index + 1}`;
-      this.store[name] = {
-        content_type: item.file.type,
-        data: item.file,
-      };
+      if (item.type === 'image') {
+        images.push(item);
+      } else if (item.type === 'audio') {
+        audios.push(item);
+      }
+      images.forEach((image, index) => {
+        this.store[`image-${index + 1}`] = {
+          content_type: image.file.type,
+          data: image.file,
+        };
+      });
+      audios.forEach((audio, index) => {
+        this.store[`audio-${index + 1}`] = {
+          content_type: audio.file.type,
+          data: audio.file,
+        };
+      });
     });
     this.validate();
   }
