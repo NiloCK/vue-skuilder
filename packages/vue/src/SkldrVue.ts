@@ -17,7 +17,7 @@ export default class SkldrVue extends Vue {
   /**
    * Print an error message to the console. Prefixes the message with the
    * component name.
-   * @param message 
+   * @param message
    */
   protected error(message?: any, ...optionalParams: any[]): void {
     console.error(`[SK.${this.$options.name}]: `, message, ...optionalParams);
@@ -26,7 +26,7 @@ export default class SkldrVue extends Vue {
   /**
    * Print a warning message to the console. Prefixes the message with the
    * component name.
-   * @param message 
+   * @param message
    */
   protected warn(message?: any, ...optionalParams: any[]): void {
     console.warn(`[SK.${this.$options.name}]: `, message, ...optionalParams);
