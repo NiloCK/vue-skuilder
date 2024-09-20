@@ -57,7 +57,7 @@
               v-bind:uiValidationFunction="checkInput"
               v-bind:autofocus="i == 0"
             />
-            <media-uploader
+            <media-drag-drop-uploader
               v-else-if="field.type === uploader"
               v-bind:store="store"
               v-bind:field="field"
@@ -112,6 +112,7 @@ import AudioInput from './FieldInputs/AudioInput.vue';
 import ImageInput from './FieldInputs/ImageInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
 import MarkdownInput from './FieldInputs/MarkdownInput.vue';
+import MediaDragDropUploader from './FieldInputs/MediaDragDropUploader.vue';
 import MediaUploader from './FieldInputs/MediaUploader.vue';
 import MidiInput from './FieldInputs/MidiInput.vue';
 import NumberInput from './FieldInputs/NumberInput.vue';
@@ -131,6 +132,7 @@ type StringIndexable = { [x: string]: any };
     CardBrowser,
     DataShapeTable,
     MediaUploader,
+    MediaDragDropUploader,
     TagsInput,
   },
 })
@@ -242,22 +244,23 @@ export default class DataInputForm extends SkldrVue {
   }
   public allowSubmit: boolean = false;
 
+  /**
+   * Returns the number of expected validations based on the dataShape's
+   * fields array. One validation is expected for each field.
+   */
   private expectedValidations(): number {
-    const fieldCount = this.dataShape.fields.length;
-
-    // as far as I can imagine, this should only ever be zero or one
-    const mediaUploadCount = this.dataShape.fields.filter(f => f.type === FieldType.MEDIA_UPLOADS).length;
-
-    const uploadedItems = Object.getOwnPropertyNames(this.store.validation).filter(f => {
-      return /audio-[\d]+/.test(f) || /image-[\d]+/.test(f);
-    }).length;
-
-    return fieldCount + uploadedItems - mediaUploadCount;
+    return this.dataShape.fields.length;
   }
 
   private checkInput(): boolean {
-    let inputIsValid: boolean =
-      Object.getOwnPropertyNames(this.store.validation).length === this.expectedValidations() + 1; // +1 here b/c of the validation key
+    let validations = Object.getOwnPropertyNames(this.store.validation);
+    validations = validations.filter(v => v !== '__ob__'); // remove vuejs observer property
+
+    let inputIsValid: boolean = validations.length === this.expectedValidations();
+
+    // this.log(`Observed validations: ${validations}`);
+    // this.log(`Expected validations: ${this.expectedValidations()}`);
+    // this.log(`Validation keys: ${Object.getOwnPropertyNames(this.store.validation)}`);
 
     const invalidFields = Object.getOwnPropertyNames(this.store.validation).filter(
       fieldName => this.store.validation[fieldName] === false
@@ -265,8 +268,10 @@ export default class DataInputForm extends SkldrVue {
 
     if (invalidFields.length > 0) {
       inputIsValid = false;
-
-      this.error(`Invalid Fields: ${invalidFields.map(f => `\n ${f}`)}`);
+      this.error('Invalid Fields:', invalidFields);
+      invalidFields.forEach(field => {
+        console.error(`Field ${field} validation:`, this.store.validation[field]);
+      });
     }
 
     if (inputIsValid) {
