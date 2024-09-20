@@ -39,7 +39,8 @@ Displayable Constructor was called with no view Data.
 
 function validateData(shape: DataShape[], data: ViewData[]) {
   for (let i = 0; i < shape.length; i++) {
-    shape[i].fields.forEach((field) => {
+    shape[i].fields.forEach((field, j) => {
+      console.log(`[Displayable] shape[${i}].field[${j}]:\n ${JSON.stringify(field)}`);
       if (data[i][field.name] === undefined && field.type !== FieldType.MEDIA_UPLOADS) {
         throw new Error(`field validation failed:\n\t${field.name}, (${field.type})`);
       }
