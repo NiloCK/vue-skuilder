@@ -2,7 +2,7 @@ name: deploy-service-file
 on:
   pull_request:
     branches:
-      - deploy
+      - master
     paths:
       - '.deployment/eqExpress.service'
 jobs:
