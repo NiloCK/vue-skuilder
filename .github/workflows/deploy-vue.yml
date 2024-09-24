@@ -1,17 +1,16 @@
 name: deploy-vue
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - deploy
+    paths:
+      - 'packages/vue/**'
+      - '.github/workflows/deploy-vue.yml'
 jobs:
-  deploy-vue:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Extract version
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
       - run: echo "🎉 The job was triggered by a ${{ github.event_name }} on commit ${{ github.SHA }}"
-
       - name: Check out repository code
         uses: actions/checkout@v2
       - uses: actions/setup-node@v3
@@ -37,29 +36,8 @@ jobs:
           yarn build
       - name: Deploy /vue
         run: |
-          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir -p /home/skuilder/dist/vue/${{ steps.get_version.outputs.VERSION }}
-          rsync -rl ./packages/vue/dist/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/vue/${{ steps.get_version.outputs.VERSION }}
-          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ln -sfn /home/skuilder/dist/vue/${{ steps.get_version.outputs.VERSION }} /home/skuilder/www
-      - name: Zip Vue dist folder
-        run: zip -r ./packages/vue/dist.zip ./packages/vue/dist
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ steps.get_version.outputs.VERSION }}
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./packages/vue/dist.zip
-          asset_name: vue-dist-${{ steps.get_version.outputs.VERSION }}.zip
-          asset_content_type: application/zip
-
+          vcount=$(ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ls -1v /home/skuilder/dist/vue/ | tail -n1)
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/dist/vue/$(($vcount+1))
+          rsync -rl ./packages/vue/dist/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/vue/$(($vcount+1))
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ln -sfn /home/skuilder/dist/vue/$(($vcount+1)) /home/skuilder/www
       # todo: toss a buildinfo.md file into the (vcount+1) folder, linking PR, listing time, logging build errors, etc
