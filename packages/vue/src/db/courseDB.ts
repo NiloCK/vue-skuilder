@@ -50,7 +50,7 @@ export class CourseDB implements StudyContentSource {
 
     // this.log()
     const newCards = (await this.getCardsByELO(EloToNumber(userCrsdoc!.elo), cardLimit)).filter(
-      (card) => {
+      card => {
         return activeCards.indexOf(card) === -1;
       }
     );
@@ -65,7 +65,7 @@ export class CourseDB implements StudyContentSource {
     u.getCourseRegDoc(this.id);
 
     const reviews = await u.getPendingReviews(this.id); // todo: this adds a db round trip - should be server side
-    const elo = await this.getCardEloData(reviews.map((r) => r.cardId));
+    const elo = await this.getCardEloData(reviews.map(r => r.cardId));
 
     const ratedReviews = reviews.map((r, i) => {
       const ratedR: ratedReview = {
@@ -79,7 +79,7 @@ export class CourseDB implements StudyContentSource {
       return a.global.score - b.global.score;
     });
 
-    return ratedReviews.map((r) => {
+    return ratedReviews.map(r => {
       return {
         ...r,
         contentSourceType: 'course',
@@ -98,7 +98,7 @@ export class CourseDB implements StudyContentSource {
       await this.db.query('cardsByInexperience', {
         limit,
       })
-    ).rows.map((r) => {
+    ).rows.map(r => {
       const ret = {
         courseId: this.id,
         cardId: r.id,
@@ -116,11 +116,11 @@ export class CourseDB implements StudyContentSource {
       limit: number;
       page: number;
     } = {
-        low: 0,
-        high: Number.MIN_SAFE_INTEGER,
-        limit: 25,
-        page: 0,
-      }
+      low: 0,
+      high: Number.MIN_SAFE_INTEGER,
+      limit: 25,
+      page: 0,
+    }
   ) {
     return (
       await this.db.query('elo', {
@@ -129,7 +129,7 @@ export class CourseDB implements StudyContentSource {
         limit: options.limit,
         skip: options.limit * options.page,
       })
-    ).rows.map((r) => {
+    ).rows.map(r => {
       return `${this.id}-${r.id}-${r.key}`;
     });
   }
@@ -139,7 +139,7 @@ export class CourseDB implements StudyContentSource {
       include_docs: true,
     });
     let ret: CourseElo[] = [];
-    docs.rows.forEach((r) => {
+    docs.rows.forEach(r => {
       if (r.doc && r.doc.elo) {
         ret.push(toCourseElo(r.doc.elo));
       } else {
@@ -193,12 +193,12 @@ export class CourseDB implements StudyContentSource {
       include_docs: true,
     });
     let ret: { [card: string]: string[] } = {};
-    cards.rows.forEach((r) => {
+    cards.rows.forEach(r => {
       ret[r.id] = r.doc!.id_displayable_data;
     });
 
     await Promise.all(
-      cards.rows.map((r) => {
+      cards.rows.map(r => {
         return async () => {
           ret[r.id] = r.doc!.id_displayable_data;
         };
@@ -213,9 +213,9 @@ export class CourseDB implements StudyContentSource {
       limit: number;
       elo: 'user' | 'random' | number;
     } = {
-        limit: 99,
-        elo: 'user',
-      },
+      limit: 99,
+      elo: 'user',
+    },
     filter?: (a: string) => boolean
   ): Promise<StudySessionItem[]> {
     let targetElo: number;
@@ -225,7 +225,7 @@ export class CourseDB implements StudyContentSource {
 
       targetElo = -1;
       try {
-        const courseDoc = (await u.getCourseRegistrationsDoc()).courses.find((c) => {
+        const courseDoc = (await u.getCourseRegistrationsDoc()).courses.find(c => {
           return c.courseID === this.id;
         })!;
         targetElo = EloToNumber(courseDoc.elo);
@@ -268,7 +268,7 @@ export class CourseDB implements StudyContentSource {
       selectedCards.push(card);
     }
 
-    return selectedCards.map((c) => {
+    return selectedCards.map(c => {
       const split = c.split('-');
       return {
         courseID: this.id,
@@ -286,13 +286,13 @@ export class CourseDB implements StudyContentSource {
     const activeCards = await u.getActiveCards(this.id);
     return (
       await this.getCardsCenteredAtELO({ limit: limit, elo: 'user' }, (c: string) => {
-        if (activeCards.some((ac) => c.includes(ac))) {
+        if (activeCards.some(ac => c.includes(ac))) {
           return false;
         } else {
           return true;
         }
       })
-    ).map((c) => {
+    ).map(c => {
       return {
         ...c,
         status: 'new',
@@ -332,11 +332,11 @@ export class CourseDB implements StudyContentSource {
           return s;
         }
       })
-      .map((c) => `${this.id}-${c.id}-${c.key}`);
+      .map(c => `${this.id}-${c.id}-${c.key}`);
 
-    const str = `below:\n${below.rows.map((r) => `\t${r.id}-${r.key}\n`)}
+    const str = `below:\n${below.rows.map(r => `\t${r.id}-${r.key}\n`)}
 
-above:\n${above.rows.map((r) => `\t${r.id}-${r.key}\n`)}`;
+above:\n${above.rows.map(r => `\t${r.id}-${r.key}\n`)}`;
 
     this.log(`Getting ${limit} cards centered around elo: ${elo}:\n\n` + str);
 
@@ -357,7 +357,7 @@ export async function getCourseName(courseID: string): Promise<string> {
 }
 
 export async function removeCourse(courseID: string) {
-  return courseLookupDB.get(courseID).then((course) => {
+  return courseLookupDB.get(courseID).then(course => {
     return courseLookupDB.remove({
       ...course,
     });
@@ -370,7 +370,7 @@ export async function disambiguateCourse(course: string, disambiguator: string) 
   // directly impaact the running of the course itself
 
   // write to the lookup db
-  courseLookupDB.get<CourseConfig>(course).then((cfg) => {
+  courseLookupDB.get<CourseConfig>(course).then(cfg => {
     courseLookupDB.put({
       ...cfg,
       disambiguator,
@@ -383,7 +383,7 @@ export async function getCachedCourseList(): Promise<CourseConfig[]> {
   if (courseListCache.length) {
     return courseListCache;
   } else {
-    courseListCache = (await getCourseList()).rows.map((r) => {
+    courseListCache = (await getCourseList()).rows.map(r => {
       return {
         ...r.doc!,
         courseID: r.id,
@@ -438,7 +438,7 @@ export async function getCourseTagStubs(
     DocType.TAG.valueOf() + '-'
   );
 
-  stubs.rows.forEach((row) => {
+  stubs.rows.forEach(row => {
     log(`\tTag stub for doc: ${row.id}`);
   });
 
@@ -489,7 +489,7 @@ export async function removeTagFromCard(courseID: string, cardID: string, tagID:
   tagID = getTagID(tagID);
   const courseDB = getCourseDB(courseID);
   const tag = await courseDB.get<Tag>(tagID);
-  _.remove(tag.taggedCards, (taggedID) => {
+  _.remove(tag.taggedCards, taggedID => {
     return cardID === taggedID;
   });
   return courseDB.put<Tag>(tag);
