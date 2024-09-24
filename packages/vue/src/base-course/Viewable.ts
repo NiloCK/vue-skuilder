@@ -5,14 +5,15 @@ import { HotKey } from '../SkldrMouseTrap';
 import { Answer, Displayable, Question } from '../base-course/Displayable';
 import { ViewData } from '../base-course/Interfaces/ViewData';
 import { CardRecord, QuestionRecord } from '../db/types';
-import SkldrVue from '@/SkldrVue';
+import SkldrVue from '../SkldrVue';
 
 /**
  * Base class for card views in courses.
  */
-export default abstract class Viewable extends SkldrVue {
+export default abstract class Viewable extends SkldrVue implements Vue {
   @Prop() public data: ViewData[];
   public toString(): string {
+    this.warn('toString() not implemented');
     return '!!! preview not implemented !!!';
   }
   protected startTime: moment.Moment = moment.utc();
@@ -60,11 +61,11 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
   static seedData: any[];
   /**
    * Represents an ELO spread between the user and the question.
-   * 
+   *
    * Negative values indicate that the user is likely to get the question
    * wrong, while positive values indicate that the user is likely to get
    * the question right.
-   * 
+   *
    * Questions may be presented to the user in a way that is more or less
    * difficult than the question's default difficulty.
    */
