@@ -81,7 +81,7 @@
       <div v-if="sessionController">
         <span class="headline" v-for="i in sessionController.failedCount" :key="i">•</span>
         <!-- {{ cardType }} -->
-        <!-- 
+        <!--
         <br><br><br>
         Session Report: {{ sessionController.reportString()}}
         <br><br><br>
