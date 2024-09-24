@@ -2,7 +2,7 @@ name: deploy-caddyfile
 on:
   pull_request:
     branches:
-      - master
+      - deploy
     paths:
       - '.deployment/Caddyfile'
 jobs:
