@@ -1,7 +1,11 @@
 <template>
   <div>
     <svg :width="width" :height="height">
-      <g v-for="(week, weekIndex) in weeks" :key="weekIndex" :transform="`translate(${weekIndex * (cellSize + cellMargin)}, 0)`">
+      <g
+        v-for="(week, weekIndex) in weeks"
+        :key="weekIndex"
+        :transform="`translate(${weekIndex * (cellSize + cellMargin)}, 0)`"
+      >
         <rect
           v-for="(day, dayIndex) in week"
           :key="day.date"
