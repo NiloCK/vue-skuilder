@@ -28,7 +28,7 @@ jobs:
           npm install -g lerna@3.22.1
           lerna bootstrap
           cd ./packages/express
-          yarn remove @types/jest
+          yarn remove $(yarn list --depth=0 --pattern="@types/*" --silent | awk '{print $2}' | tr '\n' ' ')
           cd ../..
           yarn build
       - name: Deploy and run
