@@ -10,7 +10,7 @@ import SkldrVue from '../SkldrVue';
 /**
  * Base class for card views in courses.
  */
-export default abstract class Viewable extends SkldrVue implements Vue {
+export default abstract class Viewable extends Vue {
   @Prop() public data: ViewData[];
   public toString(): string {
     this.warn('toString() not implemented');
@@ -19,6 +19,33 @@ export default abstract class Viewable extends SkldrVue implements Vue {
   protected startTime: moment.Moment = moment.utc();
   protected MouseTrap = new MouseTrap(this.$el);
   public hotKeys: HotKey[] = [];
+
+  /**
+   * Print a message to the console. Prefixes the message with the component
+   * name.
+   */
+  protected log(message?: any, ...optionalParams: any[]): void {
+    console.log(`[V.${this.$options.name}]: `, message, ...optionalParams);
+  }
+
+  /**
+   * Print an error message to the console. Prefixes the message with the
+   * component name.
+   *
+   * @param message
+   */
+  protected error(message?: any, ...optionalParams: any[]): void {
+    console.error(`[V.${this.$options.name}]: `, message, ...optionalParams);
+  }
+
+  /**
+   * Print a warning message to the console. Prefixes the message with the
+   * component name.
+   * @param message
+   */
+  protected warn(message?: any, ...optionalParams: any[]): void {
+    console.warn(`[V.${this.$options.name}]: `, message, ...optionalParams);
+  }
 
   /**
    * Returns the time in milliseconds since the element was created
