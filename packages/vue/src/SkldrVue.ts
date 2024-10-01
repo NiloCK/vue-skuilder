@@ -17,7 +17,7 @@ export default class SkldrVue extends Vue {
   /**
    * Print an error message to the console. Prefixes the message with the
    * component name.
-<<<<<<< HEAD
+   *
    * @param message
    */
   protected error(message?: any, ...optionalParams: any[]): void {
