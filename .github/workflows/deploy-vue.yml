@@ -30,7 +30,7 @@ jobs:
           lerna bootstrap
           printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
           cd ./packages/express
-          yarn remove @types/jest
+          yarn remove $(yarn list --depth=0 --pattern="@types/*" --silent | awk '{print $2}' | tr '\n' ' ')
           cd ../..
           yarn build
       - name: Deploy /vue
