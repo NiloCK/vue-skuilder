@@ -141,6 +141,7 @@ export class CourseDB implements StudyContentSource {
     });
     let ret: CourseElo[] = [];
     docs.rows.forEach(r => {
+      // [ ] remove these ts-ignore directives.
       // @ts-ignore
       if (r.doc && r.doc.elo) {
         // @ts-ignore
