@@ -7,7 +7,7 @@ on:
       - 'packages/vue/**'
       - '.github/workflows/deploy-vue.yml'
 jobs:
-  build-and-deploy:
+  build-and-deploy-vue:
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 The job was triggered by a ${{ github.event_name }} on commit ${{ github.SHA }}"
@@ -30,7 +30,7 @@ jobs:
           lerna bootstrap
           printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
           cd ./packages/express
-          yarn remove $(yarn list --depth=0 --pattern="@types/*" --silent | awk '{print $2}' | tr '\n' ' ')
+          yarn remove @types/jest
           cd ../..
           yarn build
       - name: Deploy /vue
