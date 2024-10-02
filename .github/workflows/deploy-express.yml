@@ -7,7 +7,7 @@ on:
       - 'packages/express/**'
       - '.github/workflows/deploy-express.yml'
 jobs:
-  build-and-deploy-express:
+  deploy-express:
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 The job was triggered by a ${{ github.event_name }} on commit ${{ github.SHA }}"
