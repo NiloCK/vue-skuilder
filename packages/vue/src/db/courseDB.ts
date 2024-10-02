@@ -1,4 +1,5 @@
 import _ from 'lodash';
+// @ts-ignore
 import pouch from 'pouchdb-browser';
 import { log } from 'util';
 import { filterAllDocsByPrefix, getCourseDB } from '.';
@@ -50,7 +51,7 @@ export class CourseDB implements StudyContentSource {
 
     // this.log()
     const newCards = (await this.getCardsByELO(EloToNumber(userCrsdoc!.elo), cardLimit)).filter(
-      card => {
+      (card: any) => {
         return activeCards.indexOf(card) === -1;
       }
     );
@@ -140,9 +141,12 @@ export class CourseDB implements StudyContentSource {
     });
     let ret: CourseElo[] = [];
     docs.rows.forEach(r => {
+      // @ts-ignore
       if (r.doc && r.doc.elo) {
+        // @ts-ignore
         ret.push(toCourseElo(r.doc.elo));
       } else {
+        // @ts-ignore
         console.warn('no elo data for card: ' + r.id);
         ret.push(blankCourseElo());
       }
@@ -194,12 +198,14 @@ export class CourseDB implements StudyContentSource {
     });
     let ret: { [card: string]: string[] } = {};
     cards.rows.forEach(r => {
+      // @ts-ignore
       ret[r.id] = r.doc!.id_displayable_data;
     });
 
     await Promise.all(
       cards.rows.map(r => {
         return async () => {
+          // @ts-ignore
           ret[r.id] = r.doc!.id_displayable_data;
         };
       })
@@ -422,6 +428,7 @@ export async function getCourseQuestionTypes(courseID: string) {
 
 export async function getCourseConfig(courseID: string) {
   const config = await getCourseConfigs([courseID]);
+  // @ts-ignore
   return config.rows[0].doc;
 }
 
