@@ -30,6 +30,9 @@ jobs:
           cd ./packages/express
           yarn remove @types/jest
           yarn remove @types/pouchdb
+          cd ../vue
+          yarn remove @types/pouchdb-browser
+          yarn remove @types/pouchdb-find
           cd ../..
           yarn build
       - name: Deploy and run
