@@ -1,11 +1,11 @@
 name: deploy-vue
 on:
-  push:
-    branches:
-      - deploy
-    paths:
-      - 'packages/vue/**'
-      - '.github/workflows/deploy-vue.yml'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for deploying Vue app'
+        required: true
+        default: 'Manual deployment'
 jobs:
   deploy-vue:
     runs-on: ubuntu-latest
