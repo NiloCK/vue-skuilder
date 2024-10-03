@@ -29,6 +29,7 @@ jobs:
           lerna bootstrap
           cd ./packages/express
           yarn remove @types/jest
+          yarn remove @types/pouchdb
           cd ../..
           yarn build
       - name: Deploy and run
