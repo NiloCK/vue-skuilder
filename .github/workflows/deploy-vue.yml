@@ -31,11 +31,7 @@ jobs:
           printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
           cd ./packages/express
           yarn remove @types/jest
-          yarn remove @types/pouchdb
           cd ../vue
-          yarn remove @types/pouchdb-browser
-          yarn remove @types/pouchdb-find
-          cd ../..
           yarn build
       - name: Deploy /vue
         run: |
