@@ -103,6 +103,7 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
       body.response = await ClassroomCreationQueue.getResult(id);
       res.json(body.response);
     } else if (body.type === RequestEnum.DELETE_CLASSROOM) {
+      // [ ] add delete classroom request
     } else if (body.type === RequestEnum.JOIN_CLASSROOM) {
       const id: number = ClassroomJoinQueue.addRequest(body.data);
       body.response = await ClassroomJoinQueue.getResult(id);
