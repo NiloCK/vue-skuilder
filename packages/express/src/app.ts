@@ -50,20 +50,20 @@ export interface VueClientRequest extends express.Request {
 
 app.get('/courses', async (req, res) => {
   const coursesDB = await useOrCreateDB(COURSE_DB_LOOKUP);
-  
+
   const courseStubs = await coursesDB.list({
-    include_docs: true
-  })
+    include_docs: true,
+  });
   const courses = courseStubs.rows.map((stub) => {
-    return `${stub.id} - ${stub.doc["name"]}`
-  })
+    return `${stub.id} - ${stub.doc['name']}`;
+  });
   res.send(courses);
 });
 
 app.get('/course/:courseID/config', async (req, res) => {
   const courseDB = await useOrCreateCourseDB(req.params.courseID);
   const cfg = await courseDB.get('CourseConfig'); // [ ] pull courseConfig docName into global const
-  
+
   res.json(cfg);
 });
 
@@ -94,7 +94,9 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
   const auth = await requestIsAuthenticated(req);
   if (auth) {
     const body = req.body;
-    console.log(`Authorized ${body.type ? body.type : '[unspecified request type]'} request made...`);
+    console.log(
+      `Authorized ${body.type ? body.type : '[unspecified request type]'} request made...`
+    );
 
     if (body.type === RequestEnum.CREATE_CLASSROOM) {
       const id: number = ClassroomCreationQueue.addRequest(body.data);
@@ -117,7 +119,7 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
       body.response = await CourseCreationQueue.getResult(id);
       res.json(body.response);
     } else if (body.type === RequestEnum.ADD_COURSE_DATA) {
-      const payload = await prepareNote55(
+      const payload = prepareNote55(
         body.data.courseID,
         body.data.codeCourse,
         body.data.shape,
@@ -144,7 +146,6 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
     res.send();
   }
 }
-
 
 app.post('/', (req, res) => {
   postHandler(req, res);
