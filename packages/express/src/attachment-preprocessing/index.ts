@@ -117,6 +117,12 @@ async function processDocAttachments(request: AttachmentProcessingRequest): Prom
     doc._attachments[field.name].data = field.returnData;
   });
 
+  // request was a noop.
+  // Mark as processed in order to avoid inifinte loop
+  if (request.fields.length === 0) {
+    doc['processed'] = true;
+  }
+
   const resp: any = await courseDatabase.insert(doc);
   resp.status = 'ok';
 
