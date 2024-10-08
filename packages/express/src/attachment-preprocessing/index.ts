@@ -20,7 +20,7 @@ export function postProcessCourse(courseID: string): void {
     {
       feed: 'continuous',
       db: crsString,
-      include_docs: true,
+      include_docs: false,
     },
     filterFactory(courseID)
   );
@@ -43,25 +43,32 @@ export default async function postProcess(): Promise<void> {
 }
 
 function filterFactory(courseID: string) {
-  return async function filterChanges(error, response: DatabaseChangesResultItemWithDoc, headers?) {
-    // console.log(`Change detected: ${JSON.stringify(response['seq'])}`);
+  const courseDatabase = CouchDB.use(`coursedb-${courseID}`);
+
+  return async function filterChanges(error, changeItem: nano.DatabaseChangesResultItem) {
+    const docNoAttachments = await courseDatabase.get(changeItem.id, {
+      attachments: false,
+    });
+
     if (
-      response &&
-      response.doc &&
-      response.doc._attachments &&
-      (response.doc['processed'] === undefined || response.doc['processed'] === false)
+      docNoAttachments._attachments &&
+      Object.keys(docNoAttachments._attachments).length > 0 &&
+      (docNoAttachments['processed'] === undefined || docNoAttachments['processed'] === false)
     ) {
+      const doc = await courseDatabase.get(changeItem.id, {
+        attachments: true,
+      });
       const processingRequest: AttachmentProcessingRequest = {
         courseID,
-        docID: response.doc._id,
+        docID: doc._id,
         fields: [],
       };
-      const atts = response.doc._attachments;
+      const atts = doc._attachments;
       for (const attachment in atts) {
         const content_type: string = atts[attachment]['content_type'];
         console.log(`Course: ${courseID}`);
         console.log(`\tAttachment ${attachment} in:`);
-        console.log(`\t${response.doc._id}`);
+        console.log(`\t${doc._id}`);
         console.log(` should be processed...`);
 
         if (content_type.includes('audio')) {
