@@ -6,20 +6,9 @@ import { COURSE_DB_LOOKUP } from '../client-requests/course-requests';
 
 const Q = new AsyncProcessQueue<AttachmentProcessingRequest, Result>(processDocAttachments);
 
-async function init() {
-  const lookupDB = await useOrCreateDB(COURSE_DB_LOOKUP);
-  const courses = await lookupDB.list({
-    include_docs: true,
-  });
-
-  for (const course of courses.rows) {
-    postProcessCourse(course.id);
-  }
-}
-
 /**
  * Apply post-processing to a course database. Runs continuously.
- * @param courseID 
+ * @param courseID
  */
 export function postProcessCourse(courseID: string) {
   console.log(`Following course ${courseID}`);
@@ -43,7 +32,14 @@ export function postProcessCourse(courseID: string) {
  */
 export default async function postProcess() {
   console.log(`Following all course databases for changes...`);
-  init();
+  const lookupDB = await useOrCreateDB(COURSE_DB_LOOKUP);
+  const courses = await lookupDB.list({
+    include_docs: true,
+  });
+
+  for (const course of courses.rows) {
+    postProcessCourse(course.id);
+  }
 }
 
 function filterFactory(courseID: string) {
