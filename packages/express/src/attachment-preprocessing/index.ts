@@ -10,12 +10,12 @@ const Q = new AsyncProcessQueue<AttachmentProcessingRequest, Result>(processDocA
  * Apply post-processing to a course database. Runs continuously.
  * @param courseID
  */
-export function postProcessCourse(courseID: string) {
+export function postProcessCourse(courseID: string): void {
   console.log(`Following course ${courseID}`);
 
   const crsString = `coursedb-${courseID}`;
 
-  const feed = CouchDB.db.follow(
+  CouchDB.db.follow(
     crsString,
     {
       feed: 'continuous',
@@ -30,7 +30,7 @@ export function postProcessCourse(courseID: string) {
  * Connect to CouchDB, monitor changes to uploaded card data,
  * perform post-processing on uploaded media
  */
-export default async function postProcess() {
+export default async function postProcess(): Promise<void> {
   console.log(`Following all course databases for changes...`);
   const lookupDB = await useOrCreateDB(COURSE_DB_LOOKUP);
   const courses = await lookupDB.list({
