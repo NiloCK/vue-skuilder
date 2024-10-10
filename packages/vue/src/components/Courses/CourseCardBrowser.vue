@@ -9,7 +9,7 @@
       v-on:prev="prev"
       v-on:next="next"
       v-on:last="last"
-      v-on:set-page="(n) => setPage(n)"
+      v-on:set-page="n => setPage(n)"
     />
     <v-list v-for="c in cards" v-bind:key="c.id" v-bind:class="c.isOpen ? 'blue-grey lighten-5' : ''" two-line dense>
       <v-list-tile v-bind:class="c.isOpen ? 'elevation-4 font-weight-black blue-grey lighten-4' : ''">
@@ -77,7 +77,7 @@
       @prev="prev"
       @next="next"
       @last="last"
-      @set-page="(n) => setPage(n)"
+      @set-page="n => setPage(n)"
     />
   </v-card>
 </template>
@@ -160,20 +160,24 @@ export default class CourseCardBrowser extends SkldrVue {
   private updatePending: boolean = true;
 
   public userIsRegistered: boolean = false;
-  private questionCount: number;
+  private questionCount: number; // todo: not updating when, eg, selected a specific tag
   private tags: Tag[] = []; // for filtering-by
 
   private async created() {
     this.courseDB = new CourseDB(this._id);
 
-    this.questionCount = (
-      await getCourseDB(this._id).find({
-        selector: {
-          docType: DocType.CARD,
-        },
-        limit: 1000,
-      })
-    ).docs.length;
+    if (this._tag) {
+      this.questionCount = (await getTag(this._id, this._tag)).taggedCards.length;
+    } else {
+      this.questionCount = (
+        await getCourseDB(this._id).find({
+          selector: {
+            docType: DocType.CARD,
+          },
+          limit: 1000,
+        })
+      ).docs.length;
+    }
 
     for (let i = 1; (i - 1) * 25 < this.questionCount; i++) {
       this.pages.push(i);
