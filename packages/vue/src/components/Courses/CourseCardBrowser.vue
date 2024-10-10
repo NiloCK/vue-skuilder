@@ -160,7 +160,7 @@ export default class CourseCardBrowser extends SkldrVue {
   private updatePending: boolean = true;
 
   public userIsRegistered: boolean = false;
-  private questionCount: number; // todo: not updating when, eg, selected a specific tag
+  private questionCount: number;
   private tags: Tag[] = []; // for filtering-by
 
   private async created() {
