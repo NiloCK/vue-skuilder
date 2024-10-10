@@ -84,6 +84,14 @@ function filterFactory(courseID: string) {
 }
 
 async function processDocAttachments(request: AttachmentProcessingRequest): Promise<Result> {
+  if (request.fields.length == 0) {
+    console.log(`No attachments to process for ${request.docID}`);
+    return {
+      error: 'No attachments to process',
+      ok: true,
+      status: 'warning',
+    };
+  }
   const courseDatabase = CouchDB.use(`coursedb-${request.courseID}`);
 
   const doc = await courseDatabase.get(request.docID, {
