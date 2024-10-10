@@ -148,33 +148,45 @@ export default class MediaDragDropUploader extends FieldInput {
     this.updateStore();
   }
 
+  public clearData() {
+    this.mediaItems.forEach(item => {
+      URL.revokeObjectURL(item.url);
+    });
+    this.mediaItems = [];
+    this.updateStore();
+    // set validation to `ok` for blank input
+    this.validate();
+  }
+
   addMoreMedia() {
     this.log('addMoreMedia');
     this.triggerFileInput();
   }
 
   updateStore() {
-    let images: MediaItem[] = [];
-    let audios: MediaItem[] = [];
+    // Clear existing entries first
+    for (let i = 1; i <= 10; i++) {
+      this.$delete(this.store, `image-${i}`);
+      this.$delete(this.store, `audio-${i}`);
+    }
 
-    this.mediaItems.forEach((item, index) => {
+    // Then add current items
+    let imageCount = 0;
+    let audioCount = 0;
+    this.mediaItems.forEach(item => {
       if (item.type === 'image') {
-        images.push(item);
+        imageCount++;
+        this.store[`image-${imageCount}`] = {
+          content_type: item.file.type,
+          data: item.file,
+        };
       } else if (item.type === 'audio') {
-        audios.push(item);
+        audioCount++;
+        this.store[`audio-${audioCount}`] = {
+          content_type: item.file.type,
+          data: item.file,
+        };
       }
-      images.forEach((image, index) => {
-        this.store[`image-${index + 1}`] = {
-          content_type: image.file.type,
-          data: image.file,
-        };
-      });
-      audios.forEach((audio, index) => {
-        this.store[`audio-${index + 1}`] = {
-          content_type: audio.file.type,
-          data: audio.file,
-        };
-      });
     });
     this.validate();
   }
