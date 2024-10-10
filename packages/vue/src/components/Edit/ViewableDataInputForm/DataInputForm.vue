@@ -532,7 +532,12 @@ export default class DataInputForm extends SkldrVue {
     }
 
     // Reset validation
-    this.store.validation = {};
+    Object.keys(this.store.validation).forEach(key => {
+      this.store.validation[key] = {
+        valid: true,
+        message: '',
+      };
+    });
 
     // Reset converted and preview inputs
     this.store.convertedInput = {};
