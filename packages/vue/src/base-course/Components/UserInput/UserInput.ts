@@ -31,7 +31,8 @@ export default abstract class UserInput extends SkldrVue {
   }
 
   private submit(answer: Answer) {
-    return this.getQuestionViewAncestor().submitAnswer(answer);
+    const thisClassname = this.constructor.name;
+    return this.getQuestionViewAncestor().submitAnswer(answer, thisClassname);
   }
 
   private getQuestionViewAncestor(): QuestionView<Question> {

@@ -100,16 +100,44 @@ export default class FillInView extends QuestionView<BlanksCard> {
 
   /**
    * returns an 'obscured' string hinting at the answer:
-   * ie, if the answer is 'Canada', it returns '******'
+   * ie, if the answer is 'Canada', it returns '_ _ _ _ _ _'
    */
   get obscuredAnswer(): string | undefined {
+    const sa = this.someAnswer;
+
+    this.log(`Prior answers: ${this.priorAnswers}`);
+
+    if (sa && this.priorAnswers[0][0] && this.priorAnswers[0][1] === 'UserInputString') {
+      return this.gradeSpellingAttempt(sa, this.priorAnswers[0][0] as string);
+    }
+
     if (this.someAnswer) {
       let obscuredAnswer = '';
       for (let i = 0; i < this.someAnswer.length; i++) {
-        obscuredAnswer += '*';
+        obscuredAnswer += '_ ';
       }
       return obscuredAnswer;
     }
+  }
+
+  gradeSpellingAttempt(attempt: string, answer: string): string {
+    let result = '';
+    const maxLength = Math.max(attempt.length, answer.length);
+
+    for (let i = 0; i < maxLength; i++) {
+      if (i < attempt.length && i < answer.length && attempt[i] === answer[i]) {
+        // Correct letter
+        result += attempt[i] + ' ';
+      } else if (i < attempt.length) {
+        // Incorrect letter in attempt
+        result += '_ ';
+      } else {
+        // Missing letter in attempt
+        result += '_ ';
+      }
+    }
+
+    return result;
   }
 
   get truncatedOptions(): string[] | undefined {
