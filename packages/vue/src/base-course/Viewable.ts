@@ -99,7 +99,11 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
   @Prop() public modifyDifficulty: number;
 
   protected priorSessionViews: number = 0;
+  /**
+   * The number of times that the user has attempted to answer this question
+   */
   protected priorAttempts: number = 0; // starts at the 1st attempt
+  protected priorAnswers: [Answer, string][] = [];
   public abstract get question(): Q;
 
   /**
@@ -107,11 +111,12 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
    * be presented to a learner in one study session (to avoid burnout
    * on too-hard content)
    */
-  public maxSessionViews: number = 1;
   public maxAttemptsPerView: number = 3;
+  public maxSessionViews: number = 1;
 
-  public submitAnswer(answer: Answer): QuestionRecord {
+  public submitAnswer(answer: Answer, submittingClass?: string): QuestionRecord {
     console.log('QuestionView.submitAnswer called...');
+    this.priorAnswers.push([answer, submittingClass]);
     const evaluation = this.question.evaluate(answer, this.timeSpent);
 
     const record: QuestionRecord = {

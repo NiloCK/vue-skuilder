@@ -30,6 +30,7 @@ import { Component } from 'vue-property-decorator';
 import FillInInput from './fillInInput.vue';
 import FillInText from './fillInText.vue';
 import { BlanksCard } from './index';
+import gradeSpellingAttempt from './blanksCorrection';
 
 const typeMap: {
   [index: string]: string;
@@ -100,13 +101,21 @@ export default class FillInView extends QuestionView<BlanksCard> {
 
   /**
    * returns an 'obscured' string hinting at the answer:
-   * ie, if the answer is 'Canada', it returns '******'
+   * ie, if the answer is 'Canada', it returns '_ _ _ _ _ _'
    */
   get obscuredAnswer(): string | undefined {
+    const sa = this.someAnswer;
+
+    this.log(`Prior answers: ${this.priorAnswers}`);
+
+    if (sa && this.priorAnswers[0][0] && this.priorAnswers[0][1] === 'UserInputString') {
+      return gradeSpellingAttempt(this.priorAnswers[0][0] as string, sa);
+    }
+
     if (this.someAnswer) {
       let obscuredAnswer = '';
       for (let i = 0; i < this.someAnswer.length; i++) {
-        obscuredAnswer += '*';
+        obscuredAnswer += '_ ';
       }
       return obscuredAnswer;
     }
