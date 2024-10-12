@@ -30,6 +30,7 @@ import { Component } from 'vue-property-decorator';
 import FillInInput from './fillInInput.vue';
 import FillInText from './fillInText.vue';
 import { BlanksCard } from './index';
+import gradeSpellingAttempt from './blanksCorrection';
 
 const typeMap: {
   [index: string]: string;
@@ -108,7 +109,7 @@ export default class FillInView extends QuestionView<BlanksCard> {
     this.log(`Prior answers: ${this.priorAnswers}`);
 
     if (sa && this.priorAnswers[0][0] && this.priorAnswers[0][1] === 'UserInputString') {
-      return this.gradeSpellingAttempt(sa, this.priorAnswers[0][0] as string);
+      return gradeSpellingAttempt(sa, this.priorAnswers[0][0] as string);
     }
 
     if (this.someAnswer) {
@@ -118,26 +119,6 @@ export default class FillInView extends QuestionView<BlanksCard> {
       }
       return obscuredAnswer;
     }
-  }
-
-  gradeSpellingAttempt(attempt: string, answer: string): string {
-    let result = '';
-    const maxLength = Math.max(attempt.length, answer.length);
-
-    for (let i = 0; i < maxLength; i++) {
-      if (i < attempt.length && i < answer.length && attempt[i] === answer[i]) {
-        // Correct letter
-        result += attempt[i] + ' ';
-      } else if (i < attempt.length) {
-        // Incorrect letter in attempt
-        result += '_ ';
-      } else {
-        // Missing letter in attempt
-        result += '_ ';
-      }
-    }
-
-    return result;
   }
 
   get truncatedOptions(): string[] | undefined {
