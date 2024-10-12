@@ -109,7 +109,7 @@ export default class FillInView extends QuestionView<BlanksCard> {
     this.log(`Prior answers: ${this.priorAnswers}`);
 
     if (sa && this.priorAnswers[0][0] && this.priorAnswers[0][1] === 'UserInputString') {
-      return gradeSpellingAttempt(sa, this.priorAnswers[0][0] as string);
+      return gradeSpellingAttempt(this.priorAnswers[0][0] as string, sa);
     }
 
     if (this.someAnswer) {

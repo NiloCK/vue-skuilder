@@ -1,6 +1,22 @@
+'use strict';
+
 function gradeSpellingAttempt(attempt: string, answer: string): string {
+  // attempt = attempt.trim();
   const result: string[] = new Array(answer.length).fill('_');
   let attemptChars = attempt.split('');
+
+  console.log(attempt, answer);
+
+  console.log(
+    'Attempt char codes:',
+    attempt.split('').map(c => c.charCodeAt(0))
+  );
+  console.log(
+    'Answer char codes:',
+    answer.split('').map(c => c.charCodeAt(0))
+  );
+
+  // alert('hello');
 
   // First pass: match characters in correct positions
   for (let i = 0; i < answer.length; i++) {
@@ -20,6 +36,8 @@ function gradeSpellingAttempt(attempt: string, answer: string): string {
       }
     }
   }
+
+  console.log(result.join(' '));
 
   return result.join(' ');
 }

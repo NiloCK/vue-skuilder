@@ -41,6 +41,7 @@ describe('gradeSpellingEvent', () => {
     expected: string;
   }
   const cases: t[] = [
+    // hello
     { attempt: 'hello', answer: 'hello', expected: 'h e l l o' },
     { attempt: 'hella', answer: 'hello', expected: 'h e l l _' },
     { attempt: 'hell', answer: 'hello', expected: 'h e l l _' },
@@ -53,12 +54,19 @@ describe('gradeSpellingEvent', () => {
     { attempt: 'l', answer: 'hello', expected: '_ _ _ l _' },
     { attempt: 'o', answer: 'hello', expected: '_ _ _ _ o' },
     { attempt: 'lo', answer: 'hello', expected: '_ _ _ l o' },
-
     { attempt: '', answer: 'hello', expected: '_ _ _ _ _' },
+
+    // rate
+    { attempt: 'te', answer: 'rate', expected: '_ _ t e' },
+
+    // chuck
+    { attempt: 'chuk', answer: 'chuck', expected: 'c h u _ k' },
   ];
   cases.forEach(c => {
     it(`grades attempt [${c.attempt}] for answer [${c.answer}]`, () => {
       const result = gradeSpellingAttempt(c.attempt, c.answer);
+      const joined = result.split(' ').join('');
+      expect(joined.length).toEqual(c.answer.length);
       expect(result).toBe(c.expected);
     });
   });
