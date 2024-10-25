@@ -5,6 +5,7 @@ import { DataShapeName } from '@/enums/DataShapeNames';
 import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
 import PuzzleView from './puzzle.vue';
+import { Key as cgKey } from '../../chessground/types';
 
 export class Puzzle extends Question {
   public static dataShapes: DataShape[] = [
@@ -12,11 +13,12 @@ export class Puzzle extends Question {
       name: DataShapeName.CHESS_puzzle,
       fields: [
         {
-          name: 'fen',
+          name: 'puzzleData', // see https://database.lichess.org/#puzzles
           type: FieldType.STRING,
           validator: {
             instructions: 'insert a valid fen string',
-            test: function (s: string) {
+            test: function(s: string) {
+              console.log('running puzzle validator...');
               return {
                 status: Status.ok,
                 msg: '',
@@ -31,11 +33,34 @@ export class Puzzle extends Question {
   public static acceptsUserData: boolean = true;
 
   public fen: string;
+  id: string;
+  moves: string[];
+  rating: number;
+  themes: string[];
 
   constructor(data: ViewData[]) {
     super(data);
-    this.fen = data[0].fen as string;
+
+    const [id, fen, movesStr, rating, , , , themes] = (data[0].puzzleData as string).split(',');
+    this.id = id;
+    this.fen = fen;
+    this.moves = movesStr.split(' ');
+    this.rating = parseInt(rating, 10);
+    this.themes = themes.split(' ');
+    // this.fen = data[0].fen as string;
   }
+
+  public checkMove = (orig: cgKey, dest: cgKey) => {
+    alert('checkMove');
+    console.log('checkMove', orig, dest);
+    console.log('this.moves[0]', this.moves[0]);
+
+    if (this.moves[0] === dest) {
+      return true;
+    } else {
+      return false;
+    }
+  };
 
   evaluate(a: Answer, t: number) {
     return {
@@ -55,6 +80,7 @@ export class Puzzle extends Question {
   }
 
   isCorrect(a: Answer) {
-    return true;
+    // player actions have exhausted the move tree
+    return this.moves.length === 0;
   }
 }
