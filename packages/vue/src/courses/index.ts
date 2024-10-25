@@ -5,6 +5,7 @@ import french from './french';
 import math from './math';
 import wordWork from './word-work';
 import piano from './piano';
+import chess from './chess';
 import defaultCourse from './default';
 import Viewable from '../base-course/Viewable';
 import { Displayable } from '../base-course/Displayable';
@@ -24,7 +25,7 @@ export class CourseList {
   }
 
   public getCourse(name: string): Course | undefined {
-    return this.courseList.find((course) => {
+    return this.courseList.find(course => {
       return course.name === name;
     });
   }
@@ -36,7 +37,7 @@ export class CourseList {
   public allViews(): { [index: string]: VueConstructor<Vue> } {
     const ret: { [index: string]: VueConstructor<Vue> } = {};
 
-    this.courseList.forEach((course) => {
+    this.courseList.forEach(course => {
       Object.assign(ret, course.allViewsMap);
     });
 
@@ -55,7 +56,7 @@ export class CourseList {
     if (course) {
       const question = course.getQuestion(description.questionType);
       if (question) {
-        const ret = question.views.find((view) => {
+        const ret = question.views.find(view => {
           return view.name === description.view;
         });
 
@@ -75,9 +76,9 @@ export class CourseList {
   public allDataShapesRaw(): DataShape[] {
     const ret: DataShape[] = [];
 
-    this.courseList.forEach((course) => {
-      course.questions.forEach((question) => {
-        question.dataShapes.forEach((shape) => {
+    this.courseList.forEach(course => {
+      course.questions.forEach(question => {
+        question.dataShapes.forEach(shape => {
           if (!ret.includes(shape)) {
             ret.push(shape);
           }
@@ -91,14 +92,14 @@ export class CourseList {
   public allDataShapes(): (ShapeDescriptor & { displayable: typeof Displayable })[] {
     const ret: (ShapeDescriptor & { displayable: typeof Displayable })[] = [];
 
-    this.courseList.forEach((course) => {
-      course.questions.forEach((question) => {
-        question.dataShapes.forEach((shape) => {
+    this.courseList.forEach(course => {
+      course.questions.forEach(question => {
+        question.dataShapes.forEach(shape => {
           // [ ] need to de-dup shapes here. Currently, if a shape is used in multiple courses
           //     it will be returned multiple times.
           //     `Blanks` shape is is hard coded into new courses, so gets returned many times
           if (
-            ret.findIndex((testShape) => {
+            ret.findIndex(testShape => {
               return testShape.course === course.name && testShape.dataShape === shape.name;
             }) === -1
           ) {
@@ -118,8 +119,8 @@ export class CourseList {
   public getDataShape(description: ShapeDescriptor): DataShape {
     let ret: DataShape | undefined;
 
-    this.getCourse(description.course)!.questions.forEach((question) => {
-      question.dataShapes.forEach((shape) => {
+    this.getCourse(description.course)!.questions.forEach(question => {
+      question.dataShapes.forEach(shape => {
         if (shape.name === description.dataShape) {
           ret = shape;
         }
@@ -142,6 +143,7 @@ const courseList: CourseList = new CourseList([
   piano,
   pitch,
   sightSing,
+  chess,
 ]);
 
 export default courseList;
