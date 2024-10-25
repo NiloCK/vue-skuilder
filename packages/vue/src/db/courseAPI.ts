@@ -26,7 +26,8 @@ export async function addNote55(
   data: any,
   author: string,
   tags: string[],
-  uploads?: { [x: string]: PouchDB.Core.FullAttachment }
+  uploads?: { [x: string]: PouchDB.Core.FullAttachment },
+  elo: CourseElo = blankCourseElo()
 ) {
   const db = await getCourseDB(courseID);
   const payload = prepareNote55(courseID, codeCourse, shape, data, author, tags, uploads);
@@ -39,7 +40,7 @@ export async function addNote55(
 
   if (result.ok) {
     // create cards
-    const cards = await createCards(courseID, dataShapeId, result.id, tags);
+    const cards = await createCards(courseID, dataShapeId, result.id, tags, elo);
   }
 
   return result;
@@ -49,7 +50,8 @@ export async function createCards(
   courseID: string,
   datashapeID: PouchDB.Core.DocumentId,
   noteID: PouchDB.Core.DocumentId,
-  tags: string[]
+  tags: string[],
+  elo: CourseElo = blankCourseElo()
 ) {
   const cfg = await getCredentialledCourseConfig(courseID);
   const dsDescriptor = NameSpacer.getDataShapeDescriptor(datashapeID);
@@ -62,7 +64,7 @@ export async function createCards(
   }
 
   for (const questionView of questionViewTypes) {
-    createCard(questionView, courseID, dsDescriptor, noteID, tags);
+    createCard(questionView, courseID, dsDescriptor, noteID, tags, elo);
   }
 }
 
@@ -71,9 +73,10 @@ async function createCard(
   courseID: string,
   dsDescriptor: ShapeDescriptor,
   noteID: string,
-  tags: string[]
+  tags: string[],
+  elo: CourseElo = blankCourseElo()
 ) {
-  tags.forEach((t) => console.log(`Adding ${t}!`));
+  tags.forEach(t => console.log(`Adding ${t}!`));
   const qDescriptor = NameSpacer.getQuestionDescriptor(questionViewName);
   const cfg = await getCredentialledCourseConfig(courseID);
 
@@ -89,7 +92,7 @@ async function createCard(
             questionType: qDescriptor.questionType,
             view,
           }),
-          blankCourseElo(),
+          elo,
           tags
         );
       }
@@ -120,7 +123,7 @@ async function addCard(
     docType: DocType.CARD,
     elo: elo || toCourseElo(990 + Math.round(20 * Math.random())),
   });
-  tags.forEach((tag) => {
+  tags.forEach(tag => {
     console.log(`adding tag: ${tag} to card ${card.id}`);
     addTagToCard(courseID, card.id, tag);
   });
@@ -143,6 +146,8 @@ export async function getCredentialledCourseConfig(courseID: string) {
 //
 // NB: DB stores tags as separate documents, with a list of card IDs.
 //     Consider renaming to `addCardToTag` to reflect this.
+//
+// NB: tags are created if they don't already exist
 export async function addTagToCard(
   courseID: string,
   cardID: string,
@@ -159,7 +164,7 @@ export async function addTagToCard(
     if (!tag.taggedCards.includes(cardID)) {
       tag.taggedCards.push(cardID);
 
-      courseApi.getCardEloData([cardID]).then((eloData) => {
+      courseApi.getCardEloData([cardID]).then(eloData => {
         const elo = eloData[0];
         elo.tags[tagID] = {
           count: 0,
