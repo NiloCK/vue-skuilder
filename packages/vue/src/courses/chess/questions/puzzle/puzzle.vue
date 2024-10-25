@@ -99,7 +99,18 @@ export default class PuzzleView extends QuestionView<Puzzle> {
         }, this.animDelay);
       }
     } else {
-      alert('incorrect - revert the move'); // [ ] visual feedback? emit 'wrongness' event?
+      // check for a checkmate
+      this.chess.move({ from: orig, to: dest });
+      if (this.chess.isCheckmate()) {
+        this.submitAnswer(Puzzle.CHECKMATE);
+        return true;
+      } else {
+        // revert the move
+        this.chess.undo();
+      }
+
+      this.log('incorrect - revert the move'); // [ ] visual feedback? emit 'wrongness' event?
+      this.submitAnswer(orig + dest);
       this.updateChessground();
     }
 

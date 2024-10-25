@@ -32,6 +32,8 @@ export class Puzzle extends Question {
   public static views = [PuzzleView];
   public static acceptsUserData: boolean = true;
 
+  public static readonly CHECKMATE = 'CHECKMATE';
+
   public fen: string;
   id: string;
   moves: string[];
@@ -81,6 +83,8 @@ export class Puzzle extends Question {
 
   isCorrect(a: Answer) {
     // player actions have exhausted the move tree
-    return this.moves.length === 0;
+    const sequenceComplete = this.moves.length === 0;
+
+    return a === Puzzle.CHECKMATE || sequenceComplete;
   }
 }
