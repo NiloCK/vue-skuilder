@@ -22,6 +22,8 @@ export default class PuzzleView extends QuestionView<Puzzle> {
   private playerColor: Color;
   private moveSequence: string[] = [];
 
+  private readonly animDelay: number = 300;
+
   get question() {
     return new Puzzle(this.data);
   }
@@ -44,7 +46,7 @@ export default class PuzzleView extends QuestionView<Puzzle> {
       orientation: this.playerColor,
       coordinates: false,
       animation: {
-        duration: 300,
+        duration: this.animDelay,
         enabled: true,
       },
     });
@@ -63,7 +65,6 @@ export default class PuzzleView extends QuestionView<Puzzle> {
     this.chess.move({ from: firstMove.substring(0, 2), to: firstMove.substring(2) });
     this.updateChessground();
   }
-
   checkMove(orig: any, dest: any) {
     this.log('checkMove', orig, dest);
     let puzzleMoves = this.question.moves;
@@ -87,13 +88,15 @@ export default class PuzzleView extends QuestionView<Puzzle> {
         // alert('done - you have solved the puzzle.');
         this.submitAnswer('');
       } else {
-        let nextMove = this.question.moves.shift()!;
-        this.log('computerMove', nextMove);
-        this.chess.move({
-          from: nextMove.substring(0, 2),
-          to: nextMove.substring(2),
-        });
-        this.updateChessground();
+        window.setTimeout(() => {
+          let nextMove = this.question.moves.shift()!;
+          this.log('computerMove', nextMove);
+          this.chess.move({
+            from: nextMove.substring(0, 2),
+            to: nextMove.substring(2),
+          });
+          this.updateChessground();
+        }, this.animDelay);
       }
     } else {
       alert('incorrect - revert the move'); // [ ] visual feedback? emit 'wrongness' event?
