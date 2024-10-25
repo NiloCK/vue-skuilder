@@ -288,7 +288,7 @@ export default class DataInputForm extends SkldrVue {
 
   @Watch('dataShape')
   public onDataShapeChange(value?: DataShape, old?: DataShape) {
-    // this.getExistingNotesFromDB();
+    // this.log('DataShape changed, getting implementing views');
     this.getImplementingViews();
   }
 
@@ -549,6 +549,7 @@ export default class DataInputForm extends SkldrVue {
 
   private getImplementingViews() {
     if (ENV.MOCK) {
+      // this.log('Mocking DataInputForm views');
       this.shapeViews = [FillInView]; // [ ] mock this properly
       return;
     }
@@ -556,8 +557,16 @@ export default class DataInputForm extends SkldrVue {
     for (const ds of this.courseCfg.dataShapes) {
       // BUG: not finding blanks
       const descriptor = NameSpacer.getDataShapeDescriptor(ds.name);
+
+      this.log('descriptor', descriptor);
+      this.log('this.dataShape', this.dataShape);
+      this.log('this.dataShape.name', this.dataShape.name);
+
       if (descriptor.dataShape === this.dataShape.name) {
         const crs = Courses.getCourse(descriptor.course)!;
+
+        this.shapeViews = []; // clear out any previous views
+
         crs.getBaseQTypes().forEach(qType => {
           if (qType.dataShapes[0].name === this.dataShape.name) {
             // qType.views.forEach((view) => {
@@ -572,7 +581,7 @@ export default class DataInputForm extends SkldrVue {
           const qDescriptor = NameSpacer.getQuestionDescriptor(q);
 
           crs.getQuestion(qDescriptor.questionType)!.views.forEach(view => {
-            this.shapeViews.push(view);
+            this.shapeViews = this.shapeViews.concat(view);
           });
         }
       }
