@@ -17,10 +17,9 @@ import { Chess, SQUARES } from 'chess.js';
 @Component({})
 export default class PuzzleView extends QuestionView<Puzzle> {
   public answer: string = '';
-  private chess: Chess;
-  private cg: cgAPI;
+  private chessEngine: Chess;
+  private chessBoard: cgAPI;
   private playerColor: Color;
-  private moveSequence: string[] = [];
 
   private readonly animDelay: number = 300;
 
@@ -29,20 +28,19 @@ export default class PuzzleView extends QuestionView<Puzzle> {
   }
 
   public mounted() {
-    this.chess = new Chess(this.question.fen);
-    this.playerColor = swapColor(toColor(this.chess));
-    this.moveSequence = this.question.moves;
+    this.chessEngine = new Chess(this.question.fen);
+    this.playerColor = swapColor(toColor(this.chessEngine));
 
-    this.cg = Chessground(document.getElementById('cg')!, {
+    this.chessBoard = Chessground(document.getElementById('cg')!, {
       movable: {
         free: false,
         showDests: true,
-        dests: toDests(this.chess),
+        dests: toDests(this.chessEngine),
       },
       draggable: {
         showGhost: true,
       },
-      fen: this.chess.fen(),
+      fen: this.chessEngine.fen(),
       orientation: this.playerColor,
       coordinates: false,
       animation: {
@@ -51,7 +49,7 @@ export default class PuzzleView extends QuestionView<Puzzle> {
       },
     });
 
-    this.cg.set({
+    this.chessBoard.set({
       movable: {
         events: {
           after: this.checkMove,
@@ -59,39 +57,47 @@ export default class PuzzleView extends QuestionView<Puzzle> {
       },
     });
 
-    const firstMove = this.moveSequence.shift()!;
+    const firstMove = this.question.moves.shift()!;
 
-    this.cg.move(firstMove.substring(0, 2) as Key, firstMove.substring(2) as Key);
-    this.chess.move({ from: firstMove.substring(0, 2), to: firstMove.substring(2) });
+    this.chessBoard.move(firstMove.substring(0, 2) as Key, firstMove.substring(2) as Key);
+    this.chessEngine.move({ from: firstMove.substring(0, 2), to: firstMove.substring(2) });
     this.updateChessground();
   }
+
+  /**
+   * Checks the user's move against the expected move.
+   *
+   * If correct, puzzle advances (or finishes). Else, the move is reverted.
+   *
+   * @param orig
+   * @param dest
+   */
   checkMove(orig: any, dest: any) {
     this.log('checkMove', orig, dest);
-    let puzzleMoves = this.question.moves;
-    this.log('moves: ' + puzzleMoves);
-    if (puzzleMoves.length === 0) {
+    this.log('moves: ' + this.question.moves);
+    if (this.question.moves.length === 0) {
       throw new Error('No moves');
     }
 
-    let expectedMove = puzzleMoves[0];
+    let expectedMove = this.question.moves[0];
     this.log(`Expected move: ${expectedMove}`);
 
     if (expectedMove === orig + dest) {
-      this.log('correct');
-      this.chess.move({ from: orig, to: dest });
+      this.log('move is correct');
+      this.chessEngine.move({ from: orig, to: dest });
       this.updateChessground();
 
       this.question.moves.shift();
       this.log(this.question.moves);
 
       if (this.question.moves.length === 0) {
-        // alert('done - you have solved the puzzle.');
+        this.log('no more moves - puzzle completed');
         this.submitAnswer('');
       } else {
         window.setTimeout(() => {
           let nextMove = this.question.moves.shift()!;
           this.log('computerMove', nextMove);
-          this.chess.move({
+          this.chessEngine.move({
             from: nextMove.substring(0, 2),
             to: nextMove.substring(2),
           });
@@ -100,37 +106,31 @@ export default class PuzzleView extends QuestionView<Puzzle> {
       }
     } else {
       // check for a checkmate
-      this.chess.move({ from: orig, to: dest });
-      if (this.chess.isCheckmate()) {
+      this.chessEngine.move({ from: orig, to: dest });
+      if (this.chessEngine.isCheckmate()) {
+        this.log('checkmate');
         this.submitAnswer(Puzzle.CHECKMATE);
-        return true;
       } else {
         // revert the move
-        this.chess.undo();
+        this.chessEngine.undo();
       }
 
       this.log('incorrect - revert the move'); // [ ] visual feedback? emit 'wrongness' event?
       this.submitAnswer(orig + dest);
       this.updateChessground();
     }
-
-    return true;
   }
 
   updateChessground() {
-    this.cg.set({
-      fen: this.chess.fen(),
-      turnColor: toColor(this.chess),
+    this.chessBoard.set({
+      fen: this.chessEngine.fen(),
+      turnColor: toColor(this.chessEngine),
       movable: {
-        color: toColor(this.chess),
-        dests: toDests(this.chess),
+        color: toColor(this.chessEngine),
+        dests: toDests(this.chessEngine),
       },
     });
   }
-
-  // public submit() {
-  //   alert(this.question.isCorrect(parseInt(this.answer, 10)));
-  // }
 }
 
 function toDests(chess: Chess) {
