@@ -9,7 +9,14 @@
             v-bind:key="dataShape.fields.indexOf(field)"
           >
             <string-input
-              v-if="field.type === str"
+              v-if="field.type === ftString"
+              v-bind:store="store"
+              v-bind:field="field"
+              v-bind:uiValidationFunction="checkInput"
+              v-bind:autofocus="i == 0"
+            />
+            <chess-puzzle-input
+              v-else-if="field.type === chessPuzzle"
               v-bind:store="store"
               v-bind:field="field"
               v-bind:uiValidationFunction="checkInput"
