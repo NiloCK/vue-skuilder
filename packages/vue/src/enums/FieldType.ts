@@ -36,7 +36,7 @@ export const fieldConverters: { [index in FieldType]: FieldConverter } = {
     previewConverter: intConverter,
   },
   image: {
-    databaseConverter: (value) => value,
+    databaseConverter: value => value,
     previewConverter: (value: { content_type: string; data: Blob }) => {
       if (value) {
         return value.data;
@@ -46,7 +46,7 @@ export const fieldConverters: { [index in FieldType]: FieldConverter } = {
     },
   },
   audio: {
-    databaseConverter: (value) => value,
+    databaseConverter: value => value,
     previewConverter: (value: { content_type: string; data: Blob }) => {
       if (value) {
         return value.data;
@@ -57,16 +57,16 @@ export const fieldConverters: { [index in FieldType]: FieldConverter } = {
     },
   },
   midi: {
-    databaseConverter: (value) => value,
-    previewConverter: (value) => value,
+    databaseConverter: value => value,
+    previewConverter: value => value,
   },
   markdown: {
-    databaseConverter: (value) => value,
-    previewConverter: (value) => value,
+    databaseConverter: value => value,
+    previewConverter: value => value,
   },
   uploads: {
-    databaseConverter: (value) => value,
-    previewConverter: (value) => value,
+    databaseConverter: value => value,
+    previewConverter: value => value,
   },
 };
 
