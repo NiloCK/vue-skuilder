@@ -124,6 +124,7 @@ import MediaUploader from './FieldInputs/MediaUploader.vue';
 import MidiInput from './FieldInputs/MidiInput.vue';
 import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
+import ChessPuzzleInput from './FieldInputs/ChessPuzzleInput.vue';
 
 type StringIndexable = { [x: string]: any };
 
@@ -141,6 +142,7 @@ type StringIndexable = { [x: string]: any };
     MediaUploader,
     MediaDragDropUploader,
     TagsInput,
+    ChessPuzzleInput,
   },
 })
 export default class DataInputForm extends SkldrVue {
