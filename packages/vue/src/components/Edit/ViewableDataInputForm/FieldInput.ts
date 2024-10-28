@@ -68,6 +68,10 @@ export abstract class FieldInput extends SkldrVue {
     }
   }
 
+  public generateTags = () => {
+    return this.field.tagger ? this.field.tagger(this.userInput()) : [];
+  };
+
   public validate = () => {
     // 'this' is null if
     // public validate() {...} used instead
