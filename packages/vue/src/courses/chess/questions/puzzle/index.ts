@@ -18,11 +18,27 @@ export class Puzzle extends Question {
           validator: {
             instructions: 'insert a valid fen string',
             test: function(s: string) {
-              console.log('running puzzle validator...');
-              return {
-                status: Status.ok,
-                msg: '',
-              };
+              console.log(`running puzzle validator on ${s}`);
+
+              if (!s) {
+                return {
+                  status: Status.error,
+                  msg: 'no defined input',
+                };
+              }
+
+              const split = s.split(',');
+              if (split.length != 10) {
+                return {
+                  status: Status.error,
+                  msg: 'puzzleData must have 8 comma-separated fields',
+                };
+              } else {
+                return {
+                  status: Status.ok,
+                  msg: '',
+                };
+              }
             },
           },
         },
