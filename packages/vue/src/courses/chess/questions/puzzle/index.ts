@@ -14,7 +14,7 @@ export class ChessPuzzle extends Question {
       fields: [
         {
           name: 'puzzleData', // see https://database.lichess.org/#puzzles
-          type: FieldType.STRING,
+          type: FieldType.CHESS_PUZZLE,
           validator: {
             instructions: 'insert a valid fen string',
             test: function(s: string) {
