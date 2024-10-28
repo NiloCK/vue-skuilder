@@ -440,6 +440,26 @@ export default class DataInputForm extends SkldrVue {
     }
   }
 
+  /**
+   * Gets note tags from
+   *  - the tagsInput UI component
+   *  - the fieldInputs (generated tags)
+   */
+  private getTags(): string[] {
+    const dataShapeParsedTags: string[] = [];
+
+    this.fieldInputs.forEach(f => {
+      if (f.generateTags) {
+        const fTags = f.generateTags();
+        dataShapeParsedTags.push(...fTags);
+      }
+    });
+
+    let manualTags = this.$refs.tagsInput.tags.map(t => t.text);
+
+    return dataShapeParsedTags.concat(manualTags);
+  }
+
   public async submit() {
     if (this.checkInput()) {
       this.log(`Store: ${JSON.stringify(this.store)}`);
@@ -465,7 +485,7 @@ export default class DataInputForm extends SkldrVue {
             this.dataShape,
             input,
             this.$store.state._user!.username,
-            this.$refs.tagsInput.tags.map(t => t.text)
+            this.getTags()
             // generic (non-required by datashape) attachments here
           );
         })
