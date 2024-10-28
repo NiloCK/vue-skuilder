@@ -11,11 +11,11 @@ import { Chessground } from '../../chessground/chessground';
 import { Key } from '../../chessground/types';
 import { Api as cgAPI } from '../../chessground/api';
 import { QuestionView } from '@/base-course/Viewable';
-import { Puzzle } from './index';
+import { ChessPuzzle } from './index';
 import { Chess, SQUARES } from 'chess.js';
 
 @Component({})
-export default class PuzzleView extends QuestionView<Puzzle> {
+export default class PuzzleView extends QuestionView<ChessPuzzle> {
   public answer: string = '';
   private chessEngine: Chess;
   private chessBoard: cgAPI;
@@ -24,10 +24,11 @@ export default class PuzzleView extends QuestionView<Puzzle> {
   private readonly animDelay: number = 300;
 
   get question() {
-    return new Puzzle(this.data);
+    return new ChessPuzzle(this.data);
   }
 
   public mounted() {
+    // this.log(`data: ${this.data}`);
     this.chessEngine = new Chess(this.question.fen);
     this.playerColor = swapColor(toColor(this.chessEngine));
 
@@ -109,7 +110,7 @@ export default class PuzzleView extends QuestionView<Puzzle> {
       this.chessEngine.move({ from: orig, to: dest });
       if (this.chessEngine.isCheckmate()) {
         this.log('checkmate');
-        this.submitAnswer(Puzzle.CHECKMATE);
+        this.submitAnswer(ChessPuzzle.CHECKMATE);
       } else {
         // revert the move
         this.chessEngine.undo();
