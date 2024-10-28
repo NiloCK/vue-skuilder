@@ -220,14 +220,15 @@ export default class DataInputForm extends SkldrVue {
     this.$store.state.dataInputForm.uploading = uploading;
   }
 
-  private readonly str: string = FieldType.STRING;
-  private readonly int: string = FieldType.INT;
-  private readonly num: string = FieldType.NUMBER;
-  private readonly img: string = FieldType.IMAGE;
-  private readonly mkd: string = FieldType.MARKDOWN;
-  private readonly audio: string = FieldType.AUDIO;
-  private readonly midi: string = FieldType.MIDI;
-  private readonly uploader: string = FieldType.MEDIA_UPLOADS;
+  public readonly ftString: string = FieldType.STRING;
+  public readonly int: string = FieldType.INT;
+  public readonly num: string = FieldType.NUMBER;
+  public readonly img: string = FieldType.IMAGE;
+  public readonly mkd: string = FieldType.MARKDOWN;
+  public readonly audio: string = FieldType.AUDIO;
+  public readonly midi: string = FieldType.MIDI;
+  public readonly uploader: string = FieldType.MEDIA_UPLOADS;
+  public readonly chessPuzzle: string = FieldType.CHESS_PUZZLE;
 
   public updateTags(newTags: string[]) {
     this.log(`tags updated: ${JSON.stringify(newTags)}`);
