@@ -7,6 +7,7 @@ export enum FieldType {
   AUDIO = 'audio',
   MIDI = 'midi',
   MEDIA_UPLOADS = 'uploads',
+  CHESS_PUZZLE = 'chess_puzzle',
 }
 
 const stringConverter: Converter = (value: string) => value;
@@ -22,6 +23,10 @@ export const fieldConverters: { [index in FieldType]: FieldConverter } = {
     databaseConverter: (value: string) => value,
     previewConverter: (value: string) => value,
   },
+  chess_puzzle: {
+    databaseConverter: (value: string) => value,
+    previewConverter: (value: string) => value,
+  },
   number: {
     databaseConverter: numberConverter,
     previewConverter: numberConverter,
@@ -31,7 +36,7 @@ export const fieldConverters: { [index in FieldType]: FieldConverter } = {
     previewConverter: intConverter,
   },
   image: {
-    databaseConverter: (value) => value,
+    databaseConverter: value => value,
     previewConverter: (value: { content_type: string; data: Blob }) => {
       if (value) {
         return value.data;
@@ -41,7 +46,7 @@ export const fieldConverters: { [index in FieldType]: FieldConverter } = {
     },
   },
   audio: {
-    databaseConverter: (value) => value,
+    databaseConverter: value => value,
     previewConverter: (value: { content_type: string; data: Blob }) => {
       if (value) {
         return value.data;
@@ -52,16 +57,16 @@ export const fieldConverters: { [index in FieldType]: FieldConverter } = {
     },
   },
   midi: {
-    databaseConverter: (value) => value,
-    previewConverter: (value) => value,
+    databaseConverter: value => value,
+    previewConverter: value => value,
   },
   markdown: {
-    databaseConverter: (value) => value,
-    previewConverter: (value) => value,
+    databaseConverter: value => value,
+    previewConverter: value => value,
   },
   uploads: {
-    databaseConverter: (value) => value,
-    previewConverter: (value) => value,
+    databaseConverter: value => value,
+    previewConverter: value => value,
   },
 };
 

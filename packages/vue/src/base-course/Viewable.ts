@@ -116,7 +116,7 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
 
   public submitAnswer(answer: Answer, submittingClass?: string): QuestionRecord {
     console.log('QuestionView.submitAnswer called...');
-    this.priorAnswers.push([answer, submittingClass]);
+    this.priorAnswers.push([answer, submittingClass ? submittingClass : '']);
     const evaluation = this.question.evaluate(answer, this.timeSpent);
 
     const record: QuestionRecord = {

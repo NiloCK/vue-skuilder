@@ -9,7 +9,14 @@
             v-bind:key="dataShape.fields.indexOf(field)"
           >
             <string-input
-              v-if="field.type === str"
+              v-if="field.type === ftString"
+              v-bind:store="store"
+              v-bind:field="field"
+              v-bind:uiValidationFunction="checkInput"
+              v-bind:autofocus="i == 0"
+            />
+            <chess-puzzle-input
+              v-else-if="field.type === chessPuzzle"
               v-bind:store="store"
               v-bind:field="field"
               v-bind:uiValidationFunction="checkInput"
@@ -117,6 +124,7 @@ import MediaUploader from './FieldInputs/MediaUploader.vue';
 import MidiInput from './FieldInputs/MidiInput.vue';
 import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
+import ChessPuzzleInput from './FieldInputs/ChessPuzzleInput.vue';
 
 type StringIndexable = { [x: string]: any };
 
@@ -134,6 +142,7 @@ type StringIndexable = { [x: string]: any };
     MediaUploader,
     MediaDragDropUploader,
     TagsInput,
+    ChessPuzzleInput,
   },
 })
 export default class DataInputForm extends SkldrVue {
@@ -220,14 +229,15 @@ export default class DataInputForm extends SkldrVue {
     this.$store.state.dataInputForm.uploading = uploading;
   }
 
-  private readonly str: string = FieldType.STRING;
-  private readonly int: string = FieldType.INT;
-  private readonly num: string = FieldType.NUMBER;
-  private readonly img: string = FieldType.IMAGE;
-  private readonly mkd: string = FieldType.MARKDOWN;
-  private readonly audio: string = FieldType.AUDIO;
-  private readonly midi: string = FieldType.MIDI;
-  private readonly uploader: string = FieldType.MEDIA_UPLOADS;
+  public readonly ftString: string = FieldType.STRING;
+  public readonly int: string = FieldType.INT;
+  public readonly num: string = FieldType.NUMBER;
+  public readonly img: string = FieldType.IMAGE;
+  public readonly mkd: string = FieldType.MARKDOWN;
+  public readonly audio: string = FieldType.AUDIO;
+  public readonly midi: string = FieldType.MIDI;
+  public readonly uploader: string = FieldType.MEDIA_UPLOADS;
+  public readonly chessPuzzle: string = FieldType.CHESS_PUZZLE;
 
   public updateTags(newTags: string[]) {
     this.log(`tags updated: ${JSON.stringify(newTags)}`);
@@ -252,7 +262,7 @@ export default class DataInputForm extends SkldrVue {
     return this.dataShape.fields.length;
   }
 
-  private checkInput(): boolean {
+  public checkInput(): boolean {
     let validations = Object.getOwnPropertyNames(this.store.validation);
     validations = validations.filter(v => v !== '__ob__'); // remove vuejs observer property
 
@@ -288,7 +298,7 @@ export default class DataInputForm extends SkldrVue {
 
   @Watch('dataShape')
   public onDataShapeChange(value?: DataShape, old?: DataShape) {
-    // this.getExistingNotesFromDB();
+    // this.log('DataShape changed, getting implementing views');
     this.getImplementingViews();
   }
 
@@ -439,6 +449,26 @@ export default class DataInputForm extends SkldrVue {
     }
   }
 
+  /**
+   * Gets note tags from
+   *  - the tagsInput UI component
+   *  - the fieldInputs (generated tags)
+   */
+  private getTags(): string[] {
+    const dataShapeParsedTags: string[] = [];
+
+    this.fieldInputs.forEach(f => {
+      if (f.generateTags) {
+        const fTags = f.generateTags();
+        dataShapeParsedTags.push(...fTags);
+      }
+    });
+
+    let manualTags = this.$refs.tagsInput.tags.map(t => t.text);
+
+    return dataShapeParsedTags.concat(manualTags);
+  }
+
   public async submit() {
     if (this.checkInput()) {
       this.log(`Store: ${JSON.stringify(this.store)}`);
@@ -464,7 +494,7 @@ export default class DataInputForm extends SkldrVue {
             this.dataShape,
             input,
             this.$store.state._user!.username,
-            this.$refs.tagsInput.tags.map(t => t.text)
+            this.getTags()
             // generic (non-required by datashape) attachments here
           );
         })
@@ -549,6 +579,7 @@ export default class DataInputForm extends SkldrVue {
 
   private getImplementingViews() {
     if (ENV.MOCK) {
+      // this.log('Mocking DataInputForm views');
       this.shapeViews = [FillInView]; // [ ] mock this properly
       return;
     }
@@ -556,8 +587,16 @@ export default class DataInputForm extends SkldrVue {
     for (const ds of this.courseCfg.dataShapes) {
       // BUG: not finding blanks
       const descriptor = NameSpacer.getDataShapeDescriptor(ds.name);
+
+      this.log('descriptor', descriptor);
+      this.log('this.dataShape', this.dataShape);
+      this.log('this.dataShape.name', this.dataShape.name);
+
       if (descriptor.dataShape === this.dataShape.name) {
         const crs = Courses.getCourse(descriptor.course)!;
+
+        this.shapeViews = []; // clear out any previous views
+
         crs.getBaseQTypes().forEach(qType => {
           if (qType.dataShapes[0].name === this.dataShape.name) {
             // qType.views.forEach((view) => {
@@ -572,7 +611,7 @@ export default class DataInputForm extends SkldrVue {
           const qDescriptor = NameSpacer.getQuestionDescriptor(q);
 
           crs.getQuestion(qDescriptor.questionType)!.views.forEach(view => {
-            this.shapeViews.push(view);
+            this.shapeViews = this.shapeViews.concat(view);
           });
         }
       }
