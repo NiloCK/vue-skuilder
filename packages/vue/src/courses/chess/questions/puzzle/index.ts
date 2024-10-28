@@ -41,6 +41,10 @@ export class ChessPuzzle extends Question {
               }
             },
           },
+          tagger: (s: string) => {
+            // [ ] not actually used
+            return ['test'];
+          },
         },
       ],
     },
