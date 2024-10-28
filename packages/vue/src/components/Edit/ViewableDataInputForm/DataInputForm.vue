@@ -260,7 +260,7 @@ export default class DataInputForm extends SkldrVue {
     return this.dataShape.fields.length;
   }
 
-  private checkInput(): boolean {
+  public checkInput(): boolean {
     let validations = Object.getOwnPropertyNames(this.store.validation);
     validations = validations.filter(v => v !== '__ob__'); // remove vuejs observer property
 
