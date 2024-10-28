@@ -7,7 +7,7 @@ import { Status } from '@/enums/Status';
 import PuzzleView from './puzzle.vue';
 import { Key as cgKey } from '../../chessground/types';
 
-export class Puzzle extends Question {
+export class ChessPuzzle extends Question {
   public static dataShapes: DataShape[] = [
     {
       name: DataShapeName.CHESS_puzzle,
@@ -90,17 +90,17 @@ export class Puzzle extends Question {
     return 1000;
   }
   dataShapes() {
-    return Puzzle.dataShapes;
+    return ChessPuzzle.dataShapes;
   }
 
   views() {
-    return Puzzle.views;
+    return ChessPuzzle.views;
   }
 
   isCorrect(a: Answer) {
     // player actions have exhausted the move tree
     const sequenceComplete = this.moves.length === 0;
 
-    return a === Puzzle.CHECKMATE || sequenceComplete;
+    return a === ChessPuzzle.CHECKMATE || sequenceComplete;
   }
 }
