@@ -59,9 +59,19 @@ export default class CourseEditor extends SkldrVue {
 
   @Watch('selectedShape')
   public onShapeSelected(value?: string, old?: string) {
+    // this.log('Selecting Shape', value, old);
+
     if (value) {
       this.dataShape = this.getDataShape(value);
-      this.$store.state.dataInputForm.dataShape = this.getDataShape(value);
+      this.$store.state.dataInputForm.dataShape = this.dataShape;
+
+      // clear the validation store of fields from the prior shape
+      let validations: { [x: string]: string } = {};
+      for (let field of this.dataShape.fields) {
+        validations[field.name] = '';
+      }
+      this.$store.state.dataInputForm.localStore.validation = validations;
+
       this.$store.state.dataInputForm.course = this.courseConfig;
     }
   }
