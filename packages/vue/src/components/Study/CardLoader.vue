@@ -69,7 +69,7 @@ export default class CardLoader extends SkldrVue {
       // const tmpCardData = await CardCache.getDoc<CardData>(qualified_id);
       const tmpCardData = await getCourseDoc<CardData>(_courseID, _cardID);
       const tmpView = Courses.getView(tmpCardData.id_view);
-      const tmpDataDocs = await tmpCardData.id_displayable_data.map(id => {
+      const tmpDataDocs = tmpCardData.id_displayable_data.map(id => {
         return getCourseDoc<DisplayableData>(_courseID, id, {
           attachments: true,
           binary: true,
@@ -90,7 +90,7 @@ export default class CardLoader extends SkldrVue {
       this.courseID = _courseID;
 
       // bleeding memory? Do these get GCd?
-      this.constructedView = new this.view();
+      this.constructedView = new this.view(); // [ ] remove? does this do anything?
     } catch (e) {
       throw new Error(`Error loading card: ${JSON.stringify(e)}, ${e}`);
     } finally {
