@@ -169,7 +169,7 @@ import Courses from '@/courses';
 import { getCourseDoc, putCardRecord, removeScheduledCardReview, scheduleCardReview } from '@/db';
 import { ContentSourceID, getStudySource, isReview, StudyContentSource, StudySessionItem } from '@/db/contentSource';
 import { getCredentialledCourseConfig } from '@/db/courseAPI';
-import { CourseDB, getCourseList, getCourseName, updateCardElo } from '@/db/courseDB';
+import { CourseDB, getCourseList, getCourseName, updateCardElo, docIsDeleted } from '@/db/courseDB';
 import { getCardDataShape } from '@/db/getCardDataShape';
 import SessionController, { StudySessionRecord } from '@/db/SessionController';
 import { newInterval } from '@/db/SpacedRepetition';
@@ -702,9 +702,13 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
         records: [],
       });
     } catch (e) {
-      // [ ] if error = deleted, remove this scheduled review.
-      this.log(`Error loading card: ${JSON.stringify(e)}, ${e}`);
-      // this.nextCard(qualified_id, 'dismiss-error');
+      this.warn(`Error loading card: ${JSON.stringify(e)}, ${e}`);
+
+      if (docIsDeleted(e) && isReview(item)) {
+        this.warn(`Card was deleted: ${qualified_id}`);
+        removeScheduledCardReview(this.user().username, item.reviewID);
+      }
+
       this.loadCard(this.sessionController.nextCard('dismiss-error'));
     } finally {
       this.loading = false;
