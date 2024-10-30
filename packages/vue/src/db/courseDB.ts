@@ -19,6 +19,16 @@ import { ScheduledCard, User } from './userDB';
 
 const courseLookupDBTitle = 'coursedb-lookup';
 
+
+export function docIsDeleted(e: Error) {
+  return (
+    (e as any).error &&
+    (e as any).error === 'not_found' &&
+    (e as any).reason &&
+    (e as any).reason === 'deleted'
+  );
+}
+
 const courseLookupDB: PouchDB.Database = new pouch(
   ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + courseLookupDBTitle,
   {
