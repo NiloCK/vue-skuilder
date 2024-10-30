@@ -125,6 +125,7 @@ import MidiInput from './FieldInputs/MidiInput.vue';
 import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
 import ChessPuzzleInput from './FieldInputs/ChessPuzzleInput.vue';
+import { CourseElo } from '@/tutor/Elo';
 
 type StringIndexable = { [x: string]: any };
 
@@ -469,6 +470,15 @@ export default class DataInputForm extends SkldrVue {
     return dataShapeParsedTags.concat(manualTags);
   }
 
+  private getElo(): CourseElo | null {
+    this.fieldInputs.forEach(f => {
+      if (f.generateELO) {
+        return f.generateELO();
+      }
+    });
+    return null;
+  }
+
   public async submit() {
     if (this.checkInput()) {
       this.log(`Store: ${JSON.stringify(this.store)}`);
@@ -494,8 +504,9 @@ export default class DataInputForm extends SkldrVue {
             this.dataShape,
             input,
             this.$store.state._user!.username,
-            this.getTags()
-            // generic (non-required by datashape) attachments here
+            this.getTags(),
+            null, // generic (non-required by datashape) attachments here
+            this.getElo()
           );
         })
       );
