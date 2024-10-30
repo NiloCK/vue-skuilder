@@ -702,6 +702,7 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
         records: [],
       });
     } catch (e) {
+      // [ ] if error = deleted, remove this scheduled review.
       this.log(`Error loading card: ${JSON.stringify(e)}, ${e}`);
       // this.nextCard(qualified_id, 'dismiss-error');
       this.loadCard(this.sessionController.nextCard('dismiss-error'));

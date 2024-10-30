@@ -31,7 +31,6 @@ export default class ChessPuzzleInput extends FieldInput {
     this.validate();
   }
 
-  // [ ] move this data e2e - allow to set elo of new cards / notes
   public generateELO = () => {
     const split = (this.store[this.field.name] as string).split(',');
     const elo = parseInt(split[3]);
@@ -53,6 +52,8 @@ export default class ChessPuzzleInput extends FieldInput {
         count,
       };
     });
+
+    this.log('generateELO', JSON.stringify(crsElo));
 
     return crsElo;
   };

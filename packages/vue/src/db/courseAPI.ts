@@ -29,7 +29,7 @@ export async function addNote55(
   uploads?: { [x: string]: PouchDB.Core.FullAttachment },
   elo: CourseElo = blankCourseElo()
 ) {
-  const db = await getCourseDB(courseID);
+  const db = getCourseDB(courseID);
   const payload = prepareNote55(courseID, codeCourse, shape, data, author, tags, uploads);
   const result = await db.post<DisplayableData>(payload);
 
@@ -40,7 +40,7 @@ export async function addNote55(
 
   if (result.ok) {
     // create cards
-    const cards = await createCards(courseID, dataShapeId, result.id, tags, elo);
+    await createCards(courseID, dataShapeId, result.id, tags, elo);
   }
 
   return result;
@@ -125,7 +125,7 @@ async function addCard(
   });
   tags.forEach(tag => {
     console.log(`adding tag: ${tag} to card ${card.id}`);
-    addTagToCard(courseID, card.id, tag);
+    addTagToCard(courseID, card.id, tag, false);
   });
   return card;
 }
@@ -142,16 +142,21 @@ export async function getCredentialledCourseConfig(courseID: string) {
   return ret;
 }
 
-// Associates a tag with a card.
-//
-// NB: DB stores tags as separate documents, with a list of card IDs.
-//     Consider renaming to `addCardToTag` to reflect this.
-//
-// NB: tags are created if they don't already exist
+/**
+ Assciates a tag with a card.
+
+ NB: DB stores tags as separate documents, with a list of card IDs.
+     Consider renaming to `addCardToTag` to reflect this.
+
+ NB: tags are created if they don't already exist
+
+ @param updateELO whether to update the ELO of the card with the new tag. Default true.
+*/
 export async function addTagToCard(
   courseID: string,
   cardID: string,
-  tagID: string
+  tagID: string,
+  updateELO: boolean = true
 ): Promise<PouchDB.Core.Response> {
   // todo: possible future perf. hit if tags have large #s of taggedCards.
   // In this case, should be converted to a server-request
@@ -164,21 +169,35 @@ export async function addTagToCard(
     if (!tag.taggedCards.includes(cardID)) {
       tag.taggedCards.push(cardID);
 
-      courseApi.getCardEloData([cardID]).then(eloData => {
-        const elo = eloData[0];
-        elo.tags[tagID] = {
-          count: 0,
-          score: elo.global.score, // todo: or 1000?
-        };
-        updateCardElo(courseID, cardID, elo);
-      });
+      if (updateELO) {
+        courseApi.getCardEloData([cardID]).then(eloData => {
+          const elo = eloData[0];
+          elo.tags[tagID] = {
+            count: 0,
+            score: elo.global.score, // todo: or 1000?
+          };
+          updateCardElo(courseID, cardID, elo);
+        });
+      }
 
       return courseDB.put<Tag>(tag);
-    } else throw new Error(`Card already has this tag`);
+    } else throw new AlreadyTaggedErr(`Card ${cardID} is already tagged with ${tagID}`);
   } catch (e) {
+    if (e instanceof AlreadyTaggedErr) {
+      console.warn(e.message);
+      throw e;
+    }
+
     console.log(`Tag ${tagID} does not exist...`);
     await createTag(courseID, tagID);
-    return addTagToCard(courseID, cardID, tagID);
+    return addTagToCard(courseID, cardID, tagID, updateELO);
+  }
+}
+
+class AlreadyTaggedErr extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AlreadyTaggedErr';
   }
 }
 
