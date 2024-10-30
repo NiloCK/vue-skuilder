@@ -470,13 +470,13 @@ export default class DataInputForm extends SkldrVue {
     return dataShapeParsedTags.concat(manualTags);
   }
 
-  private getElo(): CourseElo | null {
+  private getElo(): CourseElo | undefined {
     this.fieldInputs.forEach(f => {
       if (f.generateELO) {
         return f.generateELO();
       }
     });
-    return null;
+    return undefined;
   }
 
   public async submit() {
@@ -505,7 +505,7 @@ export default class DataInputForm extends SkldrVue {
             input,
             this.$store.state._user!.username,
             this.getTags(),
-            null, // generic (non-required by datashape) attachments here
+            undefined, // generic (non-required by datashape) attachments here
             this.getElo()
           );
         })
