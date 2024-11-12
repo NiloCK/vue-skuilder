@@ -1,7 +1,7 @@
 <template>
   <div>
+    <p class="headline">Make the best move for {{ question.color === 'w' ? '♖ White ♖' : '♜ Black ♜' }}:</p>
     <div id="cg"></div>
-    <!-- {{ question.fen }} -->
   </div>
 </template>
 
