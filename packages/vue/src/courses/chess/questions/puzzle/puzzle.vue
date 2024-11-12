@@ -1,7 +1,17 @@
 <template>
   <div>
-    <div id="cg"></div>
-    <!-- {{ question.fen }} -->
+    <p class="headline">Make the best move for {{ playerColor === 'cg-white' ? '♖ White ♖' : '♜ Black ♜' }}:</p>
+    <div class="board-wrapper">
+      <div class="ranks-labels" :class="{ reversed: playerColor === 'cg-black' }">
+        <div v-for="rank in 8" :key="rank">{{ playerColor === 'cg-white' ? 9 - rank : rank }}</div>
+      </div>
+      <div class="board-and-files">
+        <div id="cg"></div>
+        <div class="files-labels" :class="{ reversed: playerColor === 'cg-black' }">
+          <div v-for="file in files" :key="file">{{ file }}</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -25,6 +35,11 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
 
   get question() {
     return new ChessPuzzle(this.data);
+  }
+
+  get files(): string[] {
+    const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    return this.playerColor === 'cg-white' ? files : files.reverse();
   }
 
   public mounted() {
@@ -176,6 +191,55 @@ function playOtherSide(cg: cgAPI, chess: Chess) {
 @import '../../chessground/css/chessground.base.css';
 @import '../../chessground/css/chessground.brown.css';
 @import '../../chessground/css/chessground.cburnett.css';
+
+.board-wrapper {
+  display: flex;
+  align-items: center;
+  width: 440px;
+}
+
+.ranks-labels {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* width: 0px; */
+  height: 400px;
+  margin-right: 10px;
+}
+
+.ranks-labels.reversed {
+  flex-direction: column-reverse;
+}
+
+.ranks-labels div {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-and-files {
+  display: flex;
+  flex-direction: column;
+}
+
+.files-labels {
+  display: flex;
+  justify-content: center;
+  height: 20px;
+}
+
+.files-labels.reversed {
+  flex-direction: row-reverse;
+}
+
+.files-labels div {
+  width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 #cg {
   width: 400px;
   height: 400px;
