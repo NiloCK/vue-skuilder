@@ -91,7 +91,7 @@ export class ChessPuzzle extends Question {
     };
   }
   displayedSkill(a: Answer, t: number) {
-    return 1000;
+    return 0.5;
   }
   dataShapes() {
     return ChessPuzzle.dataShapes;
