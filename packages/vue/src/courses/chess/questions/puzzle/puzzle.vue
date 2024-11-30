@@ -1,13 +1,15 @@
 <template>
   <div>
-    <p class="headline">Make the best move for {{ playerColor === 'cg-white' ? '♖ White ♖' : '♜ Black ♜' }}:</p>
+    <p class="headline">
+      Make the best move for {{ playerColor === 'cg-white' ? 'White ♖♘♗♕♔♗♘♖' : 'Black ♜♞♝♚♛♝♞♜' }}:
+    </p>
     <div class="board-wrapper">
-      <div class="ranks-labels" :class="{ reversed: playerColor === 'cg-black' }">
+      <div class="ranks-labels">
         <div v-for="rank in 8" :key="rank">{{ playerColor === 'cg-white' ? 9 - rank : rank }}</div>
       </div>
       <div class="board-and-files">
         <div id="cg"></div>
-        <div class="files-labels" :class="{ reversed: playerColor === 'cg-black' }">
+        <div class="files-labels">
           <div v-for="file in files" :key="file">{{ file }}</div>
         </div>
       </div>
@@ -29,7 +31,7 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
   public answer: string = '';
   private chessEngine: Chess;
   private chessBoard: cgAPI;
-  private playerColor: Color;
+  public playerColor: Color = 'cg-white';
 
   private readonly animDelay: number = 300;
 
@@ -46,6 +48,7 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
     // this.log(`data: ${this.data}`);
     this.chessEngine = new Chess(this.question.fen);
     this.playerColor = swapColor(toColor(this.chessEngine));
+    this.log(`Player color: ${this.playerColor}`);
 
     this.chessBoard = Chessground(document.getElementById('cg')!, {
       movable: {
@@ -166,6 +169,7 @@ function toDests(chess: Chess) {
 type Color = 'cg-white' | 'cg-black';
 
 function swapColor(color: Color): Color {
+  console.log('swapColor', color);
   return color === 'cg-white' ? 'cg-black' : 'cg-white';
 }
 
