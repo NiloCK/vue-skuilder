@@ -2,6 +2,7 @@ import { Course } from '../base-course/Course';
 import { DataShape } from '../base-course/Interfaces/DataShape';
 import Vue, { VueConstructor } from 'vue';
 import french from './french';
+import typing from './typing';
 import math from './math';
 import wordWork from './word-work';
 import piano from './piano';
@@ -144,6 +145,7 @@ const courseList: CourseList = new CourseList([
   pitch,
   sightSing,
   chess,
+  typing,
 ]);
 
 export default courseList;
