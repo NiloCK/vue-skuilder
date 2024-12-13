@@ -35,4 +35,7 @@ export enum DataShapeName {
 
   // Chess
   CHESS_puzzle = 'CHESS_puzzle',
+
+  // Typing
+  TYPING_singleLetter = 'TYPING_singleLetter',
 }
