@@ -179,6 +179,7 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
   width: 100%;
   height: 40px;
   overflow: hidden;
+  z-index: 2;
 }
 
 .grass {
@@ -215,8 +216,9 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
 
 .falling-letter {
   position: absolute;
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 45px;
+  z-index: 1;
   transition: top 16ms linear;
 }
 
@@ -287,9 +289,11 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
   background-color: rgba(255, 255, 255, 0.8);
   padding: 5px 10px;
   border-radius: 4px;
+  z-index: 3;
 }
 
 .game-over {
+  z-index: 3;
   position: absolute;
   top: 50%;
   left: 50%;
