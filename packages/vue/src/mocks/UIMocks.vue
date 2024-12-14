@@ -9,8 +9,9 @@
         :data="[
           {
             gameLength: 30,
-            initialSpeed: 2,
-            acceleration: 0.1,
+            initialSpeed: 0.5,
+            acceleration: 0,
+            spawnInterval: 1,
           },
         ]"
       />
@@ -46,10 +47,10 @@
       <HeatMap :data="{}" />
     </div> -->
 
-    <div class="component">
+    <!-- <div class="component">
       <h2>DataInputForm</h2>
       <data-input-form :courseCfg="{}" :dataShape="ChessPuzzleDataShapes[0]" />
-    </div>
+    </div> -->
 
     <!-- <div class="component">
       <h2>DataInputForm</h2>

@@ -13,6 +13,7 @@ const data = function() {
       gameLength: 30, // 30 seconds game
       initialSpeed: 2, // Initial fall speed
       acceleration: 0.1, // Speed increase per second
+      spawnInterval: 1, // New letter every second
     },
   ];
 };
@@ -34,6 +35,21 @@ export class FallingLettersQuestion extends Question {
           name: 'acceleration',
           type: FieldType.NUMBER,
         },
+        {
+          name: 'spawnInterval',
+          type: FieldType.NUMBER,
+          validator: {
+            instructions: 'How often should a new letter spawn? (in seconds)',
+            test: (x: any) => {
+              if (x > 0) {
+                return { status: Status.ok, msg: '' };
+              } else {
+                return { status: Status.error, msg: 'Must be greater than 0' };
+              }
+            },
+            placeholder: '1',
+          },
+        },
       ],
     },
   ];
@@ -45,12 +61,14 @@ export class FallingLettersQuestion extends Question {
   public gameLength: number;
   public initialSpeed: number;
   public acceleration: number;
+  public spawnInterval: number;
 
   constructor(data: ViewData[]) {
     super(data);
     this.gameLength = data[0].gameLength as number;
     this.initialSpeed = data[0].initialSpeed as number;
     this.acceleration = data[0].acceleration as number;
+    this.spawnInterval = data[0].spawnInterval as number;
   }
 
   evaluate(a: Answer, t: number) {

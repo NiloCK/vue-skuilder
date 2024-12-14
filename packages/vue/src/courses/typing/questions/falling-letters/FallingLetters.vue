@@ -107,6 +107,7 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
   startGame() {
     this.timeLeft = this.question.gameLength;
     this.currentSpeed = this.question.initialSpeed;
+    this.spawnInterval = this.question.spawnInterval * 1000;
     this.lastUpdate = performance.now();
     this.lastSpawn = performance.now();
     this.gameLoop = requestAnimationFrame(this.update);
@@ -122,6 +123,7 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
       x: Math.random() * (gameArea.clientWidth - 30),
       y: -30, // Start slightly above the visible area
     };
+
     this.letters.push(letter);
   }
 
