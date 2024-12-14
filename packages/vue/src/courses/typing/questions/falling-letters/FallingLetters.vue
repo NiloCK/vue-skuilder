@@ -124,6 +124,12 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
       y: -30, // Start slightly above the visible area
     };
 
+    // [ ] next: words instead of letters
+    //
+    // if (Math.random() > 0.8) {
+    //   letter.char = 'word';
+    // }
+
     this.letters.push(letter);
   }
 
