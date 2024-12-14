@@ -23,6 +23,21 @@
         <div class="grass"></div>
         <div class="grass-overlay"></div>
       </div>
+      <div class="trees">
+        <div
+          class="tree"
+          v-for="tree in treePositions"
+          :key="tree.id"
+          :style="{
+            left: `${tree.left}%`,
+            height: `${tree.height}px`,
+            transform: `scale(${tree.scale})`,
+          }"
+        >
+          <div class="tree-crown"></div>
+          <div class="tree-trunk"></div>
+        </div>
+      </div>
     </div>
     <div v-if="gameOver" class="game-over">
       {{ gameOverMessage }}
@@ -40,6 +55,13 @@ interface Letter {
   char: string;
   x: number;
   y: number;
+}
+
+interface TreePosition {
+  id: number;
+  left: number;
+  height: number;
+  scale: number;
 }
 
 @Component({})
@@ -60,9 +82,21 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
     return new FallingLettersQuestion(this.data);
   }
 
+  treePositions: TreePosition[] = [];
+
   mounted() {
     window.addEventListener('keypress', this.handleKeyPress);
     this.startGame();
+    this.generateTrees();
+  }
+
+  generateTrees() {
+    this.treePositions = Array.from({ length: 7 }, (_, i) => ({
+      id: i,
+      left: 20 + i * Math.random() * 30 - 10,
+      height: 100 + Math.random() * 120,
+      scale: 1 + Math.random() * 2,
+    }));
   }
 
   destroyed() {
@@ -163,6 +197,7 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
 }
 
 .game-area {
+  z-index: 0;
   width: 100%;
   height: 100%;
   background-color: #87ceeb; /* Sky blue background */
@@ -179,7 +214,7 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
   width: 100%;
   height: 40px;
   overflow: hidden;
-  z-index: 2;
+  z-index: 3;
 }
 
 .grass {
@@ -193,6 +228,7 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
 }
 
 .grass-overlay {
+  z-index: 3;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -289,7 +325,7 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
   background-color: rgba(255, 255, 255, 0.8);
   padding: 5px 10px;
   border-radius: 4px;
-  z-index: 3;
+  z-index: 4;
 }
 
 .game-over {
@@ -304,11 +340,55 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
   background-color: rgba(255, 255, 255, 0.9);
   padding: 20px;
   border-radius: 8px;
-  z-index: 2;
+  z-index: 4;
 }
 
 .time,
 .score {
   margin: 5px 0;
+}
+
+.trees {
+  position: absolute;
+  bottom: 20px; /* Adjust to sit on grass */
+  width: 100%;
+  height: 0;
+  z-index: 2;
+}
+
+.tree {
+  position: absolute;
+  bottom: 0;
+  transform-origin: bottom center;
+}
+
+.tree-crown {
+  z-index: 2;
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 40px;
+  background: radial-gradient(circle at 50% 25%, #2d5a27, #1a472a);
+  border-radius: 50% 50% 20% 20%;
+  box-shadow: -2px 3px 0 #1a472a, 2px 3px 0 #1a472a;
+}
+
+.tree-trunk {
+  z-index: 2;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 15px;
+  background: linear-gradient(to right, #3e2723 20%, #5d4037 50%, #3e2723 80%);
+  border-radius: 2px;
+}
+
+.grass,
+.grass-overlay {
+  z-index: 3;
 }
 </style>
