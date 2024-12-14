@@ -14,7 +14,8 @@
           top: letter.y + 'px',
         }"
       >
-        {{ letter.char }}
+        <div class="meteor-effect"></div>
+        <span class="letter-text">{{ letter.char }}</span>
       </div>
 
       <!-- Grass effect -->
@@ -214,20 +215,20 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
 
 .falling-letter {
   position: absolute;
-  font-size: 24px;
-  font-weight: bold;
-  color: #fff; /* White text */
   width: 30px;
   height: 30px;
-  text-align: center;
-  line-height: 30px;
   transition: top 16ms linear;
-  background: radial-gradient(circle at 40% 40%, #ff6b6b, #c92a2a); /* Hot red core */
-  border-radius: 50%;
-  box-shadow: 0 0 10px #ff8f8f, /* Outer glow */ 0 0 20px #ff6b6b, /* Middle glow */ 0 0 30px #c92a2a,
-    /* Inner glow */ 0 4px 8px rgba(0, 0, 0, 0.4); /* Drop shadow */
+}
 
-  /* Flame trail effect */
+.meteor-effect {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 40% 40%, #ff6b6b, #c92a2a);
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ff8f8f, 0 0 20px #ff6b6b, 0 0 30px #c92a2a, 0 4px 8px rgba(0, 0, 0, 0.4);
+  animation: meteorSpin 1s linear infinite;
+
   &::before {
     content: '';
     position: absolute;
@@ -240,7 +241,6 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
     filter: blur(1px);
   }
 
-  /* Particle effect */
   &::after {
     content: '';
     position: absolute;
@@ -252,9 +252,20 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
     background: radial-gradient(circle at center, rgba(255, 255, 255, 0.8), rgba(255, 143, 143, 0.4), transparent);
     filter: blur(2px);
   }
+}
 
-  /* Optional: Add rotation animation */
-  animation: meteorSpin 1s linear infinite;
+.letter-text {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.5), 0 0 8px rgba(0, 0, 0, 0.3);
+  z-index: 1;
 }
 
 @keyframes meteorSpin {
@@ -265,21 +276,6 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
     transform: rotate(360deg);
   }
 }
-
-/* .falling-letter {
-  position: absolute;
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  width: 30px;
-  height: 30px;
-  text-align: center;
-  line-height: 30px;
-  transition: top 16ms linear;
-  background-color: white;
-  border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-} */
 
 .stats {
   position: absolute;
