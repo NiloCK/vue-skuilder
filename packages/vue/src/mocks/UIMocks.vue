@@ -1,6 +1,23 @@
 <template>
   <div class="mock-environment">
     <div class="component">
+      <h2>Falling Letters Game</h2>
+      <FallingLettersView
+        :course-id="mockCourseId"
+        :card-id="mockCardId"
+        :modifyDifficulty="0"
+        :data="[
+          {
+            gameLength: 30,
+            initialSpeed: 0.5,
+            acceleration: 0,
+            spawnInterval: 1,
+          },
+        ]"
+      />
+    </div>
+
+    <div class="component">
       <h2>Letter Question</h2>
       <LetterQuestionView
         :course-id="mockCourseId"
@@ -30,10 +47,10 @@
       <HeatMap :data="{}" />
     </div> -->
 
-    <div class="component">
+    <!-- <div class="component">
       <h2>DataInputForm</h2>
       <data-input-form :courseCfg="{}" :dataShape="ChessPuzzleDataShapes[0]" />
-    </div>
+    </div> -->
 
     <!-- <div class="component">
       <h2>DataInputForm</h2>
@@ -95,6 +112,7 @@ import SkldrVue from '@/SkldrVue';
 import { Component } from 'vue-property-decorator';
 import DataInputForm from '../components/Edit/ViewableDataInputForm/DataInputForm.vue';
 import LetterQuestionView from '@/courses/typing/questions/single-letter/typeSingleLetter.vue';
+import FallingLettersView from '@/courses/typing/questions/falling-letters/FallingLetters.vue';
 
 @Component({
   components: {
@@ -105,6 +123,7 @@ import LetterQuestionView from '@/courses/typing/questions/single-letter/typeSin
     HeatMap,
     PuzzleView,
     LetterQuestionView,
+    FallingLettersView,
   },
 })
 export default class SkTagsInputMock extends SkldrVue {

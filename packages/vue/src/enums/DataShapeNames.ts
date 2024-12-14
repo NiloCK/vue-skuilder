@@ -38,4 +38,5 @@ export enum DataShapeName {
 
   // Typing
   TYPING_singleLetter = 'TYPING_singleLetter',
+  TYPING_fallingLetters = 'TYPING_fallingLetters',
 }

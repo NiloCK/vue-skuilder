@@ -1,7 +1,8 @@
 // vue/src/courses/typing/index.ts
 import { Course } from '../../base-course/Course';
 import { TypeLetterQuestion } from './questions/single-letter';
+import { FallingLettersQuestion } from './questions/falling-letters';
 
-let typing: Course = new Course('typing', [TypeLetterQuestion]);
+let typing: Course = new Course('typing', [TypeLetterQuestion, FallingLettersQuestion]);
 
 export default typing;
