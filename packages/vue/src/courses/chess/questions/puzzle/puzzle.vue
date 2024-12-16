@@ -14,6 +14,12 @@
         </div>
       </div>
     </div>
+    <div v-if="showPromotionDialog" class="promotion-dialog">
+      <button @click="handlePromotion('q')">{{ playerColor === 'cg-white' ? '♕' : '♛' }} Queen</button>
+      <button @click="handlePromotion('r')">{{ playerColor === 'cg-white' ? '♖' : '♜' }} Rook</button>
+      <button @click="handlePromotion('b')">{{ playerColor === 'cg-white' ? '♗' : '♝' }} Bishop</button>
+      <button @click="handlePromotion('n')">{{ playerColor === 'cg-white' ? '♘' : '♞' }} Knight</button>
+    </div>
   </div>
 </template>
 
@@ -26,6 +32,8 @@ import { QuestionView } from '@/base-course/Viewable';
 import { ChessPuzzle } from './index';
 import { Chess, SQUARES } from 'chess.js';
 
+type PromotionPiece = 'q' | 'r' | 'b' | 'n';
+
 @Component({})
 export default class PuzzleView extends QuestionView<ChessPuzzle> {
   public answer: string = '';
@@ -34,6 +42,9 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
   public playerColor: Color = 'cg-white';
 
   private readonly animDelay: number = 300;
+
+  public showPromotionDialog = false;
+  private promotionMove: { from: string; to: string } | null = null;
 
   get question() {
     return new ChessPuzzle(this.data);
@@ -83,6 +94,28 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
     this.updateChessground();
   }
 
+  private isUnfinishedPromotion(from: string, to: string, promotionPiece?: PromotionPiece): boolean {
+    if (this.isPromotionPiece(promotionPiece)) {
+      // If promotion piece is provided, it's a finished promotion move
+      return false;
+    }
+
+    const piece = this.chessEngine.get(from);
+    return piece?.type === 'p' && (to[1] === '8' || to[1] === '1');
+  }
+
+  public handlePromotion(promotionPiece: PromotionPiece) {
+    if (!this.promotionMove) return;
+
+    this.log(`promoting to ${promotionPiece}`);
+    this.showPromotionDialog = false;
+    this.checkMove(this.promotionMove.from, this.promotionMove.to, promotionPiece);
+  }
+
+  public isPromotionPiece(p: any): p is PromotionPiece {
+    return ['q', 'r', 'b', 'n'].includes(p);
+  }
+
   /**
    * Checks the user's move against the expected move.
    *
@@ -91,19 +124,32 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
    * @param orig
    * @param dest
    */
-  checkMove(orig: any, dest: any) {
+  checkMove(orig: any, dest: any, promotionPiece?: PromotionPiece) {
     this.log('checkMove', orig, dest);
     this.log('moves: ' + this.question.moves);
     if (this.question.moves.length === 0) {
       throw new Error('No moves');
     }
 
+    if (this.isUnfinishedPromotion(orig, dest, promotionPiece)) {
+      this.promotionMove = { from: orig, to: dest };
+      this.showPromotionDialog = true;
+      return; // Wait for promotion piece selection
+    }
+
     let expectedMove = this.question.moves[0];
     this.log(`Expected move: ${expectedMove}`);
 
-    if (expectedMove === orig + dest) {
+    const moveMade = this.isPromotionPiece(promotionPiece) ? `${orig}${dest}${promotionPiece}` : `${orig}${dest}`;
+    this.log(`Move made: ${moveMade}`);
+
+    if (expectedMove === moveMade) {
       this.log('move is correct');
-      this.chessEngine.move({ from: orig, to: dest });
+      this.chessEngine.move({
+        from: orig,
+        to: dest,
+        promotion: this.isPromotionPiece(promotionPiece) ? promotionPiece : undefined,
+      });
       this.updateChessground();
 
       this.question.moves.shift();
@@ -125,7 +171,7 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
       }
     } else {
       // check for a checkmate
-      this.chessEngine.move({ from: orig, to: dest });
+      this.chessEngine.move({ from: orig, to: dest, promotion: promotionPiece });
       if (this.chessEngine.isCheckmate()) {
         this.log('checkmate');
         this.submitAnswer(ChessPuzzle.CHECKMATE);
@@ -135,7 +181,7 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
       }
 
       this.log('incorrect - revert the move'); // [ ] visual feedback? emit 'wrongness' event?
-      this.submitAnswer(orig + dest);
+      this.submitAnswer(orig + dest + promotionPiece);
       this.updateChessground();
     }
   }
@@ -195,6 +241,45 @@ function playOtherSide(cg: cgAPI, chess: Chess) {
 @import '../../chessground/css/chessground.base.css';
 @import '../../chessground/css/chessground.brown.css';
 @import '../../chessground/css/chessground.cburnett.css';
+
+.promotion-dialog {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.promotion-dialog button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 150px;
+}
+
+.promotion-dialog button:hover {
+  background: #e0e0e0;
+}
+
+/* Optional: Add piece symbols next to text */
+.promotion-dialog button::before {
+  content: attr(data-piece);
+  font-size: 24px;
+}
 
 .board-wrapper {
   display: flex;

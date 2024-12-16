@@ -22,7 +22,7 @@
         :course-id="mockCourseId"
         :card-id="mockCardId"
         :modifyDifficulty="0"
-        :data="[{ puzzleData: Math.random() > 0.5 ? puzzleBlack : puzzleWhite }]"
+        :data="[{ puzzleData: Math.random() > 0.5 ? promotionPuzzle : puzzleWhite }]"
       />
     </div>
     <!-- <div class="component">
@@ -118,7 +118,7 @@ export default class SkTagsInputMock extends SkldrVue {
     '00sJb,Q1b2r1k/p2np2p/5bp1/q7/5P2/4B3/PPP3PP/2KR1B1R w - - 1 17,d1d7 a5e1 d7d1 e1e3 c1b1 e3b6,2235,76,97,64,advantage fork long,https://lichess.org/kiuvTFoE#33,Sicilian_Defense Sicilian_Defense_Dragon_Variation';
   puzzleBlack =
     'v2n1N,5Q1k/2pbq1p1/8/pp1P4/4B1P1/7P/PP6/1K3R2 b - - 4 34,e7f8 f1f8,615,86,73,189,endgame mate mateIn1 oneMove,https://lichess.org/Czh6F7z3/black#68,';
-
+  promotionPuzzle = `o2mD7,8/2K5/p4p2/8/1P4k1/8/P7/8 w - - 0 35,c7b7 f6f5 b7a6 f5f4 b4b5 f4f3 b5b6 f3f2 b6b7 f2f1q,846,99,92,589,advancedPawn crushing endgame pawnEndgame promotion quietMove veryLong,https://lichess.org/x0LpCJ7V#69,`;
   BlanksCardDataShapes = BlanksCardDataShapes;
   ChessPuzzleDataShapes = ChessPuzzle.dataShapes;
   FillInView = FillInView;
