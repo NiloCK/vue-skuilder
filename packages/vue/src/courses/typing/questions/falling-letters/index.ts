@@ -18,6 +18,14 @@ const data = function() {
   ];
 };
 
+export interface Score extends Answer {
+  win: boolean;
+  lettersTyped: number;
+  // the percentage of the gameLength that the user was able to complete
+  // (0-1)
+  percentage: number;
+}
+
 export class FallingLettersQuestion extends Question {
   public static dataShapes: DataShape[] = [
     {
@@ -73,13 +81,17 @@ export class FallingLettersQuestion extends Question {
 
   evaluate(a: Answer, t: number) {
     return {
-      isCorrect: this.isCorrect(a),
-      performance: this.displayedSkill(a, t),
+      isCorrect: this.isCorrect(a as Score),
+      performance: this.displayedSkill(a as Score, t),
     };
   }
 
   displayedSkill(a: Answer, t: number) {
-    return this.isCorrect(a) ? 1.0 : 0.0;
+    if ((a as Score).win) {
+      return 1;
+    } else {
+      return (a as Score).percentage;
+    }
   }
 
   dataShapes() {
@@ -90,7 +102,7 @@ export class FallingLettersQuestion extends Question {
     return FallingLettersQuestion.views;
   }
 
-  isCorrect(a: Answer) {
-    return a === 'win';
+  isCorrect(a: Score) {
+    return a.win;
   }
 }

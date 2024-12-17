@@ -49,13 +49,21 @@ export default class CardViewer extends SkldrVue {
       return {
         global: {
           score: 1000,
+          count: 0,
         },
         tags: {},
         misc: {},
       };
     },
   })
-  public user_elo: CourseElo;
+  public user_elo: CourseElo = {
+    global: {
+      score: 1000,
+      count: 0,
+    },
+    tags: {},
+    misc: {},
+  };
   @Prop({
     default: 1000,
   })
