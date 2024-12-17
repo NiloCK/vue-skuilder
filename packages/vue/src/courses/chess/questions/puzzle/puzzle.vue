@@ -82,6 +82,7 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
     this.chessBoard.set({
       movable: {
         events: {
+          // @ts-ignore
           after: this.checkMove,
         },
       },
@@ -100,6 +101,7 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
       return false;
     }
 
+    // @ts-ignore
     const piece = this.chessEngine.get(from);
     return piece?.type === 'p' && (to[1] === '8' || to[1] === '1');
   }
