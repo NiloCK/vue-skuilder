@@ -1,12 +1,13 @@
 <template>
   <div class="mock-environment">
     <div class="component">
-      <h2>Falling Letters Game</h2>
-      <FallingLettersView
-        :course-id="mockCourseId"
-        :card-id="mockCardId"
-        :modifyDifficulty="0"
-        :data="[
+      <h2>Card Preview</h2>
+      <CardViewer
+        course-id="preview"
+        card-id="preview"
+        session-order="1"
+        v-bind:view="flvCtr"
+        v-bind:data="[
           {
             gameLength: 30,
             initialSpeed: 0.5,
@@ -15,37 +16,52 @@
           },
         ]"
       />
+
+      <!-- <h2>Falling Letters Game</h2>
+      <FallingLettersView
+        v-bind:course-id="mockCourseId"
+        v-bind:card-id="mockCardId"
+        v-bind:modifyDifficulty="0"
+        v-bind:data="[
+          {
+            gameLength: 30,
+            initialSpeed: 0.5,
+            acceleration: 0,
+            spawnInterval: 1,
+          },
+        ]"
+      /> -->
     </div>
 
     <div class="component">
       <h2>Letter Question</h2>
       <LetterQuestionView
-        :course-id="mockCourseId"
-        :card-id="mockCardId"
-        :modifyDifficulty="0"
-        :data="[{ letter: 'A' }]"
+        v-bind:course-id="mockCourseId"
+        v-bind:card-id="mockCardId"
+        v-bind:modifyDifficulty="0"
+        v-bind:data="[{ letter: 'A' }]"
       />
     </div>
 
     <div class="component">
       <h2>Chess Piecemove</h2>
-      <!-- <PieceMove :course-id="mockCourseId" :card-id="mockCardId" :modifyDifficulty="0" :data="[{ puzzleData: examplePuzzleString
-      }]" /> -->
     </div>
 
     <div class="component">
       <h2>Chess PuzzleView</h2>
       <PuzzleView
-        :course-id="mockCourseId"
-        :card-id="mockCardId"
-        :modifyDifficulty="0"
-        :data="[{ puzzleData: Math.random() > 0.5 ? promotionPuzzle : puzzleWhite }]"
+        v-bind:course-id="mockCourseId"
+        v-bind:card-id="mockCardId"
+        v-bind:modifyDifficulty="0"
+        v-bind:data="[{ puzzleData: Math.random() > 0.5 ? puzzleBlack : puzzleWhite }]"
       />
     </div>
-    <!-- <div class="component">
+    <!--
+    <div class="component">
       <h2>Heatmap</h2>
       <HeatMap :data="{}" />
-    </div> -->
+    </div>
+    -->
 
     <!-- <div class="component">
       <h2>DataInputForm</h2>
@@ -113,6 +129,7 @@ import { Component } from 'vue-property-decorator';
 import DataInputForm from '../components/Edit/ViewableDataInputForm/DataInputForm.vue';
 import LetterQuestionView from '@/courses/typing/questions/single-letter/typeSingleLetter.vue';
 import FallingLettersView from '@/courses/typing/questions/falling-letters/FallingLetters.vue';
+import CardViewer from '@/components/Study/CardViewer.vue';
 
 @Component({
   components: {
@@ -124,11 +141,14 @@ import FallingLettersView from '@/courses/typing/questions/falling-letters/Falli
     PuzzleView,
     LetterQuestionView,
     FallingLettersView,
+    CardViewer,
   },
 })
 export default class SkTagsInputMock extends SkldrVue {
   mockCourseId: string = 'mock-course-001';
   mockCardId: string = 'mock-card-001';
+
+  flvCtr = FallingLettersView;
 
   // validFenString: string = 'q3k1nr/1pp1nQpp/3p4/1P2p3/4P3/B1PP1b2/B5PP/5K2 b k - 0 17';
   // examplePuzzleString =

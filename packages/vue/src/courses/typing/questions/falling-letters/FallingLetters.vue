@@ -48,7 +48,7 @@
 <script lang="ts">
 import { Component } from 'vue-property-decorator';
 import { QuestionView } from '@/base-course/Viewable';
-import { FallingLettersQuestion } from './index';
+import { FallingLettersQuestion, Score } from './index';
 
 interface Letter {
   id: number;
@@ -186,13 +186,25 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
   win() {
     this.gameOver = true;
     this.gameOverMessage = 'You Win!';
-    this.submitAnswer('win');
+    this.submit({
+      lettersTyped: this.score,
+      win: true,
+      percentage: 1,
+    });
   }
 
   lose() {
     this.gameOver = true;
     this.gameOverMessage = 'Game Over!';
-    this.submitAnswer('lose');
+    this.submit({
+      lettersTyped: this.score,
+      percentage: this.timeLeft / this.question.gameLength,
+      win: false,
+    });
+  }
+
+  submit(answer: Score) {
+    this.submitAnswer(answer);
   }
 }
 </script>
