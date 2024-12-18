@@ -4,7 +4,7 @@ import { AppState } from './store';
 import { User } from './db/userDB';
 
 export default class SkldrVue extends Vue {
-  public $store: Store<AppState>;
+  public declare $store: Store<AppState>;
 
   /**
    * Print a message to the console. Prefixes the message with the component
