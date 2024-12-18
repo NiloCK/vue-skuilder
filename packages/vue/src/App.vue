@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="$store.state.onLoadComplete" :dark="dark">
+  <v-app v-if="storeIsReady" :dark="dark">
     <!-- class="blue darken-2 grey--text text--lighten-5" dark> -->
     <v-navigation-drawer clipped v-model="drawer" enable-resize-watcher fixed app>
       <v-list>
@@ -37,14 +37,14 @@
         </v-list-tile>
         <!-- <v-list-tile
           v-if='true'
-          value="true"          
+          value="true"
           :to="{path: '/edit'}"
         >
           <v-list-tile-action>
             <v-icon>add_to_queue</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title> 
+            <v-list-tile-title>
               Edit
             </v-list-tile-title>
           </v-list-tile-content>
@@ -93,6 +93,10 @@ export default class App extends SkldrVue {
   public build: string = '0.0.2';
   public latestBuild: string = '';
   public drawer: boolean = false;
+
+  get storeIsReady(): boolean {
+    return !!(this.$store && this.$store.state && this.$store.state.onLoadComplete);
+  }
 
   public get dark() {
     return this.$store.state.config.darkMode; // User.config.darkMode
