@@ -94,16 +94,46 @@ export default class App extends SkldrVue {
   public latestBuild: string = '';
   public drawer: boolean = false;
 
-  get storeIsReady(): boolean {
-    return !!(this.$store && this.$store.state && this.$store.state.onLoadComplete);
-  }
-
   public get dark() {
     return this.$store.state.config.darkMode; // User.config.darkMode
   }
 
+  beforeCreate() {
+    console.log('1. beforeCreate:', {
+      hasStore: !!this.$store,
+      hasVuex: !!(this.$store && this.$store.state),
+    });
+  }
+
   async created() {
+    console.log('2. created:', {
+      hasStore: !!this.$store,
+      stateExists: !!(this.$store && this.$store.state),
+      onLoadComplete: !!this.$store?.state?.onLoadComplete,
+      user: this.$store?.state?._user,
+    });
     this.latestBuild = await getLatestVersion();
+  }
+
+  mounted() {
+    console.log('4. mounted:', {
+      storeState: {
+        onLoadComplete: this.$store?.state?.onLoadComplete,
+        userInit: this.$store?.state?.userLoginAndRegistrationContainer?.init,
+        loggedIn: this.$store?.state?.userLoginAndRegistrationContainer?.loggedIn,
+      },
+    });
+  }
+
+  get storeIsReady(): boolean {
+    const ready = !!(this.$store && this.$store.state && this.$store.state.onLoadComplete);
+    console.log('storeIsReady check:', {
+      hasStore: !!this.$store,
+      hasState: !!(this.$store && this.$store.state),
+      onLoadComplete: !!(this.$store && this.$store.state && this.$store.state.onLoadComplete),
+      ready,
+    });
+    return ready;
   }
 }
 </script>
