@@ -34,6 +34,24 @@ import { Chess, SQUARES } from 'chess.js';
 
 type PromotionPiece = 'q' | 'r' | 'b' | 'n';
 
+interface UciMove {
+  from: string;
+  to: string;
+  promotion?: PromotionPiece;
+}
+
+function parseUciMove(moveString: string): UciMove {
+  if (moveString.length < 4 || moveString.length > 5) {
+    throw new Error(`Invalid UCI move format: ${moveString}`);
+  }
+
+  return {
+    from: moveString.substring(0, 2),
+    to: moveString.substring(2, 4),
+    promotion: moveString.length === 5 ? (moveString[4] as PromotionPiece) : undefined,
+  };
+}
+
 @Component({})
 export default class PuzzleView extends QuestionView<ChessPuzzle> {
   public answer: string = '';
@@ -164,10 +182,8 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
         window.setTimeout(() => {
           let nextMove = this.question.moves.shift()!;
           this.log('computerMove', nextMove);
-          this.chessEngine.move({
-            from: nextMove.substring(0, 2),
-            to: nextMove.substring(2),
-          });
+          const move = parseUciMove(nextMove);
+          this.chessEngine.move(move);
           this.updateChessground();
         }, this.animDelay);
       }
