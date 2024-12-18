@@ -8,11 +8,15 @@ import './registerServiceWorker';
 import router from './router';
 import store from './store';
 import SkldrVue from './SkldrVue';
+import Vuex from 'vuex';
 
 Vue.config.productionTip = false;
+
+// Ensure Vue uses Vuex before creating the app instance
+Vue.use(Vuex);
 
 new SkldrVue({
   router,
   store,
-  render: (h) => h(App),
+  render: h => h(App),
 }).$mount('#app');
