@@ -82,6 +82,8 @@ export default class FallingLettersView extends QuestionView<FallingLettersQuest
     return new FallingLettersQuestion(this.data);
   }
 
+  maxAttemptsPerView = 1; // move on to next card after game is done
+
   treePositions: TreePosition[] = [];
 
   mounted() {
