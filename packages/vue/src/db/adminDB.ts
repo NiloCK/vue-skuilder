@@ -3,6 +3,7 @@ import ENV from '../ENVIRONMENT_VARS';
 import { pouchDBincludeCredentialsConfig, getStartAndEndKeys } from '.';
 import { getCourseList, removeCourse } from './courseDB';
 import TeacherClassroomDB, { ClassroomLookupDB } from './classroomDB';
+import { PouchError } from '@/types/pouchdb';
 
 export default class AdminDB {
   private usersDB: PouchDB.Database;
@@ -29,10 +30,10 @@ export default class AdminDB {
         include_docs: true,
         ...getStartAndEndKeys('org.couchdb.user:'),
       })
-    ).rows.map((r) => r.doc);
+    ).rows.map(r => r.doc);
   }
   public async getCourses() {
-    return (await getCourseList()).rows.map((r) => r.doc);
+    return (await getCourseList()).rows.map(r => r.doc);
   }
   public async removeCourse(id: string) {
     return await removeCourse(id);
@@ -43,7 +44,7 @@ export default class AdminDB {
       await ClassroomLookupDB.allDocs<{ uuid: string }>({
         include_docs: true,
       })
-    ).rows.map((r) => r.doc!.uuid);
+    ).rows.map(r => r.doc!.uuid);
     console.log(uuids);
 
     const promisedCRDbs: TeacherClassroomDB[] = [];
@@ -52,14 +53,15 @@ export default class AdminDB {
         const db = await TeacherClassroomDB.factory(uuids[i]);
         promisedCRDbs.push(db);
       } catch (e) {
-        if (e.error && e.error === 'not_found') {
+        const err = e as PouchError;
+        if (err.error && err.error === 'not_found') {
           console.log(`db ${uuids[i]} not found`);
         }
       }
     }
 
     const dbs = await Promise.all(promisedCRDbs);
-    return dbs.map((db) => {
+    return dbs.map(db => {
       return {
         ...db.getConfig(),
         _id: db._id,

@@ -17,6 +17,7 @@ import {
 } from './index';
 import UpdateQueue, { Update } from './updateQueue';
 import { CardHistory, CardRecord } from './types';
+import { PouchError } from '@/types/pouchdb';
 
 const cardHistoryPrefix = 'cardH-';
 const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + 'skuilder';
@@ -107,8 +108,6 @@ Currently logged-in as ${this._username}.`
       );
     } else {
       try {
-        const oldUsername = this._username;
-
         const signupRequest = await remoteCouchRootDB.signUp(username, password);
 
         if (signupRequest.ok) {
@@ -138,7 +137,8 @@ Currently logged-in as ${this._username}.`
           return ret;
         }
       } catch (e) {
-        if (e.reason === 'Document update conflict.') {
+        const err = e as PouchError;
+        if (err.reason === 'Document update conflict.') {
           ret.error = 'This username is taken!';
           ret.status = Status.error;
         }
@@ -190,7 +190,8 @@ Currently logged-in as ${this._username}.`
     try {
       ret = await this.localDB.get<CourseRegistrationDoc>(userCoursesDoc);
     } catch (e) {
-      if (e.status === 404) {
+      const err = e as PouchError;
+      if (err.status === 404) {
         // doc does not exist. Create it and then run this fcn again.
         await this.localDB.put<CourseRegistrationDoc>({
           _id: userCoursesDoc,
@@ -210,7 +211,7 @@ Currently logged-in as ${this._username}.`
 
   public async getActiveCourses() {
     const reg = await this.getCourseRegistrationsDoc();
-    return reg.courses.filter((c) => {
+    return reg.courses.filter(c => {
       return c.status === undefined || c.status === 'active';
     });
   }
@@ -218,9 +219,9 @@ Currently logged-in as ${this._username}.`
   /**
    * Returns a promise of the card IDs that the user has
    * a scheduled review for.
-   * 
-   * @param course_id 
-   * @returns 
+   *
+   * @param course_id
+   * @returns
    */
   public async getActiveCards(course_id?: string) {
     const keys = getStartAndEndKeys(REVIEW_PREFIX);
@@ -231,7 +232,7 @@ Currently logged-in as ${this._username}.`
       include_docs: true,
     });
 
-    return reviews.rows.map((r) => `${r.doc!.courseId}-${r.doc!.cardId}`);
+    return reviews.rows.map(r => `${r.doc!.courseId}-${r.doc!.cardId}`);
   }
 
   private async getReviewstoDate(targetDate: Moment, course_id?: string) {
@@ -244,11 +245,12 @@ Currently logged-in as ${this._username}.`
     });
 
     log(
-      `Fetching ${this._username}'s scheduled reviews${course_id ? ` for course ${course_id}` : ''
+      `Fetching ${this._username}'s scheduled reviews${
+        course_id ? ` for course ${course_id}` : ''
       }.`
     );
     return reviews.rows
-      .filter((r) => {
+      .filter(r => {
         if (r.id.startsWith(REVIEW_PREFIX)) {
           const date = moment.utc(r.id.substr(REVIEW_PREFIX.length), REVIEW_TIME_FORMAT);
           if (targetDate.isAfter(date)) {
@@ -258,7 +260,7 @@ Currently logged-in as ${this._username}.`
           }
         }
       })
-      .map((r) => r.doc!);
+      .map(r => r.doc!);
   }
 
   public async getReviewsForcast(daysCount: number) {
@@ -277,14 +279,14 @@ Currently logged-in as ${this._username}.`
 
   public async getRegisteredCourses() {
     const regDoc = await this.getCourseRegistrationsDoc();
-    return regDoc.courses.filter((c) => {
+    return regDoc.courses.filter(c => {
       return !c.status || c.status === 'active' || c.status === 'maintenance-mode';
     });
   }
 
   public async getCourseRegDoc(courseID: string) {
     const regDocs = await this.getCourseRegistrationsDoc();
-    return regDocs.courses.find((c) => c.courseID === courseID);
+    return regDocs.courses.find(c => c.courseID === courseID);
   }
 
   public async registerForCourse(course_id: string, previewMode: boolean = false) {
@@ -310,7 +312,7 @@ Currently logged-in as ${this._username}.`
         };
 
         if (
-          doc.courses.filter((course) => {
+          doc.courses.filter(course => {
             return course.courseID === regItem.courseID;
           }).length === 0
         ) {
@@ -318,7 +320,7 @@ Currently logged-in as ${this._username}.`
           doc.courses.push(regItem);
           doc.studyWeight[course_id] = 1;
         } else {
-          doc.courses.forEach((c) => {
+          doc.courses.forEach(c => {
             log(`Found the previously registered course!`);
             if (c.courseID === course_id) {
               c.status = status;
@@ -328,13 +330,13 @@ Currently logged-in as ${this._username}.`
 
         return this.localDB.put<CourseRegistrationDoc>(doc);
       })
-      .catch((e) => {
+      .catch(e => {
         log(`Registration failed because of: ${JSON.stringify(e)}`);
         throw e;
       });
   }
   public async dropCourse(course_id: string, dropStatus: CourseRegistration['status'] = 'dropped') {
-    return this.getCourseRegistrationsDoc().then((doc) => {
+    return this.getCourseRegistrationsDoc().then(doc => {
       let index: number = -1;
       for (let i = 0; i < doc.courses.length; i++) {
         if (doc.courses[i].courseID === course_id) {
@@ -363,7 +365,7 @@ Currently logged-in as ${this._username}.`
     const registeredCourses = await this.getCourseRegistrationsDoc();
 
     courseIDs = courseIDs.concat(
-      registeredCourses.courses.map((course) => {
+      registeredCourses.courses.map(course => {
         return course.courseID;
       })
     );
@@ -381,7 +383,8 @@ Currently logged-in as ${this._username}.`
     try {
       return await this.localDB.get<UserConfig>(User.DOC_IDS.CONFIG);
     } catch (e) {
-      if (e.name && e.name === 'not_found') {
+      const err = e as PouchError;
+      if (err.name && err.name === 'not_found') {
         await this.localDB.put<UserConfig>(defaultConfig);
         return defaultConfig;
       } else {
@@ -467,7 +470,7 @@ Currently logged-in as ${this._username}.`
       _id: '_design/reviewCards',
       views: {
         reviewCards: {
-          map: function (doc: PouchDB.Core.Document<{}>) {
+          map: function(doc: PouchDB.Core.Document<{}>) {
             if (doc._id.indexOf('card_review') === 0) {
               const copy: any = doc;
               emit(copy._id, copy.courseId + '-' + copy.cardId);
@@ -479,16 +482,16 @@ Currently logged-in as ${this._username}.`
   ];
 
   private async applyDesignDocs() {
-    User.designDocs.forEach((doc) => {
+    User.designDocs.forEach(doc => {
       this.remoteDB
         .get(doc._id)
-        .then((oldDoc) => {
+        .then(oldDoc => {
           this.remoteDB.put({
             ...doc,
             _rev: oldDoc._rev,
           });
         })
-        .catch((e) => {
+        .catch(e => {
           if (e.name === 'not_found') {
             this.remoteDB.put(doc);
           }
@@ -512,14 +515,14 @@ Currently logged-in as ${this._username}.`
       value: string;
     }>('reviewCards');
 
-    scheduledReviews.rows.forEach((r) => {
+    scheduledReviews.rows.forEach(r => {
       if (reviewsMap[r.value]) {
         // this card is scheduled more than once! delete this scheduled review
         log(`Removing duplicate scheduled review for card: ${r.value}`);
         log(`Replacing review ${reviewsMap[r.value]} with ${r.key}`);
         this.remoteDB
           .get(reviewsMap[r.value])
-          .then((doc) => {
+          .then(doc => {
             // remove the already-hashed review, since it is the earliest one
             // (prevents continual loop of short-scheduled reviews)
             this.remoteDB.remove(doc);
@@ -551,7 +554,7 @@ Currently logged-in as ${this._username}.`
     });
     // const docs = await this.localDB.allDocs({});
     const ret: PouchDB.Core.DocumentId[] = [];
-    docs.rows.forEach((row) => {
+    docs.rows.forEach(row => {
       if (row.id.startsWith(cardHistoryPrefix)) {
         ret.push(row.id.substr(cardHistoryPrefix.length));
       }
@@ -560,15 +563,19 @@ Currently logged-in as ${this._username}.`
   }
 
   /**
-   * 
+   *
    * @returns A promise of the cards that the user has seen in the past.
    */
   async getHistory() {
-    let cards = await filterAllDocsByPrefix<CardHistory<CardRecord>>(this.remoteDB, cardHistoryPrefix, {
-      include_docs: true,
-      attachments: false,
-    })
-    return cards.rows.map((r) => r.doc);
+    let cards = await filterAllDocsByPrefix<CardHistory<CardRecord>>(
+      this.remoteDB,
+      cardHistoryPrefix,
+      {
+        include_docs: true,
+        attachments: false,
+      }
+    );
+    return cards.rows.map(r => r.doc);
   }
 
   async updateCourseSettings(
@@ -578,13 +585,13 @@ Currently logged-in as ${this._username}.`
       value: string | number | boolean;
     }[]
   ) {
-    this.getCourseRegistrationsDoc().then((doc) => {
-      let crs = doc.courses.find((c) => c.courseID === course_id);
+    this.getCourseRegistrationsDoc().then(doc => {
+      let crs = doc.courses.find(c => c.courseID === course_id);
       if (crs) {
         if (crs.settings === null || crs.settings === undefined) {
           crs.settings = {};
         }
-        settings.forEach((setting) => {
+        settings.forEach(setting => {
           crs!.settings![setting.key] = setting.value;
         });
       }
@@ -594,7 +601,7 @@ Currently logged-in as ${this._username}.`
   }
   async getCourseSettings(course_id: string) {
     const regDoc = await this.getCourseRegistrationsDoc();
-    const crsDoc = regDoc.courses.find((c) => c.courseID === course_id);
+    const crsDoc = regDoc.courses.find(c => c.courseID === course_id);
 
     if (crsDoc) {
       return crsDoc.settings;
@@ -612,7 +619,8 @@ Currently logged-in as ${this._username}.`
     try {
       ret = await getUserDB(this._username).get<ClassroomRegistrationDoc>(userClassroomsDoc);
     } catch (e) {
-      if (e.status === 404) {
+      const err = e as PouchError;
+      if (err.status === 404) {
         // doc does not exist. Create it and then run this fcn again.
         await getUserDB(this._username).put<ClassroomRegistrationDoc>({
           _id: userClassroomsDoc,
@@ -632,8 +640,8 @@ Currently logged-in as ${this._username}.`
 
   public async getActiveClasses(): Promise<string[]> {
     return (await this.getOrCreateClassroomRegistrationsDoc()).registrations
-      .filter((c) => c.registeredAs === 'student')
-      .map((c) => c.classID);
+      .filter(c => c.registeredAs === 'student')
+      .map(c => c.classID);
   }
 }
 
@@ -647,7 +655,7 @@ async function clearLocalGuestDB() {
     include_docs: true,
   });
 
-  docs.rows.forEach((r) => {
+  docs.rows.forEach(r => {
     log(`CREATEACCOUNT: Deleting ${r.id}`);
     getLocalUserDB(GuestUsername).remove(r.doc!);
   });
@@ -704,7 +712,7 @@ function accomodateGuest(): {
     if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
       d += performance.now(); // use high-precision timer if available
     }
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
       // tslint:disable-next-line:no-bitwise
       const r = (d + Math.random() * 16) % 16 | 0;
       d = Math.floor(d / 16);
@@ -757,7 +765,9 @@ async function getOrCreateClassroomRegistrationsDoc(
   try {
     ret = await getUserDB(user).get<ClassroomRegistrationDoc>(userClassroomsDoc);
   } catch (e) {
-    if (e.status === 404) {
+    const err = e as PouchError;
+
+    if (err.status === 404) {
       // doc does not exist. Create it and then run this fcn again.
       await getUserDB(user).put<ClassroomRegistrationDoc>({
         _id: userClassroomsDoc,
@@ -782,7 +792,8 @@ async function getOrCreateCourseRegistrationsDoc(
   try {
     ret = await getUserDB(user).get<CourseRegistrationDoc>(userCoursesDoc);
   } catch (e) {
-    if (e.status === 404) {
+    const err = e as PouchError;
+    if (err.status === 404) {
       // doc does not exist. Create it and then run this fcn again.
       await getUserDB(user).put<CourseRegistrationDoc>({
         _id: userCoursesDoc,
@@ -802,7 +813,7 @@ async function getOrCreateCourseRegistrationsDoc(
 
 export async function updateUserElo(user: string, course_id: string, elo: CourseElo) {
   let regDoc = await getOrCreateCourseRegistrationsDoc(user);
-  const course = regDoc.courses.find((c) => c.courseID === course_id)!;
+  const course = regDoc.courses.find(c => c.courseID === course_id)!;
   course.elo = elo;
   return getUserDB(user).put(regDoc);
 }
@@ -813,14 +824,14 @@ export async function registerUserForClassroom(
   registerAs: ClassroomRegistrationDesignation
 ) {
   log(`Registering user: ${user} in course: ${classID}`);
-  return getOrCreateClassroomRegistrationsDoc(user).then((doc) => {
+  return getOrCreateClassroomRegistrationsDoc(user).then(doc => {
     const regItem = {
       classID: classID,
       registeredAs: registerAs,
     };
 
     if (
-      doc.registrations.filter((reg) => {
+      doc.registrations.filter(reg => {
         return reg.classID === regItem.classID && reg.registeredAs === regItem.registeredAs;
       }).length === 0
     ) {
@@ -836,10 +847,10 @@ export async function registerUserForClassroom(
 /**
  * This noop exists to facilitate writing couchdb filter fcns
  */
-function emit(x: any, y: any): any { }
+function emit(x: any, y: any): any {}
 
 export async function dropUserFromClassroom(user: string, classID: string) {
-  return getOrCreateClassroomRegistrationsDoc(user).then((doc) => {
+  return getOrCreateClassroomRegistrationsDoc(user).then(doc => {
     let index: number = -1;
 
     for (let i = 0; i < doc.registrations.length; i++) {

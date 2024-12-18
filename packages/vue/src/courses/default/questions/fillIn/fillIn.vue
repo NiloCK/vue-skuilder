@@ -68,7 +68,7 @@ export default class FillInView extends QuestionView<BlanksCard> {
       let urls: string[] = [];
       let i = 1;
       while (this.data[0][`image-${i}`]) {
-        urls.push(URL.createObjectURL(this.data[0][`image-${i}`]));
+        urls.push(URL.createObjectURL(this.data[0][`image-${i}`] as Blob));
         i++;
       }
       return urls;
@@ -90,7 +90,7 @@ export default class FillInView extends QuestionView<BlanksCard> {
       let urls: string[] = [];
       let i = 1;
       while (this.data[0][`audio-${i}`]) {
-        urls.push(URL.createObjectURL(this.data[0][`audio-${i}`]));
+        urls.push(URL.createObjectURL(this.data[0][`audio-${i}`] as Blob));
         i++;
       }
       return urls;

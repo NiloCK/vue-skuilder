@@ -140,7 +140,7 @@ export default class Playback extends QuestionView<EchoQuestion> {
         status: Status.error,
         text: 'Midi device not supported',
       });
-      this.errMsg = error;
+      this.errMsg = JSON.stringify(error);
       this.state = 'notsupported';
       this.initialized = true;
     }
