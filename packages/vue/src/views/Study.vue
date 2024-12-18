@@ -704,7 +704,8 @@ User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
     } catch (e) {
       this.warn(`Error loading card: ${JSON.stringify(e)}, ${e}`);
 
-      if (docIsDeleted(e) && isReview(item)) {
+      const err = e as Error;
+      if (docIsDeleted(err) && isReview(item)) {
         this.warn(`Card was deleted: ${qualified_id}`);
         removeScheduledCardReview(this.user().username, item.reviewID);
       }

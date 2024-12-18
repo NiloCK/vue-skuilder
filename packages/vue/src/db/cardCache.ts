@@ -23,7 +23,6 @@ class LocalCache {
       return ret;
     } catch (e) {
       // console.log(e);
-      log(e);
       this.cacheDoc(_id);
       return await this.remote.get<T>(_id, options);
     }
@@ -35,14 +34,14 @@ class LocalCache {
       live: true,
     });
 
-    rep.on('complete', async (info) => {
+    rep.on('complete', async info => {
       const doc = await this.getDoc<
         PouchDB.Core.Document<{
           [index: string]: any;
         }>
       >(_id);
 
-      Object.keys(doc).forEach((key) => {
+      Object.keys(doc).forEach(key => {
         if (key.indexOf('id_') === 0) {
           const k: any = doc[key];
         }
@@ -65,7 +64,7 @@ class LocalCache {
       await this.local.allDocs({
         include_docs: false,
       })
-    ).rows.map((row) => {
+    ).rows.map(row => {
       return row.id;
     });
   }

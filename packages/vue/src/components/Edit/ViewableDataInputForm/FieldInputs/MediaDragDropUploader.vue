@@ -59,7 +59,7 @@ export default class MediaDragDropUploader extends FieldInput {
   isDragging = false;
   mediaItems: MediaItem[] = [];
 
-  $refs!: MDDURefs;
+  declare $refs: MDDURefs;
 
   get hasMedia(): boolean {
     return this.mediaItems.length > 0;
