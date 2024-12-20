@@ -302,6 +302,7 @@ export default class Study extends SkldrVue {
   private sessionClassroomDBs: StudentClassroomDB[] = [];
 
   public user_elo(courseID: string) {
+    // [ ] fails when content comes from a classroom assignment - no courseRegDoc
     return toCourseElo(this.userCourseRegDoc.courses.find(c => c.courseID === this.courseID)!.elo);
   }
 
