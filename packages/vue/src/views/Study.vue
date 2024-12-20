@@ -302,7 +302,12 @@ export default class Study extends SkldrVue {
   private sessionClassroomDBs: StudentClassroomDB[] = [];
 
   public user_elo(courseID: string) {
-    return toCourseElo(this.userCourseRegDoc.courses.find(c => c.courseID === this.courseID)!.elo);
+    const courseDoc = this.userCourseRegDoc.courses.find(c => c.courseID === courseID);
+    if (courseDoc) {
+      return toCourseElo(courseDoc.elo);
+    } else {
+      return toCourseElo(undefined);
+    }
   }
 
   public checkLoggedIn(): boolean {
