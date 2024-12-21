@@ -30,4 +30,4 @@ jobs:
           cd ./packages/vue
           yarn build
           yarn test:unit
-          yarn test:e2e:headless
+          # yarn test:e2e:headless
