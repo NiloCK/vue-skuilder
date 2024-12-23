@@ -57,27 +57,7 @@ export default class HeatMap extends SkldrVue {
   maxInRange = 0;
 
   inactiveColor: Color = { h: 0, s: 0, l: 0.9 };
-  private _activeColor: Color = { h: 155, s: 1, l: 0.5 };
-
-  get activeColor(): Color {
-    // Check if it's December
-    const now = moment();
-    if (now.month() === 11) {
-      // moment months are 0-based
-      // Randomly choose between red and green for each cell
-      return Math.random() > 0.5
-        ? { h: 350, s: 0.8, l: 0.5 } // Festive red
-        : { h: 135, s: 0.8, l: 0.4 }; // Festive green
-    } // halloween October
-    else if (now.month() === 9) {
-      return Math.random() > 0.5
-        ? { h: 0, s: 0, l: 0 } // black
-        : Math.random() > 0.5
-        ? { h: 30, s: 1, l: 0.5 } // orange
-        : { h: 270, s: 1, l: 0.5 }; // purple
-    }
-    return this._activeColor;
-  }
+  activeColor: Color = { h: 155, s: 1, l: 0.5 };
 
   toDateString(d: string): string {
     const m = moment(d);
@@ -142,9 +122,29 @@ export default class HeatMap extends SkldrVue {
 
     const t = Math.min(count / this.maxInRange, 1);
 
-    const h = this.interpolate(this.inactiveColor.h, this.activeColor.h, t);
-    const s = this.interpolate(this.inactiveColor.s, this.activeColor.s, t);
-    const l = this.interpolate(this.inactiveColor.l, this.activeColor.l, t);
+    let seasonalColor: Color = this.activeColor;
+
+    const now = moment();
+    if (now.month() === 11) {
+      // moment months are 0-based
+      // Randomly choose between red and green for each cell
+      seasonalColor =
+        Math.random() > 0.5
+          ? { h: 350, s: 0.8, l: 0.5 } // Festive red
+          : { h: 135, s: 0.8, l: 0.4 }; // Festive green
+    } // halloween October
+    else if (now.month() === 9) {
+      seasonalColor =
+        Math.random() > 0.5
+          ? { h: 0, s: 0, l: 0 } // black
+          : Math.random() > 0.5
+          ? { h: 30, s: 1, l: 0.5 } // orange
+          : { h: 270, s: 1, l: 0.5 }; // purple
+    }
+
+    const h = this.interpolate(this.inactiveColor.h, seasonalColor.h, t);
+    const s = this.interpolate(this.inactiveColor.s, seasonalColor.s, t);
+    const l = this.interpolate(this.inactiveColor.l, seasonalColor.l, t);
 
     return this.hslToString({ h, s, l });
   }
