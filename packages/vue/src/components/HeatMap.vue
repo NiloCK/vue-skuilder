@@ -57,7 +57,27 @@ export default class HeatMap extends SkldrVue {
   maxInRange = 0;
 
   inactiveColor: Color = { h: 0, s: 0, l: 0.9 };
-  activeColor: Color = { h: 155, s: 1, l: 0.5 };
+  private _activeColor: Color = { h: 155, s: 1, l: 0.5 };
+
+  get activeColor(): Color {
+    // Check if it's December
+    const now = moment();
+    if (now.month() === 11) {
+      // moment months are 0-based
+      // Randomly choose between red and green for each cell
+      return Math.random() > 0.5
+        ? { h: 350, s: 0.8, l: 0.5 } // Festive red
+        : { h: 135, s: 0.8, l: 0.4 }; // Festive green
+    } // halloween October
+    else if (now.month() === 9) {
+      return Math.random() > 0.5
+        ? { h: 0, s: 0, l: 0 } // black
+        : Math.random() > 0.5
+        ? { h: 30, s: 1, l: 0.5 } // orange
+        : { h: 270, s: 1, l: 0.5 }; // purple
+    }
+    return this._activeColor;
+  }
 
   toDateString(d: string): string {
     const m = moment(d);
