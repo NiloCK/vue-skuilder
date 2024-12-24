@@ -120,20 +120,20 @@ export default class HeatMap extends SkldrVue {
   getColor(count: number): string {
     if (this.maxInRange === 0) return this.hslToString(this.inactiveColor);
 
-    const t = Math.min(count / this.maxInRange, 1);
+    // avoid murky greys by using 0.5 as a floor for non-zero counts
+    const t = count === 0 ? 0 : Math.min((2 * count) / this.maxInRange, 1);
 
     let seasonalColor: Color = this.activeColor;
 
     const now = moment();
-    if (now.month() === 11) {
-      // moment months are 0-based
-      // Randomly choose between red and green for each cell
+    if (now.month() === 11 && now.date() >= 5) {
+      // Christmas December
       seasonalColor =
         Math.random() > 0.5
           ? { h: 350, s: 0.8, l: 0.5 } // Festive red
           : { h: 135, s: 0.8, l: 0.4 }; // Festive green
-    } // halloween October
-    else if (now.month() === 9) {
+    } else if (now.month() === 9 && now.date() >= 25) {
+      // halloween October
       seasonalColor =
         Math.random() > 0.5
           ? { h: 0, s: 0, l: 0 } // black
