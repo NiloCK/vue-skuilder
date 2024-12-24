@@ -142,7 +142,8 @@ export default class HeatMap extends SkldrVue {
           : { h: 270, s: 1, l: 0.5 }; // purple
     }
 
-    const h = this.interpolate(this.inactiveColor.h, seasonalColor.h, t);
+    // const h = this.interpolate(this.inactiveColor.h, seasonalColor.h, t);
+    const h = seasonalColor.h; // keep hue constant - only change the `pop` of the color
     const s = this.interpolate(this.inactiveColor.s, seasonalColor.s, t);
     const l = this.interpolate(this.inactiveColor.l, seasonalColor.l, t);
 
