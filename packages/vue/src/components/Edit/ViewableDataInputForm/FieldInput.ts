@@ -8,7 +8,7 @@ import {
 } from '../../../base-course/Interfaces/ValidatingFunction';
 import { ValidationResult } from '../../../base-course/Interfaces/ValidationResult';
 import { Status } from '../../../enums/Status';
-import { CourseElo } from '@/tutor/Elo';
+import { CourseElo } from '../../../tutor/Elo';
 
 export interface ValidatedInput {
   getValidators: () => ValidatingFunction[];
