@@ -33,4 +33,6 @@ jobs:
           yarn remove @types/jest
           yarn remove @types/pouchdb
           yarn build
+          yarn serve
+          sleep 15s
           yarn test
