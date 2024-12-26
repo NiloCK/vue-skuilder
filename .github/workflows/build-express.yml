@@ -22,7 +22,7 @@ jobs:
       - run: npm install -g lerna@3.22.1 # 4.0.0 ?
       #- run: npm install -g typescript@4.5.5
       - run: lerna bootstrap
-      - name: Build
+      - name: Build and Test
         run: |
           echo COUCHDB_SERVER=localhost:5984 >> ./packages/express/.env.development.local
           echo COUCHDB_PROTOCOL=http >> ./packages/express/.env.development.local
@@ -33,6 +33,6 @@ jobs:
           yarn remove @types/jest
           yarn remove @types/pouchdb
           yarn build
-          yarn serve
+          nohup yarn serve & # Run the server in the background
           sleep 15s
           yarn test
