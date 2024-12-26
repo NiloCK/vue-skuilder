@@ -17,7 +17,7 @@ import {
 } from './index';
 import UpdateQueue, { Update } from './updateQueue';
 import { CardHistory, CardRecord } from './types';
-import { PouchError } from '@/types/pouchdb';
+import { PouchError } from '../types/pouchdb';
 
 const cardHistoryPrefix = 'cardH-';
 const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + 'skuilder';
