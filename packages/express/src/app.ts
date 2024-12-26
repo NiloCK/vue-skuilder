@@ -21,8 +21,10 @@ import fileSystem = require('fs');
 import { prepareNote55 } from '../../vue/src/db/prepareNote55';
 import ENV from './utils/env';
 import console from 'console';
+import morgan from 'morgan';
+import logger from './logger';
 
-console.log(`Express app running version: ${ENV.VERSION}`);
+logger.info(`Express app running version: ${ENV.VERSION}`);
 
 const port = 3000;
 export const classroomDbDesignDoc = fileSystem.readFileSync(
@@ -43,6 +45,7 @@ app.use(
     origin: true,
   })
 );
+app.use(morgan('combined', { stream: { write: (message) => logger.info(message.trim()) } }));
 
 export interface VueClientRequest extends express.Request {
   body: ServerRequest;
@@ -68,10 +71,10 @@ app.get('/course/:courseID/config', async (req, res) => {
 });
 
 app.delete('/course/:courseID', async (req, res) => {
-  console.log(`Delete request made on course ${req.params.courseID}...`);
+  logger.info(`Delete request made on course ${req.params.courseID}...`);
   const auth = await requestIsAuthenticated(req);
   if (auth) {
-    console.log(`\tAuthenticated delete request made...`);
+    logger.info(`\tAuthenticated delete request made...`);
     const dbResp = await CouchDB.db.destroy(`coursedb-${req.params.courseID}`);
     if (!dbResp.ok) {
       res.json({ success: false, error: dbResp });
@@ -94,7 +97,7 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
   const auth = await requestIsAuthenticated(req);
   if (auth) {
     const body = req.body;
-    console.log(
+    logger.info(
       `Authorized ${body.type ? body.type : '[unspecified request type]'} request made...`
     );
 
@@ -132,16 +135,16 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
       CouchDB.use(`coursedb-${body.data.courseID}`)
         .insert(payload as Nano.MaybeDocument)
         .then((r) => {
-          console.log(`\t\t\tCouchDB insert result: ${JSON.stringify(r)}`);
+          logger.info(`\t\t\tCouchDB insert result: ${JSON.stringify(r)}`);
           res.json(r);
         })
         .catch((e) => {
-          console.log(`\t\t\tCouchDB insert error: ${JSON.stringify(e)}`);
+          logger.info(`\t\t\tCouchDB insert error: ${JSON.stringify(e)}`);
           res.json(e);
         });
     }
   } else {
-    console.log(`\tREQUEST UNAUTHORIZED!`);
+    logger.info(`\tREQUEST UNAUTHORIZED!`);
     res.status(401);
     res.statusMessage = 'Unauthorized';
     res.send();
@@ -175,7 +178,7 @@ app.get('/', (req, res) => {
     });
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+app.listen(port, () => logger.info(`Example app listening on port ${port}!`));
 
 init();
 
@@ -196,9 +199,9 @@ async function init() {
         '_design/_auth'
       );
     } catch (e) {
-      console.log(`Error: ${e}`);
+      logger.info(`Error: ${e}`);
     }
   } catch (e) {
-    console.log(`Error: ${JSON.stringify(e)}`);
+    logger.info(`Error: ${JSON.stringify(e)}`);
   }
 }

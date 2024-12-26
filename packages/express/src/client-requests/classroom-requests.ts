@@ -6,9 +6,10 @@ import {
   LeaveClassroom,
 } from '../../../vue/src/server/types';
 import { Status } from '../../../vue/src/enums/Status';
-import { classroomDbDesignDoc} from '../app';
+import { classroomDbDesignDoc } from '../app';
 import CouchDB, { SecurityObject, docCount, useOrCreateDB } from '../couchdb';
 import AsyncProcessQueue, { Result } from '../utils/processQueue';
+import logger from '../logger';
 
 export const CLASSROOM_DB_LOOKUP = 'classdb-lookup';
 const CLASSROOM_CONFIG = 'ClassroomConfig';
@@ -23,19 +24,19 @@ async function deleteClassroom(classroom_id: string) {}
 async function getClassID(joinCode: string) {
   try {
     const doc = await (await useOrCreateDB(CLASSROOM_DB_LOOKUP)).get(joinCode);
-    return ((doc as any) as lookupData).uuid;
+    return (doc as any as lookupData).uuid;
   } catch (e) {
     return '';
   }
 }
 
 async function getClassroomConfig(id: string): Promise<ClassroomConfig> {
-  return ((await useOrCreateDB(getClassDBNames(id).studentDB)).get(
+  return (await useOrCreateDB(getClassDBNames(id).studentDB)).get(
     CLASSROOM_CONFIG
-  ) as unknown) as ClassroomConfig;
+  ) as unknown as ClassroomConfig;
 }
 async function writeClassroomConfig(config: ClassroomConfig, classID: string) {
-  console.log(`Writing config for class: ${classID}`);
+  logger.info(`Writing config for class: ${classID}`);
   const dbNames = getClassDBNames(classID);
   const studentDB = await useOrCreateDB(dbNames.studentDB);
   const teacherDB = await useOrCreateDB(dbNames.teacherDB);
@@ -74,9 +75,7 @@ async function writeClassroomConfig(config: ClassroomConfig, classID: string) {
   ]);
 }
 
-function getClassDBNames(
-  classId: string
-): {
+function getClassDBNames(classId: string): {
   studentDB: string;
   teacherDB: string;
 } {
@@ -87,7 +86,7 @@ function getClassDBNames(
 }
 
 async function createClassroom(config: ClassroomConfig) {
-  console.log(`CreateClass Request:
+  logger.info(`CreateClass Request:
     ${JSON.stringify(config)}`);
 
   const num = (await docCount(CLASSROOM_DB_LOOKUP)) + 1; //
@@ -143,7 +142,7 @@ async function createClassroom(config: ClassroomConfig) {
     ...res,
   };
 
-  console.log(JSON.stringify(ret));
+  logger.info(JSON.stringify(ret));
 
   return ret;
 }
@@ -178,7 +177,7 @@ async function joinClassroom(req: JoinClassroom['data']) {
 
     (await useOrCreateDB(classDBNames.studentDB)).get('ClassroomConfig');
 
-    console.log(`joinClassroom running...
+    logger.info(`joinClassroom running...
         \tRequest: ${JSON.stringify(req)}`);
 
     const cfg: ClassroomConfig = (await getClassroomConfig(classID))!;

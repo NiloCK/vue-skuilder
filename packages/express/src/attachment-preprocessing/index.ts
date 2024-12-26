@@ -3,6 +3,7 @@ import nano = require('nano');
 import { normalize } from './normalize';
 import AsyncProcessQueue, { Result } from '../utils/processQueue';
 import { COURSE_DB_LOOKUP } from '../client-requests/course-requests';
+import logger from '../logger';
 
 const Q = new AsyncProcessQueue<AttachmentProcessingRequest, Result>(processDocAttachments);
 
@@ -11,7 +12,7 @@ const Q = new AsyncProcessQueue<AttachmentProcessingRequest, Result>(processDocA
  * @param courseID
  */
 export function postProcessCourse(courseID: string): void {
-  console.log(`Following course ${courseID}`);
+  logger.info(`Following course ${courseID}`);
 
   const crsString = `coursedb-${courseID}`;
 
@@ -31,7 +32,7 @@ export function postProcessCourse(courseID: string): void {
  * perform post-processing on uploaded media
  */
 export default async function postProcess(): Promise<void> {
-  console.log(`Following all course databases for changes...`);
+  logger.info(`Following all course databases for changes...`);
   const lookupDB = await useOrCreateDB(COURSE_DB_LOOKUP);
   const courses = await lookupDB.list({
     include_docs: true,
@@ -66,10 +67,10 @@ function filterFactory(courseID: string) {
       const atts = doc._attachments;
       for (const attachment in atts) {
         const content_type: string = atts[attachment]['content_type'];
-        console.log(`Course: ${courseID}`);
-        console.log(`\tAttachment ${attachment} in:`);
-        console.log(`\t${doc._id}`);
-        console.log(` should be processed...`);
+        logger.info(`Course: ${courseID}`);
+        logger.info(`\tAttachment ${attachment} in:`);
+        logger.info(`\t${doc._id}`);
+        logger.info(` should be processed...`);
 
         if (content_type.includes('audio')) {
           processingRequest.fields.push({
@@ -85,7 +86,7 @@ function filterFactory(courseID: string) {
 
 async function processDocAttachments(request: AttachmentProcessingRequest): Promise<Result> {
   if (request.fields.length == 0) {
-    console.log(`No attachments to process for ${request.docID}`);
+    logger.info(`No attachments to process for ${request.docID}`);
     return {
       error: 'No attachments to process',
       ok: true,
@@ -100,23 +101,23 @@ async function processDocAttachments(request: AttachmentProcessingRequest): Prom
   });
 
   for (const field of request.fields) {
-    console.log(`Converting ${field.name}`);
+    logger.info(`Converting ${field.name}`);
     const attachment = doc._attachments[field.name].data;
     if (field.mimetype.includes('audio')) {
       try {
         const converted = await normalize(attachment);
         field.returnData = converted;
       } catch (e) {
-        console.log(`Exception caught: ${e}`);
+        logger.info(`Exception caught: ${e}`);
         throw e;
       }
     }
   }
 
-  console.log('Conversions finished');
+  logger.info('Conversions finished');
 
   request.fields.forEach((field) => {
-    console.log(`Replacing doc Data for ${field.name}`);
+    logger.info(`Replacing doc Data for ${field.name}`);
     if (doc['processed']) {
       (doc['processed'] as string[]).push(field.name);
     } else {
@@ -134,7 +135,7 @@ async function processDocAttachments(request: AttachmentProcessingRequest): Prom
   const resp: any = await courseDatabase.insert(doc);
   resp.status = 'ok';
 
-  console.log(`Processing request reinsert result: ${JSON.stringify(resp)}`);
+  logger.info(`Processing request reinsert result: ${JSON.stringify(resp)}`);
   return resp;
 }
 
