@@ -12,19 +12,23 @@ const Q = new AsyncProcessQueue<AttachmentProcessingRequest, Result>(processDocA
  * @param courseID
  */
 export function postProcessCourse(courseID: string): void {
-  logger.info(`Following course ${courseID}`);
+  try {
+    logger.info(`Following course ${courseID}`);
 
-  const crsString = `coursedb-${courseID}`;
+    const crsString = `coursedb-${courseID}`;
 
-  CouchDB.db.follow(
-    crsString,
-    {
-      feed: 'continuous',
-      db: crsString,
-      include_docs: false,
-    },
-    filterFactory(courseID)
-  );
+    CouchDB.db.follow(
+      crsString,
+      {
+        feed: 'continuous',
+        db: crsString,
+        include_docs: false,
+      },
+      filterFactory(courseID)
+    );
+  } catch (e) {
+    logger.error(`Error in postProcessCourse: ${e}`);
+  }
 }
 
 /**
@@ -32,14 +36,18 @@ export function postProcessCourse(courseID: string): void {
  * perform post-processing on uploaded media
  */
 export default async function postProcess(): Promise<void> {
-  logger.info(`Following all course databases for changes...`);
-  const lookupDB = await useOrCreateDB(COURSE_DB_LOOKUP);
-  const courses = await lookupDB.list({
-    include_docs: true,
-  });
+  try {
+    logger.info(`Following all course databases for changes...`);
+    const lookupDB = await useOrCreateDB(COURSE_DB_LOOKUP);
+    const courses = await lookupDB.list({
+      include_docs: true,
+    });
 
-  for (const course of courses.rows) {
-    postProcessCourse(course.id);
+    for (const course of courses.rows) {
+      postProcessCourse(course.id);
+    }
+  } catch (e) {
+    logger.error(`Error in postProcess: ${e}`);
   }
 }
 
@@ -47,39 +55,43 @@ function filterFactory(courseID: string) {
   const courseDatabase = CouchDB.use(`coursedb-${courseID}`);
 
   return async function filterChanges(error, changeItem: nano.DatabaseChangesResultItem) {
-    const docNoAttachments = await courseDatabase.get(changeItem.id, {
-      attachments: false,
-    });
-
-    if (
-      docNoAttachments._attachments &&
-      Object.keys(docNoAttachments._attachments).length > 0 &&
-      (docNoAttachments['processed'] === undefined || docNoAttachments['processed'] === false)
-    ) {
-      const doc = await courseDatabase.get(changeItem.id, {
-        attachments: true,
+    try {
+      const docNoAttachments = await courseDatabase.get(changeItem.id, {
+        attachments: false,
       });
-      const processingRequest: AttachmentProcessingRequest = {
-        courseID,
-        docID: doc._id,
-        fields: [],
-      };
-      const atts = doc._attachments;
-      for (const attachment in atts) {
-        const content_type: string = atts[attachment]['content_type'];
-        logger.info(`Course: ${courseID}`);
-        logger.info(`\tAttachment ${attachment} in:`);
-        logger.info(`\t${doc._id}`);
-        logger.info(` should be processed...`);
 
-        if (content_type.includes('audio')) {
-          processingRequest.fields.push({
-            name: attachment,
-            mimetype: content_type,
-          });
+      if (
+        docNoAttachments._attachments &&
+        Object.keys(docNoAttachments._attachments).length > 0 &&
+        (docNoAttachments['processed'] === undefined || docNoAttachments['processed'] === false)
+      ) {
+        const doc = await courseDatabase.get(changeItem.id, {
+          attachments: true,
+        });
+        const processingRequest: AttachmentProcessingRequest = {
+          courseID,
+          docID: doc._id,
+          fields: [],
+        };
+        const atts = doc._attachments;
+        for (const attachment in atts) {
+          const content_type: string = atts[attachment]['content_type'];
+          logger.info(`Course: ${courseID}`);
+          logger.info(`\tAttachment ${attachment} in:`);
+          logger.info(`\t${doc._id}`);
+          logger.info(` should be processed...`);
+
+          if (content_type.includes('audio')) {
+            processingRequest.fields.push({
+              name: attachment,
+              mimetype: content_type,
+            });
+          }
         }
+        Q.addRequest(processingRequest);
       }
-      Q.addRequest(processingRequest);
+    } catch (e) {
+      logger.error(`Error processing doc ${changeItem.id}: ${e}`);
     }
   };
 }

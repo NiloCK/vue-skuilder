@@ -24,6 +24,10 @@ import console from 'console';
 import morgan from 'morgan';
 import logger from './logger';
 
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
 logger.info(`Express app running version: ${ENV.VERSION}`);
 
 const port = 3000;
