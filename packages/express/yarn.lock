@@ -1533,11 +1533,6 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-20.4.3.tgz#ca83a5a006e0d5709a3fe8966112f26436071d81"
   integrity sha512-Yu3+r4Mn/iY6Mf0aihncZQ1qOjOUrCiodbHHY1hds5O+7BbKp9t+Li7zLO13zO8j9L2C6euz8xsYQP0rjGvVXw==
 
-"@types/node@16":
-  version "16.18.122"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.18.122.tgz#54948ddbe2ddef8144ee16b37f160e3f99c32397"
-  integrity sha512-rF6rUBS80n4oK16EW8nE75U+9fw0SSUgoPtWSvHhPXdT7itbvmS7UjB/jyM8i3AkvI6yeSM5qCwo+xN0npGDHg==
-
 "@types/pouchdb-adapter-cordova-sqlite@*":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@types/pouchdb-adapter-cordova-sqlite/-/pouchdb-adapter-cordova-sqlite-1.0.1.tgz#49e5ee6df7cc0c23196fcb340f43a560e74eb1d6"
