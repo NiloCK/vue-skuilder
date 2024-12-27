@@ -38,6 +38,7 @@
         "@types/ffmpeg-static": "^2.0.0",
         "@types/hashids": "^1.0.30",
         "@types/jest": "^29.5.3",
+        "@types/node": "^10.12.18",
         "@types/morgan": "^1.9.9",
         "@types/pouchdb": "^6.3.2",
         "babel-jest": "^29.6.1",
