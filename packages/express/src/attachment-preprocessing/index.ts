@@ -44,7 +44,12 @@ export default async function postProcess(): Promise<void> {
     });
 
     for (const course of courses.rows) {
-      postProcessCourse(course.id);
+      try {
+        postProcessCourse(course.id);
+      } catch (e) {
+        logger.error(`Error processing course ${course.id}: ${e}`);
+        throw e;
+      }
     }
   } catch (e) {
     logger.error(`Error in postProcess: ${e}`);
