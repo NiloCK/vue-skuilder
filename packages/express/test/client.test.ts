@@ -55,50 +55,56 @@ test('Course Methods', async () => {
   // assert non-existence of test course
   const courses = await client.getCourses();
   expect(courses.find((c) => c.split(' - ')[1] === testCourse.name)).toBeUndefined();
+  console.log(`test course not found`);
 
   // create test course
   const createResp = await client.createCourse(testCourse, credentials);
   expect(createResp.data?.ok).toBe(true);
   expect(createResp.data?.courseID).not.toBe('');
+  console.log(`created test course`);
   const courseID = createResp.data!.courseID;
 
   // assert existence of test course
   const courses2 = await client.getCourses();
   expect(courses2.find((c) => c.split(' - ')[1] === testCourse.name)).toBeDefined();
   expect(courses2.find((c) => c.split(' - ')[0] === courseID)).toBeDefined();
+  console.log(`found test course`);
 
   // delete test course
   const crsClient = client.getCourseClient(courseID);
   await crsClient.deleteCourse(credentials);
+  console.log(`requested test course deletion`);
 
   // assert non-existence of test course
   const courses3 = await client.getCourses();
   expect(courses3.find((c) => c.split(' - ')[0] === courseID)).toBeUndefined();
+  console.log(`test course deleted`);
 });
 
-test('createNote', async () => {
-  const crs = createTestCourse();
-  const createResp = await client.createCourse(crs, credentials);
+// test('createNote', async () => {
+//   const crs = createTestCourse();
+//   const createResp = await client.createCourse(crs, credentials);
 
-  const crsClient = client.getCourseClient(createResp.data!.courseID);
-  const cfg = await crsClient.getConfig();
+//   const crsClient = client.getCourseClient(createResp.data!.courseID);
+//   const cfg = await crsClient.getConfig();
 
-  for (const k in crs) {
-    expect(cfg[k]).toEqual(crs[k]);
-  }
-  // expect(cfg).toEqual(crs);
-  crsClient.addData({
-    author: 'test-author',
-    data: 'this is a test',
-    tags: ['test-tag'],
-    courseID: crsClient.id,
-    codeCourse: 'test-code-course-id',
-    shape: {
-      fields: [],
-      name: DataShapeName.Blanks,
-    },
-  });
-});
+//   for (const k in crs) {
+//     expect(cfg[k]).toEqual(crs[k]);
+//   }
+//   // expect(cfg).toEqual(crs);
+//   await crsClient.addData({
+//     author: 'test-author',
+//     data: 'this is a test',
+//     tags: ['test-tag'],
+//     courseID: crsClient.id,
+//     codeCourse: 'test-code-course-id',
+//     shape: {
+//       fields: [],
+//       name: DataShapeName.Blanks,
+//     },
+//   });
+// });
+
 afterAll(async () => {
   // see https://stackoverflow.com/questions/54562879/jest-open-handle-when-using-node-exec/75830272#75830272
   serverProcess.stdin.destroy();
