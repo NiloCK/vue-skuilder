@@ -20,7 +20,6 @@ import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
 import { prepareNote55 } from '../../vue/src/db/prepareNote55';
 import ENV from './utils/env';
-import console from 'console';
 import morgan from 'morgan';
 import logger from './logger';
 
@@ -181,12 +180,20 @@ app.get('/', (req, res) => {
       res.send(status);
     });
 });
+let listening = false;
 
-app.listen(port, () => logger.info(`Example app listening on port ${port}!`));
+app.listen(port, () => {
+  listening = true;
+  logger.info(`Express app listening on port ${port}!`);
+});
 
 init();
 
 async function init() {
+  while (!listening) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
   try {
     // start the change-listener that does post-processing on user
     // media uploads
