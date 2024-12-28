@@ -35,7 +35,4 @@ jobs:
           yarn build
           # nohup yarn serve & # Run the server in the background
           # sleep 15s
-          yarn testif [ $? -eq 0 ]; then
-            echo "Tests passed, ending GitHub Action."
-            exit 1
-          fi
+          yarn test
