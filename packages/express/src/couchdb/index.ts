@@ -1,6 +1,7 @@
 import Nano = require('nano');
 import process from 'process';
 import ENV from '../utils/env';
+import logger from '../logger';
 
 const url = ENV.COUCHDB_SERVER;
 const protocol: string = ENV.COUCHDB_PROTOCOL;
@@ -11,11 +12,11 @@ const admin = {
 };
 const credentialCouchURL = `${protocol}://${admin.username}:${admin.password}@${url}`;
 
-console.log('WORKING DIRECTORY: ' + process.cwd());
-console.log(
+logger.info('WORKING DIRECTORY: ' + process.cwd());
+logger.info(
   `CouchDB url: ${url}
     protocol: ${protocol}
-    credentials: 
+    credentials:
     \tusername: ${admin.username}
     \tpassword: *****
     credUrl: ${protocol}://${admin.username}:*****@${url}
@@ -24,7 +25,7 @@ console.log(
 
 const CouchDB = Nano(credentialCouchURL);
 
-export async function useOrCreateCourseDB(courseID: string) {
+export async function useOrCreateCourseDB(courseID: string): Promise<Nano.DocumentScope<unknown>> {
   return useOrCreateDB(`coursedb-${courseID}`);
 }
 
@@ -35,8 +36,16 @@ export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<
     await ret.info();
     return ret;
   } catch (err) {
-    await CouchDB.db.create(dbName);
-    return CouchDB.use(dbName);
+    try {
+      await CouchDB.db.create(dbName);
+      return ret;
+    } catch (createErr) {
+      // If error is "database already exists", return existing db
+      if (createErr.statusCode === 412) {
+        return ret;
+      }
+      throw createErr;
+    }
   }
 }
 
