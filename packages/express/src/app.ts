@@ -22,6 +22,7 @@ import { prepareNote55 } from '../../vue/src/db/prepareNote55';
 import ENV from './utils/env';
 import morgan from 'morgan';
 import logger from './logger';
+import logsRouter from './routes/logs';
 
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
@@ -49,6 +50,7 @@ app.use(
   })
 );
 app.use(morgan('combined', { stream: { write: (message) => logger.info(message.trim()) } }));
+app.use('/logs', logsRouter);
 
 export interface VueClientRequest extends express.Request {
   body: ServerRequest;
