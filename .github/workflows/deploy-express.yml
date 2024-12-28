@@ -16,6 +16,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: 'yarn'
       - name: SSH to DO
         uses: shimataro/ssh-key-action@v2
         with:
@@ -33,20 +34,27 @@ jobs:
           yarn build
       - name: Deploy and run
         run: |
-          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/dist/express/${{github.SHA}}
-          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir /home/skuilder/dist/express/${{github.SHA}}/assets
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir -p /home/skuilder/dist/express/${{github.SHA}}
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com mkdir -p /home/skuilder/dist/express/${{github.SHA}}/assets
+
+          # Copy build artifacts and dependencies
           rsync -rl ./packages/express/dist/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/${{github.SHA}}
           rsync -rl ./packages/express/assets/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/${{github.SHA}}/assets
+          rsync -rl ./packages/express/package.json ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/${{github.SHA}}
+          rsync -rl ./packages/express/node_modules/ ${{ secrets.DO_USERNAME }}@eduquilt.com:/home/skuilder/dist/express/${{github.SHA}}/node_modules
+
+          # Update symlink to new version
           ssh ${{ secrets.DO_USERNAME }}@eduquilt.com ln -sfn /home/skuilder/dist/express/${{github.SHA}} /home/skuilder/api
 
-          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com rm /home/skuilder/.env.development.local
-
+          # Update environment variables
+          ssh ${{ secrets.DO_USERNAME }}@eduquilt.com rm -f /home/skuilder/.env.development.local
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo VERSION=${{ github.SHA }} >> /home/skuilder/.env.development.local'
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo COUCHDB_ADMIN=${{ secrets.COUCHDB_ADMIN }} >> /home/skuilder/.env.development.local'
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo COUCHDB_PASSWORD=${{ secrets.COUCHDB_PASSWORD }} >> /home/skuilder/.env.development.local'
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo COUCHDB_PROTOCOL=${{ secrets.COUCHDB_PROTOCOL }} >> /home/skuilder/.env.development.local'
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo COUCHDB_SERVER=${{ secrets.COUCHDB_SERVER }} >> /home/skuilder/.env.development.local'
 
+          # Restart service
           ssh -t ${{ secrets.DO_USERNAME }}@eduquilt.com 'echo ${{ secrets.DO_PASSWORD }} | sudo -S systemctl restart eqExpress'
 
           sleep 10s
@@ -65,4 +73,3 @@ jobs:
             echo "$response"
             exit 1
           fi
-      # todo: toss a buildinfo.md file into the (ecount+1) folder, linking PR, listing time, logging build errors, etc
