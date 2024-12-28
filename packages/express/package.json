@@ -20,8 +20,10 @@
         "express": "^4.16.4",
         "ffmpeg-static": "^2.4.0",
         "hashids": "^1.2.2",
+        "morgan": "^1.10.0",
         "nano": "^8.0.0",
-        "pouchdb": "8.0.1"
+        "pouchdb": "8.0.1",
+        "winston": "^3.17.0"
     },
     "devDependencies": {
         "@babel/core": "^7.22.9",
@@ -37,6 +39,7 @@
         "@types/hashids": "^1.0.30",
         "@types/jest": "^29.5.3",
         "@types/node": "^10.12.18",
+        "@types/morgan": "^1.9.9",
         "@types/pouchdb": "^6.3.2",
         "babel-jest": "^29.6.1",
         "eslint": "^7.18.0",
