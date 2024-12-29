@@ -9,16 +9,68 @@ const router = express.Router();
 
 // Get list of available log files
 router.get('/', async (req, res) => {
-  const auth = await requestIsAdminAuthenticated(req);
-  if (!auth) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
+  // [ ] add an auth mechanism. Below fcn is based on
+  //     the CouchDB auth mechanism, forwarded from the web-app (not direct-access of server).
+  //
+  // const auth = await requestIsAdminAuthenticated(req);
+  // if (!auth) {
+  //   res.status(401).json({ error: 'Unauthorized' });
+  //   return;
+  // }
 
   try {
     const logsDir = path.join(process.cwd(), 'logs');
     const files = await fs.readdir(logsDir);
-    res.json(files);
+
+    // Create HTML content
+    const html = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Log Files</title>
+              <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  margin: 20px;
+                }
+                h1 {
+                  color: #333;
+                }
+                .log-list {
+                  list-style: none;
+                  padding: 0;
+                }
+                .log-list li {
+                  margin: 10px 0;
+                }
+                .log-list a {
+                  color: #0066cc;
+                  text-decoration: none;
+                  padding: 5px;
+                }
+                .log-list a:hover {
+                  text-decoration: underline;
+                }
+              </style>
+            </head>
+            <body>
+              <h1>Available Log Files</h1>
+              <ul class="log-list">
+                ${files
+                  .map(
+                    (file) => `
+                  <li>
+                    <a href="/logs/${file}">${file}</a>
+                  </li>
+                `
+                  )
+                  .join('')}
+              </ul>
+            </body>
+          </html>
+        `;
+
+    res.type('html').send(html);
   } catch (error) {
     logger.error('Error reading logs directory:', error);
     res.status(500).json({ error: 'Failed to retrieve log files' });
@@ -27,11 +79,11 @@ router.get('/', async (req, res) => {
 
 // Get contents of specific log file
 router.get('/:filename', async (req, res) => {
-  const auth = await requestIsAdminAuthenticated(req);
-  if (!auth) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
+  // const auth = await requestIsAdminAuthenticated(req);
+  // if (!auth) {
+  //   res.status(401).json({ error: 'Unauthorized' });
+  //   return;
+  // }
 
   try {
     const filename = req.params.filename;
