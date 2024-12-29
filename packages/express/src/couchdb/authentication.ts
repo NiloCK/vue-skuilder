@@ -1,6 +1,7 @@
 import Nano = require('nano');
 import { COUCH_URL_WITH_PROTOCOL } from '.';
 import { VueClientRequest } from '../app';
+import logger from '../logger';
 
 interface CouchSession {
   info: {
@@ -30,7 +31,7 @@ export async function requestIsAdminAuthenticated(req: VueClientRequest) {
     })
       .session()
       .then((s: CouchSession) => {
-        console.log(`AuthUser: ${JSON.stringify(s)}`);
+        logger.info(`AuthUser: ${JSON.stringify(s)}`);
         const isAdmin = s.userCtx.roles.indexOf('_admin') !== -1;
         const isLoggedInUser = s.userCtx.name === username;
         return isAdmin && isLoggedInUser;
@@ -42,14 +43,16 @@ export async function requestIsAdminAuthenticated(req: VueClientRequest) {
 }
 
 function logRequest(req: VueClientRequest) {
-  console.log(`${req.body.type} request from ${req.body.user}...`);
+  logger.info(`${req.body.type} request from ${req.body.user}...`);
 }
 
 export async function requestIsAuthenticated(req: VueClientRequest) {
   logRequest(req);
 
   if (req.headers.authorization) {
-    const auth = Buffer.from(req.headers.authorization.split(' ')[1], 'base64').toString('ascii').split(':');
+    const auth = Buffer.from(req.headers.authorization.split(' ')[1], 'base64')
+      .toString('ascii')
+      .split(':');
     const username = auth[0];
     const password = auth[1];
 
@@ -72,7 +75,7 @@ export async function requestIsAuthenticated(req: VueClientRequest) {
     })
       .session()
       .then((s: CouchSession) => {
-        console.log(`AuthUser: ${JSON.stringify(s)}`);
+        logger.info(`AuthUser: ${JSON.stringify(s)}`);
         return s.userCtx.name === username;
       })
       .catch((err) => {
