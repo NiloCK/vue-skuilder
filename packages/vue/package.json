@@ -7,9 +7,7 @@
         "build": "vue-cli-service build",
         "lint": "vue-cli-service lint --fix",
         "test:unit": "vue-cli-service test:unit",
-        "test:ui": "vue-cli-service serve --host localhost --mode mock",
-        "test:e2e:headless": "vue-cli-service test:e2e --headless --mode development",
-        "test:e2e": "vue-cli-service test:e2e --mode development"
+        "test:ui": "vue-cli-service serve --host localhost --mode mock"
     },
     "dependencies": {
         "@babel/polyfill": "^7.4.4",
@@ -61,7 +59,6 @@
         "@typescript-eslint/eslint-plugin": "^4.18.0",
         "@typescript-eslint/parser": "^4.18.0",
         "@vue/cli-plugin-babel": "^5.0.8",
-        "@vue/cli-plugin-e2e-cypress": "^5.0.8",
         "@vue/cli-plugin-pwa": "^5.0.8",
         "@vue/cli-plugin-router": "^5.0.8",
         "@vue/cli-plugin-typescript": "^5.0.8",
@@ -75,7 +72,6 @@
         "babel-core": "^7.0.0-bridge.0",
         "babel-jest": "^27.5.1",
         "buffer": "^6.0.3",
-        "cypress": "^13.17.0",
         "jest": "^27.5.1",
         "material-design-icons-iconfont": "^6.1.1",
         "process": "^0.11.10",
