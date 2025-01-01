@@ -33,7 +33,7 @@
         "roboto-fontface": "*",
         "roughjs": "^3.1.0",
         "simplemde": "^1.11.2",
-        "vue": "^2.6.10",
+        "vue": "^3.0.0",
         "vue-class-component": "^6.3.2",
         "vue-property-decorator": "^9.1.2",
         "vue-router": "^3.0.7",
