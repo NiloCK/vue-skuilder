@@ -33,12 +33,12 @@
         "roboto-fontface": "*",
         "roughjs": "^3.1.0",
         "simplemde": "^1.11.2",
-        "vue": "^2.6.10",
-        "vue-class-component": "^6.3.2",
+        "vue": "^2.7.16",
+        "vue-class-component": "^7.2.6",
         "vue-property-decorator": "^9.1.2",
-        "vue-router": "^3.0.7",
+        "vue-router": "^3.6.5",
         "vuetify": "1.5.24",
-        "vuex": "^3.1.1",
+        "vuex": "^3.6.1",
         "wavesurfer.js": "^5.1.0",
         "webmidi": "^2.5.1"
     },
@@ -88,7 +88,7 @@
         "typescript": "~5.7.2",
         "util": "^0.12.5",
         "vue-cli-plugin-vuetify": "^0.2.0",
-        "vue-template-compiler": "^2.6.10"
+        "vue-template-compiler": "^2.7.16"
     },
     "engines": {
         "node": ">=16"
