@@ -37,20 +37,31 @@ export default abstract class UserInput extends SkldrVue {
 
   private getQuestionViewAncestor(): QuestionView<Question> {
     let ancestor = this.$parent;
-
     let count = 0;
 
-    while (!this.isQuestionView(ancestor)) {
-      ancestor = ancestor.$parent;
-      count++;
-
-      if (count > 100) {
-        const err: string = `
+    while (ancestor && !this.isQuestionView(ancestor)) {
+      const nextAncestor = ancestor.$parent;
+      if (!nextAncestor) {
+        const err = `
 UserInput.submit() has failed.
 The input element has no QuestionView ancestor element.`;
         log(err);
         throw new Error(err);
       }
+      ancestor = nextAncestor;
+      count++;
+
+      if (count > 100) {
+        const err = `
+UserInput.submit() has failed.
+Exceeded maximum ancestor lookup depth.`;
+        log(err);
+        throw new Error(err);
+      }
+    }
+
+    if (!ancestor) {
+      throw new Error('No QuestionView ancestor found');
     }
 
     return ancestor;
