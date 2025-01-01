@@ -1,6 +1,6 @@
 const TerserPlugin = require('terser-webpack-plugin');
+const webpack = require('webpack');
 const path = require('path');
-
 
 module.exports = {
   configureWebpack: (config) => {
@@ -10,7 +10,7 @@ module.exports = {
     if (process.env.NODE_ENV === 'production') {
       config.optimization.minimizer[0] = new TerserPlugin(terserOptions);
     } else {
-      console.log('[config] Setting up source maps and aliases')
+      console.log('[config] Setting up source maps and aliases');
       config.devtool = 'source-map';
       if (process.env.VUE_APP_MOCK) {
         console.log('[config] Using mocks');
@@ -39,6 +39,23 @@ module.exports = {
         console.log('[config] Using real data sources');
       }
     }
+
+    // Add webpack 5 polyfills
+    config.resolve.fallback = {
+      util: require.resolve('util/'),
+      timers: require.resolve('timers-browserify'),
+      stream: require.resolve('stream-browserify'),
+      assert: require.resolve('assert/'),
+      buffer: require.resolve('buffer/'),
+    };
+
+    config.plugins = [
+      ...(config.plugins || []),
+      new webpack.ProvidePlugin({
+        process: 'process/browser',
+        Buffer: ['buffer', 'Buffer'],
+      }),
+    ];
   },
   publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
   pwa: {

@@ -56,9 +56,18 @@ export default class Home extends SkldrVue {
   private get swaps(): TextSwap[] {
     return [this.$refs.swap1, this.$refs.swap2, this.$refs.swap3, this.$refs.swap4];
   }
+  
+  private swapIntervalID: number | null = null;
 
   private created() {
-    setInterval(this.randomSwap, 7000);
+    this.swapIntervalID = window.setInterval(this.randomSwap, 7000);
+  }
+  
+  private beforeDestroy() {
+    if (this.swapIntervalID !== null) {
+      clearInterval(this.swapIntervalID);
+      this.swapIntervalID = null;
+    }
   }
 
   private randomSwap() {
