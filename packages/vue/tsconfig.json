@@ -14,7 +14,7 @@
         "esModuleInterop": true,
         "sourceMap": true,
         "baseUrl": ".",
-        "types": ["node", "jest", "@types/jest"],
+        "types": ["node", "jest", "@types/jest", "vuetify/types"],
         "paths": {
             "@/*": ["src/*"]
         },

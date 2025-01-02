@@ -1,28 +1,25 @@
 import Vue from 'vue';
-import Vuetify from 'vuetify';
-import 'vuetify/dist/vuetify.min.css';
-import colors from 'vuetify/es5/util/colors';
+import Vuetify from 'vuetify/lib';
+import '@mdi/font/css/materialdesignicons.css';
+import 'vuetify/dist/vuetify.min.css'; // Add this line
 
-// const theme = {
-//   primary: colors.indigo.base,
-//   secondary: colors.teal.base,
-//   accent: colors.cyan.base,
-//   error: colors.red.base,
-//   warning: colors.amber.base,
-//   info: colors.blue.base,
-//   success: colors.green.base
-// }
+Vue.use(Vuetify);
 
-// const coolers = {
-
-//   primary: "#0e7c7b",
-//   secondary: "#ee6055",
-//   accent: "#93e5ab",
-//   error: "#053c5e",
-//   warning: "#656565",
-// }
-
-Vue.use(Vuetify, {
-  iconfont: 'md',
-  // theme: coolers
+export default new Vuetify({
+  icons: {
+    iconfont: 'mdi',
+  },
+  theme: {
+    themes: {
+      light: {
+        primary: '#1976D2',
+        secondary: '#424242',
+        accent: '#82B1FF',
+        error: '#FF5252',
+        info: '#2196F3',
+        success: '#4CAF50',
+        warning: '#FFC107',
+      },
+    },
+  },
 });
