@@ -141,7 +141,7 @@ export default class NoteDisplay extends SkldrVue {
   private style(n: number) {
     let color: string = '#ffffff';
     if (n === this.chroma) {
-      color = this.$vuetify.theme.primary.toString();
+      color = '#1976D2';
     } else if (n === 1 || n === 3 || n === 6 || n === 8 || n === 10 || n === this.black) {
       color = '#000000';
     }
