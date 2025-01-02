@@ -1,13 +1,8 @@
 <template>
-  <v-layout column wrap align-center justify-center>
-    <CardViewer
-     :view="views[viewIndex]"
-     :data="data" 
-     :course_id="'[browsing]'" 
-     :card_id="'[browsing]'"
-    />
+  <v-row column align="center" justify="center">
+    <CardViewer :view="views[viewIndex]" :data="data" :course_id="'[browsing]'" :card_id="'[browsing]'" />
     <br /><br />
-    <div class="subheading pa-2">
+    <div class="text-subtitle-1 pa-2">
       <v-btn v-if="spinner" @click="decrementView" icon color="accent">
         <v-icon>chevron_left</v-icon>
       </v-btn>
@@ -16,7 +11,7 @@
         <v-icon alt="Hello">chevron_right</v-icon>
       </v-btn>
     </div>
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">

@@ -1,53 +1,51 @@
 <template>
   <v-card>
-    <v-toolbar card dark flat color="primary">
-      <v-card-title class="title font-weight-regular" primary-title> Start a New Quilt </v-card-title>
+    <v-toolbar flat color="primary" dark>
+      <v-card-title class="text-h6 font-weight-regular"> Start a New Quilt </v-card-title>
       <v-spacer></v-spacer>
       <v-btn icon @click="clearFormAndDismiss">
         <v-icon>close</v-icon>
       </v-btn>
     </v-toolbar>
     <v-form>
-      <v-container grid-list-md>
-        <v-layout wrap column>
-          <v-flex xs12 sm6 md4>
-            <v-text-field
-              v-model="name"
-              counter="30"
-              :rules="nameRules"
-              label="Quilt Name"
-              required
-              hint="Short and descriptive"
-            ></v-text-field>
-          </v-flex>
-          <v-flex xs12 sm6 md4>
-            <v-textarea
-              v-model="description"
-              outline
-              counter="300"
-              :auto-grow="true"
-              label="Quilt Description"
-              hint="Describe the course. What subject is covered? Who might be interested?"
-            >
-            </v-textarea>
-          </v-flex>
-          <v-flex xs12 sm6 md4>
-            <label for="">Public or private quilt?</label>
-            <v-radio-group
-              required
-              hint="Private quilts can be shared and collaborated on with other individual users, but will not be accessable without an invitation. A private quilt can be made public later."
-              persistent-hint
-              row
-              v-model="publicCourse"
-            >
-              <v-radio label="Public" :value="true"></v-radio>
-              <v-radio label="Private" :value="false"></v-radio>
-            </v-radio-group>
-          </v-flex>
-          <v-flex xs12 sm6 md4>
-            <v-btn :loading="updatePending" color="primary" @click="submit"> Save Course Changes </v-btn>
-          </v-flex>
-        </v-layout>
+      <v-container>
+        <v-row cols="12" sm="6" md="4">
+          <v-text-field
+            v-model="name"
+            counter="30"
+            :rules="nameRules"
+            label="Quilt Name"
+            required
+            hint="Short and descriptive"
+          ></v-text-field>
+        </v-row>
+        <v-row cols="12" sm="6" md="4">
+          <v-textarea
+            v-model="description"
+            outlined
+            counter="300"
+            auto-grow
+            label="Quilt Description"
+            hint="Describe the course. What subject is covered? Who might be interested?"
+          >
+          </v-textarea>
+        </v-row>
+        <v-row cols="12" sm="6" md="4">
+          <label>Public or private quilt?</label>
+          <v-radio-group
+            required
+            hint="Private quilts can be shared and collaborated on with other individual users, but will not be accessable without an invitation. A private quilt can be made public later."
+            persistent-hint
+            row
+            v-model="publicCourse"
+          >
+            <v-radio label="Public" :value="true"></v-radio>
+            <v-radio label="Private" :value="false"></v-radio>
+          </v-radio-group>
+        </v-row>
+        <v-row cols="12" sm="6" md="4">
+          <v-btn :loading="updatePending" color="primary" @click="submit"> Save Course Changes </v-btn>
+        </v-row>
       </v-container>
     </v-form>
   </v-card>

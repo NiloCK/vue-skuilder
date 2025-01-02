@@ -1,47 +1,47 @@
 <template>
   <div v-if="!updatePending">
-    <h1 class="display-1"><router-link to="/q">Quilts</router-link> / {{ _courseConfig.name }}</h1>
+    <h1 class="text-h4"><router-link to="/q">Quilts</router-link> / {{ _courseConfig.name }}</h1>
 
-    <p class="body-2">
+    <p class="text-body-2">
       {{ _courseConfig.description }}
     </p>
 
     <transition name="component-fade" mode="out-in">
       <div v-if="userIsRegistered">
-        <router-link :to="`/study/${_id}`">
+        <router-link :to="`/study/${_id}`" class="mr-2">
           <v-btn color="success">Start a study session</v-btn>
         </router-link>
-        <router-link :to="`/edit/${_id}`">
+        <router-link :to="`/edit/${_id}`" class="mr-2">
           <v-btn dark color="indigo lighten-1" title="Add content to this course">
-            <v-icon left>add</v-icon>
+            <v-icon left>mdi-plus</v-icon>
             Add content
           </v-btn>
         </router-link>
-        <router-link :to="`/courses/${_id}/elo`">
+        <router-link :to="`/courses/${_id}/elo`" class="mr-2">
           <v-btn dark color="green darken-2" title="Rank course content for difficulty">
-            <v-icon left>style</v-icon>
+            <v-icon left>mdi-format-list-numbered</v-icon>
             Arrange
           </v-btn>
         </router-link>
-        <v-btn color="error" small outline @click="drop">Drop this course</v-btn>
+        <v-btn color="error" small outlined @click="drop">Drop this course</v-btn>
       </div>
       <div v-else>
         <v-btn color="primary" @click="register">Register</v-btn>
         <router-link :to="`/q/${_id}/preview`">
-          <v-btn outline color="primary">Start a trial study session</v-btn>
+          <v-btn outlined color="primary">Start a trial study session</v-btn>
         </router-link>
       </div>
     </transition>
     <midi-config v-if="isPianoCourse" :_id="_id" />
 
     <v-card class="my-2">
-      <v-toolbar dense>
+      <v-app-bar dense>
         <v-toolbar-title>Tags</v-toolbar-title>
         <v-spacer></v-spacer>
         {{ tags.length }}
-      </v-toolbar>
+      </v-app-bar>
       <v-card-text>
-        <v-chip outline v-for="(tag, i) in tags" v-bind:key="i">
+        <v-chip outlined v-for="(tag, i) in tags" v-bind:key="i" class="mr-2 mb-2">
           <!-- todo: -->
           <!-- <router-link :to="`/q/${_courseConfig.name}/tags/${tag.name}`"> -->
           <router-link :to="`/q/${_id}/tags/${tag.name}`">

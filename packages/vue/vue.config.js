@@ -1,11 +1,14 @@
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 const path = require('path');
+const { defineConfig } = require('@vue/cli-service');
 
-module.exports = {
+module.exports = defineConfig({
+  transpileDependencies: ['vuetify'], // Add this line for Vuetify 2.x
+
   configureWebpack: (config) => {
-    console.log('[config] NODE_ENV:', process.env.NODE_ENV); // prints `development`
-    console.log('[config] VUE_APP_MOCK:', process.env.VUE_APP_MOCK); // prints true
+    console.log('[config] NODE_ENV:', process.env.NODE_ENV);
+    console.log('[config] VUE_APP_MOCK:', process.env.VUE_APP_MOCK);
 
     if (process.env.NODE_ENV === 'production') {
       config.optimization.minimizer[0] = new TerserPlugin(terserOptions);
@@ -57,11 +60,24 @@ module.exports = {
       }),
     ];
   },
+
+  css: {
+    loaderOptions: {
+      sass: {
+        // This is optional but recommended for Vuetify 2.x
+        implementation: require('sass'),
+        sassOptions: {
+          fiber: false,
+        },
+      },
+    },
+  },
+
   publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
   pwa: {
     name: 'Skuilder',
   },
-};
+});
 
 const terserOptions = {
   terserOptions: {

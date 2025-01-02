@@ -1,6 +1,6 @@
 <template>
   <div v-if="hasRegistrations">
-    <div class="display-1">Select your quilts</div>
+    <div class="text-h4">Select your quilts</div>
     <table width="100%">
       <th>
         <v-checkbox
@@ -39,11 +39,11 @@
       v-model="cardCount"
     /> -->
     <v-text-field
-      class="flex xs12 sm6 md4 lg3 headline"
+      class="col-12 col-sm-6 col-md-4 col-lg-3 text-h5"
       solo
-      prepend-inner-icon="access_time"
-      prepend-icon="remove"
-      append-outer-icon="add"
+      prepend-inner-icon="mdi-clock-outline"
+      prepend-icon="mdi-minus"
+      append-outer-icon="mdi-plus"
       :suffix="timeLimit > 1 ? '(minutes)' : '(minute)'"
       hint="Time Limit for this Session"
       ref="numberField"
@@ -53,9 +53,9 @@
       @click:prepend="timeLimit--"
       @click:append-outer="timeLimit++"
     />
-    <v-btn class="flex" color="success" @click="startSession">Start Studying!</v-btn>
+    <v-btn color="success" @click="startSession">Start Studying!</v-btn>
   </div>
-  <div v-else class="display-1">
+  <div v-else class="text-h4">
     <p>You don't have anything to study!</p>
     <p>Head over to the <router-link to="/quilts">Quilts</router-link> page to find something for you.</p>
   </div>
@@ -114,10 +114,10 @@ export default class SessionConfiguration extends SkldrVue {
   private toggleAll(): void {
     this.log(`Toggling all courses`);
 
-    this.activeCourses.forEach(crs => {
+    this.activeCourses.forEach((crs) => {
       crs.selected = this.allSelected;
     });
-    this.activeClasses.forEach(cl => {
+    this.activeClasses.forEach((cl) => {
       cl.selected = this.allSelected;
     });
 
@@ -127,13 +127,13 @@ export default class SessionConfiguration extends SkldrVue {
   private startSession() {
     SkldrMouseTrap.reset();
     const selectedCourses: ContentSourceID[] = this.activeCourses
-      .filter(c => c.selected)
-      .map(c => {
+      .filter((c) => c.selected)
+      .map((c) => {
         return { type: 'course', id: c.courseID };
       });
     const selectedClassrooms: ContentSourceID[] = this.activeClasses
-      .filter(cl => cl.selected)
-      .map(cl => {
+      .filter((cl) => cl.selected)
+      .map((cl) => {
         return { type: 'classroom', id: cl.classID };
       });
 
@@ -157,7 +157,7 @@ export default class SessionConfiguration extends SkldrVue {
     this.log(`Active classes: ${JSON.stringify(classes)}`);
 
     await Promise.all(
-      classes.map(c =>
+      classes.map((c) =>
         (async (classID: string) => {
           const classDb = await StudentClassroomDB.factory(classID);
           activeClasses.push({
@@ -173,7 +173,7 @@ export default class SessionConfiguration extends SkldrVue {
   }
 
   private async getActiveCourses() {
-    this.activeCourses = (await this.$store.state._user!.getActiveCourses()).map(c => {
+    this.activeCourses = (await this.$store.state._user!.getActiveCourses()).map((c) => {
       return {
         ...c,
         selected: true,

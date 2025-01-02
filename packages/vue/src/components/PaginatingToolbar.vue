@@ -3,10 +3,10 @@
     <v-toolbar-title>{{ title }}</v-toolbar-title>
     &nbsp;&nbsp; {{ subtitle }}
     <v-spacer></v-spacer>
-    <v-btn v-on:click="() => $emit('first')" flat icon color="secondary" v-bind:disabled="page == 1">
+    <v-btn v-on:click="() => $emit('first')" text icon color="secondary" v-bind:disabled="page == 1">
       <v-icon>first_page</v-icon>
     </v-btn>
-    <v-btn v-on:click="() => $emit('prev')" flat icon color="secondary" v-bind:disabled="page == 1">
+    <v-btn v-on:click="() => $emit('prev')" text icon color="secondary" v-bind:disabled="page == 1">
       <v-icon>chevron_left</v-icon>
     </v-btn>
     <v-select
@@ -15,10 +15,10 @@
       v-model="page"
       class="pageSelect"
     ></v-select>
-    <v-btn v-on:click="() => $emit('next')" flat icon color="secondary" v-bind:disabled="page == pages.length">
+    <v-btn v-on:click="() => $emit('next')" text icon color="secondary" v-bind:disabled="page == pages.length">
       <v-icon>chevron_right</v-icon>
     </v-btn>
-    <v-btn v-on:click="() => $emit('last')" flat icon color="secondary" v-bind:disabled="page == pages.length">
+    <v-btn v-on:click="() => $emit('last')" text icon color="secondary" v-bind:disabled="page == pages.length">
       <v-icon>last_page</v-icon>
     </v-btn>
   </v-toolbar>

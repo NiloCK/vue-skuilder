@@ -1,5 +1,5 @@
 <template>
-  <v-card class="elevation-12">
+  <v-card elevation="12">
     <transition name="component-fade" mode="out-in">
       <component
         class="cardView"

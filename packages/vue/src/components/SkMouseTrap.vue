@@ -1,8 +1,10 @@
 <template>
   <v-dialog max-width="500px" transition="dialog-transition" v-if="display">
-    <v-btn fab dark color="primary" slot="activator">
-      <v-icon dark>keyboard</v-icon>
-    </v-btn>
+    <template v-slot:activator="{ on, attrs }">
+      <v-btn fab dark color="primary" v-bind="attrs" v-on="on">
+        <v-icon dark>keyboard</v-icon>
+      </v-btn>
+    </template>
 
     <v-card>
       <v-toolbar color="teal" dark>
@@ -10,15 +12,15 @@
         <v-spacer></v-spacer>
       </v-toolbar>
       <v-list>
-        <v-list-tile v-for="hk in commands" :key="hk.hotkey">
-          <v-btn outline color="black">
+        <v-list-item v-for="hk in commands" :key="hk.hotkey">
+          <v-btn outlined color="black">
             {{ hk.hotkey }}
           </v-btn>
           <v-spacer></v-spacer>
-          <span justify-end>
+          <span class="text-right">
             {{ hk.command }}
           </span>
-        </v-list-tile>
+        </v-list-item>
       </v-list>
     </v-card>
   </v-dialog>

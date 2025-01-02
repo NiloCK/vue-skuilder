@@ -9,52 +9,68 @@
       v-on:prev="prev"
       v-on:next="next"
       v-on:last="last"
-      v-on:set-page="n => setPage(n)"
+      v-on:set-page="(n) => setPage(n)"
     />
     <v-list v-for="c in cards" v-bind:key="c.id" v-bind:class="c.isOpen ? 'blue-grey lighten-5' : ''" two-line dense>
-      <v-list-tile v-bind:class="c.isOpen ? 'elevation-4 font-weight-black blue-grey lighten-4' : ''">
-        <v-list-tile-content>
+      <v-list-item v-bind:class="c.isOpen ? 'elevation-4 font-weight-black blue-grey lighten-4' : ''">
+        <v-list-item-content>
           <template>
-            <v-list-tile-title v-bind:class="c.isOpen ? 'blue-grey--text text--lighten-4' : ''">
+            <v-list-item-title v-bind:class="c.isOpen ? 'blue-grey--text text--lighten-4' : ''">
               {{ cardPreview[c.id] }}
-            </v-list-tile-title>
-            <v-list-tile-sub-title>
+            </v-list-item-title>
+            <v-list-item-subtitle>
               {{ c.id.split('-').length === 3 ? c.id.split('-')[2] : '' }}
-            </v-list-tile-sub-title>
+            </v-list-item-subtitle>
           </template>
-        </v-list-tile-content>
-        <!-- <v-list-tile-action> -->
+        </v-list-item-content>
         <v-speed-dial v-model="c.isOpen" direction="left" transition="slide-x-reverse-transition">
-          <v-btn v-on:click="clearSelections(c.id)" slot="activator" color="disabled" icon fab small v-model="c.isOpen">
-            <v-icon disabled>open_in_full</v-icon>
+          <v-btn
+            v-if="c.isOpen"
+            v-on:click="clearSelections(c.id)"
+            slot="activator"
+            color="disabled"
+            icon
+            fab
+            small
+            v-model="c.isOpen"
+          >
             <v-icon>close</v-icon>
+          </v-btn>
+          <v-btn
+            v-else
+            v-on:click="clearSelections(c.id)"
+            slot="activator"
+            color="disabled"
+            icon
+            fab
+            small
+            v-model="c.isOpen"
+          >
+            <v-icon>open_in_full</v-icon>
           </v-btn>
           <v-btn
             fab
             small
-            :outline="editMode != 'tags'"
+            :outlined="editMode != 'tags'"
             :dark="editMode == 'tags'"
             :color="editMode === 'tags' ? 'teal' : 'teal darken-3'"
             @click.stop="editMode = 'tags'"
           >
-            <v-icon>bookmark</v-icon>
+            <v-icon>mdi-bookmark</v-icon>
           </v-btn>
           <v-btn
             fab
             small
-            :outline="editMode != 'flag'"
+            :outlined="editMode != 'flag'"
             :dark="editMode == 'flag'"
             :color="editMode === 'flag' ? 'error' : 'error darken-3'"
             @click.stop="editMode = 'flag'"
           >
-            <v-icon>flag</v-icon>
+            <v-icon>mdi-flag</v-icon>
           </v-btn>
         </v-speed-dial>
-        <!-- </v-list-tile-action> -->
-      </v-list-tile>
-      <!-- <transition name="component-scale" mode="out-in"> -->
+      </v-list-item>
       <card-loader class="blue-grey lighten-5 elevation-1" v-if="c.isOpen" v-bind:qualified_id="c.id" />
-      <!-- </transition> -->
       <tags-input
         class="ma-3"
         v-show="c.isOpen && editMode === 'tags'"
@@ -62,7 +78,7 @@
         v-bind:cardID="c.id.split('-')[1]"
       />
       <div class="ma-3" v-show="c.isOpen && editMode === 'flag'">
-        <v-btn outline color="error" v-on:click="delBtn = true">Delete this card</v-btn>
+        <v-btn outlined color="error" v-on:click="delBtn = true">Delete this card</v-btn>
         <span v-if="delBtn">
           <span>Are you sure?</span>
           <v-btn color="error" v-on:click="deleteCard(c.id)">Confirm</v-btn>
@@ -77,7 +93,7 @@
       @prev="prev"
       @next="next"
       @last="last"
-      @set-page="n => setPage(n)"
+      @set-page="(n) => setPage(n)"
     />
   </v-card>
 </template>
@@ -140,7 +156,7 @@ export default class CourseCardBrowser extends SkldrVue {
   private delBtn: boolean = false;
 
   private clearSelections(exception: string = '') {
-    this.cards.forEach(card => {
+    this.cards.forEach((card) => {
       if (card.id !== exception) {
         card.isOpen = false;
       }
@@ -152,7 +168,7 @@ export default class CourseCardBrowser extends SkldrVue {
   private async deleteCard(c: string) {
     const res = await this.courseDB.removeCard(c.split('-')[1]);
     if (res.ok) {
-      this.cards = this.cards.filter(card => card.id != c);
+      this.cards = this.cards.filter((card) => card.id != c);
       this.clearSelections();
     }
   }
@@ -189,7 +205,7 @@ export default class CourseCardBrowser extends SkldrVue {
   private async populateTableData() {
     if (this._tag) {
       const tag = await getTag(this._id, this._tag);
-      this.cards = tag.taggedCards.map(c => {
+      this.cards = tag.taggedCards.map((c) => {
         return { id: `${this._id}-${c}`, isOpen: false };
       });
     } else {
@@ -200,7 +216,7 @@ export default class CourseCardBrowser extends SkldrVue {
           limit: 25,
           page: this.page - 1, // -1 for 0-index offset
         })
-      ).map(c => {
+      ).map((c) => {
         return {
           id: c,
           isOpen: false,
@@ -212,13 +228,13 @@ export default class CourseCardBrowser extends SkldrVue {
     const hydratedCardData = (
       await getCourseDocs<CardData>(
         this._id,
-        this.cards.map(c => c.id.split('-')[1]),
+        this.cards.map((c) => c.id.split('-')[1]),
         {
           include_docs: true,
         }
       )
     ).rows
-      .filter(r => {
+      .filter((r) => {
         if (r.doc) {
           return true;
         } else {
@@ -228,30 +244,30 @@ export default class CourseCardBrowser extends SkldrVue {
           return false;
         }
       })
-      .map(r => r.doc!);
+      .map((r) => r.doc!);
 
-    this.cards = this.cards.filter(c => !toRemove.includes(c.id.split('-')[1]));
+    this.cards = this.cards.filter((c) => !toRemove.includes(c.id.split('-')[1]));
 
-    hydratedCardData.forEach(c => {
+    hydratedCardData.forEach((c) => {
       if (c && c.id_displayable_data) {
         // this allowed display. still not finished
         this.cardData[c._id] = c.id_displayable_data;
       }
     });
 
-    this.cards.forEach(async c => {
+    this.cards.forEach(async (c) => {
       // this.log(`generating preview for ${c}`);
       const _courseID: string = c.id.split('-')[0];
       const _cardID: string = c.id.split('-')[1];
 
-      const tmpCardData = hydratedCardData.find(c => c._id == _cardID)!;
+      const tmpCardData = hydratedCardData.find((c) => c._id == _cardID)!;
       // this.log(`tmpCardData: ${JSON.stringify(tmpCardData)}`);
       const tmpView = Courses.getView(tmpCardData.id_view || 'default.question.BlanksCard.FillInView');
 
       // todo 143 / perf: this fetch is non-blocking, but is making a db
       // query for each card. much much better to batch query by allDocs
       // with keys list
-      const tmpDataDocs = tmpCardData.id_displayable_data.map(id => {
+      const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
         return getCourseDoc<DisplayableData>(_courseID, id, {
           attachments: false,
           binary: true,
@@ -260,7 +276,7 @@ export default class CourseCardBrowser extends SkldrVue {
 
       const allDocs = await Promise.all(tmpDataDocs);
       await Promise.all(
-        allDocs.map(doc => {
+        allDocs.map((doc) => {
           const tmpData = [];
           tmpData.unshift(displayableDataToViewData(doc));
 

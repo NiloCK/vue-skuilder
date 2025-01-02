@@ -88,6 +88,7 @@ export default class MultipleChoiceOption extends Vue {
   padding-bottom: 5px;
   margin: 10px;
   min-width: 75px; /* prevent tiny click-btns on, eg, one-letter answers */
+  transition: all 0.2s ease-in-out;
 }
 
 .selected {

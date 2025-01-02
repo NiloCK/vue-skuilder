@@ -3,70 +3,70 @@
     <!-- class="blue darken-2 grey--text text--lighten-5" dark> -->
     <v-navigation-drawer clipped v-model="drawer" enable-resize-watcher fixed app>
       <v-list>
-        <v-list-tile value="true" :to="{ path: '/home' }">
-          <v-list-tile-action>
+        <v-list-item value="true" :to="{ path: '/home' }">
+          <v-list-item-action>
             <v-icon>home</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title> Home </v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile v-if="true" value="true" :to="{ path: '/study' }">
-          <v-list-tile-action>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title> Home </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item v-if="true" value="true" :to="{ path: '/study' }">
+          <v-list-item-action>
             <v-icon>school</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title> Study </v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile v-if="true" value="true" :to="{ path: '/classrooms' }">
-          <v-list-tile-action>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title> Study </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item v-if="true" value="true" :to="{ path: '/classrooms' }">
+          <v-list-item-action>
             <v-icon>people</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title> Classrooms </v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile v-if="true" value="true" :to="{ path: '/quilts' }">
-          <v-list-tile-action>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title> Classrooms </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item v-if="true" value="true" :to="{ path: '/quilts' }">
+          <v-list-item-action>
             <v-icon>bookmarks</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title> Quilts </v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <!-- <v-list-tile
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title> Quilts </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <!-- <v-list-item
           v-if='true'
           value="true"
           :to="{path: '/edit'}"
         >
-          <v-list-tile-action>
+          <v-list-item-action>
             <v-icon>add_to_queue</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>
               Edit
-            </v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile> -->
+            </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item> -->
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar app dense clipped-left>
-      <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+    <v-app-bar app dense clipped-left>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <!-- <v-toolbar-title class="text-uppercase">
         <span class="font-weight-thin grey--text text--darken-1">edu</span>
         <span class="grey--text text--darken-2">Quilt</span>
       </v-toolbar-title> -->
       <v-spacer></v-spacer>
       <user-login-and-registration-container />
-    </v-toolbar>
-    <v-content>
+    </v-app-bar>
+    <v-main>
       <v-container>
         <v-slide-y-transition mode="out-in">
           <router-view v-if="$store.state._user" />
         </v-slide-y-transition>
       </v-container>
-    </v-content>
+    </v-main>
     <!-- <v-footer fixed app>
       <span>
        v: <router-link to='/notes'>{{build}}</router-link>

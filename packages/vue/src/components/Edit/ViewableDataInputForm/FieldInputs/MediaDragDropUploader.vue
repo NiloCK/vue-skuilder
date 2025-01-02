@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <label class="headline">Add media:</label>
+  <div class="mr-2 mb-2">
+    <v-label class="text-h5">Add media:</v-label>
     <div
       class="drop-zone"
       v-bind:class="{ 'drop-zone--over': isDragging }"
@@ -15,7 +15,7 @@
         @change="handleFileInput"
         accept="image/*,audio/*"
         multiple
-        style="display: none;"
+        style="display: none"
       />
       <template>
         <div v-for="(item, index) in mediaItems" :key="index" class="media-item">
@@ -104,7 +104,7 @@ export default class MediaDragDropUploader extends FieldInput {
   }
 
   processFiles(files: FileList) {
-    Array.from(files).forEach(file => {
+    Array.from(files).forEach((file) => {
       this.addMediaItem(file);
     });
     this.updateStore();
@@ -119,7 +119,7 @@ export default class MediaDragDropUploader extends FieldInput {
     };
 
     if (type === 'image') {
-      this.createThumbnail(file).then(thumbnailUrl => {
+      this.createThumbnail(file).then((thumbnailUrl) => {
         item.thumbnailUrl = thumbnailUrl;
 
         // update render, because mediaItems.push() has likely already completed
@@ -133,7 +133,7 @@ export default class MediaDragDropUploader extends FieldInput {
   }
 
   async createThumbnail(file: File): Promise<string> {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = (e: ProgressEvent<FileReader>) => {
         resolve(e.target?.result as string);
@@ -149,7 +149,7 @@ export default class MediaDragDropUploader extends FieldInput {
   }
 
   public clearData() {
-    this.mediaItems.forEach(item => {
+    this.mediaItems.forEach((item) => {
       URL.revokeObjectURL(item.url);
     });
     this.mediaItems = [];
@@ -173,7 +173,7 @@ export default class MediaDragDropUploader extends FieldInput {
     // Then add current items
     let imageCount = 0;
     let audioCount = 0;
-    this.mediaItems.forEach(item => {
+    this.mediaItems.forEach((item) => {
       if (item.type === 'image') {
         imageCount++;
         this.store[`image-${imageCount}`] = {

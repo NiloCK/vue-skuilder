@@ -1,13 +1,15 @@
 <template>
   <div>
     <!-- todo: -->
-    <h1><router-link :to="`/q/${course.name}`">{{course.name}}</router-link> > Tag: {{ tag.name }}</h1>
+    <h1>
+      <router-link :to="`/q/${course.name}`">{{ course.name }}</router-link> > Tag: {{ tag.name }}
+    </h1>
     <br />
     <p>{{ tag.taggedCards.length }} card{{ tag.taggedCards.length === 1 ? '' : 's' }}</p>
 
     <v-text-field
       ref="snippetEditor"
-      box
+      outlined
       v-bind:readonly="!editingSnippet"
       v-bind:counter="editingSnippet"
       label="Brief tag description:"
@@ -17,12 +19,12 @@
     >
       <template v-slot:prepend>
         <span v-if="editingSnippet">
-          <v-icon flat icon color="primary" v-on:click="saveSnippet">save</v-icon>
+          <v-icon color="primary" @click="saveSnippet">mdi-content-save</v-icon>
         </span>
-        <v-icon v-else flat icon color="primary" v-on:click="editSnippet">edit</v-icon>
+        <v-icon v-else color="primary" @click="editSnippet">mdi-pencil</v-icon>
       </template>
       <template v-slot:append>
-        <v-icon v-if="editingSnippet" icon v-on:click="cancelEditSnippet">cancel</v-icon>
+        <v-icon v-if="editingSnippet" @click="cancelEditSnippet">mdi-cancel</v-icon>
         <v-fade-transition leave-absolute>
           <!-- spinner while awaiting async write of edits -->
           <v-progress-circular v-if="snippetSaving" size="20" color="info" indeterminate></v-progress-circular>
@@ -32,7 +34,7 @@
 
     <v-text-field
       ref="wikiEditor"
-      box
+      outlined
       v-bind:readonly="!editingWiki"
       v-bind:counter="editingWiki"
       label="Extended tag description:"
@@ -42,12 +44,12 @@
     >
       <template v-slot:prepend>
         <span v-if="editingWiki">
-          <v-icon flat icon color="primary" v-on:click="saveWiki">save</v-icon>
+          <v-icon color="primary" @click="saveWiki">mdi-content-save</v-icon>
         </span>
-        <v-icon v-else flat icon color="primary" v-on:click="editWiki">edit</v-icon>
+        <v-icon v-else color="primary" @click="editWiki">mdi-pencil</v-icon>
       </template>
       <template v-slot:append>
-        <v-icon v-if="editingWiki" icon v-on:click="cancelEditWiki">cancel</v-icon>
+        <v-icon v-if="editingWiki" @click="cancelEditWiki">mdi-cancel</v-icon>
         <v-fade-transition leave-absolute>
           <!-- spinner while awaiting async write of edits -->
           <v-progress-circular v-if="wikiSaving" size="20" color="info" indeterminate></v-progress-circular>

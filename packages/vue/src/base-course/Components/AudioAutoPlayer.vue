@@ -1,6 +1,12 @@
 <template>
-  <v-btn v-on:click="play" large raised icon v-bind:class="playing ? 'primary lighten-3 playing' : 'primary'">
-    <v-icon>volume_up</v-icon>
+  <v-btn
+    @click="play"
+    large
+    icon
+    v-bind:color="playing ? 'primary lighten-3' : 'primary'"
+    :class="{ playing: playing }"
+  >
+    <v-icon>mdi-volume-high</v-icon>
   </v-btn>
 </template>
 

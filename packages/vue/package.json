@@ -35,7 +35,8 @@
         "vue-class-component": "^7.2.6",
         "vue-property-decorator": "^9.1.2",
         "vue-router": "^3.6.5",
-        "vuetify": "1.5.24",
+        "vuetify": "^2.7.2",
+        "@mdi/font": "^7.3.67",
         "vuex": "^3.6.1",
         "wavesurfer.js": "^5.1.0",
         "webmidi": "^2.5.1"
@@ -83,7 +84,8 @@
         "ts-jest": "^27.1.5",
         "typescript": "~5.7.2",
         "util": "^0.12.5",
-        "vue-cli-plugin-vuetify": "^0.2.0",
+        "vue-cli-plugin-vuetify": "^2.5.8",
+        "vuetify-loader": "^1.7.3",
         "vue-template-compiler": "^2.7.16"
     },
     "engines": {

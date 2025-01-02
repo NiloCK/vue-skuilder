@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
-    <v-layout row wrap justify-space-around>
-      <v-flex md4 sm12 xs12>
+    <v-row justify="space-around">
+      <v-col cols="12" sm="12" md="4">
         <v-card>
           <v-toolbar flat>
             <v-toolbar-title>My Registered Quilts</v-toolbar-title>
@@ -10,16 +10,16 @@
           <v-list>
             <transition-group name="component-fade" mode="out-in" key="registered">
               <template v-for="course in registeredCourses">
-                <v-list-tile :key="course._id" avatar>
-                  <v-list-tile-content>
-                    <v-list-tile-title>
+                <v-list-item :key="course._id" avatar>
+                  <v-list-item-content>
+                    <v-list-item-title>
                       <router-link :to="`/q/${course.name.replace(' ', '_')}`">
                         {{ course.name }}
                       </router-link>
                       <v-icon v-if="!course.public">visibility_off</v-icon>
-                    </v-list-tile-title>
-                  </v-list-tile-content>
-                  <v-list-tile-action>
+                    </v-list-item-title>
+                  </v-list-item-content>
+                  <v-list-item-action>
                     <v-btn
                       small
                       color="secondary"
@@ -28,69 +28,33 @@
                     >
                       Drop
                     </v-btn>
-                  </v-list-tile-action>
-                </v-list-tile>
+                  </v-list-item-action>
+                </v-list-item>
               </template>
             </transition-group>
           </v-list>
         </v-card>
-      </v-flex>
-      <!-- <v-spacer></v-spacer> -->
-      <!-- <v-flex xs12 md4>
-      <v-card>
-        <v-toolbar >
-          <v-toolbar-title>Available Courses</v-toolbar-title>
-        </v-toolbar>
-
-        <v-list >
-            <transition-group
-              appear
-              name='component-fade'
-              mode='out-in'
-              key='available'
-              tag='div'
-            >
-          <template v-for="course in availableCourses">
-            
-            <v-list-tile
-              :key="course._id"
-              avatar
-            >
-
-              <v-list-tile-content>
-                <v-list-tile-title>
-                  {{ course.name }}
-                </v-list-tile-title>
-              </v-list-tile-content>
-              <v-list-tile-action>
-                <v-btn 
-                 small
-                 color="primary"
-                 @click="addCourse(course._id)"
-                 :loading="spinnerMap[course._id] !== undefined"
-                >
-                  Register
-                </v-btn>
-              </v-list-tile-action>
-              
-            </v-list-tile>
-          </template>
-          </transition-group>
-          <v-divider></v-divider>
-            
-        </v-list>
-      </v-card>
-    </v-flex> -->
-    </v-layout>
+      </v-col>
+    </v-row>
 
     <h1 class="display-1">Available Quilts:</h1>
-    <v-layout align-space-between fill-height wrap>
-      <v-flex fill-height pa-2 xs12 sm6 md4 lg3 v-for="course in availableCourses" :key="course._id">
+    <v-row align="space-between" class="fill-height" wrap>
+      <v-col
+        class="fill-height pa-2"
+        cols="12"
+        sm="6"
+        md="4"
+        lg="3"
+        v-for="course in availableCourses"
+        :key="course._id"
+      >
         <course-stub-card v-on:refresh="refreshData" :_id="course._id" />
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
     <v-dialog v-model="newCourseDialog" fullscreen transition="dialog-bottom-transition" :overlay="false">
-      <v-btn color="primary" dark slot="activator">Start a new Quilt</v-btn>
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn color="primary" dark v-bind="attrs" v-on="on"> Start a new Quilt </v-btn>
+      </template>
       <course-editor v-on:CourseEditingComplete="processResponse($event)" />
     </v-dialog>
   </v-container>

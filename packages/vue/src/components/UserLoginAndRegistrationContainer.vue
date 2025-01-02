@@ -1,12 +1,16 @@
 <template>
   <transition v-if="$store.state._user && display" name="component-fade" mode="out-in">
     <div v-if="guestMode">
-      <v-dialog v-model="regDialog" width="500px" lazy>
-        <v-btn small slot="activator" color="success"> Sign Up </v-btn>
+      <v-dialog v-model="regDialog" width="500px">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn class="mr-2" small color="success" v-bind="attrs" v-on="on">Sign Up</v-btn>
+        </template>
         <UserRegistration @toggle="toggle" />
       </v-dialog>
-      <v-dialog lazy v-model="loginDialog" width="500px">
-        <v-btn small slot="activator" color="success"> Log In </v-btn>
+      <v-dialog v-model="loginDialog" width="500px">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn small color="success" v-bind="attrs" v-on="on">Log In</v-btn>
+        </template>
         <UserLogin @toggle="toggle" />
       </v-dialog>
     </div>

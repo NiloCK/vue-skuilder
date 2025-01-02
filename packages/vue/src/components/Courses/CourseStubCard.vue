@@ -1,12 +1,12 @@
 <template>
   <v-card v-if="!updatePending">
-    <v-toolbar dense flat>
+    <v-app-bar dense flat>
       <v-toolbar-title @click="routeToCourse">
         {{ _courseConfig.name }}
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-icon v-if="isPrivate">visibility_off</v-icon>
-    </v-toolbar>
+      <v-icon v-if="isPrivate">mdi-eye-off</v-icon>
+    </v-app-bar>
     <v-card-text>
       Questions: {{ questionCount }}
 

@@ -1,8 +1,6 @@
 <template>
   <v-card>
-    <v-card-title v-if="!registrationRoute" class="headline grey lighten-2" primary-title>
-      Create an Account
-    </v-card-title>
+    <v-card-title v-if="!registrationRoute" class="text-h5 grey lighten-2"> Create an Account </v-card-title>
 
     <v-card-text>
       <v-form onsubmit="return false;">
@@ -14,24 +12,24 @@
           label="Choose a Username"
           id=""
           v-model="username"
-          prepend-icon="account_circle"
+          prepend-icon="mdi-account-circle"
           :error="usernameError"
           :hint="usernameHint"
         ></v-text-field>
         <v-text-field
-          prepend-icon="lock"
+          prepend-icon="mdi-lock"
           name="name"
           hover="Show password"
           label="Create a password"
           hint=""
           min="4"
-          :append-icon="passwordVisible ? 'visibility_off' : 'visibility'"
+          :append-icon="passwordVisible ? 'mdi-eye-off' : 'mdi-eye'"
           @click:append="() => (passwordVisible = !passwordVisible)"
           :type="passwordVisible ? 'text' : 'password'"
           v-model="password"
         ></v-text-field>
         <v-text-field
-          prepend-icon="lock"
+          prepend-icon="mdi-lock"
           name="name"
           hover="Show password"
           label="Retype your password"
@@ -47,16 +45,16 @@
 
         <v-snackbar v-model="badLoginAttempt" bottom right :timeout="5000">
           Username or password was incorrect.
-          <v-btn color="pink" flat @click="badLoginAttempt = false"> Close </v-btn>
+          <v-btn color="pink" text @click="badLoginAttempt = false"> Close </v-btn>
         </v-snackbar>
-        <v-btn type="submit" :loading="awaitingResponse" @click="createUser" :color="buttonStatus.color">
-          <v-icon left dark>lock_open</v-icon>
+        <v-btn class="mr-2" type="submit" :loading="awaitingResponse" @click="createUser" :color="buttonStatus.color">
+          <v-icon left>mdi-lock-open</v-icon>
           Create Account
         </v-btn>
         <router-link v-if="registrationRoute" to="login">
-          <v-btn flat>Log In</v-btn>
+          <v-btn text>Log In</v-btn>
         </router-link>
-        <v-btn v-else flat @click="toggle"> Log In </v-btn>
+        <v-btn v-else text @click="toggle"> Log In </v-btn>
       </v-form>
     </v-card-text>
   </v-card>
