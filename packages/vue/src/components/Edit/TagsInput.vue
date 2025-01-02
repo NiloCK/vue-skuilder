@@ -19,7 +19,7 @@
     </vue-tags-input>
 
     <v-btn v-if="!hideSubmit" color="success" @click="submit" :loading="loading">Save Changes</v-btn>
-  </div>
+  </div> 
 </template>
 
 <script lang="ts">

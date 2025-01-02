@@ -1,8 +1,8 @@
 <template>
   <!-- <v-container grid-list-xs align-center class='login'> -->
 
-  <v-layout row wrap align-center>
-    <v-flex>
+  <v-row align="center">
+    <v-col>
       <v-card>
         <v-card-title v-if="!loginRoute" class="headline grey lighten-2" primary-title> Log In </v-card-title>
 
@@ -24,23 +24,23 @@
               hint=""
               min="0"
               :append-icon="passwordVisible ? 'visibility_off' : 'visibility'"
-              :append-icon-cb="() => (passwordVisible = !passwordVisible)"
+              @click:append="() => (passwordVisible = !passwordVisible)"
               :type="passwordVisible ? 'text' : 'password'"
               v-model="password"
             ></v-text-field>
-            <v-btn type="submit" :loading="awaitingResponse" @click="login" :color="buttonStatus.color">
+            <v-btn class="mr-2" type="submit" :loading="awaitingResponse" @click="login" :color="buttonStatus.color">
               <v-icon left dark>lock_open</v-icon>
               Log In
             </v-btn>
             <router-link v-if="loginRoute" to="signup">
-              <v-btn flat>Create New Account</v-btn>
+              <v-btn text>Create New Account</v-btn>
             </router-link>
-            <v-btn v-else @click="toggle" flat> Create New Account </v-btn>
+            <v-btn v-else @click="toggle" text> Create New Account </v-btn>
           </v-form>
         </v-card-text>
       </v-card>
-    </v-flex>
-  </v-layout>
+    </v-col>
+  </v-row>
   <!-- </v-container> -->
 </template>
 
@@ -86,7 +86,7 @@ export default class UserLogin extends SkldrVue {
     try {
       // #172 starting point - why is the pre-existing _user being referenced here?
       const res = await this.$store.state._user!.login(this.username, this.password);
-      this.$store.state._user!.getConfig().then(cfg => {
+      this.$store.state._user!.getConfig().then((cfg) => {
         this.$store.state.config = cfg;
       });
       this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;

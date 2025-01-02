@@ -10,8 +10,8 @@
       :color="getColor(snack)"
     >
       {{ snack.text }}
-      <v-btn icon flat @click="close()">
-        <v-icon>close</v-icon>
+      <v-btn icon text @click="close()">
+        <v-icon>mdi-close</v-icon>
       </v-btn>
     </v-snackbar>
   </div>

@@ -1,19 +1,19 @@
 <template>
-  <v-layout column v-if="!updatePending">
-    <v-flex xs1>
+  <v-row column v-if="!updatePending">
+    <v-row cols="1">
       <h1>Which seems <em>harder</em>?</h1>
-    </v-flex>
+    </v-row>
 
-    <v-layout row wrap>
-      <v-btn v-on:click="vote('a')" color="success ma-5"><v-icon>check</v-icon></v-btn>
+    <v-row>
+      <v-btn v-on:click="vote('a')" color="success" class="ma-5"><v-icon>check</v-icon></v-btn>
       <card-loader class="ma-2" v-bind:qualified_id="id1" />
-    </v-layout>
+    </v-row>
 
-    <v-layout row wrap>
-      <v-btn v-on:click="vote('b')" color="success ma-5"><v-icon>check</v-icon></v-btn>
+    <v-row>
+      <v-btn v-on:click="vote('b')" color="success" class="ma-5"><v-icon>check</v-icon></v-btn>
       <card-loader class="ma-2" v-bind:qualified_id="id2" />
-    </v-layout>
-  </v-layout>
+    </v-row>
+  </v-row>
 </template>
 
 <script lang="ts">

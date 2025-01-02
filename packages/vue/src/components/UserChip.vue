@@ -1,37 +1,41 @@
 <template>
   <v-badge overlap color="accent" v-model="hasNewItems">
-    <span slot="badge" dark small>{{ items.length }}</span>
+    <template v-slot:badge>
+      <span dark small>{{ items.length }}</span>
+    </template>
 
     <v-menu offset-y transition="scale-transition">
-      <v-chip slot="activator">
-        <v-avatar class="primary">
-          <v-icon dark>school</v-icon>
-        </v-avatar>
-        {{ username }}
-      </v-chip>
+      <template v-slot:activator="{ on, attrs }">
+        <v-chip v-bind="attrs" v-on="on">
+          <v-avatar class="primary">
+            <v-icon dark>school</v-icon>
+          </v-avatar>
+          {{ username }}
+        </v-chip>
+      </template>
 
       <v-list>
         <!-- eventual notifications bar -->
-        <v-list-tile v-for="item in items" :key="item" @click="dismiss(item)">
-          <v-list-tile-title>{{ item }}</v-list-tile-title>
-        </v-list-tile>
+        <v-list-item v-for="item in items" :key="item" @click="dismiss(item)">
+          <v-list-item-title>{{ item }}</v-list-item-title>
+        </v-list-item>
 
         <v-divider v-if="items.length" />
 
-        <v-list-tile @click="gotoStats">
+        <v-list-item @click="gotoStats">
           <v-icon left>trending_up</v-icon>
-          <v-list-tile-title>Stats</v-list-tile-title>
-        </v-list-tile>
+          <v-list-item-title>Stats</v-list-item-title>
+        </v-list-item>
 
-        <v-list-tile @click="gotoSettings">
+        <v-list-item @click="gotoSettings">
           <v-icon left>settings</v-icon>
-          <v-list-tile-title>Settings</v-list-tile-title>
-        </v-list-tile>
+          <v-list-item-title>Settings</v-list-item-title>
+        </v-list-item>
 
-        <v-list-tile @click="logout">
+        <v-list-item @click="logout">
           <v-icon left>launch</v-icon>
-          <v-list-tile-title>Log out</v-list-tile-title>
-        </v-list-tile>
+          <v-list-item-title>Log out</v-list-item-title>
+        </v-list-item>
       </v-list>
     </v-menu>
   </v-badge>
