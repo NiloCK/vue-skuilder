@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
-    <v-layout row wrap>
-      <v-flex xl6>
+    <v-row>
+      <v-col cols="12" xl="6">
         <v-form ma-2 autocomplete="off">
           <div
             ref="fieldInputWraps"
@@ -75,22 +75,22 @@
 
           <tags-input hideSubmit="true" ref="tagsInput" v-bind:courseID="courseCfg.courseID" cardID="" />
           <v-btn
-            right
+            class="float-right"
             type="submit"
             color="primary"
             v-bind:loading="uploading"
             v-bind:disabled="!allowSubmit"
-            v-on:click.native.prevent="submit"
+            v-on:click.prevent="submit"
           >
             Add card
-            <v-icon right dark>add_circle</v-icon>
+            <v-icon right>mdi-plus-circle</v-icon>
           </v-btn>
         </v-form>
-      </v-flex>
-      <v-flex xl6>
+      </v-col>
+      <v-col cols="12" xl="6">
         <card-browser class="ml-4" v-if="inputIsValidated" v-bind:views="shapeViews" v-bind:data="[previewInput]" />
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -164,7 +164,7 @@ export default class DataInputForm extends SkldrVue {
   };
 
   public get fieldInputs(): FieldInput[] {
-    return this.$refs.fieldInputWraps.map<FieldInput>(div => {
+    return this.$refs.fieldInputWraps.map<FieldInput>((div) => {
       // if ((div.children[0] as any).__vue__.clearData !==)
       //     return (div.children[0] as any).__vue__ as FieldInput;
       const child: Vue = (div.children[0] as any).__vue__;
@@ -247,7 +247,7 @@ export default class DataInputForm extends SkldrVue {
 
   public async getCourseTags() {
     const existingTags = await getCourseTagStubs(this.courseCfg.courseID!);
-    this.autoCompleteSuggestions = existingTags.rows.map(tag => {
+    this.autoCompleteSuggestions = existingTags.rows.map((tag) => {
       return {
         text: tag.doc!.name,
       };
@@ -265,7 +265,7 @@ export default class DataInputForm extends SkldrVue {
 
   public checkInput(): boolean {
     let validations = Object.getOwnPropertyNames(this.store.validation);
-    validations = validations.filter(v => v !== '__ob__'); // remove vuejs observer property
+    validations = validations.filter((v) => v !== '__ob__'); // remove vuejs observer property
 
     let inputIsValid: boolean = validations.length === this.expectedValidations();
 
@@ -274,13 +274,13 @@ export default class DataInputForm extends SkldrVue {
     // this.log(`Validation keys: ${Object.getOwnPropertyNames(this.store.validation)}`);
 
     const invalidFields = Object.getOwnPropertyNames(this.store.validation).filter(
-      fieldName => this.store.validation[fieldName] === false
+      (fieldName) => this.store.validation[fieldName] === false
     );
 
     if (invalidFields.length > 0) {
       inputIsValid = false;
       this.error('Invalid Fields:', invalidFields);
-      invalidFields.forEach(field => {
+      invalidFields.forEach((field) => {
         console.error(`Field ${field} validation:`, this.store.validation[field]);
       });
     }
@@ -337,7 +337,7 @@ export default class DataInputForm extends SkldrVue {
   }
 
   public convertInput() {
-    const supplementedFields = this.dataShape.fields.map(f => {
+    const supplementedFields = this.dataShape.fields.map((f) => {
       const copiedFieldDefinition: FieldDefinition = {
         name: f.name,
         type: f.type,
@@ -368,7 +368,7 @@ export default class DataInputForm extends SkldrVue {
       }
     }
 
-    supplementedFields.forEach(fieldDef => {
+    supplementedFields.forEach((fieldDef) => {
       this.store.convertedInput[fieldDef.name] = fieldConverters[fieldDef.type].databaseConverter(
         this.store[fieldDef.name]
       );
@@ -423,7 +423,7 @@ export default class DataInputForm extends SkldrVue {
           // one of its outputs
           const replaced: StringIndexable[] = [];
 
-          (o[fKey]() as Array<any>).forEach(fcnOutput => {
+          (o[fKey]() as Array<any>).forEach((fcnOutput) => {
             let copy: StringIndexable = {};
             copy = _.cloneDeep(o);
             copy[fKey] = fcnOutput;
@@ -433,7 +433,7 @@ export default class DataInputForm extends SkldrVue {
             replaced.push(copy);
           });
 
-          replaced.forEach(obj => {
+          replaced.forEach((obj) => {
             if (this.objectContainsFunction(obj)) {
               this.log('2nd pass...');
               const recursiveExpansion = this.expandO(obj);
@@ -458,20 +458,20 @@ export default class DataInputForm extends SkldrVue {
   private getTags(): string[] {
     const dataShapeParsedTags: string[] = [];
 
-    this.fieldInputs.forEach(f => {
+    this.fieldInputs.forEach((f) => {
       if (f.generateTags) {
         const fTags = f.generateTags();
         dataShapeParsedTags.push(...fTags);
       }
     });
 
-    let manualTags = this.$refs.tagsInput.tags.map(t => t.text);
+    let manualTags = this.$refs.tagsInput.tags.map((t) => t.text);
 
     return dataShapeParsedTags.concat(manualTags);
   }
 
   private getElo(): CourseElo | undefined {
-    this.fieldInputs.forEach(f => {
+    this.fieldInputs.forEach((f) => {
       if (f.generateELO) {
         return f.generateELO();
       }
@@ -497,7 +497,7 @@ export default class DataInputForm extends SkldrVue {
       }
 
       const result = await Promise.all(
-        inputs.map(async input => {
+        inputs.map(async (input) => {
           return await addNote55(
             this.courseCfg.courseID!,
             this.datashapeDescriptor.course,
@@ -542,7 +542,7 @@ export default class DataInputForm extends SkldrVue {
     this.uploading = false;
 
     // Clear all field inputs
-    this.fieldInputs.forEach(input => {
+    this.fieldInputs.forEach((input) => {
       input.clearData();
     });
 
@@ -573,7 +573,7 @@ export default class DataInputForm extends SkldrVue {
     }
 
     // Reset validation
-    Object.keys(this.store.validation).forEach(key => {
+    Object.keys(this.store.validation).forEach((key) => {
       this.store.validation[key] = {
         valid: true,
         message: '',
@@ -608,7 +608,7 @@ export default class DataInputForm extends SkldrVue {
 
         this.shapeViews = []; // clear out any previous views
 
-        crs.getBaseQTypes().forEach(qType => {
+        crs.getBaseQTypes().forEach((qType) => {
           if (qType.dataShapes[0].name === this.dataShape.name) {
             // qType.views.forEach((view) => {
             //   this.shapeViews.push(view);
@@ -621,7 +621,7 @@ export default class DataInputForm extends SkldrVue {
         for (const q of ds.questionTypes) {
           const qDescriptor = NameSpacer.getQuestionDescriptor(q);
 
-          crs.getQuestion(qDescriptor.questionType)!.views.forEach(view => {
+          crs.getQuestion(qDescriptor.questionType)!.views.forEach((view) => {
             this.shapeViews = this.shapeViews.concat(view);
           });
         }
