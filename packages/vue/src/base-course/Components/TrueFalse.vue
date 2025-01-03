@@ -5,17 +5,23 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import Vue, { PropType } from 'vue';
 import RadioSelect from './RadioMultipleChoice.vue';
 
-@Component({
+export default Vue.extend({
+  name: 'TrueFalse',
   components: {
     RadioSelect,
   },
-})
-export default class TrueFalse extends Vue {
-  @Prop() public MouseTrap: any;
-  @Prop() public submit: (selection: number) => void;
-}
+  props: {
+    MouseTrap: {
+      type: Object as PropType<any>,
+      required: true,
+    },
+    submit: {
+      type: Function as PropType<(selection: number) => void>,
+      required: true,
+    },
+  },
+});
 </script>
