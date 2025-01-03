@@ -7,7 +7,7 @@
     v-bind:label="field.name"
     v-bind:rules="vuetifyRules()"
     v-bind:autofocus="autofocus"
-    v-on:input="validate"
+    v-on:input="() => validate()"
   />
 </template>
 
@@ -46,7 +46,7 @@ export default class ChessPuzzleInput extends FieldInput {
     };
 
     const tags = this.generateTags();
-    tags.forEach(t => {
+    tags.forEach((t) => {
       crsElo.tags[t] = {
         score: elo,
         count,
@@ -63,7 +63,7 @@ export default class ChessPuzzleInput extends FieldInput {
     const themes = split[7].split(' ');
     const openingTags = split[9].split(' ');
 
-    return themes.map(t => `theme-${t}`).concat(openingTags.map(t => `opening-${t}`));
+    return themes.map((t) => `theme-${t}`).concat(openingTags.map((t) => `opening-${t}`));
   };
 }
 </script>
