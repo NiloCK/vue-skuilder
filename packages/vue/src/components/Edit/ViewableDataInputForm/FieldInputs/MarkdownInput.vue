@@ -6,7 +6,7 @@
     v-bind:name="field.name"
     v-bind:label="field.name"
     v-bind:autofocus="autofocus"
-    v-on:input="validate"
+    v-on:input="() => validate()"
   />
 </template>
 

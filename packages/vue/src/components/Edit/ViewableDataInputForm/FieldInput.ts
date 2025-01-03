@@ -61,7 +61,7 @@ export abstract class FieldInput extends SkldrVue {
 
   public vuetifyRules() {
     if (this.field.validator) {
-      return this.validators.map(f => {
+      return this.validators.map((f) => {
         return validationFunctionToVuetifyRule(f);
       });
     } else {
@@ -79,11 +79,7 @@ export abstract class FieldInput extends SkldrVue {
     return this.field.generateELO ? this.field.generateELO(this.userInput()) : null;
   };
 
-  public validate = () => {
-    // 'this' is null if
-    // public validate() {...} used instead
-    // ...
-
+  public validate() {
     let ret: ValidationResult = {
       status: Status.ok,
       msg: '',
@@ -118,5 +114,5 @@ export abstract class FieldInput extends SkldrVue {
     this.uiValidationFunction();
 
     return ret;
-  };
+  }
 }
