@@ -45,75 +45,85 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import Component from 'vue-class-component';
+import { defineComponent, ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 import { alertUser } from '@/components/SnackbarService.vue';
-import { log } from 'util';
-import { AppState } from '@/store';
-import { Emit } from 'vue-property-decorator';
 import { Status } from '@/enums/Status';
-import SkldrVue from '../SkldrVue';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
+import type { AppState } from '@/store';
 
-@Component({})
-export default class UserLogin extends SkldrVue {
-  private username: string = '';
-  private password: string = '';
-  private retypedPassword: string = '';
-  private passwordVisible: boolean = false;
+export default defineComponent({
+  name: 'UserLogin',
+  
+  setup(props, { emit }) {
+    const store = useStore<AppState>();
+    const router = useRouter();
+    const { log } = SkldrComposable();
 
-  private awaitingResponse: boolean = false;
-  private badLoginAttempt: boolean = false;
-  private readonly errorTimeout: number = 5000;
-  private get loginRoute(): boolean {
-    return this.$router.currentRoute.name! === 'login';
-  }
+    const username = ref('');
+    const password = ref('');
+    const retypedPassword = ref('');
+    const passwordVisible = ref(false);
+    const awaitingResponse = ref(false);
+    const badLoginAttempt = ref(false);
+    const errorTimeout = 5000;
 
-  private initBadLogin() {
-    this.badLoginAttempt = true;
-    alertUser({
-      text: 'Username or password was incorrect.',
-      status: Status.error,
-      timeout: this.errorTimeout,
-    });
-    setTimeout(() => {
-      this.badLoginAttempt = false;
-    }, this.errorTimeout);
-  }
+    const loginRoute = computed(() => router.currentRoute.value.name === 'login');
 
-  private async login() {
-    this.awaitingResponse = true;
+    const buttonStatus = computed(() => ({
+      color: badLoginAttempt.value ? 'error' : 'success',
+      text: badLoginAttempt.value ? 'Try again' : 'Log In'
+    }));
 
-    try {
-      // #172 starting point - why is the pre-existing _user being referenced here?
-      const res = await this.$store.state._user!.login(this.username, this.password);
-      this.$store.state._user!.getConfig().then((cfg) => {
-        this.$store.state.config = cfg;
+    const initBadLogin = () => {
+      badLoginAttempt.value = true;
+      alertUser({
+        text: 'Username or password was incorrect.',
+        status: Status.error,
+        timeout: errorTimeout
       });
-      this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
-      this.$router.push('/study');
-    } catch (e) {
-      // entry #186
-      this.log(`login error: ${e}`);
-      // - differentiate response
-      // - return better message to UI
-      this.initBadLogin();
-    }
+      setTimeout(() => {
+        badLoginAttempt.value = false;
+      }, errorTimeout);
+    };
 
-    this.awaitingResponse = false;
-  }
+    const login = async () => {
+      awaitingResponse.value = true;
 
-  private get buttonStatus() {
+      try {
+        const res = await store.state._user!.login(username.value, password.value);
+        store.state._user!.getConfig().then((cfg) => {
+          store.state.config = cfg;
+        });
+        store.state.userLoginAndRegistrationContainer.loggedIn = true;
+        router.push('/study');
+      } catch (e) {
+        log(`login error: ${e}`);
+        initBadLogin();
+      }
+
+      awaitingResponse.value = false;
+    };
+
+    const toggle = () => {
+      console.log('Toggling registration / login forms.');
+      emit('toggle');
+    };
+
     return {
-      color: this.badLoginAttempt ? 'error' : 'success',
-      text: this.badLoginAttempt ? 'Try again' : 'Log In',
+      username,
+      password,
+      retypedPassword,
+      passwordVisible,
+      awaitingResponse,
+      loginRoute,
+      buttonStatus,
+      login,
+      toggle
     };
   }
-
-  @Emit() // tslint:disable-next-line:no-empty
-  private toggle() {
-    log('Toggling registration / login forms.');
-  }
-}
+});
 </script>
 
 <style lang="css" scoped>
