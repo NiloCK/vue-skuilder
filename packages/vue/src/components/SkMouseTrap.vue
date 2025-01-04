@@ -27,24 +27,31 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import Component from 'vue-class-component';
-import SkldrVue from '../SkldrVue';
+import { defineComponent, ref, onCreated } from 'vue';
 import SkldrMouseTrap, { HotKeyMetaData } from '../SkldrMouseTrap';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 
-@Component({})
-export default class SkldrControlsView extends SkldrVue {
-  public commands: HotKeyMetaData[] = [];
-  public display: boolean = false;
+export default defineComponent({
+  name: 'SkldrControlsView',
+  
+  setup() {
+    const { log } = SkldrComposable();
+    const commands = ref<HotKeyMetaData[]>([]);
+    const display = ref(false);
 
-  created() {
-    setInterval(this.refreshState, 500);
+    const refreshState = () => {
+      commands.value = SkldrMouseTrap.commands;
+      display.value = commands.value.length > 0;
+    };
+
+    onCreated(() => {
+      setInterval(refreshState, 500);
+    });
+
+    return {
+      commands,
+      display
+    };
   }
-
-  refreshState() {
-    // this.log(`this.display: ${this.display}`);
-    this.commands = SkldrMouseTrap.commands;
-    this.display = this.commands.length > 0;
-  }
-}
+});
 </script>
