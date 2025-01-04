@@ -45,67 +45,75 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, ref, computed, onMounted } from 'vue';
 import { disambiguateCourse, getCachedCourseList } from '@/db/courseDB';
 import { CourseConfig } from '@/server/types';
-import SkldrVue from '@/SkldrVue';
-import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 import CourseEditor from './CourseEditor.vue';
 import CourseInformation from './CourseInformation.vue';
 
-@Component({
+export default defineComponent({
+  name: 'CourseRouter',
   components: {
     CourseInformation,
     CourseEditor,
   },
-})
-export default class CourseRouter extends SkldrVue {
-  @Prop({
-    required: true,
-  })
-  private query: string;
-
-  private courseList: CourseConfig[];
-
-  private courseId: string;
-  private candidates: CourseConfig[] = [];
-
-  private newCourseDialog: boolean = false;
-
-  private initComplete: boolean = false;
-
-  private update(c: CourseConfig) {
-    if (c.courseID && c.disambiguator) {
-      disambiguateCourse(c.courseID, c.disambiguator);
-    } else {
-      // todo: indicate error on input box
+  mixins: [SkldrVueMixin],
+  props: {
+    query: {
+      type: String,
+      required: true
     }
-  }
+  },
+  setup(props) {
+    const courseList = ref<CourseConfig[]>([]);
+    const courseId = ref<string>('');
+    const candidates = ref<CourseConfig[]>([]);
+    const newCourseDialog = ref(false);
+    const initComplete = ref(false);
 
-  private loadQuery() {
-    this.query = this.query.toLowerCase();
+    const update = (c: CourseConfig) => {
+      if (c.courseID && c.disambiguator) {
+        disambiguateCourse(c.courseID, c.disambiguator);
+      }
+    };
 
-    this.candidates = this.courseList.filter((c) => {
-      const snakedName = c.name.replace(' ', '_').toLowerCase();
-      return (
-        this.query === snakedName || this.query === c.courseID || this.query === `${snakedName}_(${c.disambiguator})`
-      );
+    const loadQuery = () => {
+      const query = props.query.toLowerCase();
+      
+      candidates.value = courseList.value.filter((c) => {
+        const snakedName = c.name.replace(' ', '_').toLowerCase();
+        return (
+          query === snakedName || 
+          query === c.courseID || 
+          query === `${snakedName}_(${c.disambiguator})`
+        );
+      });
+
+      if (candidates.value.length === 1) {
+        courseId.value = candidates.value[0].courseID!;
+      } else if (candidates.value.length === 0) {
+        courseId.value = '';
+      }
+
+      initComplete.value = true;
+    };
+
+    onMounted(async () => {
+      courseList.value = await getCachedCourseList();
+      loadQuery();
     });
 
-    if (this.candidates.length === 1) {
-      this.courseId = this.candidates[0].courseID!;
-    } else if (this.candidates.length === 0) {
-      this.courseId = '';
-    }
-
-    this.initComplete = true;
+    return {
+      courseId,
+      candidates,
+      newCourseDialog,
+      initComplete,
+      update,
+      loadQuery
+    };
   }
-
-  public async created() {
-    this.courseList = await getCachedCourseList();
-    this.loadQuery();
-  }
-}
+});
 </script>
 
 <style></style>
