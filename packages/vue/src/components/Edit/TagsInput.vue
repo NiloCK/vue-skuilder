@@ -23,11 +23,11 @@
 </template>
 
 <script lang="ts">
-import SkldrVue from '@/SkldrVue';
-import { Component, Prop, Watch } from 'vue-property-decorator';
+import { defineComponent, ref, computed, watch, onCreated } from 'vue';
 import { addTagToCard } from '@/db/courseAPI';
 import { getAppliedTags, getCourseTagStubs, removeTagFromCard } from '@/db/courseDB';
-import { Tag } from '@/db/types';
+import type { Tag } from '@/db/types';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 // @ts-ignore
 import VueTagsInput from '@johmun/vue-tags-input';
 
@@ -40,143 +40,146 @@ interface TagObject {
   };
 }
 
-@Component({
+export default defineComponent({
+  name: 'SkTagsInput',
   components: {
     VueTagsInput,
   },
-})
-export default class SkTagsInput extends SkldrVue {
-  @Prop({
-    required: true,
-    default: '',
-  })
-  public courseID: string;
-  @Prop({
-    required: false,
-    default: '',
-  })
-  public cardID: string;
-  @Prop({
-    required: false,
-    default: false,
-  })
-  public hideSubmit = false;
+  props: {
+    courseID: {
+      type: String,
+      required: true,
+      default: '',
+    },
+    cardID: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    hideSubmit: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+  },
+  setup(props) {
+    const { log, error } = SkldrComposable();
+    const loading = ref(true);
+    const tag = ref('');
+    const tags = ref<TagObject[]>([]);
+    const initialTags = ref<string[]>([]);
+    const availableCourseTags = ref<Tag[]>([]);
+    const separators = [';', ',', ' '];
 
-  public loading: boolean = true;
-
-  public tag: string = ''; // 'current' tag input
-  public tags: TagObject[] = [];
-  public initialTags: string[] = [];
-  public availableCourseTags: Tag[] = [];
-
-  public readonly separators: string[] = [';', ',', ' '];
-
-  public tagsChanged(newTags: TagObject[]) {
-    this.log(`Tags changing: ${JSON.stringify(newTags)}`);
-    this.tags = newTags;
-  }
-
-  public get autoCompleteSuggestions(): TagObject[] {
-    return this.availableCourseTags
-      .filter(availableTag => {
-        return availableTag.name.toLowerCase().indexOf(this.tag.toLowerCase()) !== -1;
-      })
-      .map(availableTag => {
-        return {
+    const autoCompleteSuggestions = computed((): TagObject[] => {
+      return availableCourseTags.value
+        .filter(availableTag => {
+          return availableTag.name.toLowerCase().indexOf(tag.value.toLowerCase()) !== -1;
+        })
+        .map(availableTag => ({
           text: availableTag.name,
           data: {
             snippet: availableTag.snippet,
           },
-        };
-      });
-  }
+        }));
+    });
 
-  public async created() {
-    await this.updateAvailableCourseTags();
-    await this.getAppliedTags();
-  }
+    const tagsChanged = (newTags: TagObject[]) => {
+      log(`Tags changing: ${JSON.stringify(newTags)}`);
+      tags.value = newTags;
+    };
 
-  @Watch('cardID')
-  private async getAppliedTags() {
-    this.initialTags = [];
-    this.tags = [];
-    try {
-      const appliedDocsFindResult = await getAppliedTags(this.courseID, this.cardID);
-      appliedDocsFindResult.rows.forEach(row => {
-        this.log(`The following tag is applied:
-\t${JSON.stringify(row)}`);
-        this.tags.push({
-          text: row!.value.name,
-          style: '',
-          classes: '',
+    const getAppliedTags = async () => {
+      initialTags.value = [];
+      tags.value = [];
+      try {
+        const appliedDocsFindResult = await getAppliedTags(props.courseID, props.cardID);
+        appliedDocsFindResult.rows.forEach(row => {
+          log(`The following tag is applied:\n\t${JSON.stringify(row)}`);
+          tags.value.push({
+            text: row!.value.name,
+            style: '',
+            classes: '',
+          });
         });
-      });
-      this.initialTags = this.tags.map(tag => tag.text);
-    } catch (e) {
-      this.error(`Error in init-getAppliedTags: ${JSON.stringify(e)}, ${e}`);
-    } finally {
-      this.loading = false;
-    }
-  }
+        initialTags.value = tags.value.map(tag => tag.text);
+      } catch (e) {
+        error(`Error in init-getAppliedTags: ${JSON.stringify(e)}, ${e}`);
+      } finally {
+        loading.value = false;
+      }
+    };
 
-  @Watch('courseID')
-  public async updateAvailableCourseTags() {
-    try {
-      this.availableCourseTags = (await getCourseTagStubs(this.courseID)).rows.map(row => {
-        this.log(`available tag: ${JSON.stringify(row)}`);
-        return row.doc! as Tag;
-      });
-    } catch (e) {
-      this.error(`Error in init-availableCourseTags: ${JSON.stringify(e)}`);
-    }
-  }
+    const updateAvailableCourseTags = async () => {
+      try {
+        availableCourseTags.value = (await getCourseTagStubs(props.courseID)).rows.map(row => {
+          log(`available tag: ${JSON.stringify(row)}`);
+          return row.doc! as Tag;
+        });
+      } catch (e) {
+        error(`Error in init-availableCourseTags: ${JSON.stringify(e)}`);
+      }
+    };
 
-  public async submit() {
-    this.log(`tagsInput is submitting...`);
-    this.loading = true;
+    const submit = async () => {
+      log(`tagsInput is submitting...`);
+      loading.value = true;
 
-    try {
-      // 'upload' each 'tag' that's not an initialTag
-      await Promise.all(
-        this.tags.map(async currentTag => {
-          if (!this.initialTags.includes(currentTag.text)) {
-            try {
-              await addTagToCard(this.courseID, this.cardID, currentTag.text);
-              this.log(`Successfully added tag: ${currentTag.text}`);
-            } catch (error) {
-              this.error(`Failed to add tag ${currentTag.text}:`, error);
+      try {
+        await Promise.all(
+          tags.value.map(async currentTag => {
+            if (!initialTags.value.includes(currentTag.text)) {
+              try {
+                await addTagToCard(props.courseID, props.cardID, currentTag.text);
+                log(`Successfully added tag: ${currentTag.text}`);
+              } catch (error) {
+                error(`Failed to add tag ${currentTag.text}:`, error);
+              }
             }
-          }
-        })
-      );
-    } catch (e) {
-      this.error(`Exception adding tags: ${JSON.stringify(e)}`);
-    }
+          })
+        );
+      } catch (e) {
+        error(`Exception adding tags: ${JSON.stringify(e)}`);
+      }
 
-    try {
-      // 'remove' initialTags that are no longer in 'tags'
-      await Promise.all(
-        this.initialTags.map(async initialTag => {
-          if (
-            this.tags.filter(tag => {
-              return tag.text === initialTag;
-            }).length === 0
-          ) {
-            try {
-              await removeTagFromCard(this.courseID, this.cardID, initialTag);
-              this.log(`Successfully removed tag: ${initialTag}`);
-            } catch (error) {
-              this.error(`Failed to remove tag ${initialTag}:`, error);
+      try {
+        await Promise.all(
+          initialTags.value.map(async initialTag => {
+            if (tags.value.filter(tag => tag.text === initialTag).length === 0) {
+              try {
+                await removeTagFromCard(props.courseID, props.cardID, initialTag);
+                log(`Successfully removed tag: ${initialTag}`);
+              } catch (error) {
+                error(`Failed to remove tag ${initialTag}:`, error);
+              }
             }
-          }
-        })
-      );
-    } catch (e) {
-      this.error(`Exception removing tags: ${JSON.stringify(e)}`);
-    }
-    this.loading = false;
-  }
-}
+          })
+        );
+      } catch (e) {
+        error(`Exception removing tags: ${JSON.stringify(e)}`);
+      }
+      loading.value = false;
+    };
+
+    watch(() => props.cardID, getAppliedTags);
+    watch(() => props.courseID, updateAvailableCourseTags);
+
+    onCreated(async () => {
+      await updateAvailableCourseTags();
+      await getAppliedTags();
+    });
+
+    return {
+      loading,
+      tag,
+      tags,
+      separators,
+      autoCompleteSuggestions,
+      tagsChanged,
+      submit,
+    };
+  },
+});
 </script>
 
 <style scoped>
