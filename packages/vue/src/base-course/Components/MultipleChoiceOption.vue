@@ -5,11 +5,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
   name: 'MultipleChoiceOption',
-  
+
   components: {
     MarkdownRenderer: () => import('@/base-course/Components/MarkdownRenderer.vue'),
   },
@@ -17,28 +17,28 @@ export default defineComponent({
   props: {
     content: {
       type: String,
-      required: true
+      required: true,
     },
     selected: {
       type: Boolean,
-      required: true
+      required: true,
     },
     number: {
       type: Number,
-      required: true
+      required: true,
     },
     setSelection: {
       type: Function as PropType<(selection: number) => void>,
-      required: true
+      required: true,
     },
     submit: {
       type: Function as PropType<() => void>,
-      required: true
+      required: true,
     },
     markedWrong: {
       type: Boolean,
-      required: true
-    }
+      required: true,
+    },
   },
 
   methods: {
@@ -53,7 +53,7 @@ export default defineComponent({
         this.select();
         this.submit();
       }
-    }
+    },
   },
 
   computed: {
@@ -93,10 +93,12 @@ export default defineComponent({
       } else if (!this.selected && this.markedWrong) {
         return 'choice not-selected grey lighten-2 elevation-0';
       } else {
-        throw new Error(`'selected' and 'markedWrong' props in MultipleChoiceOption are in an impossible configuration.`);
+        throw new Error(
+          `'selected' and 'markedWrong' props in MultipleChoiceOption are in an impossible configuration.`
+        );
       }
-    }
-  }
+    },
+  },
 });
 </script>
 
