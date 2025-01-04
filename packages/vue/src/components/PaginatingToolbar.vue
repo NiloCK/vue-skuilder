@@ -25,17 +25,32 @@
 </template>
 
 <script lang="ts">
-import SkldrVue from '@/SkldrVue';
-import { Component, Prop } from 'vue-property-decorator';
+// Options API Version
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 
-@Component
-export default class PaginatingToolbar extends SkldrVue {
-  @Prop({ required: true }) private pages: number[];
-  @Prop({ required: true }) private page: number;
-
-  @Prop({ required: false }) private title: string;
-  @Prop({ required: false }) private subtitle: string;
-}
+export default {
+  name: 'PaginatingToolbar',
+  mixins: [SkldrVueMixin],
+  props: {
+    pages: {
+      type: Array as () => number[],
+      required: true
+    },
+    page: {
+      type: Number,
+      required: true
+    },
+    title: {
+      type: String,
+      required: false
+    },
+    subtitle: {
+      type: String,
+      required: false
+    }
+  },
+  emits: ['first', 'prev', 'next', 'last', 'set-page']
+};
 </script>
 
 <style scoped>
