@@ -7,25 +7,30 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { InformationView } from '@/base-course/Viewable';
-import { Displayable } from '@/base-course/Displayable';
-import { FieldType } from '@/enums/FieldType';
-import { DataShapeName } from '@/enums/DataShapeNames';
+// Composition API Version
+import { ref } from 'vue';
+import type { InformationView } from '@/base-course/Viewable';
+import type { Displayable } from '@/base-course/Displayable';
+import type { FieldType } from '@/enums/FieldType';
+import type { DataShapeName } from '@/enums/DataShapeNames';
 import { log } from 'util';
 import BasicCard from './BasicCard';
 
-// tslint:disable-next-line:max-classes-per-file
-@Component
-export default class BasicView extends InformationView<BasicCard> {
-  public answer: string = '';
+// Props would need to be inherited from InformationView
+// This is a potential issue since we don't have the full InformationView implementation
+defineProps<{
+  data: any; // Type should match InformationView's data prop
+  card: {
+    Front: string;
+    Back: string;
+  };
+}>();
 
-  public get displayable() {
-    return new BasicCard(this.data);
-  }
+const answer = ref('');
 
-  public submit() {
-    log('a');
-  }
+const displayable = computed(() => new BasicCard(props.data));
+
+function submit() {
+  log('a');
 }
 </script>
