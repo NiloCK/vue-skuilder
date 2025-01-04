@@ -44,9 +44,9 @@ export abstract class FieldInput extends SkldrVue {
     this.$refs.inputField.focus();
   }
 
-  public userInput = () => {
+  public userInput() {
     return this.store[this.field.name];
-  };
+  }
 
   public setData(data: any) {
     this.store[this.field.name] = data;
@@ -69,15 +69,15 @@ export abstract class FieldInput extends SkldrVue {
     }
   }
 
-  public generateTags = () => {
+  public generateTags() {
     this.log('Running generic generateTags() in FieldInput.ts');
     return this.field.tagger ? this.field.tagger(this.userInput()) : [];
-  };
+  }
 
-  public generateELO: () => CourseElo | null = () => {
+  public generateELO(): CourseElo | null {
     this.log('Running generic generateELO() in FieldInput.ts');
     return this.field.generateELO ? this.field.generateELO(this.userInput()) : null;
-  };
+  }
 
   public validate() {
     let ret: ValidationResult = {
