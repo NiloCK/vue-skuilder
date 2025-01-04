@@ -10,58 +10,54 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import { defineComponent, computed } from 'vue';
 import MdTokenRenderer from './MdTokenRenderer.vue';
-import { marked, Tokenizer } from 'marked';
+import { marked } from 'marked';
 import hljs from 'highlight.js';
-import SkldrVue from '@/SkldrVue';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
+import type { SkldrToken } from '@/types';
 
-type SkldrToken =
-  | marked.Token
-  | {
-      type: false;
-      audio: string;
-    };
-
-@Component({
+export default defineComponent({
+  name: 'MarkdownRenderer',
+  
   components: {
     MdTokenRenderer,
   },
-})
-export default class MarkdownRenderer extends SkldrVue {
-  @Prop({
-    required: true,
-    type: String,
-  })
-  md: string;
 
-  public get testRoute(): boolean {
-    // this.log(`Route: ${this.$route.path}`);
+  mixins: [SkldrVueMixin],
+  
+  props: {
+    md: {
+      type: String,
+      required: true
+    }
+  },
 
-    if (this.$route.path === '/md') {
-      this.md = 'test md';
-      return true;
-    } else {
+  setup(props, { emit }) {
+    const testRoute = computed(() => {
+      if (window?.location?.pathname === '/md') {
+        props.md = 'test md';
+        return true;
+      }
       return false;
-    }
-  }
+    });
 
-  public get tokens(): SkldrToken[] {
-    // marked.setOptions({
-    //   highlight: (code, lang, cb) => {
-    //     this.log(`highlighting!`);
-    //     hljs.highlight(lang, code)
-    //   }
-    // })
-    const tokens = marked.lexer(this.md);
-    if (this.testRoute) {
-      tokens.forEach(t => {
-        this.log(JSON.stringify(t));
-      });
-    }
-    return tokens;
+    const tokens = computed(() => {
+      const tokens = marked.lexer(props.md);
+      if (testRoute.value) {
+        tokens.forEach(t => {
+          console.log(JSON.stringify(t));
+        });
+      }
+      return tokens as SkldrToken[];
+    });
+
+    return {
+      testRoute,
+      tokens
+    };
   }
-}
+});
 </script>
 
 <style lang="css" scoped></style>
