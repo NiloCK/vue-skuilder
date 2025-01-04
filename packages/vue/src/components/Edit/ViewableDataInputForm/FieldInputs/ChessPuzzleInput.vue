@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
+import { Component, Watch } from 'vue-property-decorator';
 import { FieldInput } from '../FieldInput';
 import { toCourseElo, CourseElo } from '@/tutor/Elo';
 
@@ -31,7 +31,7 @@ export default class ChessPuzzleInput extends FieldInput {
     this.validate();
   }
 
-  public generateELO = () => {
+  public generateELO() {
     const split = (this.store[this.field.name] as string).split(',');
     const elo = parseInt(split[3]);
     const count = parseInt(split[6]);
@@ -56,14 +56,14 @@ export default class ChessPuzzleInput extends FieldInput {
     this.log('generateELO', JSON.stringify(crsElo));
 
     return crsElo;
-  };
+  }
 
-  public generateTags = () => {
+  public generateTags() {
     const split = (this.store[this.field.name] as string).split(',');
     const themes = split[7].split(' ');
     const openingTags = split[9].split(' ');
 
     return themes.map((t) => `theme-${t}`).concat(openingTags.map((t) => `opening-${t}`));
-  };
+  }
 }
 </script>
