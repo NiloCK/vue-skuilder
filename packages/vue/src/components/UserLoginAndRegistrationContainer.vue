@@ -19,72 +19,83 @@
 </template>
 
 <script lang="ts">
+import Vue from 'vue';
 import UserLogin from './UserLogin.vue';
 import UserRegistration from './UserRegistration.vue';
-import Component from 'vue-class-component';
 import UserChip from './UserChip.vue';
 import { GuestUsername } from '@/store';
-import SkldrVue from '../SkldrVue';
-import { User } from '../db/userDB';
+import SkldrVueMixin from '../mixins/SkldrVueMixin';
+import type { ISkldrMixin } from '../mixins/SkldrVueMixin';
 
-@Component({
+export default Vue.extend({
+  name: 'UserLoginAndRegistrationContainer',
+  
   components: {
     UserLogin,
     UserRegistration,
     UserChip,
   },
-})
-export default class UserLoginAndRegistrationContainer extends SkldrVue {
-  private readonly GuestUsername: string = GuestUsername;
 
-  private get display(): boolean {
-    if (
-      (this.$route.name && this.$route.name.toLowerCase() === 'login') ||
-      (this.$route.name && this.$route.name.toLowerCase() === 'signup')
-    ) {
-      return false;
-    } else {
-      return true;
+  mixins: [SkldrVueMixin],
+
+  data() {
+    return {
+      GuestUsername: GuestUsername as string
+    };
+  },
+
+  computed: {
+    display(): boolean {
+      if (
+        (this.$route.name && this.$route.name.toLowerCase() === 'login') ||
+        (this.$route.name && this.$route.name.toLowerCase() === 'signup')
+      ) {
+        return false;
+      } else {
+        return true;
+      }
+    },
+
+    guestMode(): boolean {
+      if (this.$store.state._user) {
+        return this.$store.state._user.username.startsWith(this.GuestUsername);
+      } else {
+        return !this.$store.state.userLoginAndRegistrationContainer.loggedIn;
+      }
+    },
+
+    regDialog: {
+      get(): boolean {
+        return this.$store.state.userLoginAndRegistrationContainer.regDialogOpen;
+      },
+      set(value: boolean) {
+        this.$store.state.userLoginAndRegistrationContainer.regDialogOpen = value;
+      }
+    },
+
+    loginDialog: {
+      get(): boolean {
+        return this.$store.state.userLoginAndRegistrationContainer.loginDialogOpen;
+      },
+      set(value: boolean) {
+        this.$store.state.userLoginAndRegistrationContainer.loginDialogOpen = value;
+      }
+    }
+  },
+
+  methods: {
+    toggle(): void {
+      if (this.regDialog && this.loginDialog) {
+        throw new Error('Registration / Login dialogs both activated.');
+      } else if (this.regDialog === this.loginDialog) {
+        throw new Error('Registration / Login dialogs toggled while both were dormant.');
+      } else {
+        this.regDialog = !this.regDialog;
+        this.loginDialog = !this.loginDialog;
+      }
     }
   }
-
-  private get guestMode(): boolean {
-    if (this.$store.state._user) {
-      return this.$store.state._user.username.startsWith(GuestUsername);
-    } else {
-      return !this.$store.state.userLoginAndRegistrationContainer.loggedIn;
-    }
-  }
-
-  private get regDialog(): boolean {
-    return this.$store.state.userLoginAndRegistrationContainer.regDialogOpen;
-  }
-  private set regDialog(value: boolean) {
-    this.$store.state.userLoginAndRegistrationContainer.regDialogOpen = value;
-  }
-
-  private get loginDialog(): boolean {
-    return this.$store.state.userLoginAndRegistrationContainer.loginDialogOpen;
-  }
-  private set loginDialog(value: boolean) {
-    this.$store.state.userLoginAndRegistrationContainer.loginDialogOpen = value;
-  }
-
-  private toggle() {
-    if (this.regDialog && this.loginDialog) {
-      throw new Error(`
-Registration / Login dialogs both activated.
-`);
-    } else if (this.regDialog === this.loginDialog) {
-      throw new Error(`
-Registration / Login dialogs toggled while both were dormant.
-`);
-    } else {
-      this.regDialog = !this.regDialog;
-      this.loginDialog = !this.loginDialog;
-    }
-  }
-}
+}) as Vue & ISkldrMixin;
 </script>
 
 <style scoped>
