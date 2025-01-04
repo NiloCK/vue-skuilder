@@ -6,23 +6,31 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import { defineComponent, PropType } from 'vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 import DataShapeTableHeader from './DataShapeTableHeader.vue';
 import DataShapeTableRow from './DataShapeTableRow.vue';
-import { ViewData } from '@/base-course/Interfaces/ViewData';
 
-@Component({
+export default defineComponent({
+  name: 'DataShapeTable',
+  
   components: {
     DataShapeTableHeader,
     DataShapeTableRow,
   },
-})
-export default class DataShapeTable extends Vue {
-  @Prop() private dataShape: DataShape;
-  @Prop() private data: ViewData[];
-}
+
+  props: {
+    dataShape: {
+      type: Object as PropType<DataShape>,
+      required: true
+    },
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true
+    }
+  }
+});
 </script>
 
 <style scoped>
