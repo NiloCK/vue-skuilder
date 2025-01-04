@@ -210,7 +210,7 @@ async function convertFile(filepath: string) {
     const content = await readFile(filepath, 'utf-8');
 
     // Check if file is class-based
-    if (content.includes('vue-class-component') || content.includes('vue-property-decorator')) {
+    if (!content.includes('vue-class-component') && !content.includes('vue-property-decorator')) {
       console.log('Skipping conversion for', filepath, 'as it is not a class-based component');
       return;
     }
