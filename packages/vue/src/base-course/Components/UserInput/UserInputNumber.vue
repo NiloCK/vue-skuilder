@@ -18,19 +18,32 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import UserInput from './UserInput';
+// Composition API Version
+import { onMounted, getCurrentInstance } from 'vue';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
+import type { UserInput } from './UserInput';
 
-@Component({})
-export default class UserInputNumber extends UserInput {
-  public mounted() {
-    this.$el.focus();
-  }
+// Get skldr utilities
+const { log, error, warn } = SkldrComposable();
 
-  private strToNumber(num: string): number {
-    return Number.parseFloat(num);
-  }
-}
+// Props should match those from UserInput base class
+defineProps<{
+  autofocus?: boolean,
+  answer: string
+}>();
+
+// Emits should match those from UserInput base class
+defineEmits<{
+  (e: 'submit', value: number): void
+}>();
+
+const strToNumber = (num: string): number => {
+  return Number.parseFloat(num);
+};
+
+onMounted(() => {
+  getCurrentInstance()?.proxy?.$el.focus();
+});
 </script>
 
 <style scoped>
