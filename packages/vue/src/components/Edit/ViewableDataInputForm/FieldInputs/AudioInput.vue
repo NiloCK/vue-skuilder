@@ -34,122 +34,164 @@
 </template>
 
 <script lang="ts">
-import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
-import { Component } from 'vue-property-decorator';
+import { defineComponent, ref, computed, onBeforeUnmount } from 'vue';
+import type { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
 import WaveSurfer from 'wavesurfer.js';
-import { FieldInput } from '../FieldInput';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
+import type { FieldInputProps } from '../FieldInput';
 var MediaStreamRecorder = require('msr');
 
-@Component
-export default class AudioInput extends FieldInput {
-  public get title(): string {
-    return this.field.name;
-  }
-  public getValidators(): ValidatingFunction[] {
-    if (this.field.validator) {
-      return [this.field.validator.test];
-    } else {
-      return [];
+export default defineComponent({
+  name: 'AudioInput',
+  
+  props: {
+    field: {
+      type: Object,
+      required: true
+    },
+    store: {
+      type: Object,
+      required: true
     }
-  }
-  private get blobInputID(): string {
-    return 'blobInput' + this.field.name;
-  }
-  private get waveSurferId(): string {
-    return `ws-${this.field.name}`;
-  }
-  private get blobInputElement(): HTMLInputElement {
-    return document.getElementById(this.blobInputID) as HTMLInputElement;
-  }
-  private async processInput() {
-    if (this.blobInputElement.files) {
-      const file = this.blobInputElement.files[0];
-      this.log(`
+  },
+
+  emits: ['validate', 'setData'],
+
+  setup(props, { emit }) {
+    const { log, error } = SkldrComposable();
+    
+    const recording = ref(false);
+    const blob = ref<Blob>();
+    const blobURL = ref('f');
+    const mediaRecorder = ref<any>(null);
+    const wavesurfer = ref<WaveSurfer>();
+    const inputField = ref<HTMLInputElement>();
+
+    const title = computed(() => props.field.name);
+    const blobInputID = computed(() => 'blobInput' + props.field.name);
+    const waveSurferId = computed(() => `ws-${props.field.name}`);
+    const blobInputElement = computed(() => 
+      document.getElementById(blobInputID.value) as HTMLInputElement
+    );
+
+    const getValidators = (): ValidatingFunction[] => {
+      if (props.field.validator) {
+        return [props.field.validator.test];
+      }
+      return [];
+    };
+
+    const setData = (data: PouchDB.Core.FullAttachment) => {
+      emit('setData', data);
+    };
+
+    const validate = () => {
+      emit('validate');
+    };
+
+    const processInput = async () => {
+      if (blobInputElement.value?.files) {
+        const file = blobInputElement.value.files[0];
+        log(`
 Processing input file:
 Filename: ${file.name}
 File size: ${file.size}
 File type: ${file.type}
 `);
-      this.setData({
-        content_type: file.type,
-        data: file.slice(),
-      } as PouchDB.Core.FullAttachment);
-      this.validate();
-    }
-  }
-
-  private recording: boolean = false;
-  private blob: Blob;
-  private blobURL: string = 'f';
-  private mediaRecorder: any;
-  private wavesurfer: WaveSurfer;
-
-  private blobHandler(blob: Blob | null): void {
-    if (blob === null) {
-      alert('nullBlob');
-    } else {
-      (this as any).store[this.field.name] = {
-        content_type: 'image/png',
-        data: blob,
-      };
-      this.validate();
-    }
-  }
-
-  private play() {
-    this.log(this.blobURL);
-    this.wavesurfer.playPause();
-  }
-
-  private stop() {
-    this.mediaRecorder.stop();
-    this.recording = false;
-
-    setTimeout(() => {
-      this.setData({
-        content_type: 'audio',
-        data: this.blob,
-      } as PouchDB.Core.FullAttachment);
-    }, 100);
-    this.validate();
-  }
-
-  public reset() {
-    this.wavesurfer.destroy();
-  }
-
-  private record() {
-    this.recording = true;
-    this.wavesurfer = WaveSurfer.create({
-      container: `#${this.waveSurferId}`,
-      barWidth: 2,
-      barHeight: 1, // the height of the wave
-      barGap: 0, // the optional spacing between bars of the wave, if not provided will be calculated in legacy format
-    });
-
-    var mediaConstraints = {
-      audio: true,
+        setData({
+          content_type: file.type,
+          data: file.slice(),
+        });
+        validate();
+      }
     };
 
-    navigator.mediaDevices
-      .getUserMedia(mediaConstraints)
-      .then(stream => {
-        this.log(`stream ${JSON.stringify(stream)} found...`);
-        this.mediaRecorder = new MediaStreamRecorder(stream);
-        this.mediaRecorder.mimeType = 'audio/webm'; // audio/webm or audio/ogg or audio/wav
-        this.mediaRecorder.ondataavailable = (blob: any) => {
-          // POST/PUT "Blob" using FormData/XHR2
-          this.blob = blob;
-          this.blobURL = URL.createObjectURL(blob);
-          this.wavesurfer.load(this.blobURL);
+    const blobHandler = (newBlob: Blob | null): void => {
+      if (newBlob === null) {
+        alert('nullBlob');
+      } else {
+        props.store[props.field.name] = {
+          content_type: 'image/png',
+          data: newBlob,
         };
-        this.mediaRecorder.start(0);
-      })
-      .catch(e => {
-        this.error('media error', e);
+        validate();
+      }
+    };
+
+    const play = () => {
+      log(blobURL.value);
+      wavesurfer.value?.playPause();
+    };
+
+    const stop = () => {
+      mediaRecorder.value?.stop();
+      recording.value = false;
+
+      setTimeout(() => {
+        if (blob.value) {
+          setData({
+            content_type: 'audio',
+            data: blob.value,
+          });
+        }
+      }, 100);
+      validate();
+    };
+
+    const reset = () => {
+      wavesurfer.value?.destroy();
+    };
+
+    const record = () => {
+      recording.value = true;
+      wavesurfer.value = WaveSurfer.create({
+        container: `#${waveSurferId.value}`,
+        barWidth: 2,
+        barHeight: 1,
+        barGap: 0,
       });
+
+      const mediaConstraints = {
+        audio: true,
+      };
+
+      navigator.mediaDevices
+        .getUserMedia(mediaConstraints)
+        .then(stream => {
+          log(`stream ${JSON.stringify(stream)} found...`);
+          mediaRecorder.value = new MediaStreamRecorder(stream);
+          mediaRecorder.value.mimeType = 'audio/webm';
+          mediaRecorder.value.ondataavailable = (newBlob: Blob) => {
+            blob.value = newBlob;
+            blobURL.value = URL.createObjectURL(newBlob);
+            wavesurfer.value?.load(blobURL.value);
+          };
+          mediaRecorder.value.start(0);
+        })
+        .catch(e => {
+          error('media error', e);
+        });
+    };
+
+    onBeforeUnmount(() => {
+      wavesurfer.value?.destroy();
+    });
+
+    return {
+      recording,
+      title,
+      blobInputID,
+      waveSurferId,
+      inputField,
+      processInput,
+      play,
+      stop,
+      reset,
+      record,
+      getValidators
+    };
   }
-}
+});
 </script>
 
 <style scoped>
