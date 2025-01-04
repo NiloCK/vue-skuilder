@@ -17,82 +17,88 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, ref, onMounted } from 'vue';
 import CardLoader from '@/components/Study/CardLoader.vue';
 import CardViewer from '@/components/Study/CardViewer.vue';
-import { StudySessionItem } from '@/db/contentSource';
-import { CardData } from '@/db/types';
-import { adjustCourseScores, CourseElo } from '@/tutor/Elo';
-import { log } from 'util';
-import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
+import { CourseElo, adjustCourseScores } from '@/tutor/Elo';
 import { CourseDB, getCourseConfig, updateCardElo } from '@/db/courseDB';
-import { CourseConfig } from '@/server/types';
-import SkldrVue from '@/SkldrVue';
+import type { CourseConfig } from '@/server/types';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 
-@Component({
+export default defineComponent({
+  name: 'ELOModerator',
   components: {
     CardViewer,
     CardLoader,
   },
-})
-export default class ELOModerator extends SkldrVue {
-  @Prop({ required: true }) private _id: string;
-  private courseDB: CourseDB;
+  mixins: [SkldrVueMixin],
+  props: {
+    _id: {
+      type: String,
+      required: true
+    }
+  },
+  setup(props) {
+    const updatePending = ref(true);
+    const courseDB = ref<CourseDB | null>(null);
+    const _courseConfig = ref<CourseConfig | null>(null);
+    
+    const cards = ref<{
+      courseId: string;
+      cardId: string;
+      elo: CourseElo;
+      count: number;
+    }[]>([]);
+    
+    const id1 = ref('');
+    const id2 = ref('');
+    const elo1 = ref<CourseElo>();
+    const elo2 = ref<CourseElo>();
 
-  private updatePending: boolean = true;
-  private _courseConfig: CourseConfig;
+    const getNewCards = async () => {
+      updatePending.value = true;
+      cards.value = await courseDB.value!.getInexperiencedCards();
 
-  public cards: {
-    courseId: string;
-    cardId: string;
-    elo: CourseElo;
-    count: number;
-  }[] = [];
-  public id1: string = '';
-  public id2: string = '';
-  public elo1: CourseElo;
-  public elo2: CourseElo;
+      id1.value = '';
+      id2.value = '';
 
-  private async created() {
-    // const userCourses = await this.$store.state._user!.getCourseRegistrationsDoc();
-    // this.userIsRegistered = userCourses.courses.filter((c) => {
-    //   return c.courseID === this._id && (c.status === 'active' || c.status === undefined)
-    // }).length === 1;
-    this.courseDB = new CourseDB(this._id);
+      id1.value = `${props._id}-${cards.value[0].cardId}`;
+      id2.value = `${props._id}-${cards.value[1].cardId}`;
 
-    this._courseConfig = (await getCourseConfig(this._id))!;
-    this.getNewCards();
-  }
+      elo1.value = cards.value[0].elo;
+      elo2.value = cards.value[1].elo;
 
-  private vote(x: 'a' | 'b') {
-    const scores = adjustCourseScores(this.elo1, this.elo2, x === 'a' ? 1 : 0, {
-      globalOnly: true,
+      updatePending.value = false;
+    };
+
+    const vote = (x: 'a' | 'b') => {
+      const scores = adjustCourseScores(elo1.value!, elo2.value!, x === 'a' ? 1 : 0, {
+        globalOnly: true,
+      });
+
+      updateCardElo(props._id, cards.value[0].cardId, scores.userElo);
+      updateCardElo(props._id, cards.value[1].cardId, scores.cardElo);
+
+      getNewCards();
+    };
+
+    onMounted(async () => {
+      courseDB.value = new CourseDB(props._id);
+      _courseConfig.value = (await getCourseConfig(props._id))!;
+      getNewCards();
     });
 
-    updateCardElo(this._id, this.cards[0].cardId, scores.userElo);
-    updateCardElo(this._id, this.cards[1].cardId, scores.cardElo);
-
-    this.getNewCards();
+    return {
+      updatePending,
+      cards,
+      id1,
+      id2,
+      elo1,
+      elo2,
+      vote
+    };
   }
-
-  private async getNewCards() {
-    this.updatePending = true;
-    this.cards = await this.courseDB.getInexperiencedCards();
-
-    // this.log('Comparing:\n\t' + JSON.stringify(this.cards));
-
-    this.id1 = '';
-    this.id2 = '';
-
-    this.id1 = `${this._id}-${this.cards[0].cardId}`;
-    this.id2 = `${this._id}-${this.cards[1].cardId}`;
-
-    this.elo1 = this.cards[0].elo;
-    this.elo2 = this.cards[1].elo;
-
-    this.updatePending = false;
-  }
-}
+});
 </script>
 
 <style scoped>
