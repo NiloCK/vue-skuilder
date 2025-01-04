@@ -10,5 +10,10 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
+
+export default Vue.extend({
+  name: 'UnregisteredComponentsTable',
+  mixins: [SkldrVueMixin],
+});
 </script>
