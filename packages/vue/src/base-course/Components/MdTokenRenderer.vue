@@ -113,18 +113,20 @@ import {
   isComponent,
   splitParagraphToken,
   splitTextToken,
+  TokenOrComponent,
 } from '@/courses/default/questions/fillIn';
 import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
 import hljs from 'highlight.js';
 import { marked } from 'marked';
 import { defineComponent } from 'vue';
+import Vue from 'vue';
 import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 
 Vue.use(hljs.vuePlugin);
 
 export default defineComponent({
   name: 'MdTokenRenderer',
-  
+
   components: {
     fillIn: FillInInput,
     RadioMultipleChoice,
@@ -135,13 +137,13 @@ export default defineComponent({
   props: {
     token: {
       type: Object as () => marked.Token,
-      required: true
+      required: true,
     },
     last: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   methods: {
@@ -157,7 +159,7 @@ export default defineComponent({
       return splitTextToken(token);
     },
 
-    splitParagraphToken(token: marked.Tokens.Paragraph): marked.Token[] {
+    splitParagraphToken(token: marked.Tokens.Paragraph): TokenOrComponent[] {
       return splitParagraphToken(token);
     },
 
@@ -173,8 +175,8 @@ export default defineComponent({
 
     isText(tok: marked.Token): tok is marked.Tokens.Text {
       return (tok as marked.Tokens.Tag).inLink === undefined && tok.type === 'text';
-    }
-  }
+    },
+  },
 });
 </script>
 
