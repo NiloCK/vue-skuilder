@@ -62,14 +62,14 @@
 </template>
 
 <script lang="ts">
-import { CourseRegistration, CourseRegistrationDoc, User } from '@/db/userDB';
-import { CourseDB, getCourseName } from '@/db/courseDB';
-import SkldrVue from '@/SkldrVue';
-import Component from 'vue-class-component';
-import { Prop, Watch } from 'vue-property-decorator';
-import SkldrMouseTrap from '@/SkldrMouseTrap';
+import { defineComponent, ref, onMounted, onBeforeUnmount, watch, PropType } from 'vue';
+import { CourseRegistration, User } from '@/db/userDB';
+import { getCourseName } from '@/db/courseDB';
 import { StudentClassroomDB } from '@/db/classroomDB';
 import { ContentSourceID } from '@/db/contentSource';
+import SkldrMouseTrap from '@/SkldrMouseTrap';
+import { useStore } from 'vuex';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 
 interface SessionConfigMetaData {
   selected: boolean;
@@ -77,156 +77,147 @@ interface SessionConfigMetaData {
   reviews: number;
 }
 
-@Component({})
-export default class SessionConfiguration extends SkldrVue {
-  public allSelected: boolean = true;
-  public activeCourses: (CourseRegistration & SessionConfigMetaData)[] = [];
-  public activeClasses: ({ classID: string } & SessionConfigMetaData)[] = [];
-  private timeLimit: number = this.$store.state.views.study.sessionTimeLimit;
-
-  private hasRegistrations: boolean = true;
-
-  @Watch('cardCount')
-  @Watch('timeLimit')
-  private rangeCheck() {
-    if (this.timeLimit <= 0) {
-      this.timeLimit = 1;
+export default defineComponent({
+  name: 'SessionConfiguration',
+  
+  props: {
+    startFcn: {
+      type: Function as PropType<(sources: ContentSourceID[]) => void>,
+      required: true
     }
+  },
 
-    this.$store.state.views.study.sessionTimeLimit = this.timeLimit;
-  }
+  setup(props) {
+    const store = useStore();
+    const { log } = SkldrComposable();
+    
+    const allSelected = ref(true);
+    const activeCourses = ref<(CourseRegistration & SessionConfigMetaData)[]>([]);
+    const activeClasses = ref<({ classID: string } & SessionConfigMetaData)[]>([]);
+    const timeLimit = ref(store.state.views.study.sessionTimeLimit);
+    const hasRegistrations = ref(true);
 
-  public $refs: {
-    numberField: HTMLInputElement;
-    selectAll: HTMLInputElement;
-  };
-
-  @Prop({
-    required: true,
-  })
-  public startFcn: (sources: ContentSourceID[]) => void;
-
-  private update() {
-    this.log(JSON.stringify(this.activeCourses));
-    this.log(JSON.stringify(this.activeClasses));
-  }
-
-  private toggleAll(): void {
-    this.log(`Toggling all courses`);
-
-    this.activeCourses.forEach((crs) => {
-      crs.selected = this.allSelected;
-    });
-    this.activeClasses.forEach((cl) => {
-      cl.selected = this.allSelected;
+    watch(timeLimit, (newVal) => {
+      if (newVal <= 0) {
+        timeLimit.value = 1;
+      }
+      store.state.views.study.sessionTimeLimit = timeLimit.value;
     });
 
-    this.log(JSON.stringify(this.activeCourses));
-  }
+    const update = () => {
+      log(JSON.stringify(activeCourses.value));
+      log(JSON.stringify(activeClasses.value));
+    };
 
-  private startSession() {
-    SkldrMouseTrap.reset();
-    const selectedCourses: ContentSourceID[] = this.activeCourses
-      .filter((c) => c.selected)
-      .map((c) => {
-        return { type: 'course', id: c.courseID };
+    const toggleAll = () => {
+      log(`Toggling all courses`);
+      activeCourses.value.forEach((crs) => {
+        crs.selected = allSelected.value;
       });
-    const selectedClassrooms: ContentSourceID[] = this.activeClasses
-      .filter((cl) => cl.selected)
-      .map((cl) => {
-        return { type: 'classroom', id: cl.classID };
+      activeClasses.value.forEach((cl) => {
+        cl.selected = allSelected.value;
       });
+      log(JSON.stringify(activeCourses.value));
+    };
 
-    this.startFcn(selectedCourses.concat(selectedClassrooms));
-    // + classroom sources
-  }
+    const startSession = () => {
+      SkldrMouseTrap.reset();
+      const selectedCourses: ContentSourceID[] = activeCourses.value
+        .filter((c) => c.selected)
+        .map((c) => ({ type: 'course', id: c.courseID }));
+      const selectedClassrooms: ContentSourceID[] = activeClasses.value
+        .filter((cl) => cl.selected)
+        .map((cl) => ({ type: 'classroom', id: cl.classID }));
 
-  public async created() {
-    this.setHotkeys();
-    await Promise.all([this.getActiveCourses(), this.getActiveClassrooms()]);
+      props.startFcn(selectedCourses.concat(selectedClassrooms));
+    };
 
-    if (this.activeCourses.length === 0 && this.activeClasses.length === 0) {
-      this.hasRegistrations = false;
-    }
-  }
+    const getActiveClassrooms = async () => {
+      const classes = await (await User.instance()).getActiveClasses();
+      const tempActiveClasses: ({ classID: string } & SessionConfigMetaData)[] = [];
 
-  private async getActiveClassrooms() {
-    const classes = await (await User.instance()).getActiveClasses();
-    const activeClasses: ({ classID: string } & SessionConfigMetaData)[] = [];
+      log(`Active classes: ${JSON.stringify(classes)}`);
 
-    this.log(`Active classes: ${JSON.stringify(classes)}`);
+      await Promise.all(
+        classes.map((c) =>
+          (async (classID: string) => {
+            const classDb = await StudentClassroomDB.factory(classID);
+            tempActiveClasses.push({
+              classID,
+              name: classDb.getConfig().name,
+              selected: true,
+              reviews: 0,
+            });
+          })(c)
+        )
+      );
+      activeClasses.value = tempActiveClasses;
+    };
 
-    await Promise.all(
-      classes.map((c) =>
-        (async (classID: string) => {
-          const classDb = await StudentClassroomDB.factory(classID);
-          activeClasses.push({
-            classID,
-            name: classDb.getConfig().name,
-            selected: true,
-            reviews: 0,
-          });
-        })(c)
-      )
-    );
-    this.activeClasses = activeClasses;
-  }
-
-  private async getActiveCourses() {
-    this.activeCourses = (await this.$store.state._user!.getActiveCourses()).map((c) => {
-      return {
+    const getActiveCourses = async () => {
+      activeCourses.value = (await store.state._user!.getActiveCourses()).map((c) => ({
         ...c,
         selected: true,
         name: '',
         reviews: 0,
-      };
+      }));
+
+      await Promise.all(
+        activeCourses.value.map((c, i) =>
+          (async () => {
+            activeCourses.value[i].name = await getCourseName(c.courseID);
+            activeCourses.value[i].reviews = await (await User.instance()).getScheduledReviewCount(c.courseID);
+          })()
+        )
+      );
+    };
+
+    const setHotkeys = () => {
+      SkldrMouseTrap.reset();
+      SkldrMouseTrap.bind([
+        {
+          hotkey: 'up',
+          callback: () => { timeLimit.value++; },
+          command: '',
+        },
+        {
+          hotkey: 'down',
+          callback: () => { timeLimit.value--; },
+          command: '',
+        },
+        {
+          hotkey: 'enter',
+          callback: startSession,
+          command: '',
+        },
+      ]);
+    };
+
+    onMounted(async () => {
+      document.getElementById('SelectAll')?.focus();
+      setHotkeys();
+      await Promise.all([getActiveCourses(), getActiveClassrooms()]);
+      if (activeCourses.value.length === 0 && activeClasses.value.length === 0) {
+        hasRegistrations.value = false;
+      }
     });
 
-    Promise.all(
-      this.activeCourses.map((c, i) =>
-        (async (courseID: string) => {
-          return Promise.all([
-            (this.activeCourses[i].name = await getCourseName(c.courseID)),
-            (this.activeCourses[i].reviews = await (await User.instance()).getScheduledReviewCount(c.courseID)),
-          ]);
-        })(c.courseID)
-      )
-    );
-  }
+    onBeforeUnmount(() => {
+      SkldrMouseTrap.reset();
+    });
 
-  private setHotkeys() {
-    SkldrMouseTrap.reset();
-    SkldrMouseTrap.bind([
-      {
-        hotkey: 'up',
-        callback: () => {
-          this.timeLimit++;
-        },
-        command: '',
-      },
-      {
-        hotkey: 'down',
-        callback: () => {
-          this.timeLimit--;
-        },
-        command: '',
-      },
-      {
-        hotkey: 'enter',
-        callback: this.startSession,
-        command: '',
-      },
-    ]);
+    return {
+      allSelected,
+      activeCourses,
+      activeClasses,
+      timeLimit,
+      hasRegistrations,
+      update,
+      toggleAll,
+      startSession
+    };
   }
-
-  public destroyed() {
-    SkldrMouseTrap.reset();
-  }
-
-  public async mounted() {
-    document.getElementById('SelectAll')!.focus();
-  }
-}
+});
 </script>
 
 <style scoped>
