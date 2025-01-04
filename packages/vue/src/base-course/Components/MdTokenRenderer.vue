@@ -107,6 +107,7 @@
 </template>
 
 <script lang="ts">
+import { defineProps } from 'vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
 import {
   containsComponent,
@@ -117,70 +118,49 @@ import {
 import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
 import hljs from 'highlight.js';
 import { marked } from 'marked';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 
-Vue.use(hljs.vuePlugin);
+hljs.vuePlugin.install(app);
 
-@Component({
-  components: {
-    fillIn: FillInInput,
-    RadioMultipleChoice,
-  },
-})
-export default class MdTokenRenderer extends Vue {
-  @Prop({
-    required: true,
-    type: Object,
-  })
+interface Props {
   token: marked.Token;
-  @Prop({
-    required: false,
-    type: Boolean,
-    default: false,
-  })
-  last: boolean;
+  last?: boolean;
+}
 
-  public isComponent(token: marked.Token) {
-    return isComponent(token);
-  }
-  public containsComponent(token: marked.Token) {
-    return containsComponent(token);
-  }
-  public splitTextToken(token: marked.Tokens.Text) {
-    return splitTextToken(token);
-  }
-  public splitParagraphToken(token: marked.Tokens.Paragraph) {
-    return splitParagraphToken(token);
-  }
+const props = withDefaults(defineProps<Props>(), {
+  last: false
+});
 
-  public parsedComponent(
-    token: marked.Tokens.Text
-  ): {
-    is: string;
-    text: string;
-  } {
-    // todo: switching on component types & loading custom component
-    //
-    // sketch:
+const { log, error, warn } = SkldrComposable();
 
-    // const demoustached = token.text.slice(2, token.text.length - 2);
-    // const firstToken = demoustached.split(' ')[0];
-    // if (firstToken.charAt(firstToken.length - 1) == '>') {
-    //   return {
-    //     is: firstToken.slice(0, firstToken.length - 1),
-    //     text: demoustached.slice(firstToken.length + 1, demoustached.length),
-    //   };
-    // }
+function isComponent(token: marked.Token) {
+  return isComponent(token);
+}
 
-    return {
-      is: 'fillIn',
-      text: token.text,
-    };
-  }
+function containsComponent(token: marked.Token) {
+  return containsComponent(token);
+}
 
-  private isText(tok: marked.Token): tok is marked.Tokens.Text {
-    return (tok as marked.Tokens.Tag).inLink === undefined && tok.type === 'text';
-  }
+function splitTextToken(token: marked.Tokens.Text) {
+  return splitTextToken(token);
+}
+
+function splitParagraphToken(token: marked.Tokens.Paragraph) {
+  return splitParagraphToken(token);
+}
+
+function parsedComponent(token: marked.Tokens.Text): {
+  is: string;
+  text: string;
+} {
+  return {
+    is: 'fillIn',
+    text: token.text,
+  };
+}
+
+function isText(tok: marked.Token): tok is marked.Tokens.Text {
+  return (tok as marked.Tokens.Tag).inLink === undefined && tok.type === 'text';
 }
 </script>
 
