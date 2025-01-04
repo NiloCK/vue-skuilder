@@ -5,6 +5,7 @@ module.exports = {
     'plugin:prettier-vue/recommended',
     // Do not add `'prettier/vue'` if you don't want to use prettier for `<template>` blocks
     'prettier/vue',
+    '@vue/typescript/recommended',
   ],
 
   settings: {
@@ -82,5 +83,10 @@ module.exports = {
     ],
     semi: ['error', 'always'],
   },
-  parser: '@babel/eslint-parser',
+  parser: 'vue-eslint-parser',
+  parserOptions: {
+    parser: '@typescript-eslint/parser',
+    ecmaVersion: 2020,
+    sourceType: 'module',
+  },
 };

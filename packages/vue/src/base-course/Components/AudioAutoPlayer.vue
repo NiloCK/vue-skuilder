@@ -11,26 +11,48 @@
 </template>
 
 <script lang="ts">
-import { setTimeout } from 'timers';
-import { log } from 'util';
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import Vue, { PropType } from 'vue';
 import SkldrMouseTrap from '../../SkldrMouseTrap';
 
-@Component({})
-export default class AudioAutoPlayer extends Vue {
-  private static LOCK: AudioAutoPlayer | null = null;
-  private static playbackGap: number = 500;
+interface AudioAutoPlayerData {
+  audioElems: HTMLAudioElement[];
+  playTimeouts: NodeJS.Timer[];
+  playing: boolean;
+}
 
-  @Prop({
-    required: true,
-  })
-  public src: string | string[];
-  public audioElems: HTMLAudioElement[] = [];
-  private playTimeouts: NodeJS.Timer[] = [];
-  private playing: boolean = false;
+interface AudioAutoPlayerProps {
+  src: string | string[];
+}
 
-  public created() {
+interface AudioAutoPlayerMethods {
+  stop(): void;
+  downloadFinished(i: number): boolean;
+  play(): void;
+  playByIndex(n: number): void;
+}
+
+let staticLOCK: Vue | null = null;
+const playbackGap = 500;
+
+const AudioAutoPlayer = Vue.extend<AudioAutoPlayerData, AudioAutoPlayerMethods, {}, AudioAutoPlayerProps>({
+  name: 'AudioAutoPlayer',
+  props: {
+    src: {
+      type: [String, Array] as PropType<string | string[]>,
+      required: true,
+    },
+  },
+  data(): AudioAutoPlayerData {
+    return {
+      audioElems: [],
+      playTimeouts: [],
+      playing: false,
+    };
+  },
+  beforeCreate() {
+    staticLOCK = null;
+  },
+  created() {
     if (typeof this.src === 'string') {
       this.audioElems.push(new Audio(this.src));
     } else {
@@ -48,78 +70,77 @@ export default class AudioAutoPlayer extends Vue {
     ]);
 
     this.play();
-  }
+  },
+  methods: {
+    stop() {
+      this.playing = false;
+      setTimeout(() => {
+        staticLOCK = null;
+      }, playbackGap);
 
-  private stop() {
-    this.playing = false;
-    setTimeout(() => {
-      AudioAutoPlayer.LOCK == null;
-    }, AudioAutoPlayer.playbackGap);
+      this.playTimeouts.forEach((timeOut) => {
+        clearTimeout(timeOut);
+      });
 
-    this.playTimeouts.forEach((timeOut) => {
-      clearTimeout(timeOut);
-    });
-
-    log(`Audio stopping...`);
-    this.audioElems.forEach((audio) => {
-      if (!audio.paused) {
-        audio.pause();
-        audio.currentTime = 0;
+      console.log(`Audio stopping...`);
+      this.audioElems.forEach((audio) => {
+        if (!audio.paused) {
+          audio.pause();
+          audio.currentTime = 0;
+        }
+      });
+    },
+    downloadFinished(i: number): boolean {
+      try {
+        return !isNaN(this.audioElems[i].duration);
+      } catch (e) {
+        throw new Error('AudioPlayer does not have an element at this index');
       }
-    });
-  }
-
-  private downloadFinished(i: number): boolean {
-    try {
-      return !isNaN(this.audioElems[i].duration);
-    } catch (e) {
-      throw new Error('AudioPlayer does not have an element at this index');
-    }
-  }
-
-  private play() {
-    if (AudioAutoPlayer.LOCK === null || AudioAutoPlayer.LOCK === this) {
-      AudioAutoPlayer.LOCK = this;
-      this.playing = true;
-      this.playByIndex(0);
-    } else {
-      // lock held by another card - check again in _x_ ms
-      setTimeout(this.play, 100);
-    }
-  }
-
-  private playByIndex(n: number) {
-    if (this.downloadFinished(n)) {
-      this.audioElems[n].play();
-
-      if (n + 1 < this.audioElems.length) {
-        const delay = (this.audioElems[n].duration + 0.7) * 1000;
-        this.playTimeouts.push(
-          setTimeout(() => {
-            if (this.playing) {
-              this.playByIndex(n + 1);
-            }
-          }, delay)
-        );
+    },
+    play() {
+      if (staticLOCK === null || staticLOCK === this) {
+        staticLOCK = this;
+        this.playing = true;
+        this.playByIndex(0);
       } else {
-        setTimeout(() => {
-          this.playing = false;
-        }, this.audioElems[n].duration * 1000);
-        setTimeout(() => {
-          // release the AudioAutoPlayer lock - let other elements run
-          AudioAutoPlayer.LOCK = null;
-        }, this.audioElems[n].duration * 1000 + AudioAutoPlayer.playbackGap);
+        // lock held by another card - check again in _x_ ms
+        setTimeout(this.play, 100);
       }
-    } else {
-      setTimeout(this.playByIndex, 100, n);
-    }
-  }
+    },
+    playByIndex(n: number) {
+      if (this.downloadFinished(n)) {
+        this.audioElems[n].play();
 
-  private beforeDestroy() {
+        if (n + 1 < this.audioElems.length) {
+          const delay = (this.audioElems[n].duration + 0.7) * 1000;
+          this.playTimeouts.push(
+            setTimeout(() => {
+              if (this.playing) {
+                this.playByIndex(n + 1);
+              }
+            }, delay)
+          );
+        } else {
+          setTimeout(() => {
+            this.playing = false;
+          }, this.audioElems[n].duration * 1000);
+          setTimeout(() => {
+            // release the AudioAutoPlayer lock - let other elements run
+            staticLOCK = null;
+          }, this.audioElems[n].duration * 1000 + playbackGap);
+        }
+      } else {
+        setTimeout(this.playByIndex, 100, n);
+      }
+    },
+  },
+  beforeDestroy() {
     SkldrMouseTrap.reset();
     this.stop();
-  }
-}
+  },
+});
+
+export default AudioAutoPlayer;
 </script>
 
 <style scoped>

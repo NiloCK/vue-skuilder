@@ -48,13 +48,14 @@
         v-bind:last="last && token.tokens.length === 1 && j === splitParagraphToken(token).length - 1"
       />
     </span>
-    <md-token-renderer
-      v-for="(subTok, j) in token.tokens"
-      v-bind:key="j"
-      v-bind:token="subTok"
-      v-else
-      v-bind:last="last && token.tokens.length === 1"
-    />
+    <template v-else>
+      <md-token-renderer
+        v-for="(subTok, j) in token.tokens"
+        v-bind:key="j"
+        v-bind:token="subTok"
+        v-bind:last="last && token.tokens.length === 1"
+      />
+    </template>
   </p>
 
   <a v-else-if="token.type === 'link'" :href="token.href" :title="token.title">
@@ -113,75 +114,83 @@ import {
   isComponent,
   splitParagraphToken,
   splitTextToken,
+  TokenOrComponent,
 } from '@/courses/default/questions/fillIn';
 import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
 import hljs from 'highlight.js';
 import { marked } from 'marked';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
+import Vue from 'vue';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 
 Vue.use(hljs.vuePlugin);
 
-@Component({
+export default defineComponent({
+  name: 'MdTokenRenderer',
+
   components: {
     fillIn: FillInInput,
     RadioMultipleChoice,
   },
-})
-export default class MdTokenRenderer extends Vue {
-  @Prop({
-    required: true,
-    type: Object,
-  })
-  token: marked.Token;
-  @Prop({
-    required: false,
-    type: Boolean,
-    default: false,
-  })
-  last: boolean;
 
-  public isComponent(token: marked.Token) {
-    return isComponent(token);
-  }
-  public containsComponent(token: marked.Token) {
-    return containsComponent(token);
-  }
-  public splitTextToken(token: marked.Tokens.Text) {
-    return splitTextToken(token);
-  }
-  public splitParagraphToken(token: marked.Tokens.Paragraph) {
-    return splitParagraphToken(token);
-  }
+  mixins: [SkldrVueMixin],
 
-  public parsedComponent(
-    token: marked.Tokens.Text
-  ): {
-    is: string;
-    text: string;
-  } {
-    // todo: switching on component types & loading custom component
-    //
-    // sketch:
+  props: {
+    token: {
+      type: Object as () => marked.Token,
+      required: true,
+    },
+    last: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+  },
 
-    // const demoustached = token.text.slice(2, token.text.length - 2);
-    // const firstToken = demoustached.split(' ')[0];
-    // if (firstToken.charAt(firstToken.length - 1) == '>') {
-    //   return {
-    //     is: firstToken.slice(0, firstToken.length - 1),
-    //     text: demoustached.slice(firstToken.length + 1, demoustached.length),
-    //   };
-    // }
+  methods: {
+    isComponent(token: marked.Token): boolean {
+      return isComponent(token);
+    },
 
-    return {
-      is: 'fillIn',
-      text: token.text,
-    };
-  }
+    containsComponent(token: marked.Token): boolean {
+      return containsComponent(token);
+    },
 
-  private isText(tok: marked.Token): tok is marked.Tokens.Text {
-    return (tok as marked.Tokens.Tag).inLink === undefined && tok.type === 'text';
-  }
-}
+    splitTextToken(token: marked.Tokens.Text): marked.Token[] {
+      return splitTextToken(token);
+    },
+
+    splitParagraphToken(token: marked.Tokens.Paragraph): TokenOrComponent[] {
+      return splitParagraphToken(token);
+    },
+
+    parsedComponent(token: marked.Tokens.Text): {
+      is: string;
+      text: string;
+    } {
+      // [ ] switching on component types & loading custom component
+      //
+      // sketch:
+      // const demoustached = token.text.slice(2, token.text.length - 2);
+      // const firstToken = demoustached.split(' ')[0];
+      // if (firstToken.charAt(firstToken.length - 1) == '>') {
+      //   return {
+      //     is: firstToken.slice(0, firstToken.length - 1),
+      //     text: demoustached.slice(firstToken.length + 1, demoustached.length),
+      //   };
+      // }
+
+      return {
+        is: 'fillIn',
+        text: token.text,
+      };
+    },
+
+    isText(tok: marked.Token): tok is marked.Tokens.Text {
+      return (tok as marked.Tokens.Tag).inLink === undefined && tok.type === 'text';
+    },
+  },
+});
 </script>
 
 <style lang="css" scoped>

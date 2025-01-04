@@ -31,6 +31,7 @@ import { Prop } from 'vue-property-decorator';
 import SkldrVue from '@/SkldrVue';
 import { CardHistory, CardRecord } from '@/db/types';
 import moment from 'moment';
+import { User } from '../db/userDB';
 
 interface DayData {
   date: string;
@@ -66,7 +67,7 @@ export default class HeatMap extends SkldrVue {
 
   async created() {
     this.log('Heatmap created');
-    const history = await this.user().getHistory();
+    const history = await (await User.instance()).getHistory();
 
     let allHist: CardHistory<CardRecord>[] = [];
     for (let i = 0; i < history.length; i++) {
@@ -82,7 +83,7 @@ export default class HeatMap extends SkldrVue {
   processHistory(history: CardHistory<CardRecord>[]) {
     this.log(`Processing ${history.length} records`);
     const data: { [key: string]: number } = {};
-    history.forEach(item => {
+    history.forEach((item) => {
       if (item && item.records) {
         item.records.forEach((record: CardRecord) => {
           const date = moment(record.timeStamp).format('YYYY-MM-DD');

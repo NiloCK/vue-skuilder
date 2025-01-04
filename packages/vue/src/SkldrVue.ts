@@ -32,16 +32,4 @@ export default class SkldrVue extends Vue {
   protected warn(message?: any, ...optionalParams: any[]): void {
     console.warn(`[SK.${this.$options.name}]: `, message, ...optionalParams);
   }
-
-  /**
-   * Get the current user from the Vuex store. Throws an error if the user is
-   * not logged in
-   */
-  protected user(): User {
-    if (!this.$store.state._user) {
-      throw new Error('User not logged in');
-    } else {
-      return this.$store.state._user;
-    }
-  }
 }

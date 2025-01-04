@@ -85,15 +85,9 @@ export function splitTextToken(token: marked.Tokens.Text): marked.Tokens.Text[] 
   }
 }
 
-export function splitParagraphToken(
-  token: marked.Tokens.Paragraph
-): (
-  | marked.Token
-  | {
-      type: 'component';
-      raw: string;
-    }
-)[] {
+export type TokenOrComponent = marked.Token | { type: 'component'; raw: string };
+
+export function splitParagraphToken(token: marked.Tokens.Paragraph): TokenOrComponent[] {
   let ret: marked.Token[] = [];
 
   if (containsComponent(token)) {
@@ -141,6 +135,8 @@ export function containsComponent(token: marked.Token) {
 
     if (opening !== -1 && closing !== -1 && closing > opening) {
       return true;
+    } else {
+      return false;
     }
   } else {
     return false;
@@ -242,9 +238,7 @@ export class BlanksCard extends Question {
     }
   }
 
-  findAnswers(
-    tok: marked.Token
-  ): {
+  findAnswers(tok: marked.Token): {
     answers: string[] | null;
     options: string[] | null;
   } | null {
@@ -303,7 +297,7 @@ export class BlanksCard extends Question {
 
   constructor(data: ViewData[]) {
     super(data);
-    this.mdText = (data[0].Input as any) as string;
+    this.mdText = data[0].Input as any as string;
 
     const splits = splitByDelimiters(this.mdText, '{{', '}}');
     const recombines = [];
