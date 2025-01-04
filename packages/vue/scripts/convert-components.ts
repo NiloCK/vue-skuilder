@@ -1,5 +1,6 @@
 const { readdir, readFile, writeFile } = require('fs/promises');
 const { join } = require('path');
+const { execSync } = require('child_process');
 // const { fetch } = require('node-fetch');
 
 const conversionPrompt: string = `
@@ -57,28 +58,112 @@ export default class SkldrVue extends Vue {
 }
 \`\`\`
 
+Here is a Mixin that can be used as a substitute in Options API:
 
-Task:
-Please convert the following Vue 2 class-based component to Options API format.
+\`\`\`ts
+// @/mixins/SkldrVueMixin.ts
+import Vue from 'vue';
+import { Store } from 'vuex';
+import { AppState } from '../store';
+import { User } from '../db/userDB';
 
-Context:
+export default Vue.extend({
+  methods: {
+    log(message?: any, ...optionalParams: any[]): void {
+      console.log(\`[SK.\${this.$options.name}]: \`, message, ...optionalParams);
+    },
+
+    error(message?: any, ...optionalParams: any[]): void {
+      console.error(\`[SK.\${this.$options.name}]: \`, message, ...optionalParams);
+    },
+
+    warn(message?: any, ...optionalParams: any[]): void {
+      console.warn(\`[SK.\${this.$options.name}]: \`, message, ...optionalParams);
+    },
+
+    user(): User {
+      if (!(this.$store as Store<AppState>).state._user) {
+        throw new Error('User not logged in');
+      } else {
+        return (this.$store as Store<AppState>).state._user!;
+      }
+    },
+  },
+});
+
+export interface ISkldrMixin {
+  log(message?: any, ...optionalParams: any[]): void;
+  error(message?: any, ...optionalParams: any[]): void;
+  warn(message?: any, ...optionalParams: any[]): void;
+  user(): User;
+}
+\`\`\`
+
+And a composables version for the Composition API:
+
+\`\`\`ts
+// @/mixins/SkldrComposable.ts
+import { getCurrentInstance, version } from 'vue';
+import type { User } from '../db/userDB';
+
+export function SkldrComposable() {
+  const instance = getCurrentInstance();
+  let componentName: string = 'unknown';
+
+  if (version.startsWith('2')) {
+    // vue 2
+    componentName = (instance as any).$options.name;
+  } else {
+    // vue 3
+    console.warn(\`Migration to Vue 3 complete. Consider revising compat layer in SkldrComposable.\`);
+    componentName = (instance as any).type?.__name;
+  }
+
+  const log = (message?: any, ...optionalParams: any[]): void => {
+    console.log(\`[SK.\${componentName}]: \`, message, ...optionalParams);
+  };
+
+  const error = (message?: any, ...optionalParams: any[]): void => {
+    console.error(\`[SK.\${componentName}]: \`, message, ...optionalParams);
+  };
+
+  const warn = (message?: any, ...optionalParams: any[]): void => {
+    console.warn(\`[SK.\${componentName}]: \`, message, ...optionalParams);
+  };
+
+  return {
+    log,
+    error,
+    warn,
+  };
+}
+
+\`\`\`
+
+# Task:
+
+Please convert the following Vue 2 class-based component to either Options API or Composition API format.
+
+# Context:
+
 Part of a migration effort toward Vue 3 and Vuetify 3.
 
-Requirements:
-- Only modify the <script> section
-- Keep TypeScript support using Vue.extend()
-- Preserve all existing functionality including base class features
+# Requirements:
+
+- Only modify the <script> section of the component
+- Keep TypeScript support as far as possible. If type safety is removed, please note it.
+- Preserve all existing functionality including base class features (if possible - else note it)
 - Keep the same external component API (props, events, refs)
 - Leave <template> and <style> sections unchanged
 - Flag any potential mixin merge conflicts or concerns
 
 Please provide:
-1. The new <script> section, properly typed for TypeScript
-2. Any warnings about potential issues with base class functionality, in a <warnings> section
-3. A simple message
+1. The new <script> section, properly typed for TypeScript, enclosed in a <script><script/> tag and not in a code block.
+2. A generic comment on the overall conversion process, in a <summary> section.
+3. Any warnings about potential issues with base class functionality, in a <warnings> section
 
 
-Here's the component to convert:
+Here is the component to convert:
 
 `;
 
@@ -99,13 +184,62 @@ async function* findVueFiles(dir: string): AsyncGenerator<string> {
   }
 }
 
+async function checkoutOptionsBranch() {
+  try {
+    execSync('git rev-parse --is-inside-work-tree', { stdio: 'ignore' });
+    const status = execSync('git status --porcelain').toString();
+
+    if (status) {
+      console.warn(
+        'Warning: Working tree is not clean. Commit or stash changes before proceeding.'
+      );
+      return;
+    }
+
+    // Create and switch to options-convert branch
+    execSync('git checkout -b options-convert');
+    console.log('Created and switched to branch: options-convert');
+  } catch (error) {
+    console.warn('Not a git repository or git error occurred:', error.message);
+  }
+}
+
 async function convertFile(filepath: string) {
   try {
     // Read and parse the Vue file
     const content = await readFile(filepath, 'utf-8');
 
+    // Check if file is class-based
+    if (content.includes('vue-class-component') || content.includes('vue-property-decorator')) {
+      console.log('Skipping conversion for', filepath, 'as it is not a class-based component');
+      return;
+    }
+
+    // Check for git repository and clean working tree
+    try {
+      execSync('git rev-parse --is-inside-work-tree', { stdio: 'ignore' });
+      const status = execSync('git status --porcelain').toString();
+
+      if (status) {
+        console.warn(
+          'Warning: Working tree is not clean. Commit or stash changes before proceeding.'
+        );
+        return;
+      }
+
+      const filename = filepath.replace(/^.*[\\\/]/, '').replace('.vue', '');
+      const branchName = `convert-${filename}`;
+      // Create and switch to conversion branch
+      execSync(`git checkout -b ${branchName}`);
+      console.log(`Created and switched to branch: ${branchName}`);
+    } catch (error) {
+      console.warn('Not a git repository or git error occurred:', error.message);
+      return;
+    }
+
     // Make API call with your prompt
     const response = await fetch('https://api.anthropic.com/v1/messages', {
+      timeout: 30000,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -113,7 +247,7 @@ async function convertFile(filepath: string) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-3-sonnet-20240229',
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 4096,
         messages: [
           {
@@ -125,7 +259,11 @@ async function convertFile(filepath: string) {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.statusText}`);
+      // throw new Error(`API request failed: ${response.statusText}`);
+      console.error(`API request failed: ${response.statusText}`);
+
+      checkoutOptionsBranch();
+      return;
     }
 
     const result = await response.json();
@@ -137,31 +275,49 @@ async function convertFile(filepath: string) {
       // throw new Error('No script section found in AI response');
       console.error(`No script section found in AI response for ${filepath}`);
       console.log(`Response: ${aiResponse}`);
+      checkoutOptionsBranch();
       return;
     }
 
     const newScript = scriptMatch[1];
 
+    // Get warnings from AI response
+    const warningsMatch = aiResponse.match(/<warnings>([\s\S]*?)<\/warnings>/);
+    const warnings = warningsMatch ? warningsMatch[1].trim() : '';
+
+    if (warnings) {
+      console.log('\nWarnings:', warnings);
+    }
+
+    // Get summary from AI response
+    const summaryMatch = aiResponse.match(/<summary>([\s\S]*?)<\/summary>/);
+    const summary = summaryMatch ? summaryMatch[1].trim() : '';
+
+    if (summary) {
+      console.log('\nSummary:', summary);
+    }
+
     console.log('\tResponse for', filepath, ':\n', aiResponse);
-    const readline = require('readline').createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
 
-    const proceed = await new Promise((resolve) => {
-      readline.question('\nProceed with conversion? (y/n): ', (answer: string) => {
-        readline.close();
-        resolve(answer.toLowerCase() === 'y');
-      });
-    });
+    await replaceScriptSection(filepath, newScript);
+    console.log(`Converted ${filepath}`);
 
-    // Write back to file
-    if (!proceed) {
-      console.log('Skipping conversion');
-      return;
-    } else {
-      await replaceScriptSection(filepath, newScript);
-      console.log(`Converted ${filepath}`);
+    try {
+      const commitMessage = `refactor: convert ${filepath} from class-based to Options/Composition API`;
+      execSync('git add .');
+      execSync(`git commit -m "${commitMessage}"`);
+      console.log(`Committed changes for ${filepath}`);
+
+      execSync('git push origin HEAD');
+      console.log(`Pushed branch for ${filepath}`);
+
+      // Generate pull request
+      execSync('gh pr create --fill --base options-convert');
+
+      checkoutOptionsBranch();
+      console.log('Switched back to main branch');
+    } catch (error) {
+      console.error('Error in git operations:', error);
     }
   } catch (error) {
     console.error(`Error processing ${filepath}:`, error);
