@@ -20,52 +20,75 @@
 </template>
 
 <script lang="ts">
-import { log } from 'util';
-import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
-import SkldrVue from '@/SkldrVue';
+import { defineComponent, ref, PropType, onMounted } from 'vue';
 import { getCourseDB } from '@/db';
 import { getCourseConfig } from '@/db/courseDB';
 import { DocType } from '@/db/types';
-import { CourseConfig } from '@/server/types';
+import type { CourseConfig } from '@/server/types';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
+import { log } from 'util';
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
+import type { AppState } from '@/store';
 
-@Component({})
-export default class CourseStubCard extends SkldrVue {
-  @Prop({ required: true }) private _id: string;
+export default defineComponent({
+  name: 'CourseStubCard',
+  
+  props: {
+    _id: {
+      type: String as PropType<string>,
+      required: true
+    }
+  },
 
-  public _courseConfig: CourseConfig;
-  public questionCount: number;
-  public isPrivate: boolean = false;
+  emits: ['refresh'],
 
-  private updatePending: boolean = true;
-  private addingCourse: boolean = false;
+  setup(props, { emit }) {
+    const { log } = SkldrComposable();
+    const router = useRouter();
+    const store = useStore<AppState>();
 
-  private async created() {
-    const db = await getCourseDB(this._id);
-    this._courseConfig = (await getCourseConfig(this._id))!;
-    this.isPrivate = !this._courseConfig.public;
-    this.questionCount = (
-      await db.find({
-        limit: 1000,
-        selector: {
-          docType: DocType.CARD,
-        },
-      })
-    ).docs.length;
-    this.updatePending = false;
+    const _courseConfig = ref<CourseConfig | null>(null);
+    const questionCount = ref(0);
+    const isPrivate = ref(false);
+    const updatePending = ref(true);
+    const addingCourse = ref(false);
+
+    onMounted(async () => {
+      const db = await getCourseDB(props._id);
+      _courseConfig.value = await getCourseConfig(props._id);
+      isPrivate.value = !_courseConfig.value?.public;
+      questionCount.value = (
+        await db.find({
+          limit: 1000,
+          selector: {
+            docType: DocType.CARD,
+          },
+        })
+      ).docs.length;
+      updatePending.value = false;
+    });
+
+    const routeToCourse = () => {
+      router.push(`/q/${_courseConfig.value?.name.replace(' ', '_')}`);
+    };
+
+    const registerForCourse = async () => {
+      addingCourse.value = true;
+      log(`Attempting to register for ${props._id}.`);
+      await store.state._user?.registerForCourse(props._id);
+      emit('refresh');
+    };
+
+    return {
+      _courseConfig,
+      questionCount,
+      isPrivate,
+      updatePending,
+      addingCourse,
+      routeToCourse,
+      registerForCourse
+    };
   }
-
-  routeToCourse() {
-    this.$router.push(`/q/${this._courseConfig.name.replace(' ', '_')}`);
-  }
-
-  async registerForCourse() {
-    this.addingCourse = true;
-    log(`Attempting to register for ${this._id}.`);
-    await this.$store.state._user!.registerForCourse(this._id);
-    // this.$set(this.spinnerMap, course, undefined);
-    // this.refreshData();
-    this.$emit('refresh');
-  }
-}
+});
 </script>
