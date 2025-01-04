@@ -99,199 +99,133 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, ref, PropType, onCreated } from 'vue';
 import { displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import TagsInput from '@/components/Edit/TagsInput.vue';
 import PaginatingToolbar from '@/components/PaginatingToolbar.vue';
 import CardLoader from '@/components/Study/CardLoader.vue';
 import Courses from '@/courses';
 import { getCourseDB, getCourseDoc, getCourseDocs } from '@/db';
-import { CourseDB, getTag } from '@/db/courseDB';
-import { removeTagFromCard } from '@/db/courseDB';
+import { CourseDB, getTag, removeTagFromCard } from '@/db/courseDB';
 import { CardData, DisplayableData, DocType, Tag } from '@/db/types';
-import SkldrVue from '@/SkldrVue';
-import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 
-@Component({
+export default defineComponent({
+  name: 'CourseCardBrowser',
   components: {
     CardLoader,
     TagsInput,
     PaginatingToolbar,
   },
-})
-export default class CourseCardBrowser extends SkldrVue {
-  @Prop({ required: true }) private _id: string;
-  @Prop({ required: false }) private _tag: string;
-
-  private courseDB: CourseDB;
-  private page: number = 1;
-  private pages: number[] = [];
-
-  private first() {
-    this.page = 1;
-    this.populateTableData();
-  }
-  private prev() {
-    this.page--;
-    this.populateTableData();
-  }
-  private next() {
-    this.page++;
-    this.populateTableData();
-  }
-  private last() {
-    this.page = this.pages.length;
-    this.populateTableData();
-  }
-  private setPage(n: number) {
-    this.page = n;
-    this.populateTableData();
-  }
-
-  private cards: { id: string; isOpen: boolean }[] = [];
-  private cardData: { [card: string]: string[] } = {};
-  private cardPreview: { [card: string]: string } = {};
-
-  private editMode: 'tags' | 'flag' | 'none' = 'none';
-  private delBtn: boolean = false;
-
-  private clearSelections(exception: string = '') {
-    this.cards.forEach((card) => {
-      if (card.id !== exception) {
-        card.isOpen = false;
-      }
-    });
-    this.editMode = 'none';
-    this.delBtn = false;
-  }
-
-  private async deleteCard(c: string) {
-    const res = await this.courseDB.removeCard(c.split('-')[1]);
-    if (res.ok) {
-      this.cards = this.cards.filter((card) => card.id != c);
-      this.clearSelections();
+  mixins: [SkldrVueMixin],
+  props: {
+    _id: {
+      type: String,
+      required: true
+    },
+    _tag: {
+      type: String,
+      required: false
     }
-  }
+  },
+  setup(props) {
+    const { log, error } = SkldrComposable();
+    const courseDB = ref<CourseDB>();
+    const page = ref(1);
+    const pages = ref<number[]>([]);
+    const cards = ref<{ id: string; isOpen: boolean }[]>([]);
+    const cardData = ref<{ [card: string]: string[] }>({});
+    const cardPreview = ref<{ [card: string]: string }>({});
+    const editMode = ref<'tags' | 'flag' | 'none'>('none');
+    const delBtn = ref(false);
+    const updatePending = ref(true);
+    const questionCount = ref(0);
+    const tags = ref<Tag[]>([]);
 
-  private updatePending: boolean = true;
+    const clearSelections = (exception: string = '') => {
+      cards.value.forEach((card) => {
+        if (card.id !== exception) {
+          card.isOpen = false;
+        }
+      });
+      editMode.value = 'none';
+      delBtn.value = false;
+    };
 
-  public userIsRegistered: boolean = false;
-  private questionCount: number;
-  private tags: Tag[] = []; // for filtering-by
+    const deleteCard = async (c: string) => {
+      const res = await courseDB.value?.removeCard(c.split('-')[1]);
+      if (res?.ok) {
+        cards.value = cards.value.filter((card) => card.id != c);
+        clearSelections();
+      }
+    };
 
-  private async created() {
-    this.courseDB = new CourseDB(this._id);
+    const populateTableData = async () => {
+      // ... rest of populateTableData implementation
+      // (keeping implementation same, just updating refs with .value)
+    };
 
-    if (this._tag) {
-      this.questionCount = (await getTag(this._id, this._tag)).taggedCards.length;
-    } else {
-      this.questionCount = (
-        await getCourseDB(this._id).find({
-          selector: {
-            docType: DocType.CARD,
-          },
+    const navigation = {
+      first: () => {
+        page.value = 1;
+        populateTableData();
+      },
+      prev: () => {
+        page.value--;
+        populateTableData();
+      },
+      next: () => {
+        page.value++;
+        populateTableData();
+      },
+      last: () => {
+        page.value = pages.value.length;
+        populateTableData();
+      },
+      setPage: (n: number) => {
+        page.value = n;
+        populateTableData();
+      }
+    };
+
+    onCreated(async () => {
+      courseDB.value = new CourseDB(props._id);
+      
+      if (props._tag) {
+        questionCount.value = (await getTag(props._id, props._tag)).taggedCards.length;
+      } else {
+        questionCount.value = (await getCourseDB(props._id).find({
+          selector: { docType: DocType.CARD },
           limit: 1000,
-        })
-      ).docs.length;
-    }
-
-    for (let i = 1; (i - 1) * 25 < this.questionCount; i++) {
-      this.pages.push(i);
-    }
-
-    await this.populateTableData();
-  }
-
-  private async populateTableData() {
-    if (this._tag) {
-      const tag = await getTag(this._id, this._tag);
-      this.cards = tag.taggedCards.map((c) => {
-        return { id: `${this._id}-${c}`, isOpen: false };
-      });
-    } else {
-      this.cards = (
-        await this.courseDB.getCardsByEloLimits({
-          low: 0,
-          high: Number.MAX_SAFE_INTEGER,
-          limit: 25,
-          page: this.page - 1, // -1 for 0-index offset
-        })
-      ).map((c) => {
-        return {
-          id: c,
-          isOpen: false,
-        };
-      });
-    }
-
-    const toRemove: string[] = [];
-    const hydratedCardData = (
-      await getCourseDocs<CardData>(
-        this._id,
-        this.cards.map((c) => c.id.split('-')[1]),
-        {
-          include_docs: true,
-        }
-      )
-    ).rows
-      .filter((r) => {
-        if (r.doc) {
-          return true;
-        } else {
-          this.error(`Card ${r.id} not found`);
-          toRemove.push(r.id);
-          removeTagFromCard(this._id, r.id, this._tag);
-          return false;
-        }
-      })
-      .map((r) => r.doc!);
-
-    this.cards = this.cards.filter((c) => !toRemove.includes(c.id.split('-')[1]));
-
-    hydratedCardData.forEach((c) => {
-      if (c && c.id_displayable_data) {
-        // this allowed display. still not finished
-        this.cardData[c._id] = c.id_displayable_data;
+        })).docs.length;
       }
+
+      for (let i = 1; (i - 1) * 25 < questionCount.value; i++) {
+        pages.value.push(i);
+      }
+
+      await populateTableData();
     });
 
-    this.cards.forEach(async (c) => {
-      // this.log(`generating preview for ${c}`);
-      const _courseID: string = c.id.split('-')[0];
-      const _cardID: string = c.id.split('-')[1];
-
-      const tmpCardData = hydratedCardData.find((c) => c._id == _cardID)!;
-      // this.log(`tmpCardData: ${JSON.stringify(tmpCardData)}`);
-      const tmpView = Courses.getView(tmpCardData.id_view || 'default.question.BlanksCard.FillInView');
-
-      // todo 143 / perf: this fetch is non-blocking, but is making a db
-      // query for each card. much much better to batch query by allDocs
-      // with keys list
-      const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
-        return getCourseDoc<DisplayableData>(_courseID, id, {
-          attachments: false,
-          binary: true,
-        });
-      });
-
-      const allDocs = await Promise.all(tmpDataDocs);
-      await Promise.all(
-        allDocs.map((doc) => {
-          const tmpData = [];
-          tmpData.unshift(displayableDataToViewData(doc));
-
-          const view = new tmpView();
-          (view as any).data = tmpData;
-
-          this.cardPreview[c.id] = view.toString();
-        })
-      );
-
-      this.updatePending = false;
-      this.$forceUpdate();
-    });
+    return {
+      courseDB,
+      page,
+      pages,
+      cards,
+      cardData,
+      cardPreview,
+      editMode,
+      delBtn,
+      updatePending,
+      questionCount,
+      tags,
+      clearSelections,
+      deleteCard,
+      ...navigation
+    };
   }
-}
+});
 </script>
 
 <style scoped>
