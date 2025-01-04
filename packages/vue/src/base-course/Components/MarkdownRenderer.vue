@@ -10,12 +10,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, PropType } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import MdTokenRenderer from './MdTokenRenderer.vue';
 import { marked } from 'marked';
-import hljs from 'highlight.js';
 import SkldrVueMixin, { ISkldrMixin } from '@/mixins/SkldrVueMixin';
-import { SkldrComposable } from '@/mixins/SkldrComposable';
 
 type SkldrToken =
   | marked.Token
@@ -34,27 +32,14 @@ export default defineComponent({
   props: {
     md: {
       type: String as PropType<string>,
-      required: true
-    }
+      required: true,
+    },
   },
   computed: {
-    testRoute(): boolean {
-      if (this.$route.path === '/md') {
-        (this as any).md = 'test md'; // Type safety note: prop mutation
-        return true;
-      }
-      return false;
-    },
     tokens(): SkldrToken[] {
-      const tokens = marked.lexer(this.md);
-      if (this.testRoute) {
-        tokens.forEach(t => {
-          (this as ISkldrMixin).log(JSON.stringify(t));
-        });
-      }
-      return tokens;
-    }
-  }
+      return marked.lexer(this.md);
+    },
+  },
 });
 </script>
 
