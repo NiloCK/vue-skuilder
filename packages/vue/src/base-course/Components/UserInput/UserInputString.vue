@@ -23,24 +23,20 @@ export default defineComponent({
   name: 'UserInputString',
   mixins: [SkldrVueMixin],
   extends: UserInput,
-  
+
   props: {
     icon: {
       type: Boolean,
       required: false,
-      default: true
-    }
+      default: true,
+    },
   },
 
   computed: {
     prependIcon(): string {
       return this.icon ? 'edit' : '';
-    }
+    },
   },
-
-  mounted() {
-    this.$el.focus();
-  }
 });
 </script>
 
