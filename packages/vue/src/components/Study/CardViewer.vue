@@ -14,69 +14,73 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable from '@/base-course/Viewable';
 import Courses from '@/courses';
 import { CardRecord } from '@/db/types';
-import SkldrVue from '@/SkldrVue';
 import { CourseElo } from '@/tutor/Elo';
-import Vue, { VueConstructor } from 'vue';
-import { Component, Emit, Prop } from 'vue-property-decorator';
+import type { VueConstructor } from 'vue';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 
-@Component({
+export default defineComponent({
+  name: 'CardViewer',
+  
   components: Courses.allViews(),
-})
-export default class CardViewer extends SkldrVue {
-  @Prop({
-    required: false,
-    default: 0,
-  })
-  public sessionOrder: number;
-  @Prop({
-    required: true,
-    default: '',
-  })
-  public card_id: PouchDB.Core.DocumentId;
-  @Prop({
-    required: true,
-    default: '',
-  })
-  public course_id: string;
-  @Prop() public view: VueConstructor<Viewable>;
-  @Prop() public data: ViewData[];
-  @Prop({
-    default: () => {
-      return {
+  
+  mixins: [SkldrVueMixin],
+
+  props: {
+    sessionOrder: {
+      type: Number,
+      required: false,
+      default: 0
+    },
+    card_id: {
+      type: String,
+      required: true,
+      default: ''
+    },
+    course_id: {
+      type: String,
+      required: true,
+      default: ''
+    },
+    view: {
+      type: Object as () => VueConstructor<Viewable>,
+      required: true
+    },
+    data: {
+      type: Array as () => ViewData[],
+      required: true
+    },
+    user_elo: {
+      type: Object as () => CourseElo,
+      default: () => ({
         global: {
           score: 1000,
-          count: 0,
+          count: 0
         },
         tags: {},
-        misc: {},
-      };
+        misc: {}
+      })
     },
-  })
-  public user_elo: CourseElo = {
-    global: {
-      score: 1000,
-      count: 0,
-    },
-    tags: {},
-    misc: {},
-  };
-  @Prop({
-    default: 1000,
-  })
-  public card_elo: number;
+    card_elo: {
+      type: Number,
+      default: 1000
+    }
+  },
 
-  @Emit('emitResponse')
-  private processResponse(r: CardRecord) {
-    this.log(`
+  methods: {
+    processResponse(r: CardRecord): void {
+      this.log(`
         Card was displayed at ${r.timeStamp}
         User spent ${r.timeSpent} milliseconds with the card.
-        `);
+      `);
+      this.$emit('emitResponse', r);
+    }
   }
-}
+});
 </script>
 
 <style scoped>
