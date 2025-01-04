@@ -1,3 +1,4 @@
+const { exit } = require('process');
 const { readdir, readFile, writeFile } = require('fs/promises');
 const { join } = require('path');
 const { execSync } = require('child_process');
@@ -148,6 +149,8 @@ Please convert the following Vue 2 class-based component to either Options API o
 
 Part of a migration effort toward Vue 3 and Vuetify 3.
 
+The project is currently on Vue 2.7.16 - the latest available 2.x build, with migration features enabled.
+
 # Requirements:
 
 - Only modify the <script> section of the component
@@ -193,7 +196,7 @@ async function checkoutOptionsBranch() {
       console.warn(
         'Warning: Working tree is not clean. Commit or stash changes before proceeding.'
       );
-      return;
+      exit();
     }
 
     // Create and switch to options-convert branch
@@ -203,17 +206,25 @@ async function checkoutOptionsBranch() {
     console.warn('Not a git repository or git error occurred:', JSON.stringify(error));
   }
 }
-
+let count = 0;
 async function convertFile(filepath: string) {
   try {
     // Read and parse the Vue file
     const content = await readFile(filepath, 'utf-8');
+    await checkoutOptionsBranch();
 
     // Check if file is class-based
     if (!content.includes('vue-class-component') && !content.includes('vue-property-decorator')) {
       console.log('Skipping conversion for', filepath, 'as it is not a class-based component');
       return;
     }
+
+    count++;
+    if (count > 2) {
+      console.log(`Dry-run complete`);
+    }
+    const filename = filepath.replace(/^.*[\\\/]/, '').replace('.vue', '');
+    const branchName = `convert-v2-${filename}`;
 
     // Check for git repository and clean working tree
     try {
@@ -227,8 +238,6 @@ async function convertFile(filepath: string) {
         return;
       }
 
-      const filename = filepath.replace(/^.*[\\\/]/, '').replace('.vue', '');
-      const branchName = `convert-${filename}`;
       // Create and switch to conversion branch
       execSync(`git checkout -b ${branchName}`);
       console.log(`Created and switched to branch: ${branchName}`);
@@ -302,16 +311,24 @@ async function convertFile(filepath: string) {
     console.log(`Converted ${filepath}`);
 
     try {
-      const commitMessage = `refactor: convert ${filepath} from class-based to Options/Composition API`;
+      const commitMessage = `refactor: convert ${filepath} from class-based to Options/Composition API
+
+Summary:
+${summary || '(none)'}
+
+Warnings:
+${warnings || '(none)'}`;
+
       execSync('git add .');
       execSync(`git commit -m "${commitMessage}"`);
       console.log(`Committed changes for ${filepath}`);
 
-      execSync('git push origin HEAD');
+      execSync(`git push -u origin ${branchName}`);
       console.log(`Pushed branch for ${filepath}`);
 
       // Generate pull request
-      execSync('gh pr create --fill --base options-convert');
+      execSync(`gh pr create --fill --base options-convert --head ${branchName}`);
+      console.log(`Pull request created for ${filepath}`);
 
       checkoutOptionsBranch();
       console.log('Switched back to main branch');
