@@ -18,19 +18,25 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 import UserInput from './UserInput';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 
-@Component({})
-export default class UserInputNumber extends UserInput {
-  public mounted() {
+export default defineComponent({
+  name: 'UserInputNumber',
+  mixins: [SkldrVueMixin],
+  extends: UserInput,
+  
+  mounted() {
     this.$el.focus();
-  }
+  },
 
-  private strToNumber(num: string): number {
-    return Number.parseFloat(num);
+  methods: {
+    strToNumber(num: string): number {
+      return Number.parseFloat(num);
+    }
   }
-}
+});
 </script>
 
 <style scoped>
