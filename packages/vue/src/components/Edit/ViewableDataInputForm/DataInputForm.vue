@@ -471,11 +471,11 @@ export default class DataInputForm extends SkldrVue {
   }
 
   private getElo(): CourseElo | undefined {
-    this.fieldInputs.forEach((f) => {
+    for (const f of this.fieldInputs) {
       if (f.generateELO) {
         return f.generateELO();
       }
-    });
+    }
     return undefined;
   }
 
