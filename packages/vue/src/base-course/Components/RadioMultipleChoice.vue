@@ -14,98 +14,111 @@
 </template>
 
 <script lang="ts">
-import UserInput from '@/base-course/Components/UserInput/UserInput';
-import { Component, Prop } from 'vue-property-decorator';
+import { defineComponent, ref, onMounted, onBeforeMount, PropType } from 'vue';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 import MultipleChoiceOption from './MultipleChoiceOption.vue';
 import { Answer } from '../Displayable';
+import type { UserInputEmits, UserInputProps } from '@/base-course/Components/UserInput/UserInput';
 
 export interface RadioSelectAnswer extends Answer {
   choiceList: string[];
   selection: number;
 }
 
-@Component({
+export default defineComponent({
+  name: 'RadioSelect',
   components: {
     MultipleChoiceOption,
   },
-})
-export default class RadioSelect extends UserInput {
-  @Prop({
-    required: true,
-  })
-  public choiceList: string[];
-  @Prop() public MouseTrap: any;
+  props: {
+    choiceList: {
+      type: Array as PropType<string[]>,
+      required: true
+    },
+    MouseTrap: {
+      type: Object,
+      required: true
+    },
+    ...UserInputProps
+  },
+  emits: [...UserInputEmits],
+  setup(props, { emit }) {
+    const { log, error, warn } = SkldrComposable();
+    const currentSelection = ref(-1);
+    const incorrectSelections = ref<number[]>([]);
 
-  public currentSelection: number = -1;
-  public incorrectSelections: number[] = [];
-
-  public mounted() {
-    this.$el.focus();
-  }
-
-  public created() {
-    this.MouseTrap.bind('left', this.decrementSelection);
-    this.MouseTrap.bind('right', this.incrementSelection);
-    this.MouseTrap.bind('enter', this.forwardSelection);
-
-    for (let i = 0; i < this.choiceList.length; i++) {
-      this.bindNumberKey(i + 1);
-    }
-  }
-
-  public forwardSelection(): void {
-    if (this.choiceIsWrong(this.choiceList[this.currentSelection])) {
-      return; // do not 'resubmit' greyed-out choices
-    } else if (this.currentSelection !== -1) {
-      const ans: RadioSelectAnswer = {
-        choiceList: this.choiceList,
-        selection: this.currentSelection,
-      };
-      const record = this.submitAnswer(ans);
-
-      if (!record.isCorrect) {
-        this.incorrectSelections.push(this.currentSelection);
+    const setSelection = (selection: number): void => {
+      if (selection < props.choiceList.length) {
+        currentSelection.value = selection;
       }
-    }
-  }
+    };
 
-  public setSelection(selection: number): void {
-    if (selection < this.choiceList.length) {
-      this.currentSelection = selection;
-    }
-  }
+    const forwardSelection = (): void => {
+      if (choiceIsWrong(props.choiceList[currentSelection.value])) {
+        return;
+      } else if (currentSelection.value !== -1) {
+        const ans: RadioSelectAnswer = {
+          choiceList: props.choiceList,
+          selection: currentSelection.value,
+        };
+        const record = emit('submit-answer', ans);
+        
+        if (!record?.isCorrect) {
+          incorrectSelections.value.push(currentSelection.value);
+        }
+      }
+    };
 
-  public incrementSelection() {
-    // alert('increment');
-    if (this.currentSelection === -1) {
-      this.currentSelection = Math.ceil(this.choiceList.length / 2);
-    } else {
-      this.currentSelection = Math.min(this.choiceList.length - 1, this.currentSelection + 1);
-    }
-  }
+    const incrementSelection = () => {
+      if (currentSelection.value === -1) {
+        currentSelection.value = Math.ceil(props.choiceList.length / 2);
+      } else {
+        currentSelection.value = Math.min(props.choiceList.length - 1, currentSelection.value + 1);
+      }
+    };
 
-  public decrementSelection() {
-    if (this.currentSelection === -1) {
-      this.currentSelection = Math.floor(this.choiceList.length / 2 - 1);
-    } else {
-      this.currentSelection = Math.max(0, this.currentSelection - 1);
-    }
-  }
+    const decrementSelection = () => {
+      if (currentSelection.value === -1) {
+        currentSelection.value = Math.floor(props.choiceList.length / 2 - 1);
+      } else {
+        currentSelection.value = Math.max(0, currentSelection.value - 1);
+      }
+    };
 
-  public choiceIsWrong(choice: string): boolean {
-    let ret: boolean = false;
-    this.incorrectSelections.forEach((sel) => {
-      if (this.choiceList[sel] === choice) {
-        ret = true;
+    const choiceIsWrong = (choice: string): boolean => {
+      return incorrectSelections.value.some(
+        (sel) => props.choiceList[sel] === choice
+      );
+    };
+
+    const bindNumberKey = (n: number): void => {
+      props.MouseTrap.bind(n.toString(), () => {
+        currentSelection.value = n - 1;
+      });
+    };
+
+    onMounted(() => {
+      // Focus equivalent
+      document.querySelector('.multipleChoice')?.focus();
+    });
+
+    onBeforeMount(() => {
+      props.MouseTrap.bind('left', decrementSelection);
+      props.MouseTrap.bind('right', incrementSelection);
+      props.MouseTrap.bind('enter', forwardSelection);
+
+      for (let i = 0; i < props.choiceList.length; i++) {
+        bindNumberKey(i + 1);
       }
     });
-    return ret;
-  }
 
-  private bindNumberKey(n: number): void {
-    this.MouseTrap.bind(n.toString(), () => {
-      this.currentSelection = n - 1;
-    });
+    return {
+      currentSelection,
+      incorrectSelections,
+      setSelection,
+      forwardSelection,
+      choiceIsWrong
+    };
   }
-}
+});
 </script>
