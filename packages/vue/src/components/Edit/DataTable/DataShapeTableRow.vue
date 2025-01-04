@@ -7,15 +7,23 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 
-@Component
-export default class DataShapeTableRows extends Vue {
-  @Prop() private dataShape: DataShape;
-  @Prop() private data: {};
-}
+export default {
+  name: 'DataShapeTableRows',
+  mixins: [SkldrVueMixin],
+  props: {
+    dataShape: {
+      type: Object as () => DataShape,
+      required: true
+    },
+    data: {
+      type: Object,
+      required: true
+    }
+  }
+};
 </script>
 
 <style scoped>
