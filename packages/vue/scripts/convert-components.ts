@@ -220,7 +220,7 @@ async function convertFile(filepath: string) {
     }
 
     count++;
-    if (count > 2) {
+    if (count > 5) {
       console.log(`Dry-run complete`);
       exit();
     }
