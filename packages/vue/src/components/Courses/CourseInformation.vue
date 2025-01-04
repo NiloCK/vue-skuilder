@@ -58,72 +58,92 @@
 <script lang="ts">
 import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
 import { log } from 'util';
-import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
 import { getCourseDB } from '@/db';
 import { CourseDB, getCourseConfig, getCourseTagStubs } from '@/db/courseDB';
-import { Tag } from '@/db/types';
-import { CourseConfig } from '@/server/types';
-import SkldrVue from '@/SkldrVue';
+import type { Tag } from '@/db/types';
+import type { CourseConfig } from '@/server/types';
 import CourseCardBrowser from './CourseCardBrowser.vue';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
+import { defineComponent, ref, computed, onCreated } from '@vue/composition-api';
 
-@Component({
-  components: { MidiConfig, CourseCardBrowser },
-})
-export default class CourseInformation extends SkldrVue {
-  @Prop({ required: true }) private _id: string;
-  private courseDB: CourseDB;
+export default defineComponent({
+  name: 'CourseInformation',
+  
+  components: { 
+    MidiConfig, 
+    CourseCardBrowser 
+  },
 
-  private get isPianoCourse(): boolean {
-    return this._courseConfig.name.toLowerCase().includes('piano');
-  }
+  mixins: [SkldrVueMixin],
 
-  private nameRules: Array<(value: string) => string | boolean> = [
-    (value) => {
-      const max = 30;
-      if (value.length > max) {
-        return `Course name must be ${max} characters or less`;
-      } else {
-        return true;
+  props: {
+    _id: {
+      type: String,
+      required: true
+    }
+  },
+
+  setup(props) {
+    const courseDB = ref<CourseDB | null>(null);
+    const _courseConfig = ref<CourseConfig | null>(null);
+    const userIsRegistered = ref(false);
+    const tags = ref<Tag[]>([]);
+    const updatePending = ref(true);
+
+    const nameRules = [
+      (value: string) => {
+        const max = 30;
+        return value.length <= max || `Course name must be ${max} characters or less`;
       }
-    },
-  ];
+    ];
 
-  private updatePending: boolean = true;
+    const isPianoCourse = computed(() => 
+      _courseConfig.value?.name.toLowerCase().includes('piano') || false
+    );
 
-  private _courseConfig: CourseConfig;
-  public userIsRegistered: boolean = false;
-  private tags: Tag[] = [];
+    onCreated(async () => {
+      courseDB.value = new CourseDB(props._id);
 
-  private async created() {
-    this.courseDB = new CourseDB(this._id);
+      const userCourses = await this.$store.state._user!.getCourseRegistrationsDoc();
+      userIsRegistered.value = userCourses.courses.filter(c => 
+        c.courseID === props._id && (c.status === 'active' || c.status === undefined)
+      ).length === 1;
 
-    const userCourses = await this.$store.state._user!.getCourseRegistrationsDoc();
-    this.userIsRegistered =
-      userCourses.courses.filter((c) => {
-        return c.courseID === this._id && (c.status === 'active' || c.status === undefined);
-      }).length === 1;
-    const db = await getCourseDB(this._id);
-    this._courseConfig = (await getCourseConfig(this._id))!;
-    this.tags = (await getCourseTagStubs(this._id)).rows.map((r) => r.doc!);
-    this.updatePending = false;
+      await getCourseDB(props._id);
+      _courseConfig.value = (await getCourseConfig(props._id))!;
+      tags.value = (await getCourseTagStubs(props._id)).rows.map(r => r.doc!);
+      updatePending.value = false;
+    });
+
+    const register = async () => {
+      log(`Registering for ${props._id}`);
+      const res = await this.$store.state._user!.registerForCourse(props._id);
+      if (res.ok) {
+        userIsRegistered.value = true;
+      }
+    };
+
+    const drop = async () => {
+      log(`Dropping course ${props._id}`);
+      const res = await this.$store.state._user!.dropCourse(props._id);
+      if (res.ok) {
+        userIsRegistered.value = false;
+      }
+    };
+
+    return {
+      courseDB,
+      _courseConfig,
+      userIsRegistered,
+      tags,
+      updatePending,
+      nameRules,
+      isPianoCourse,
+      register,
+      drop
+    };
   }
-
-  private async register() {
-    log(`Registering for ${this._id}`);
-    const res = await this.$store.state._user!.registerForCourse(this._id);
-    if (res.ok) {
-      this.userIsRegistered = true;
-    }
-  }
-  private async drop() {
-    log(`Dropping course ${this._id}`);
-    const res = await this.$store.state._user!.dropCourse(this._id);
-    if (res.ok) {
-      this.userIsRegistered = false;
-    }
-  }
-}
+});
 </script>
 
 <style scoped>
