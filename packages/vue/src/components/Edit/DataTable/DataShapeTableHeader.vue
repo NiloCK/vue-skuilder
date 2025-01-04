@@ -7,16 +7,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
-import { DataShape } from '@/base-course/Interfaces/DataShape';
-// import Courses from '@/courses';
-// import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
+import type { DataShape } from '@/base-course/Interfaces/DataShape';
 
-@Component
-export default class DataShapeTableHeader extends Vue {
-  @Prop() private dataShape: DataShape;
-}
+defineProps<{
+  dataShape: DataShape
+}>();
 </script>
 
 <style scoped>
