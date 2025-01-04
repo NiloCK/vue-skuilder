@@ -26,9 +26,8 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
-import SkldrVue from '@/SkldrVue';
+import { defineComponent, ref, reactive, onCreated } from 'vue';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 import { CardHistory, CardRecord } from '@/db/types';
 import moment from 'moment';
 import { User } from '../db/userDB';
@@ -44,134 +43,141 @@ interface Color {
   l: number;
 }
 
-@Component({})
-export default class HeatMap extends SkldrVue {
-  heatmapData: { [key: string]: number } = {};
+export default defineComponent({
+  name: 'HeatMap',
+  setup() {
+    const { log } = SkldrComposable();
+    
+    const heatmapData = reactive<{ [key: string]: number }>({});
+    const weeks = ref<DayData[][]>([]);
+    const cellSize = 12;
+    const cellMargin = 3;
+    const width = 53 * (cellSize + cellMargin);
+    const height = 7 * (cellSize + cellMargin);
+    const tooltipData = ref<DayData | null>(null);
+    const tooltipStyle = reactive<{ [key: string]: string }>({});
+    const maxInRange = ref(0);
 
-  weeks: DayData[][] = [];
-  cellSize = 12;
-  cellMargin = 3;
-  width = 53 * (this.cellSize + this.cellMargin);
-  height = 7 * (this.cellSize + this.cellMargin);
-  tooltipData: DayData | null = null;
-  tooltipStyle: { [key: string]: string } = {};
-  maxInRange = 0;
+    const inactiveColor: Color = { h: 0, s: 0, l: 0.9 };
+    const activeColor: Color = { h: 155, s: 1, l: 0.5 };
 
-  inactiveColor: Color = { h: 0, s: 0, l: 0.9 };
-  activeColor: Color = { h: 155, s: 1, l: 0.5 };
+    const toDateString = (d: string): string => {
+      const m = moment(d);
+      return moment.months()[m.month()] + ' ' + m.date();
+    };
 
-  toDateString(d: string): string {
-    const m = moment(d);
-    return moment.months()[m.month()] + ' ' + m.date();
-  }
-
-  async created() {
-    this.log('Heatmap created');
-    const history = await (await User.instance()).getHistory();
-
-    let allHist: CardHistory<CardRecord>[] = [];
-    for (let i = 0; i < history.length; i++) {
-      if (history[i]) {
-        allHist.push(history[i]!);
-      }
-    }
-
-    this.processHistory(allHist);
-    this.createWeeksData();
-  }
-
-  processHistory(history: CardHistory<CardRecord>[]) {
-    this.log(`Processing ${history.length} records`);
-    const data: { [key: string]: number } = {};
-    history.forEach((item) => {
-      if (item && item.records) {
-        item.records.forEach((record: CardRecord) => {
-          const date = moment(record.timeStamp).format('YYYY-MM-DD');
-          data[date] = (data[date] || 0) + 1;
-        });
-      }
-    });
-    this.heatmapData = data;
-  }
-
-  createWeeksData() {
-    const end = moment();
-    const start = end.clone().subtract(52, 'weeks');
-    let day = start.clone().startOf('week');
-
-    while (day.isSameOrBefore(end)) {
-      const weekData: DayData[] = [];
-      for (let i = 0; i < 7; i++) {
-        const date = day.format('YYYY-MM-DD');
-        const dayData: DayData = {
-          date,
-          count: this.heatmapData[date] || 0,
-        };
-        weekData.push(dayData);
-        if (dayData.count > this.maxInRange) {
-          this.maxInRange = dayData.count;
+    const processHistory = (history: CardHistory<CardRecord>[]) => {
+      log(`Processing ${history.length} records`);
+      const data: { [key: string]: number } = {};
+      history.forEach((item) => {
+        if (item && item.records) {
+          item.records.forEach((record: CardRecord) => {
+            const date = moment(record.timeStamp).format('YYYY-MM-DD');
+            data[date] = (data[date] || 0) + 1;
+          });
         }
+      });
+      Object.assign(heatmapData, data);
+    };
 
-        day.add(1, 'day');
+    const createWeeksData = () => {
+      const end = moment();
+      const start = end.clone().subtract(52, 'weeks');
+      let day = start.clone().startOf('week');
+
+      while (day.isSameOrBefore(end)) {
+        const weekData: DayData[] = [];
+        for (let i = 0; i < 7; i++) {
+          const date = day.format('YYYY-MM-DD');
+          const dayData: DayData = {
+            date,
+            count: heatmapData[date] || 0,
+          };
+          weekData.push(dayData);
+          if (dayData.count > maxInRange.value) {
+            maxInRange.value = dayData.count;
+          }
+          day.add(1, 'day');
+        }
+        weeks.value.push(weekData);
       }
-      this.weeks.push(weekData);
-    }
-  }
+    };
 
-  getColor(count: number): string {
-    if (this.maxInRange === 0) return this.hslToString(this.inactiveColor);
+    const interpolate = (start: number, end: number, t: number): number => {
+      return start + (end - start) * t;
+    };
 
-    // avoid murky greys by using 0.5 as a floor for non-zero counts
-    const t = count === 0 ? 0 : Math.min((2 * count) / this.maxInRange, 1);
+    const hslToString = (color: Color): string => {
+      return `hsl(${color.h}, ${color.s * 100}%, ${color.l * 100}%)`;
+    };
 
-    let seasonalColor: Color = this.activeColor;
+    const getColor = (count: number): string => {
+      if (maxInRange.value === 0) return hslToString(inactiveColor);
 
-    const now = moment();
-    if (now.month() === 11 && now.date() >= 5) {
-      // Christmas December
-      seasonalColor =
-        Math.random() > 0.5
-          ? { h: 350, s: 0.8, l: 0.5 } // Festive red
-          : { h: 135, s: 0.8, l: 0.4 }; // Festive green
-    } else if (now.month() === 9 && now.date() >= 25) {
-      // halloween October
-      seasonalColor =
-        Math.random() > 0.5
-          ? { h: 0, s: 0, l: 0 } // black
+      const t = count === 0 ? 0 : Math.min((2 * count) / maxInRange.value, 1);
+      let seasonalColor: Color = activeColor;
+
+      const now = moment();
+      if (now.month() === 11 && now.date() >= 5) {
+        seasonalColor = Math.random() > 0.5
+          ? { h: 350, s: 0.8, l: 0.5 }
+          : { h: 135, s: 0.8, l: 0.4 };
+      } else if (now.month() === 9 && now.date() >= 25) {
+        seasonalColor = Math.random() > 0.5
+          ? { h: 0, s: 0, l: 0 }
           : Math.random() > 0.5
-          ? { h: 30, s: 1, l: 0.5 } // orange
-          : { h: 270, s: 1, l: 0.5 }; // purple
-    }
+            ? { h: 30, s: 1, l: 0.5 }
+            : { h: 270, s: 1, l: 0.5 };
+      }
 
-    // const h = this.interpolate(this.inactiveColor.h, seasonalColor.h, t);
-    const h = seasonalColor.h; // keep hue constant - only change the `pop` of the color
-    const s = this.interpolate(this.inactiveColor.s, seasonalColor.s, t);
-    const l = this.interpolate(this.inactiveColor.l, seasonalColor.l, t);
+      const h = seasonalColor.h;
+      const s = interpolate(inactiveColor.s, seasonalColor.s, t);
+      const l = interpolate(inactiveColor.l, seasonalColor.l, t);
 
-    return this.hslToString({ h, s, l });
-  }
+      return hslToString({ h, s, l });
+    };
 
-  private interpolate(start: number, end: number, t: number): number {
-    return start + (end - start) * t;
-  }
+    const showTooltip = (day: DayData, event: MouseEvent) => {
+      tooltipData.value = day;
+      Object.assign(tooltipStyle, {
+        position: 'absolute',
+        left: `${event.pageX + 10}px`,
+        top: `${event.pageY + 10}px`,
+      });
+    };
 
-  private hslToString(color: Color): string {
-    return `hsl(${color.h}, ${color.s * 100}%, ${color.l * 100}%)`;
-  }
+    const hideTooltip = () => {
+      tooltipData.value = null;
+    };
 
-  showTooltip(day: DayData, event: MouseEvent) {
-    this.tooltipData = day;
-    this.tooltipStyle = {
-      position: 'absolute',
-      left: `${event.pageX + 10}px`,
-      top: `${event.pageY + 10}px`,
+    onCreated(async () => {
+      log('Heatmap created');
+      const history = await (await User.instance()).getHistory();
+      let allHist: CardHistory<CardRecord>[] = [];
+      for (let i = 0; i < history.length; i++) {
+        if (history[i]) {
+          allHist.push(history[i]!);
+        }
+      }
+      processHistory(allHist);
+      createWeeksData();
+    });
+
+    return {
+      weeks,
+      cellSize,
+      cellMargin,
+      width,
+      height,
+      tooltipData,
+      tooltipStyle,
+      toDateString,
+      getColor,
+      showTooltip,
+      hideTooltip
     };
   }
-
-  hideTooltip() {
-    this.tooltipData = null;
-  }
-}
+});
 </script>
 
 <style scoped>
