@@ -38,7 +38,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Ref } from 'vue-property-decorator';
+import { defineComponent, ref, computed, onMounted, nextTick } from 'vue';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 import { FieldInput } from '../FieldInput';
 import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
@@ -50,156 +51,150 @@ interface MediaItem {
   thumbnailUrl?: string;
 }
 
-type MDDURefs = FieldInput['$refs'] & {
-  fileInput: HTMLInputElement;
-};
+export default defineComponent({
+  name: 'MediaDragDropUploader',
+  extends: FieldInput,
+  setup() {
+    const { log } = SkldrComposable();
+    const isDragging = ref(false);
+    const mediaItems = ref<MediaItem[]>([]);
+    const fileInput = ref<HTMLInputElement>();
 
-@Component
-export default class MediaDragDropUploader extends FieldInput {
-  isDragging = false;
-  mediaItems: MediaItem[] = [];
+    const hasMedia = computed(() => mediaItems.value.length > 0);
 
-  declare $refs: MDDURefs;
+    const updateStore = () => {
+      // Clear existing entries first
+      for (let i = 1; i <= 10; i++) {
+        this.$delete(this.store, `image-${i}`);
+        this.$delete(this.store, `audio-${i}`);
+      }
 
-  get hasMedia(): boolean {
-    return this.mediaItems.length > 0;
-  }
-
-  created() {
-    this.validate();
-  }
-
-  dragOverHandler(event: DragEvent) {
-    event.preventDefault();
-  }
-
-  dragEnterHandler(event: DragEvent) {
-    event.preventDefault();
-    this.isDragging = true;
-  }
-
-  dragLeaveHandler(event: DragEvent) {
-    event.preventDefault();
-    this.isDragging = false;
-  }
-
-  dropHandler(event: DragEvent) {
-    event.preventDefault();
-    this.isDragging = false;
-    const files = event.dataTransfer?.files;
-    if (files) {
-      this.processFiles(files);
-    }
-  }
-
-  triggerFileInput() {
-    (this.$refs.fileInput as HTMLInputElement).click();
-  }
-
-  handleFileInput(event: Event) {
-    const files = (event.target as HTMLInputElement).files;
-    if (files) {
-      this.processFiles(files);
-    }
-  }
-
-  processFiles(files: FileList) {
-    Array.from(files).forEach((file) => {
-      this.addMediaItem(file);
-    });
-    this.updateStore();
-  }
-
-  addMediaItem(file: File) {
-    const type = file.type.startsWith('image/') ? 'image' : 'audio';
-    const item: MediaItem = {
-      type,
-      file,
-      url: URL.createObjectURL(file),
+      // Then add current items
+      let imageCount = 0;
+      let audioCount = 0;
+      mediaItems.value.forEach((item) => {
+        if (item.type === 'image') {
+          imageCount++;
+          this.store[`image-${imageCount}`] = {
+            content_type: item.file.type,
+            data: item.file,
+          };
+        } else if (item.type === 'audio') {
+          audioCount++;
+          this.store[`audio-${audioCount}`] = {
+            content_type: item.file.type,
+            data: item.file,
+          };
+        }
+      });
+      validate();
     };
 
-    if (type === 'image') {
-      this.createThumbnail(file).then((thumbnailUrl) => {
-        item.thumbnailUrl = thumbnailUrl;
-
-        // update render, because mediaItems.push() has likely already completed
-        this.$nextTick(() => {
-          this.$forceUpdate();
-        });
+    const processFiles = (files: FileList) => {
+      Array.from(files).forEach((file) => {
+        addMediaItem(file);
       });
-    }
+      updateStore();
+    };
 
-    this.mediaItems.push(item);
-  }
+    const createThumbnail = async (file: File): Promise<string> => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e: ProgressEvent<FileReader>) => {
+          resolve(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      });
+    };
 
-  async createThumbnail(file: File): Promise<string> {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e: ProgressEvent<FileReader>) => {
-        resolve(e.target?.result as string);
+    const addMediaItem = (file: File) => {
+      const type = file.type.startsWith('image/') ? 'image' : 'audio';
+      const item: MediaItem = {
+        type,
+        file,
+        url: URL.createObjectURL(file),
       };
-      reader.readAsDataURL(file);
-    });
-  }
 
-  removeMedia(index: number) {
-    URL.revokeObjectURL(this.mediaItems[index].url);
-    this.mediaItems.splice(index, 1);
-    this.updateStore();
-  }
-
-  public clearData() {
-    this.mediaItems.forEach((item) => {
-      URL.revokeObjectURL(item.url);
-    });
-    this.mediaItems = [];
-    this.updateStore();
-    // set validation to `ok` for blank input
-    this.validate();
-  }
-
-  addMoreMedia() {
-    this.log('addMoreMedia');
-    this.triggerFileInput();
-  }
-
-  updateStore() {
-    // Clear existing entries first
-    for (let i = 1; i <= 10; i++) {
-      this.$delete(this.store, `image-${i}`);
-      this.$delete(this.store, `audio-${i}`);
-    }
-
-    // Then add current items
-    let imageCount = 0;
-    let audioCount = 0;
-    this.mediaItems.forEach((item) => {
-      if (item.type === 'image') {
-        imageCount++;
-        this.store[`image-${imageCount}`] = {
-          content_type: item.file.type,
-          data: item.file,
-        };
-      } else if (item.type === 'audio') {
-        audioCount++;
-        this.store[`audio-${audioCount}`] = {
-          content_type: item.file.type,
-          data: item.file,
-        };
+      if (type === 'image') {
+        createThumbnail(file).then((thumbnailUrl) => {
+          item.thumbnailUrl = thumbnailUrl;
+          nextTick(() => {
+            this.$forceUpdate();
+          });
+        });
       }
-    });
-    this.validate();
-  }
 
-  public getValidators() {
-    return [
-      () => ({
-        status: this.mediaItems.length > 0 ? Status.ok : Status.error,
-        msg: this.mediaItems.length > 0 ? '' : 'At least one media item is required',
-      }),
-    ];
-  }
-}
+      mediaItems.value.push(item);
+    };
+
+    const removeMedia = (index: number) => {
+      URL.revokeObjectURL(mediaItems.value[index].url);
+      mediaItems.value.splice(index, 1);
+      updateStore();
+    };
+
+    const clearData = () => {
+      mediaItems.value.forEach((item) => {
+        URL.revokeObjectURL(item.url);
+      });
+      mediaItems.value = [];
+      updateStore();
+      validate();
+    };
+
+    const triggerFileInput = () => {
+      fileInput.value?.click();
+    };
+
+    const handleFileInput = (event: Event) => {
+      const files = (event.target as HTMLInputElement).files;
+      if (files) {
+        processFiles(files);
+      }
+    };
+
+    const validate = () => ({
+      status: mediaItems.value.length > 0 ? Status.ok : Status.error,
+      msg: mediaItems.value.length > 0 ? '' : 'At least one media item is required',
+    });
+
+    onMounted(() => {
+      validate();
+    });
+
+    return {
+      isDragging,
+      mediaItems,
+      fileInput,
+      hasMedia,
+      triggerFileInput,
+      handleFileInput,
+      removeMedia,
+      clearData,
+      processFiles,
+      validate,
+      dragOverHandler: (event: DragEvent) => {
+        event.preventDefault();
+      },
+      dragEnterHandler: (event: DragEvent) => {
+        event.preventDefault();
+        isDragging.value = true;
+      },
+      dragLeaveHandler: (event: DragEvent) => {
+        event.preventDefault();
+        isDragging.value = false;
+      },
+      dropHandler: (event: DragEvent) => {
+        event.preventDefault();
+        isDragging.value = false;
+        const files = event.dataTransfer?.files;
+        if (files) {
+          processFiles(files);
+        }
+      },
+    };
+  },
+});
 </script>
 
 <style scoped>
