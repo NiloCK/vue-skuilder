@@ -7,13 +7,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { InformationView } from '@/base-course/Viewable';
+import { defineComponent } from 'vue';
 import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
+import { InformationView } from '@/base-course/Viewable';
 import { Displayable } from '@/base-course/Displayable';
 import { FieldType } from '@/enums/FieldType';
 import { DataShapeName } from '@/enums/DataShapeNames';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 
+// Define the BasicCard class outside the component
 class BasicCard extends Displayable {
   public static dataShapes = [
     {
@@ -34,25 +36,41 @@ class BasicCard extends Displayable {
   public dataShapes() {
     return BasicCard.dataShapes;
   }
+  
   public views() {
     return [BasicView];
   }
 }
 
-// tslint:disable-next-line:max-classes-per-file
-@Component({
+// Convert to Options API
+export default defineComponent({
+  name: 'BasicView',
+  
   components: {
     UserInputNumber,
   },
-})
-export default class BasicView extends InformationView<BasicCard> {
-  public answer: string = '';
 
-  public get displayable() {
-    return new BasicCard(this.data);
-  }
-  public submit() {
-    // (no nag tslint!)
-  }
-}
+  mixins: [SkldrVueMixin],
+
+  data() {
+    return {
+      answer: ''
+    };
+  },
+
+  computed: {
+    displayable(): BasicCard {
+      return new BasicCard(this.data);
+    }
+  },
+
+  methods: {
+    submit(): void {
+      // (no nag tslint!)
+    }
+  },
+
+  // Type the component to extend InformationView
+  extends: InformationView
+});
 </script>
