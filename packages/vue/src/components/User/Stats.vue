@@ -10,61 +10,78 @@
 </template>
 
 <script lang="ts">
-import Vue, { VueConstructor } from 'vue';
-import { Component, Prop, Emit, Watch } from 'vue-property-decorator';
-import { log } from 'util';
-import SkldrVue from '../../SkldrVue';
+import { defineComponent, ref, computed, onCreated } from 'vue';
+import { useStore } from 'vuex';
 import confetti from 'canvas-confetti';
+import { useRoute } from 'vue-router';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 
-@Component({})
-export default class User extends SkldrVue {
-  @Prop({
-    required: true,
-  })
-  public _id: string;
-  private u = this.$store.state._user!;
-
-  public confetti: boolean = this.$store.state.config.likesConfetti;
-  public darkMode: boolean = this.$store.state.config.darkMode;
-
-  public scheduledReviews: number[] = [];
-
-  updateDark() {
-    this.u.setConfig({
-      darkMode: this.darkMode,
-    });
-    this.$store.state.config.darkMode = this.darkMode;
-  }
-
-  updateConfetti() {
-    this.log(`Confetti updated...`);
-    this.u.setConfig({
-      likesConfetti: this.confetti,
-    });
-    this.$store.state.config.likesConfetti = this.confetti;
-
-    if (this.$store.state.config.likesConfetti) {
-      confetti({
-        origin: {
-          x: 0.5,
-          y: 1,
-        },
-      });
+export default defineComponent({
+  name: 'User',
+  
+  props: {
+    _id: {
+      type: String,
+      required: true
     }
-  }
+  },
 
-  public get isNewUser(): boolean {
-    return this.$route.path.endsWith('new');
-  }
+  setup(props) {
+    const store = useStore();
+    const route = useRoute();
+    const { log } = SkldrComposable();
+    
+    const u = store.state._user!;
+    const scheduledReviews = ref<number[]>([]);
+    const confettiEnabled = ref(store.state.config.likesConfetti);
+    const darkMode = ref(store.state.config.darkMode);
 
-  async created() {
-    [1, 7, 30].forEach(async d => {
-      this.scheduledReviews.push(
-        (await this.u.getReviewsForcast(d)).length
-      );
-    })
+    const updateDark = () => {
+      u.setConfig({
+        darkMode: darkMode.value
+      });
+      store.state.config.darkMode = darkMode.value;
+    };
+
+    const updateConfetti = () => {
+      log('Confetti updated...');
+      u.setConfig({
+        likesConfetti: confettiEnabled.value
+      });
+      store.state.config.likesConfetti = confettiEnabled.value;
+
+      if (store.state.config.likesConfetti) {
+        confetti({
+          origin: {
+            x: 0.5,
+            y: 1
+          }
+        });
+      }
+    };
+
+    const isNewUser = computed(() => {
+      return route.path.endsWith('new');
+    });
+
+    onCreated(async () => {
+      for (const d of [1, 7, 30]) {
+        scheduledReviews.value.push(
+          (await u.getReviewsForcast(d)).length
+        );
+      }
+    });
+
+    return {
+      scheduledReviews,
+      confettiEnabled,
+      darkMode,
+      updateDark,
+      updateConfetti,
+      isNewUser
+    };
   }
-}
+});
 </script>
 
 <style scoped></style>
