@@ -62,141 +62,163 @@
 </template>
 
 <script lang="ts">
+import { ref, onCreated, defineComponent } from 'vue';
 import { getCredentialledCourseConfig } from '@/db/courseAPI';
 import { getTag, updateTag } from '@/db/courseDB';
 import { DocType, Tag } from '@/db/types';
 import { Status } from '@/enums/Status';
 import { CourseConfig } from '@/server/types';
-import SkldrVue from '@/SkldrVue';
-import { Component, Prop } from 'vue-property-decorator';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 import { alertUser } from '../SnackbarService.vue';
 import CourseCardBrowser from './CourseCardBrowser.vue';
 
-@Component({
+export default defineComponent({
+  name: 'TagInformation',
   components: { CourseCardBrowser },
-})
-export default class TagInformation extends SkldrVue {
-  @Prop({ required: true }) _id: string = '';
-  @Prop({ required: true }) _courseId: string = '';
-
-  public $refs: {
-    snippetEditor: HTMLInputElement;
-    wikiEditor: HTMLInputElement;
-  };
-
-  public snippetModel: string = '';
-  public editingSnippet: boolean = false;
-  public snippetSaving: boolean = false;
-
-  public wikiModel: string = '';
-  public editingWiki: boolean = false;
-  public wikiSaving: boolean = false;
-
-  public tag: Tag = {
-    course: this._courseId,
-    name: this._id,
-    snippet: '',
-    wiki: '',
-    taggedCards: [],
-    docType: DocType.TAG,
-  };
-  public course: CourseConfig = {
-    courseID: this._courseId,
-    name: '',
-    description: '',
-    public: false,
-    deleted: false,
-
-    dataShapes: [],
-    questionTypes: [],
-
-    creator: '',
-    admins: [],
-    moderators: [],
-  };
-
-  public editSnippet() {
-    this.log('EditSnip');
-    this.editingSnippet = true;
-    this.$refs.snippetEditor.focus(); // not doing anything
-  }
-  public editWiki() {
-    this.log('EditWiki');
-    this.editingWiki = true;
-    this.$refs.wikiEditor.focus(); // not doing anything
-  }
-
-  public async saveSnippet() {
-    this.snippetSaving = true;
-
-    const update = await updateTag({
-      ...this.tag,
-      snippet: this.snippetModel,
+  props: {
+    _id: {
+      type: String,
+      required: true
+    },
+    _courseId: {
+      type: String,
+      required: true
+    }
+  },
+  setup(props) {
+    const { log } = SkldrComposable();
+    const snippetEditor = ref<HTMLInputElement | null>(null);
+    const wikiEditor = ref<HTMLInputElement | null>(null);
+    
+    const snippetModel = ref('');
+    const editingSnippet = ref(false);
+    const snippetSaving = ref(false);
+    
+    const wikiModel = ref('');
+    const editingWiki = ref(false);
+    const wikiSaving = ref(false);
+    
+    const tag = ref<Tag>({
+      course: props._courseId,
+      name: props._id,
+      snippet: '',
+      wiki: '',
+      taggedCards: [],
+      docType: DocType.TAG,
+    });
+    
+    const course = ref<CourseConfig>({
+      courseID: props._courseId,
+      name: '',
+      description: '',
+      public: false,
+      deleted: false,
+      dataShapes: [],
+      questionTypes: [],
+      creator: '',
+      admins: [],
+      moderators: [],
     });
 
-    if (update.ok) {
-      this.log('OK');
-      // update local copy
-      this.tag.snippet = this.snippetModel;
-      alertUser({
-        text: `Updated applied - thanks!`,
-        status: Status.ok,
+    const editSnippet = () => {
+      log('EditSnip');
+      editingSnippet.value = true;
+      snippetEditor.value?.focus();
+    };
+
+    const editWiki = () => {
+      log('EditWiki');
+      editingWiki.value = true;
+      wikiEditor.value?.focus();
+    };
+
+    const saveSnippet = async () => {
+      snippetSaving.value = true;
+      
+      const update = await updateTag({
+        ...tag.value,
+        snippet: snippetModel.value,
       });
-    } else {
-      alertUser({
-        text: `error in applying update!`,
-        status: Status.error,
+
+      if (update.ok) {
+        log('OK');
+        tag.value.snippet = snippetModel.value;
+        alertUser({
+          text: `Updated applied - thanks!`,
+          status: Status.ok,
+        });
+      } else {
+        alertUser({
+          text: `error in applying update!`,
+          status: Status.error,
+        });
+      }
+
+      editingSnippet.value = false;
+      snippetSaving.value = false;
+    };
+
+    const saveWiki = async () => {
+      wikiSaving.value = true;
+
+      const update = await updateTag({
+        ...tag.value,
+        wiki: wikiModel.value,
       });
-    }
 
-    // leave edit-mode
-    this.editingSnippet = false;
-    this.snippetSaving = false;
-  }
+      if (update.ok) {
+        tag.value.wiki = wikiModel.value;
+        alertUser({
+          text: `Updated applied - thanks!`,
+          status: Status.ok,
+        });
+      } else {
+        alertUser({
+          text: `error in applying update!`,
+          status: Status.error,
+        });
+      }
 
-  public async saveWiki() {
-    this.wikiSaving = true;
+      editingWiki.value = false;
+      wikiSaving.value = false;
+    };
 
-    const update = await updateTag({
-      ...this.tag,
-      wiki: this.wikiModel,
+    const cancelEditSnippet = () => {
+      log('Cancelling EditSnip');
+      editingSnippet.value = false;
+      snippetModel.value = tag.value.snippet;
+    };
+
+    const cancelEditWiki = () => {
+      editingWiki.value = false;
+      wikiModel.value = tag.value.wiki;
+    };
+
+    onCreated(async () => {
+      tag.value = await getTag(props._courseId, props._id);
+      snippetModel.value = tag.value.snippet;
+      wikiModel.value = tag.value.wiki;
+      course.value = await getCredentialledCourseConfig(props._courseId);
     });
 
-    if (update.ok) {
-      // update local copy
-      this.tag.wiki = this.wikiModel;
-      alertUser({
-        text: `Updated applied - thanks!`,
-        status: Status.ok,
-      });
-    } else {
-      alertUser({
-        text: `error in applying update!`,
-        status: Status.error,
-      });
-    }
-
-    // leave edit-mode
-    this.editingWiki = false;
-    this.wikiSaving = false;
+    return {
+      snippetEditor,
+      wikiEditor,
+      snippetModel,
+      editingSnippet,
+      snippetSaving,
+      wikiModel,
+      editingWiki,
+      wikiSaving,
+      tag,
+      course,
+      editSnippet,
+      editWiki,
+      saveSnippet,
+      saveWiki,
+      cancelEditSnippet,
+      cancelEditWiki
+    };
   }
-
-  public cancelEditSnippet() {
-    this.log('Cancelling EditSnip');
-    this.editingSnippet = false;
-    // this.snippetModel = 'test';
-    this.snippetModel = this.tag.snippet;
-  }
-  public cancelEditWiki() {
-    this.editingWiki = false;
-    this.wikiModel = this.tag.wiki;
-  }
-
-  private async created() {
-    this.tag = await getTag(this._courseId, this._id);
-    this.snippetModel = this.tag.snippet;
-    this.wikiModel = this.tag.wiki;
-    this.course = await getCredentialledCourseConfig(this._courseId);
-  }
-}
+});
 </script>
