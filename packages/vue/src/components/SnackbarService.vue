@@ -18,12 +18,8 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import Component from 'vue-class-component';
+import { ref } from 'vue';
 import { Status } from '@/enums/Status';
-import { Prop, Watch } from 'vue-property-decorator';
-import { watch } from 'fs';
-import { log } from 'util';
 
 interface SnackbarOptions {
   text: string;
@@ -31,9 +27,36 @@ interface SnackbarOptions {
   timeout?: number;
 }
 
+// State
+const snacks = ref<SnackbarOptions[]>([]);
+const show = ref<boolean[]>([]);
+
+// Methods
+const addSnack = (snack: SnackbarOptions) => {
+  snacks.value.push(snack);
+  show.value.push(true);
+};
+
+const close = () => {
+  show.value.pop();
+  show.value.push(false);
+};
+
+const getColor = (snack: SnackbarOptions): string => {
+  if (snack.status === Status.ok) {
+    return 'success';
+  } else if (snack.status === Status.error) {
+    return 'error';
+  } else if (snack.status === Status.warning) {
+    return 'yellow';
+  }
+  return ''; // default fallback
+};
+
+// External utility function
 export function alertUser(msg: SnackbarOptions): void {
-  const snackBarService: SnackbarService = (document.getElementById('SnackbarService')! as any)
-    .__vue__ as SnackbarService;
+  const snackBarService = (document.getElementById('SnackbarService')! as any)
+    .__vue__;
 
   msg = {
     text: msg.text,
@@ -44,35 +67,8 @@ export function alertUser(msg: SnackbarOptions): void {
   snackBarService.addSnack(msg);
 }
 
-@Component
-export default class SnackbarService extends Vue {
-  /**
-   * A history of snacks served in this session.
-   *
-   * Possible future work: write these to localstorage/pouchdb
-   * for persistance
-   */
-  private snacks: SnackbarOptions[] = [];
-  private show: boolean[] = [];
-
-  public addSnack(snack: SnackbarOptions) {
-    this.snacks.push(snack);
-    this.show.push(true);
-  }
-
-  private close() {
-    this.show.pop();
-    this.show.push(false);
-  }
-
-  private getColor(snack: SnackbarOptions) {
-    if (snack.status === Status.ok) {
-      return 'success';
-    } else if (snack.status === Status.error) {
-      return 'error';
-    } else if (snack.status === Status.warning) {
-      return 'yellow';
-    }
-  }
-}
+// Expose methods for template and external access
+defineExpose({
+  addSnack
+});
 </script>
