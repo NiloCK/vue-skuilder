@@ -15,42 +15,62 @@
 </template>
 
 <script lang="ts">
-import { ViewData } from '@/base-course/Interfaces/ViewData';
-import Viewable from '@/base-course/Viewable';
+import { defineComponent, ref, computed, onMounted, onUnmounted } from 'vue';
+import type { ViewData } from '@/base-course/Interfaces/ViewData';
+import type Viewable from '@/base-course/Viewable';
 import CardViewer from '@/components/Study/CardViewer.vue';
-import SkldrVue from '@/SkldrVue';
-import { VueConstructor } from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import type { VueConstructor } from 'vue';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 
-@Component({
+export default defineComponent({
+  name: 'CardBrowser',
   components: {
     CardViewer,
   },
-})
-export default class CardBrowser extends SkldrVue {
-  @Prop() public views: Array<VueConstructor<Viewable>>;
-  @Prop() public data: ViewData[];
-  public viewIndex: number = 0;
-  public get spinner(): boolean {
-    return this.views.length > 1;
-  }
+  props: {
+    views: {
+      type: Array as () => Array<VueConstructor<Viewable>>,
+      required: true
+    },
+    data: {
+      type: Array as () => ViewData[],
+      required: true
+    }
+  },
+  setup(props) {
+    const { log } = SkldrComposable();
+    const viewIndex = ref(0);
+    
+    const spinner = computed(() => props.views.length > 1);
 
-  private created() {
-    this.log(`Card browser created. Cards now in 'prewviewMode'`);
-    this.$store.state.cardPreviewMode = true;
-  }
-  private destroyed() {
-    this.log(`Card browser destroyed. Cards no longer in 'prewviewMode'`);
-    this.$store.state.cardPreviewMode = false;
-  }
+    const incrementView = () => {
+      viewIndex.value++;
+      viewIndex.value = (viewIndex.value + props.views.length) % props.views.length;
+    };
 
-  private incrementView() {
-    this.viewIndex++;
-    this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
+    const decrementView = () => {
+      viewIndex.value--;
+      viewIndex.value = (viewIndex.value + props.views.length) % props.views.length;
+    };
+
+    onMounted(() => {
+      log(`Card browser created. Cards now in 'prewviewMode'`);
+      // Note: Direct store mutation should be avoided in Vue 3
+      // Consider using a mutation instead
+      window.$store.state.cardPreviewMode = true;
+    });
+
+    onUnmounted(() => {
+      log(`Card browser destroyed. Cards no longer in 'prewviewMode'`);
+      window.$store.state.cardPreviewMode = false;
+    });
+
+    return {
+      viewIndex,
+      spinner,
+      incrementView,
+      decrementView
+    };
   }
-  private decrementView() {
-    this.viewIndex--;
-    this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
-  }
-}
+});
 </script>
