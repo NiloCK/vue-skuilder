@@ -33,15 +33,15 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, ref } from 'vue';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
 import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
-import { Component } from 'vue-property-decorator';
 import WaveSurfer from 'wavesurfer.js';
-import { FieldInput } from '../FieldInput';
 import AudioInput from './AudioInput.vue';
 import ImageInput from './ImageInput.vue';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 var MediaStreamRecorder = require('msr');
 
 type MediaData = {
@@ -49,62 +49,90 @@ type MediaData = {
   fieldDef: FieldDefinition;
 };
 
-@Component({
+export default defineComponent({
+  name: 'MediaUploadInput',
+  
   components: {
     AudioInput,
     ImageInput,
   },
-})
-export default class MediaUploadInput extends FieldInput {
-  public get title(): string {
-    return this.field.name;
-  }
-  public clearData() {
-    this.audio = [];
-    this.image = [];
-  }
 
-  public audio: MediaData[] = [];
-  public image: MediaData[] = [];
+  props: {
+    field: {
+      type: Object as () => FieldDefinition,
+      required: true
+    },
+    store: {
+      type: Object,
+      required: true
+    },
+    uiValidationFunction: {
+      type: Function as () => ValidatingFunction,
+      required: true
+    },
+  },
 
-  private mediaRecorder: any;
-  private wavesurfer: WaveSurfer;
+  setup(props) {
+    const { log, error, warn } = SkldrComposable();
+    
+    const audio = ref<MediaData[]>([]);
+    const image = ref<MediaData[]>([]);
+    const mediaRecorder = ref<any>(null);
+    const wavesurfer = ref<WaveSurfer | null>(null);
 
-  newImage() {
-    const name = `image-${this.image.length + 1}`;
-    this.store[name] = {};
-    this.image.push({
-      data: new Blob(),
-      fieldDef: {
-        name,
-        type: FieldType.IMAGE,
-      },
-    });
-  }
+    const title = computed(() => props.field.name);
 
-  newAudio() {
-    const name = `audio-${this.audio.length + 1}`;
-    this.store[name] = {};
-    this.audio.push({
-      data: new Blob(),
-      fieldDef: {
-        name,
-        type: FieldType.AUDIO,
-      },
-    });
-    this.field;
-  }
-  public getValidators(): ValidatingFunction[] {
-    return [
-      () => {
-        return {
+    const clearData = () => {
+      audio.value = [];
+      image.value = [];
+    };
+
+    const newImage = () => {
+      const name = `image-${image.value.length + 1}`;
+      props.store[name] = {};
+      image.value.push({
+        data: new Blob(),
+        fieldDef: {
+          name,
+          type: FieldType.IMAGE,
+        },
+      });
+    };
+
+    const newAudio = () => {
+      const name = `audio-${audio.value.length + 1}`;
+      props.store[name] = {};
+      audio.value.push({
+        data: new Blob(),
+        fieldDef: {
+          name,
+          type: FieldType.AUDIO,
+        },
+      });
+    };
+
+    const getValidators = (): ValidatingFunction[] => {
+      return [
+        () => ({
           status: Status.ok,
           msg: '',
-        };
-      },
-    ];
+        }),
+      ];
+    };
+
+    return {
+      audio,
+      image,
+      mediaRecorder,
+      wavesurfer,
+      title,
+      clearData,
+      newImage,
+      newAudio,
+      getValidators
+    };
   }
-}
+});
 </script>
 
 <style scoped>
