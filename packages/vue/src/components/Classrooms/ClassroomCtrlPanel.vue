@@ -78,108 +78,112 @@
 </template>
 
 <script lang="ts">
+import { ref, onCreated, watch, computed } from 'vue';
 import moment from 'moment';
-import Component from 'vue-class-component';
-import { Prop, Watch } from 'vue-property-decorator';
 import TeacherClassroomDB, { AssignedContent, AssignedTag } from '@/db/classroomDB';
 import { getCourseList, getCourseTagStubs } from '@/db/courseDB';
 import { Tag } from '@/db/types';
 import { ClassroomConfig, CourseConfig } from '@/server/types';
-import SkldrVue from '@/SkldrVue';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
+import { useStore } from 'vuex';
 
-@Component({})
-export default class ClassroomCtrlPanel extends SkldrVue {
-  @Prop({ required: true }) private _id: string;
-  private _classroomCfg: ClassroomConfig;
+// Props
+const props = defineProps<{
+  _id: string;
+}>();
 
-  private classroomDB: TeacherClassroomDB;
+// Store
+const store = useStore();
 
-  private _assignedContent: AssignedContent[];
-  private get _assignedCourses() {
-    return this._assignedContent.filter(c => {
-      return c.type === 'course';
+// Base class functionality
+const { log } = SkldrComposable();
+
+// Component state
+const classroomDB = ref<TeacherClassroomDB>();
+const _classroomCfg = ref<ClassroomConfig>();
+const _assignedContent = ref<AssignedContent[]>([]);
+const updatePending = ref(true);
+const addingContent = ref(false);
+const availableCourses = ref<CourseConfig[]>([]);
+const selectedCourse = ref('');
+const availableTags = ref<Tag[]>([]);
+const selectedTags = ref<string[]>([]);
+
+// Computed properties
+const _assignedCourses = computed(() => 
+  _assignedContent.value.filter(c => c.type === 'course')
+);
+
+const _assignedTags = computed(() => 
+  _assignedContent.value.filter(c => c.type === 'tag') as AssignedTag[]
+);
+
+const nameRules = [
+  (value: string) => {
+    const max = 30;
+    return value.length <= max || `Course name must be ${max} characters or less`;
+  },
+];
+
+// Lifecycle hooks
+onCreated(async () => {
+  classroomDB.value = await TeacherClassroomDB.factory(props._id);
+  
+  await Promise.all([
+    _assignedContent.value = await classroomDB.value.getAssignedContent(),
+    _classroomCfg.value = await classroomDB.value.getConfig(),
+  ]);
+  
+  log(`Route loaded w/ (prop) _id: ${props._id}`);
+  log(`Config: ${JSON.stringify(_classroomCfg.value)}`);
+
+  availableCourses.value = (await getCourseList()).rows.map(r => r.doc!);
+  updatePending.value = false;
+});
+
+// Watchers
+watch(selectedCourse, async (newVal) => {
+  if (newVal) {
+    const tags = (await getCourseTagStubs(newVal)).rows.map(row => row.doc!);
+    availableTags.value = tags;
+  }
+});
+
+// Methods
+const assignContent = async () => {
+  if (selectedTags.value.length === 0) {
+    await classroomDB.value?.assignContent({
+      assignedOn: moment(),
+      activeOn: moment(),
+      type: 'course',
+      courseID: selectedCourse.value,
+      assignedBy: store.state._user!.username,
     });
-  }
-  private get _assignedTags() {
-    return this._assignedContent.filter(c => {
-      return c.type === 'tag';
-    }) as AssignedTag[];
-  }
-
-  private nameRules: Array<(value: string) => string | boolean> = [
-    value => {
-      const max = 30;
-      if (value.length > max) {
-        return `Course name must be ${max} characters or less`;
-      } else {
-        return true;
-      }
-    },
-  ];
-
-  private updatePending: boolean = true;
-
-  private addingContent: boolean = false;
-  private availableCourses: CourseConfig[] = [];
-  private selectedCourse: string = '';
-  private availableTags: Tag[] = [];
-  private selectedTags: string[] = [];
-
-  private async created() {
-    this.classroomDB = await TeacherClassroomDB.factory(this._id);
-    Promise.all([
-      (this._assignedContent = await this.classroomDB.getAssignedContent()),
-      (this._classroomCfg = await this.classroomDB.getConfig()),
-    ]);
-    this.log(`Route loaded w/ (prop) _id: ${this._id}`);
-    this.log(`Config: 
-    ${JSON.stringify(this._classroomCfg)}`);
-
-    this.availableCourses = (await getCourseList()).rows.map(r => r.doc!);
-
-    this.updatePending = false;
-  }
-
-  @Watch('selectedCourse')
-  private async getCourseTags() {
-    let tags = (await getCourseTagStubs(this.selectedCourse)).rows.map(row => row.doc!);
-    this.availableTags = tags;
-  }
-
-  private async assignContent() {
-    if (this.selectedTags.length === 0) {
-      await this.classroomDB.assignContent({
+  } else {
+    await Promise.all(selectedTags.value.map(tag => 
+      classroomDB.value?.assignContent({
         assignedOn: moment(),
         activeOn: moment(),
-        type: 'course',
-        courseID: this.selectedCourse,
-        assignedBy: this.$store.state._user!.username,
-      });
-    } else {
-      await this.selectedTags.forEach(tag => {
-        this.classroomDB.assignContent({
-          assignedOn: moment(),
-          activeOn: moment(),
-          type: 'tag',
-          courseID: this.selectedCourse,
-          tagID: tag,
-          assignedBy: this.$store.state._user!.username,
-        });
-      });
-    }
-
-    this._assignedContent = await this.classroomDB.getAssignedContent();
-    this.addingContent = false;
-    this.selectedCourse = '';
-    this.selectedTags = [];
-    this.availableTags = [];
-  }
-  private async removeContent(c: AssignedContent) {
-    this.classroomDB.removeContent(c);
+        type: 'tag',
+        courseID: selectedCourse.value,
+        tagID: tag,
+        assignedBy: store.state._user!.username,
+      })
+    ));
   }
 
-  private async submit() {
-    this.updatePending = true;
-  }
-}
+  _assignedContent.value = await classroomDB.value!.getAssignedContent();
+  addingContent.value = false;
+  selectedCourse.value = '';
+  selectedTags.value = [];
+  availableTags.value = [];
+};
+
+const removeContent = async (c: AssignedContent) => {
+  await classroomDB.value?.removeContent(c);
+};
+
+const submit = async () => {
+  updatePending.value = true;
+};
 </script>
