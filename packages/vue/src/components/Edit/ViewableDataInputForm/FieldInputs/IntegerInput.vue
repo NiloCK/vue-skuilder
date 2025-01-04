@@ -13,19 +13,23 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 import { integerValidator } from './typeValidators';
-// import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
 import { log } from 'util';
 import { FieldInput } from '../FieldInput';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 
-@Component({})
-export default class IntegerInput extends FieldInput {
-  public get validators() {
-    const ret = super.validators;
-    ret.unshift(integerValidator);
-    log(`validators for ${this.field.name} has ${ret.length} entries`);
-    return ret;
+export default defineComponent({
+  name: 'IntegerInput',
+  mixins: [FieldInput, SkldrVueMixin],
+  computed: {
+    validators() {
+      // @ts-expect-error - FieldInput mixin type not properly recognized
+      const parentValidators = this.$options.supers.FieldInput.computed.validators.call(this);
+      parentValidators.unshift(integerValidator);
+      log(`validators for ${this.field.name} has ${parentValidators.length} entries`);
+      return parentValidators;
+    }
   }
-}
+});
 </script>
