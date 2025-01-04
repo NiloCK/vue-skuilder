@@ -31,127 +31,77 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, ref, computed } from 'vue';
 import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
-import { Component } from 'vue-property-decorator';
 import { FieldInput } from '../FieldInput';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 
-@Component
-export default class ImageInput extends FieldInput {
-  isDragging = false;
-  private dragCounter = 0;
-  thumbnailUrl: string | null = null;
+export default defineComponent({
+  name: 'ImageInput',
+  extends: FieldInput,
+  mixins: [SkldrVueMixin],
+  
+  setup() {
+    const isDragging = ref(false);
+    const dragCounter = ref(0);
+    const thumbnailUrl = ref<string | null>(null);
+    const inputField = ref<HTMLInputElement | null>(null);
 
-  public dragOverHandler(ev: DragEvent) {
-    ev.preventDefault();
-  }
+    const blobInputID = computed(() => 'blobInput' + props.field.name);
+    
+    return {
+      isDragging,
+      dragCounter,
+      thumbnailUrl,
+      inputField,
+      blobInputID
+    };
+  },
 
-  public dragEnterHandler(ev: DragEvent) {
-    ev.preventDefault();
-    this.dragCounter++;
-    this.isDragging = true;
-  }
-
-  public dragLeaveHandler(ev: DragEvent) {
-    ev.preventDefault();
-    this.dragCounter--;
-    if (this.dragCounter === 0) {
-      this.isDragging = false;
-    }
-  }
-
-  public dropHandler(ev: DragEvent) {
-    if (ev) {
+  methods: {
+    dragOverHandler(ev: DragEvent) {
       ev.preventDefault();
+    },
 
-      this.isDragging = false;
-      this.dragCounter = 0;
+    dragEnterHandler(ev: DragEvent) {
+      ev.preventDefault();
+      this.dragCounter++;
+      this.isDragging = true;
+    },
 
-      if (ev.dataTransfer?.files.length) {
-        // Handle file drop
-        const file = ev.dataTransfer.files[0];
-        this.processDroppedFile(file);
-      } else if (ev.dataTransfer?.types.includes('text/plain') || ev.dataTransfer?.types.includes('text/uri-list')) {
-        // Handle image URL drop
-        const imgURL = ev.dataTransfer.getData('text');
-        this.fetchImg(imgURL);
-        this.log(`Dropped URL: ${imgURL}`);
-      } else {
-        this.error('Unsupported drop type');
+    dragLeaveHandler(ev: DragEvent) {
+      ev.preventDefault();
+      this.dragCounter--;
+      if (this.dragCounter === 0) {
+        this.isDragging = false;
       }
-    } else {
-      this.error('dropHandler triggered with no event');
-    }
-  }
+    },
 
-  private processDroppedFile(file: File) {
-    this.log(`
-Processing dropped file:
+    dropHandler(ev: DragEvent) {
+      if (ev) {
+        ev.preventDefault();
 
-Filename: ${file.name}
-File size: ${file.size}
-File type: ${file.type}
-`);
-    this.setData({
-      content_type: file.type,
-      data: file.slice(),
-    } as PouchDB.Core.FullAttachment);
-    this.createThumbnail(file);
-    this.validate();
-  }
+        this.isDragging = false;
+        this.dragCounter = 0;
 
-  private async fetchImg(url: string) {
-    try {
-      const img = await fetch(url, {
-        mode: 'no-cors',
-        'content-type': 'image',
-      } as any);
-      const blob = await (img.body as any).blob();
+        if (ev.dataTransfer?.files.length) {
+          const file = ev.dataTransfer.files[0];
+          this.processDroppedFile(file);
+        } else if (ev.dataTransfer?.types.includes('text/plain') || ev.dataTransfer?.types.includes('text/uri-list')) {
+          const imgURL = ev.dataTransfer.getData('text');
+          this.fetchImg(imgURL);
+          this.log(`Dropped URL: ${imgURL}`);
+        } else {
+          this.error('Unsupported drop type');
+        }
+      } else {
+        this.error('dropHandler triggered with no event');
+      }
+    },
 
-      const file = new File([blob], 'dropped_image', { type: blob.type });
-      this.setData({
-        content_type: file.type,
-        data: file.slice(),
-      });
-      this.createThumbnail(file);
-      this.validate();
-    } catch (error) {
-      this.error('Error fetching image:', error);
-    }
-  }
-
-  public dragHandler(ev: DragEvent) {
-    this.log(`Dragging... ${JSON.stringify(ev)}`);
-  }
-
-  public getValidators(): ValidatingFunction[] {
-    if (this.field.validator) {
-      return [this.field.validator.test];
-    } else {
-      return [];
-    }
-  }
-
-  private removeDragData(ev: DragEvent) {
-    if (ev.dataTransfer!.items) {
-      ev.dataTransfer!.items.clear();
-    } else {
-      ev.dataTransfer!.clearData();
-    }
-  }
-
-  private get blobInputID(): string {
-    return 'blobInput' + this.field.name;
-  }
-
-  private get blobInputElement(): HTMLInputElement {
-    return document.getElementById(this.blobInputID) as HTMLInputElement;
-  }
-
-  private async processInput() {
-    if (this.blobInputElement.files) {
-      const file = this.blobInputElement.files[0];
+    processDroppedFile(file: File) {
       this.log(`
-Processing input file:
+Processing dropped file:
 
 Filename: ${file.name}
 File size: ${file.size}
@@ -163,26 +113,85 @@ File type: ${file.type}
       } as PouchDB.Core.FullAttachment);
       this.createThumbnail(file);
       this.validate();
+    },
+
+    async fetchImg(url: string) {
+      try {
+        const img = await fetch(url, {
+          mode: 'no-cors',
+          'content-type': 'image',
+        } as any);
+        const blob = await (img.body as any).blob();
+
+        const file = new File([blob], 'dropped_image', { type: blob.type });
+        this.setData({
+          content_type: file.type,
+          data: file.slice(),
+        });
+        this.createThumbnail(file);
+        this.validate();
+      } catch (error) {
+        this.error('Error fetching image:', error);
+      }
+    },
+
+    dragHandler(ev: DragEvent) {
+      this.log(`Dragging... ${JSON.stringify(ev)}`);
+    },
+
+    getValidators(): ValidatingFunction[] {
+      if (this.field.validator) {
+        return [this.field.validator.test];
+      }
+      return [];
+    },
+
+    removeDragData(ev: DragEvent) {
+      if (ev.dataTransfer!.items) {
+        ev.dataTransfer!.items.clear();
+      } else {
+        ev.dataTransfer!.clearData();
+      }
+    },
+
+    async processInput() {
+      const element = document.getElementById(this.blobInputID) as HTMLInputElement;
+      if (element.files) {
+        const file = element.files[0];
+        this.log(`
+Processing input file:
+
+Filename: ${file.name}
+File size: ${file.size}
+File type: ${file.type}
+`);
+        this.setData({
+          content_type: file.type,
+          data: file.slice(),
+        } as PouchDB.Core.FullAttachment);
+        this.createThumbnail(file);
+        this.validate();
+      }
+    },
+
+    createThumbnail(file: File) {
+      const reader = new FileReader();
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        this.thumbnailUrl = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    },
+
+    clearImage() {
+      this.thumbnailUrl = null;
+      this.setData(null);
+      this.validate();
+      if (this.inputField) {
+        this.inputField.value = '';
+      }
     }
   }
-
-  private createThumbnail(file: File) {
-    const reader = new FileReader();
-    reader.onload = (e: ProgressEvent<FileReader>) => {
-      this.thumbnailUrl = e.target?.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  private clearImage() {
-    this.thumbnailUrl = null;
-    this.setData(null);
-    this.validate();
-    if (this.$refs.inputField) {
-      (this.$refs.inputField as HTMLInputElement).value = '';
-    }
-  }
-}
+});
 </script>
 
 <style scoped>
