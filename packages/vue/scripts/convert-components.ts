@@ -200,7 +200,7 @@ async function checkoutOptionsBranch() {
     execSync('git checkout -b options-convert');
     console.log('Created and switched to branch: options-convert');
   } catch (error) {
-    console.warn('Not a git repository or git error occurred:', error.message);
+    console.warn('Not a git repository or git error occurred:', JSON.stringify(error));
   }
 }
 
@@ -233,13 +233,12 @@ async function convertFile(filepath: string) {
       execSync(`git checkout -b ${branchName}`);
       console.log(`Created and switched to branch: ${branchName}`);
     } catch (error) {
-      console.warn('Not a git repository or git error occurred:', error.message);
+      console.warn('Not a git repository or git error occurred:', JSON.stringify(error));
       return;
     }
 
     // Make API call with your prompt
     const response = await fetch('https://api.anthropic.com/v1/messages', {
-      timeout: 30000,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
