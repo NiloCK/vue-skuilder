@@ -5,30 +5,36 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
+import { defineComponent, ref } from 'vue';
 
-@Component({})
-export default class TextSwap extends Vue {
-  @Prop({
-    type: Array,
-    required: true,
-  })
-  private text: string[];
-  private index: number = 0;
-
-  public next() {
-    if (this.text.length > 1) {
-      const previous = this.index;
-      // this.index = -1; // triggering animation
-      // this.index = previous;
-      while (this.index === previous) {
-        this.index = Math.floor(Math.random() * this.text.length);
-      }
+export default defineComponent({
+  name: 'TextSwap',
+  
+  props: {
+    text: {
+      type: Array as () => string[],
+      required: true,
     }
+  },
+
+  setup(props) {
+    const index = ref(0);
+
+    const next = () => {
+      if (props.text.length > 1) {
+        const previous = index.value;
+        while (index.value === previous) {
+          index.value = Math.floor(Math.random() * props.text.length);
+        }
+      }
+    };
+
+    return {
+      index,
+      next
+    };
   }
-}
+});
 </script>
 
 <style scoped>
