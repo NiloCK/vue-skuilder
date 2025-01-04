@@ -36,112 +36,110 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, ref, onMounted } from 'vue';
 import moment from 'moment';
 import Mousetrap from 'mousetrap';
 import { log } from 'util';
-import Component from 'vue-class-component';
-import SkldrVue from '../../SkldrVue';
 import { registerUserForClassroom } from '../../db/userDB';
 import { Status } from '../../enums/Status';
 import serverRequest from '../../server';
 import { ClassroomConfig, CreateClassroom, ServerRequestType } from '../../server/types';
 import { alertUser } from '../SnackbarService.vue';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 
-@Component({})
-export default class ClassroomEditor extends SkldrVue {
-  private mousetrap = new Mousetrap(this.$el);
+export default defineComponent({
+  name: 'ClassroomEditor',
+  
+  setup(props, { emit }) {
+    const { log } = SkldrComposable();
+    const mousetrap = ref<Mousetrap>();
+    const peerAssist = ref(true);
+    const name = ref('');
+    const birthYear = ref<number | undefined>(undefined);
+    const updatePending = ref(false);
+    const birthYears = ref<Array<{ text: string; value: number }>>([]);
 
-  private peerAssist: boolean = true;
-  private name: string = '';
-  private birthYear: number | undefined = undefined;
+    const nameRules = [
+      (value: string) => {
+        const max = 30;
+        return value.length <= max || `Course name must be ${max} characters or less`;
+      },
+    ];
 
-  private id: string = '';
-  private nameRules: Array<(value: string) => string | boolean> = [
-    (value) => {
-      const max = 30;
-      if (value.length > max) {
-        return `Course name must be ${max} characters or less`;
-      } else {
-        return true;
-      }
-    },
-  ];
-  private description: string = '';
-
-  private banner?: Blob = undefined;
-  private thumb?: Blob = undefined;
-
-  private updatePending: boolean = false;
-
-  private birthYears: Array<{
-    text: string;
-    value: number;
-  }> = [];
-
-  private created() {
-    this.mousetrap.bind('esc', this.clearFormAndDismiss);
-
-    const year: number = moment().year();
-
-    this.birthYears.push({
-      text: `< ${year - 17} (Adult Students)`,
-      value: 0,
-    });
-
-    for (let age = 17; age >= 6; age--) {
-      this.birthYears.push({
-        text: `${year - age} (Grade ${age - 5})`,
-        value: year - age,
-      });
-    }
-
-    this.birthYears.push({
-      text: `>${year - 6} (K or younger)`,
-      value: year - 5,
-    });
-  }
-
-  private async submit() {
-    this.updatePending = true;
-
-    const config: ClassroomConfig = {
-      name: this.name,
-      teachers: [this.$store.state._user!.username],
-      students: [],
-      birthYear: this.birthYear,
-      classMeetingSchedule: '',
-      peerAssist: this.peerAssist,
-      joinCode: '',
+    const clearFormAndDismiss = () => {
+      name.value = '';
+      emit('ClassroomEditingComplete');
     };
 
-    log(`Class Config:
-    ${JSON.stringify(config)}`);
+    const submit = async () => {
+      updatePending.value = true;
 
-    const result = await serverRequest<CreateClassroom>({
-      data: config,
-      type: ServerRequestType.CREATE_CLASSROOM,
-      response: null,
-      user: this.$store.state._user!.username,
-    });
+      const config: ClassroomConfig = {
+        name: name.value,
+        teachers: [useStore().state._user!.username],
+        students: [],
+        birthYear: birthYear.value,
+        classMeetingSchedule: '',
+        peerAssist: peerAssist.value,
+        joinCode: '',
+      };
 
-    if (result.response) {
-      alertUser({
-        text: `Class created successfully. Join code: ${result.response.joincode}`,
-        status: Status.ok,
+      log(`Class Config: ${JSON.stringify(config)}`);
+
+      const result = await serverRequest<CreateClassroom>({
+        data: config,
+        type: ServerRequestType.CREATE_CLASSROOM,
+        response: null,
+        user: useStore().state._user!.username,
       });
 
-      registerUserForClassroom(this.$store.state._user!.username, result.response.uuid, 'teacher');
-    }
+      if (result.response) {
+        alertUser({
+          text: `Class created successfully. Join code: ${result.response.joincode}`,
+          status: Status.ok,
+        });
 
-    this.clearFormAndDismiss();
-    this.updatePending = false;
+        registerUserForClassroom(useStore().state._user!.username, result.response.uuid, 'teacher');
+      }
+
+      clearFormAndDismiss();
+      updatePending.value = false;
+    };
+
+    onMounted(() => {
+      mousetrap.value = new Mousetrap(document.body);
+      mousetrap.value.bind('esc', clearFormAndDismiss);
+
+      const year: number = moment().year();
+
+      birthYears.value.push({
+        text: `< ${year - 17} (Adult Students)`,
+        value: 0,
+      });
+
+      for (let age = 17; age >= 6; age--) {
+        birthYears.value.push({
+          text: `${year - age} (Grade ${age - 5})`,
+          value: year - age,
+        });
+      }
+
+      birthYears.value.push({
+        text: `>${year - 6} (K or younger)`,
+        value: year - 5,
+      });
+    });
+
+    return {
+      peerAssist,
+      name,
+      birthYear,
+      nameRules,
+      updatePending,
+      birthYears,
+      submit,
+      clearFormAndDismiss
+    };
   }
-
-  private clearFormAndDismiss() {
-    this.name = '';
-    this.description = '';
-
-    this.$emit('ClassroomEditingComplete');
-  }
-}
+});
 </script>
