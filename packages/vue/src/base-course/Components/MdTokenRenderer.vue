@@ -168,6 +168,18 @@ export default defineComponent({
       is: string;
       text: string;
     } {
+      // [ ] switching on component types & loading custom component
+      //
+      // sketch:
+      // const demoustached = token.text.slice(2, token.text.length - 2);
+      // const firstToken = demoustached.split(' ')[0];
+      // if (firstToken.charAt(firstToken.length - 1) == '>') {
+      //   return {
+      //     is: firstToken.slice(0, firstToken.length - 1),
+      //     text: demoustached.slice(firstToken.length + 1, demoustached.length),
+      //   };
+      // }
+
       return {
         is: 'fillIn',
         text: token.text,
