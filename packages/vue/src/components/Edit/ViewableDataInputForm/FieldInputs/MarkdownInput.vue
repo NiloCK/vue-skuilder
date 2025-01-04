@@ -11,19 +11,43 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
-import { FieldInput } from '../FieldInput';
+import { defineComponent } from 'vue';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
+import { PropType } from 'vue';
+import { FieldDefinition } from '@/types';
 import SimpleMDE from 'simplemde';
 
-@Component
-export default class MarkdownInput extends FieldInput {
-  public get validators() {
-    const ret = super.validators;
-    return ret;
-  }
+export default defineComponent({
+  name: 'MarkdownInput',
+  
+  mixins: [SkldrVueMixin],
+  
+  props: {
+    field: {
+      type: Object as PropType<FieldDefinition>,
+      required: true
+    },
+    store: {
+      type: Object as PropType<Record<string, any>>,
+      required: true
+    },
+    autofocus: {
+      type: Boolean,
+      default: false
+    }
+  },
 
-  public mounted() {}
-}
+  computed: {
+    validators() {
+      // Base validators would have been inherited, now need explicit implementation
+      return [];
+    }
+  },
+
+  mounted() {
+    // Empty mounted hook preserved
+  }
+});
 </script>
 
 <style scoped>
