@@ -44,9 +44,9 @@ export abstract class FieldInput extends SkldrVue {
     this.$refs.inputField.focus();
   }
 
-  public userInput = () => {
+  public userInput() {
     return this.store[this.field.name];
-  };
+  }
 
   public setData(data: any) {
     this.store[this.field.name] = data;
