@@ -15,25 +15,33 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 import UserInput from './UserInput';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 
-@Component({})
-export default class UserInputString extends UserInput {
-  @Prop({
-    required: false,
-    default: true,
-  })
-  public icon: boolean;
+export default defineComponent({
+  name: 'UserInputString',
+  mixins: [SkldrVueMixin],
+  extends: UserInput,
+  
+  props: {
+    icon: {
+      type: Boolean,
+      required: false,
+      default: true
+    }
+  },
 
-  private get prependIcon(): string {
-    return this.icon ? 'edit' : '';
-  }
+  computed: {
+    prependIcon(): string {
+      return this.icon ? 'edit' : '';
+    }
+  },
 
-  public mounted() {
+  mounted() {
     this.$el.focus();
   }
-}
+});
 </script>
 
 <style scoped>
