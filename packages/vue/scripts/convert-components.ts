@@ -225,7 +225,7 @@ async function convertFile(filepath: string) {
       exit();
     }
     const filename = filepath.replace(/^.*[\\\/]/, '').replace('.vue', '');
-    const branchName = `convert-v2-${filename}`;
+    const branchName = `convert-v3-${filename}`;
 
     // Check for git repository and clean working tree
     try {
