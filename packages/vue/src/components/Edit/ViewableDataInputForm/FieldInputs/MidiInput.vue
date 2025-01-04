@@ -20,98 +20,89 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
-import { FieldInput } from '../FieldInput';
+import { ref, onCreated } from 'vue';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 import SkMidi, {
   eventsToSyllableSequence,
   SyllableSequence,
   transposeSyllableSeq,
-} from '../../../../courses/piano/utility/midi';
-import SyllableSeqVis from '../../../../courses/piano/utility/SyllableSeqVis.vue';
+} from '@/courses/piano/utility/midi';
+import SyllableSeqVis from '@/courses/piano/utility/SyllableSeqVis.vue';
+import type { FieldInputProps } from '../FieldInput';
 
-@Component({
-  components: {
-    SyllableSeqVis,
-  },
-})
-export default class MidiInput extends FieldInput {
-  public midi: SkMidi;
-  public recording: boolean = false;
-  public SylSeq: SyllableSequence = eventsToSyllableSequence([]);
-  public display: boolean = false;
-  public transpositions: boolean = false;
+// Props inherited from FieldInput
+const props = defineProps<FieldInputProps>();
 
-  public declare $refs: {
-    inputVis: SyllableSeqVis;
-    inputField: HTMLInputElement;
-  };
+// Setup composable
+const { log } = SkldrComposable();
 
-  async created() {
-    try {
-      this.midi = await SkMidi.instance();
-      this.record();
+// Refs
+const inputVis = ref<InstanceType<typeof SyllableSeqVis>>();
+const midi = ref<SkMidi>();
+const recording = ref(false);
+const SylSeq = ref<SyllableSequence>(eventsToSyllableSequence([]));
+const display = ref(false);
+const transpositions = ref(false);
 
-      // this.store[this.field.name] = this.midi.recording;
-      this.store[this.field.name] = this.getTransposedSeqs;
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  public record() {
-    this.midi.record();
-    this.midi.addNoteonListenter(e => {
-      this.SylSeq.append(e);
-      this.$refs.inputVis.updateBounds();
+// Methods
+const getTransposedSeqs = () => {
+  if (transpositions.value) {
+    return [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6].map(shift => {
+      return transposeSyllableSeq(midi.value!.recording, shift);
     });
-    this.recording = true;
   }
+  return [midi.value!.recording];
+};
 
-  public getTransposedSeqs() {
-    if (this.transpositions) {
-      return [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6].map(shift => {
-        return transposeSyllableSeq(this.midi.recording, shift);
-      });
-    } else {
-      return [this.midi.recording];
+const record = () => {
+  midi.value!.record();
+  midi.value!.addNoteonListenter(e => {
+    SylSeq.value.append(e);
+    inputVis.value?.updateBounds();
+  });
+  recording.value = true;
+};
+
+const clearData = () => {
+  log('midiInput clearing data...');
+  midi.value!.stopRecording();
+  midi.value!.eraseRecording();
+  SylSeq.value = eventsToSyllableSequence([]);
+  record();
+  recording.value = true;
+
+  props.store.convertedInput[props.field.name] = midi.value!.recording;
+  props.store.validation[props.field.name] = false;
+  props.store[props.field.name] = getTransposedSeqs;
+};
+
+const hasRecording = (): boolean => {
+  if (midi.value) {
+    if (midi.value.hasRecording) {
+      return midi.value.hasRecording;
     }
   }
+  return false;
+};
 
-  public clearData() {
-    this.log('midiInput clearing data...');
-    this.midi.stopRecording();
-    this.midi.eraseRecording();
-    this.SylSeq = eventsToSyllableSequence([]);
-    this.record();
-    this.recording = true;
+const reset = () => {
+  clearData();
+};
 
-    this.store.convertedInput[this.field.name] = this.midi.recording;
-    this.store.validation[this.field.name] = false;
+const play = () => {
+  midi.value!.play();
+  display.value = true;
+  validate();
+};
 
-    // this.store[this.field.name] = this.midi.recording;
-    this.store[this.field.name] = this.getTransposedSeqs;
+// Lifecycle
+onCreated(async () => {
+  try {
+    midi.value = await SkMidi.instance();
+    record();
+    props.store[props.field.name] = getTransposedSeqs;
+  } catch (e) {
+    throw e;
   }
-
-  public hasRecording(): boolean {
-    // return this.midi.hasRecording;
-    if (this.midi) {
-      if (this.midi.hasRecording) {
-        return this.midi.hasRecording;
-      }
-    }
-    return false;
-  }
-
-  public reset() {
-    this.clearData();
-  }
-
-  public play() {
-    this.midi.play();
-    // this.SylSeq = eventsToSyllableSequence(this.midi.recording);
-    this.display = true;
-    // this.log(eventsToSyllableSequence(this.midi.recording).toString());
-    this.validate();
-  }
-}
+});
 </script>
