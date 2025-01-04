@@ -74,9 +74,9 @@ export abstract class FieldInput extends SkldrVue {
     return this.field.tagger ? this.field.tagger(this.userInput()) : [];
   }
 
-  public generateELO(): CourseElo | null {
+  public generateELO(): CourseElo | undefined {
     this.log('Running generic generateELO() in FieldInput.ts');
-    return this.field.generateELO ? this.field.generateELO(this.userInput()) : null;
+    return this.field.generateELO ? this.field.generateELO(this.userInput()) : undefined;
   }
 
   public validate() {
