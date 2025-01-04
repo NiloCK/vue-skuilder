@@ -48,13 +48,14 @@
         v-bind:last="last && token.tokens.length === 1 && j === splitParagraphToken(token).length - 1"
       />
     </span>
-    <md-token-renderer
-      v-for="(subTok, j) in token.tokens"
-      v-bind:key="j"
-      v-bind:token="subTok"
-      v-else
-      v-bind:last="last && token.tokens.length === 1"
-    />
+    <template v-else>
+      <md-token-renderer
+        v-for="(subTok, j) in token.tokens"
+        v-bind:key="j"
+        v-bind:token="subTok"
+        v-bind:last="last && token.tokens.length === 1"
+      />
+    </template>
   </p>
 
   <a v-else-if="token.type === 'link'" :href="token.href" :title="token.title">
