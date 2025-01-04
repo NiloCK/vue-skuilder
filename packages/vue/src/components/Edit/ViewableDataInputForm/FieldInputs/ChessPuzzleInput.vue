@@ -1,7 +1,7 @@
 <template>
   <v-text-field
     ref="inputField"
-    box
+    filled
     v-model="store[field.name]"
     v-bind:name="field.name"
     v-bind:label="field.name"
