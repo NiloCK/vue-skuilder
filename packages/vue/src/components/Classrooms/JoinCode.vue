@@ -14,31 +14,53 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, ref, PropType } from 'vue';
+import { useRouter } from 'vue-router';
 import { log } from 'util';
-import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
-import SkldrVue from '../../SkldrVue';
 import TeacherClassroomDB from '../../db/classroomDB';
 import { ClassroomConfig } from '../../server/types';
+import SkldrVueMixin from '../../mixins/SkldrVueMixin';
+import { SkldrComposable } from '../../mixins/SkldrComposable';
 
-@Component({})
-export default class JoinCode extends SkldrVue {
-  @Prop({ required: true }) private _id: string;
+export default defineComponent({
+  name: 'JoinCode',
+  mixins: [SkldrVueMixin],
+  
+  props: {
+    _id: {
+      type: String as PropType<string>,
+      required: true
+    }
+  },
 
-  private _classroomCfg: ClassroomConfig;
-  private classroomDB: TeacherClassroomDB;
-  private updatePending: boolean = true;
+  setup(props) {
+    const router = useRouter();
+    const { log: skldrLog } = SkldrComposable();
+    
+    const _classroomCfg = ref<ClassroomConfig | null>(null);
+    const classroomDB = ref<TeacherClassroomDB | null>(null);
+    const updatePending = ref(true);
 
-  private async created() {
-    this.classroomDB = await TeacherClassroomDB.factory(this._id);
-    Promise.all([(this._classroomCfg = await this.classroomDB.getConfig())]);
-    log(`Route loaded w/ (prop) _id: ${this._id}`);
-    log(`Config: 
-    ${JSON.stringify(this._classroomCfg)}`);
-    this.updatePending = false;
+    const created = async () => {
+      classroomDB.value = await TeacherClassroomDB.factory(props._id);
+      _classroomCfg.value = await classroomDB.value.getConfig();
+      
+      log(`Route loaded w/ (prop) _id: ${props._id}`);
+      log(`Config: ${JSON.stringify(_classroomCfg.value)}`);
+      updatePending.value = false;
+    };
+
+    const close = () => {
+      router.back();
+    };
+
+    created(); // Call created immediately in setup
+
+    return {
+      _classroomCfg,
+      updatePending,
+      close
+    };
   }
-  private close() {
-    this.$router.back();
-  }
-}
+});
 </script>
