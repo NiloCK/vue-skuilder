@@ -10,11 +10,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import { defineComponent, computed, PropType } from 'vue';
 import MdTokenRenderer from './MdTokenRenderer.vue';
-import { marked, Tokenizer } from 'marked';
+import { marked } from 'marked';
 import hljs from 'highlight.js';
-import SkldrVue from '@/SkldrVue';
+import SkldrVueMixin, { ISkldrMixin } from '@/mixins/SkldrVueMixin';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 
 type SkldrToken =
   | marked.Token
@@ -23,45 +24,38 @@ type SkldrToken =
       audio: string;
     };
 
-@Component({
+// Using Options API with mixin
+export default defineComponent({
+  name: 'MarkdownRenderer',
   components: {
     MdTokenRenderer,
   },
-})
-export default class MarkdownRenderer extends SkldrVue {
-  @Prop({
-    required: true,
-    type: String,
-  })
-  md: string;
-
-  public get testRoute(): boolean {
-    // this.log(`Route: ${this.$route.path}`);
-
-    if (this.$route.path === '/md') {
-      this.md = 'test md';
-      return true;
-    } else {
+  mixins: [SkldrVueMixin],
+  props: {
+    md: {
+      type: String as PropType<string>,
+      required: true
+    }
+  },
+  computed: {
+    testRoute(): boolean {
+      if (this.$route.path === '/md') {
+        (this as any).md = 'test md'; // Type safety note: prop mutation
+        return true;
+      }
       return false;
+    },
+    tokens(): SkldrToken[] {
+      const tokens = marked.lexer(this.md);
+      if (this.testRoute) {
+        tokens.forEach(t => {
+          (this as ISkldrMixin).log(JSON.stringify(t));
+        });
+      }
+      return tokens;
     }
   }
-
-  public get tokens(): SkldrToken[] {
-    // marked.setOptions({
-    //   highlight: (code, lang, cb) => {
-    //     this.log(`highlighting!`);
-    //     hljs.highlight(lang, code)
-    //   }
-    // })
-    const tokens = marked.lexer(this.md);
-    if (this.testRoute) {
-      tokens.forEach(t => {
-        this.log(JSON.stringify(t));
-      });
-    }
-    return tokens;
-  }
-}
+});
 </script>
 
 <style lang="css" scoped></style>
