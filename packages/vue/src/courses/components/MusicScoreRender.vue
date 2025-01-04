@@ -3,18 +3,21 @@
 </template>
 
 <script lang="ts">
+// Options API Version
 import abc from 'abcjs';
-import Component from 'vue-class-component';
-import { Prop, Vue } from 'vue-property-decorator';
 
-@Component({})
-export default class MusicScoreRenderer extends Vue {
-  @Prop() public abcString: string;
-
-  public mounted() {
+export default {
+  name: 'MusicScoreRenderer',
+  props: {
+    abcString: {
+      type: String,
+      required: true
+    }
+  },
+  mounted() {
     abc.renderAbc('abc', this.abcString);
   }
-}
+};
 </script>
 
 <style>
