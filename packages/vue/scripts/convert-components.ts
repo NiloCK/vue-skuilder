@@ -200,7 +200,7 @@ async function checkoutOptionsBranch() {
     }
 
     // Create and switch to options-convert branch
-    execSync('git checkout -b options-convert');
+    execSync('git checkout options-convert');
     console.log('Created and switched to branch: options-convert');
   } catch (error) {
     console.warn('Not a git repository or git error occurred:', JSON.stringify(error));
