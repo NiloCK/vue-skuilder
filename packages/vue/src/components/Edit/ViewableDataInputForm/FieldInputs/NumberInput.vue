@@ -13,16 +13,21 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
+// Composition API Version
+import { defineComponent } from 'vue';
 import { numberValidator } from './typeValidators';
-import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
+import FieldInput from '@/components/Edit/ViewableDataInputForm/FieldInput';
+import { SkldrComposable } from '@/mixins/SkldrComposable';
 
-@Component({})
-export default class NumberInput extends FieldInput {
-  public get validators() {
-    const ret = super.validators;
-    ret.unshift(numberValidator);
-    return ret;
-  }
-}
+const props = defineProps({
+  ...FieldInput.props // Inheriting props from FieldInput
+});
+
+const { log, error, warn } = SkldrComposable();
+
+// Extend validators from parent
+const validators = computed(() => {
+  const parentValidators = FieldInput.setup?.(props)?.validators || [];
+  return [numberValidator, ...parentValidators];
+});
 </script>
