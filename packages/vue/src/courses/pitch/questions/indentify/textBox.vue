@@ -40,7 +40,7 @@ export default class IdentifyChroma extends QuestionView<ChromaQuestion> {
     return ret;
   }
   public created() {
-    this.octaves(295).forEach(t => this.tone(t));
+    this.octaves(295).forEach((t) => this.tone(t));
     // this.tone(3520) // audible
     // this.tone(1760) // audible
     // this.tone(880) // audible
@@ -56,7 +56,7 @@ export default class IdentifyChroma extends QuestionView<ChromaQuestion> {
     osc.frequency.value = freq;
 
     let g = this.ctx.createGain();
-    this.log('Max Gain: ' + g.gain.maxValue);
+    console.log('Max Gain: ' + g.gain.maxValue);
     // g.gain.value = 0.01;
     g.gain.setValueAtTime(0, 0);
     // g.gain.setValueAtTime(0.025, 1);

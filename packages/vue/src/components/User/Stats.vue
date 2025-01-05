@@ -2,9 +2,9 @@
   <div>
     <h2>Stats!</h2>
     One day: {{ scheduledReviews[0] }}
-    <br>
+    <br />
     Seven day: {{ scheduledReviews[1] }}
-    <br>
+    <br />
     Thirty Day: {{ scheduledReviews[2] }}
   </div>
 </template>
@@ -37,7 +37,7 @@ export default class User extends SkldrVue {
   }
 
   updateConfetti() {
-    this.log(`Confetti updated...`);
+    console.log(`Confetti updated...`);
     this.u.setConfig({
       likesConfetti: this.confetti,
     });
@@ -58,11 +58,9 @@ export default class User extends SkldrVue {
   }
 
   async created() {
-    [1, 7, 30].forEach(async d => {
-      this.scheduledReviews.push(
-        (await this.u.getReviewsForcast(d)).length
-      );
-    })
+    [1, 7, 30].forEach(async (d) => {
+      this.scheduledReviews.push((await this.u.getReviewsForcast(d)).length);
+    });
   }
 }
 </script>

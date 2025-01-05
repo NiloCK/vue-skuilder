@@ -61,7 +61,7 @@ export abstract class FieldInput extends SkldrVue {
 
   public vuetifyRules() {
     if (this.field.validator) {
-      return this.validators.map(f => {
+      return this.validators.map((f) => {
         return validationFunctionToVuetifyRule(f);
       });
     } else {
@@ -70,12 +70,12 @@ export abstract class FieldInput extends SkldrVue {
   }
 
   public generateTags = () => {
-    this.log('Running generic generateTags() in FieldInput.ts');
+    console.log('[FieldInput] Running generic generateTags() in FieldInput.ts');
     return this.field.tagger ? this.field.tagger(this.userInput()) : [];
   };
 
   public generateELO: () => CourseElo | null = () => {
-    this.log('Running generic generateELO() in FieldInput.ts');
+    console.log('[FieldInput] Running generic generateELO() in FieldInput.ts');
     return this.field.generateELO ? this.field.generateELO(this.userInput()) : null;
   };
 
@@ -93,7 +93,7 @@ export abstract class FieldInput extends SkldrVue {
     let index = 0;
     while (ret.status === Status.ok && index < validators.length) {
       ret = validators[index](this.userInput());
-      this.log(`validation[${index}]\n ${ret.status}\n  ${ret.msg}`);
+      console.log(`[FieldInput] validation[${index}]\n ${ret.status}\n  ${ret.msg}`);
       index++;
     }
 

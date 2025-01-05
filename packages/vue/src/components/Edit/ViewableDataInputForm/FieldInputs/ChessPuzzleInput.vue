@@ -46,14 +46,14 @@ export default class ChessPuzzleInput extends FieldInput {
     };
 
     const tags = this.generateTags();
-    tags.forEach(t => {
+    tags.forEach((t) => {
       crsElo.tags[t] = {
         score: elo,
         count,
       };
     });
 
-    this.log('generateELO', JSON.stringify(crsElo));
+    console.log('generateELO', JSON.stringify(crsElo));
 
     return crsElo;
   };
@@ -63,7 +63,7 @@ export default class ChessPuzzleInput extends FieldInput {
     const themes = split[7].split(' ');
     const openingTags = split[9].split(' ');
 
-    return themes.map(t => `theme-${t}`).concat(openingTags.map(t => `opening-${t}`));
+    return themes.map((t) => `theme-${t}`).concat(openingTags.map((t) => `opening-${t}`));
   };
 }
 </script>

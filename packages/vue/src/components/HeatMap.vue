@@ -66,7 +66,7 @@ export default class HeatMap extends SkldrVue {
   }
 
   async created() {
-    this.log('Heatmap created');
+    console.log('Heatmap created');
     const history = await (await User.instance()).getHistory();
 
     let allHist: CardHistory<CardRecord>[] = [];
@@ -81,7 +81,7 @@ export default class HeatMap extends SkldrVue {
   }
 
   processHistory(history: CardHistory<CardRecord>[]) {
-    this.log(`Processing ${history.length} records`);
+    console.log(`Processing ${history.length} records`);
     const data: { [key: string]: number } = {};
     history.forEach((item) => {
       if (item && item.records) {

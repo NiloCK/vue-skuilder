@@ -96,18 +96,18 @@ export default class ClassroomCtrlPanel extends SkldrVue {
 
   private _assignedContent: AssignedContent[];
   private get _assignedCourses() {
-    return this._assignedContent.filter(c => {
+    return this._assignedContent.filter((c) => {
       return c.type === 'course';
     });
   }
   private get _assignedTags() {
-    return this._assignedContent.filter(c => {
+    return this._assignedContent.filter((c) => {
       return c.type === 'tag';
     }) as AssignedTag[];
   }
 
   private nameRules: Array<(value: string) => string | boolean> = [
-    value => {
+    (value) => {
       const max = 30;
       if (value.length > max) {
         return `Course name must be ${max} characters or less`;
@@ -131,18 +131,18 @@ export default class ClassroomCtrlPanel extends SkldrVue {
       (this._assignedContent = await this.classroomDB.getAssignedContent()),
       (this._classroomCfg = await this.classroomDB.getConfig()),
     ]);
-    this.log(`Route loaded w/ (prop) _id: ${this._id}`);
-    this.log(`Config: 
+    console.log(`[ClassroomCtrlPanel] Route loaded w/ (prop) _id: ${this._id}`);
+    console.log(`[ClassroomCtrlPanel] Config:
     ${JSON.stringify(this._classroomCfg)}`);
 
-    this.availableCourses = (await getCourseList()).rows.map(r => r.doc!);
+    this.availableCourses = (await getCourseList()).rows.map((r) => r.doc!);
 
     this.updatePending = false;
   }
 
   @Watch('selectedCourse')
   private async getCourseTags() {
-    let tags = (await getCourseTagStubs(this.selectedCourse)).rows.map(row => row.doc!);
+    let tags = (await getCourseTagStubs(this.selectedCourse)).rows.map((row) => row.doc!);
     this.availableTags = tags;
   }
 
@@ -156,7 +156,7 @@ export default class ClassroomCtrlPanel extends SkldrVue {
         assignedBy: this.$store.state._user!.username,
       });
     } else {
-      await this.selectedTags.forEach(tag => {
+      await this.selectedTags.forEach((tag) => {
         this.classroomDB.assignContent({
           assignedOn: moment(),
           activeOn: moment(),

@@ -74,7 +74,7 @@ export default class ImageInput extends FieldInput {
         // Handle image URL drop
         const imgURL = ev.dataTransfer.getData('text');
         this.fetchImg(imgURL);
-        this.log(`Dropped URL: ${imgURL}`);
+        console.log(`Dropped URL: ${imgURL}`);
       } else {
         this.error('Unsupported drop type');
       }
@@ -84,7 +84,7 @@ export default class ImageInput extends FieldInput {
   }
 
   private processDroppedFile(file: File) {
-    this.log(`
+    console.log(`
 Processing dropped file:
 
 Filename: ${file.name}
@@ -120,7 +120,7 @@ File type: ${file.type}
   }
 
   public dragHandler(ev: DragEvent) {
-    this.log(`Dragging... ${JSON.stringify(ev)}`);
+    console.log(`Dragging... ${JSON.stringify(ev)}`);
   }
 
   public getValidators(): ValidatingFunction[] {
@@ -150,7 +150,7 @@ File type: ${file.type}
   private async processInput() {
     if (this.blobInputElement.files) {
       const file = this.blobInputElement.files[0];
-      this.log(`
+      console.log(`
 Processing input file:
 
 Filename: ${file.name}

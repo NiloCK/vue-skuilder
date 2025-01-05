@@ -17,7 +17,7 @@ export default class UpdateQueue extends Loggable {
     id: PouchDB.Core.DocumentId,
     update: Update<T>
   ) {
-    this.log(`Update requested on doc: ${id}`);
+    console.log(`Update requested on doc: ${id}`);
     if (this.pendingUpdates[id]) {
       this.pendingUpdates[id].push(update);
     } else {
@@ -30,9 +30,9 @@ export default class UpdateQueue extends Loggable {
     super();
     // PouchDB.debug.enable('*');
     this.db = db;
-    this.log(`UpdateQ initialized...`);
+    console.log(`UpdateQ initialized...`);
     this.db.info().then((i) => {
-      this.log(`db info: ${JSON.stringify(i)}`);
+      console.log(`db info: ${JSON.stringify(i)}`);
     });
   }
   doc = {
@@ -78,11 +78,11 @@ export default class UpdateQueue extends Loggable {
     id: string,
     recurseDepth: number = 0
   ): Promise<T> {
-    this.log(`Applying updates on doc: ${id}`);
+    console.log(`Applying updates on doc: ${id}`);
     if (this.inprogressUpdates[id]) {
-      // this.log(`Updates in progress...`);
+      // console.log(`Updates in progress...`);
       await this.db.info(); // stall for a round trip
-      // this.log(`Retrying...`);
+      // console.log(`Retrying...`);
       return this.applyUpdates<T>(id);
     } else {
       if (this.pendingUpdates[id] && this.pendingUpdates[id].length > 0) {
@@ -90,7 +90,7 @@ export default class UpdateQueue extends Loggable {
 
         try {
           let doc = await this.db.get<T>(id);
-          this.log(`Retrieved doc: ${id}`);
+          console.log(`Retrieved doc: ${id}`);
           while (this.pendingUpdates[id].length !== 0) {
             const update = this.pendingUpdates[id].splice(0, 1)[0];
             if (typeof update === 'function') {
@@ -103,11 +103,11 @@ export default class UpdateQueue extends Loggable {
             }
           }
           // for (const k in doc) {
-          //   this.log(`${k}: ${typeof k}`);
+          //   console.log(`${k}: ${typeof k}`);
           // }
-          // this.log(`Applied updates to doc: ${JSON.stringify(doc)}`);
+          // console.log(`Applied updates to doc: ${JSON.stringify(doc)}`);
           await this.db.put<T>(doc);
-          this.log(`Put doc: ${id}`);
+          console.log(`Put doc: ${id}`);
 
           if (this.pendingUpdates[id].length === 0) {
             this.inprogressUpdates[id] = false;
@@ -118,7 +118,7 @@ export default class UpdateQueue extends Loggable {
           return doc;
         } catch (e) {
           delete this.inprogressUpdates[id];
-          this.log(`Error on attemped update: ${JSON.stringify(e)}`);
+          console.log(`Error on attemped update: ${JSON.stringify(e)}`);
           throw e;
         }
       } else {

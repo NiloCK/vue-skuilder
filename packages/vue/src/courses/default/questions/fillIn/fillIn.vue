@@ -106,7 +106,7 @@ export default class FillInView extends QuestionView<BlanksCard> {
   get obscuredAnswer(): string | undefined {
     const sa = this.someAnswer;
 
-    this.log(`Prior answers: ${this.priorAnswers}`);
+    console.log(`Prior answers: ${this.priorAnswers}`);
 
     if (sa && this.priorAnswers[0][0] && this.priorAnswers[0][1] === 'UserInputString') {
       return gradeSpellingAttempt(this.priorAnswers[0][0] as string, sa);
@@ -135,7 +135,7 @@ export default class FillInView extends QuestionView<BlanksCard> {
           this.question.options.filter(o => this.question.answers?.indexOf(o) === -1)
         );
 
-        this.log(`Modifying difficulty: ${this.modifyDifficulty}`);
+        console.log(`Modifying difficulty: ${this.modifyDifficulty}`);
 
         // if the question is hard for the user, show fewer distractors
         // [ ] todo: this should also affect the elo adjustments after the question is answered

@@ -63,7 +63,7 @@ export default class User extends SkldrVue {
   }
 
   updateConfetti() {
-    this.log(`Confetti updated...`);
+    console.log(`Confetti updated...`);
     this.u.setConfig({
       likesConfetti: this.confetti,
     });
@@ -85,7 +85,7 @@ export default class User extends SkldrVue {
 
   created() {
     this.configLanguages.forEach(l => {
-      this.log(`afweatifvwzeatfvwzeta` + l.name);
+      console.log(`afweatifvwzeatfvwzeta` + l.name);
     });
   }
 }

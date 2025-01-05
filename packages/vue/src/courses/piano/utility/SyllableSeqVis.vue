@@ -42,7 +42,7 @@ export default class SyllableSeqVis extends SkldrVue {
   public low: number = 500;
 
   public sayNote(note: NoteEvent) {
-    this.log(`${JSON.stringify(note)}`);
+    console.log(`${JSON.stringify(note)}`);
   }
 
   get getLastTS(): number {
@@ -88,7 +88,7 @@ export default class SyllableSeqVis extends SkldrVue {
   }
 
   created() {
-    this.log(`SyllableSeqVis created w/ input: \n${this.seq}`);
+    console.log(`SyllableSeqVis created w/ input: \n${this.seq}`);
 
     this.updateBounds();
   }

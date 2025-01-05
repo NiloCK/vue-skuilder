@@ -256,12 +256,12 @@ export default class CourseCardBrowser extends SkldrVue {
     });
 
     this.cards.forEach(async (c) => {
-      // this.log(`generating preview for ${c}`);
+      // console.log(`generating preview for ${c}`);
       const _courseID: string = c.id.split('-')[0];
       const _cardID: string = c.id.split('-')[1];
 
       const tmpCardData = hydratedCardData.find((c) => c._id == _cardID)!;
-      // this.log(`tmpCardData: ${JSON.stringify(tmpCardData)}`);
+      // console.log(`tmpCardData: ${JSON.stringify(tmpCardData)}`);
       const tmpView = Courses.getView(tmpCardData.id_view || 'default.question.BlanksCard.FillInView');
 
       // todo 143 / perf: this fetch is non-blocking, but is making a db

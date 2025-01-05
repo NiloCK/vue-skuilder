@@ -42,7 +42,7 @@ export default class SkldrControlsView extends SkldrVue {
   }
 
   refreshState() {
-    // this.log(`this.display: ${this.display}`);
+    // console.log(`this.display: ${this.display}`);
     this.commands = SkldrMouseTrap.commands;
     this.display = this.commands.length > 0;
   }

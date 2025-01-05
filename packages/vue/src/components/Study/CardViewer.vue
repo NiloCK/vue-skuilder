@@ -71,7 +71,7 @@ export default class CardViewer extends SkldrVue {
 
   @Emit('emitResponse')
   private processResponse(r: CardRecord) {
-    this.log(`
+    console.log(`
         Card was displayed at ${r.timeStamp}
         User spent ${r.timeSpent} milliseconds with the card.
         `);

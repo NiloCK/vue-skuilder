@@ -46,7 +46,7 @@ export default class Admin extends SkldrVue {
   public classrooms: any[] = [];
 
   public get registeredUsers(): any[] {
-    return this.users.filter(u => {
+    return this.users.filter((u) => {
       return !(u.name as string).startsWith(GuestUsername);
     });
   }
@@ -64,7 +64,7 @@ export default class Admin extends SkldrVue {
   }
 
   public removeCourse(id: string) {
-    this.log(`Removing ${id}`);
+    console.log(`Removing ${id}`);
     this.db.removeCourse(id);
   }
 }

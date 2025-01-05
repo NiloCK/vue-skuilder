@@ -93,7 +93,7 @@ export default class UserLogin extends SkldrVue {
       this.$router.push('/study');
     } catch (e) {
       // entry #186
-      this.log(`login error: ${e}`);
+      console.log(`login error: ${e}`);
       // - differentiate response
       // - return better message to UI
       this.initBadLogin();

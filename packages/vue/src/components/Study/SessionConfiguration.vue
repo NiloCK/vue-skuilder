@@ -107,12 +107,12 @@ export default class SessionConfiguration extends SkldrVue {
   public startFcn: (sources: ContentSourceID[]) => void;
 
   private update() {
-    this.log(JSON.stringify(this.activeCourses));
-    this.log(JSON.stringify(this.activeClasses));
+    console.log(JSON.stringify(this.activeCourses));
+    console.log(JSON.stringify(this.activeClasses));
   }
 
   private toggleAll(): void {
-    this.log(`Toggling all courses`);
+    console.log(`Toggling all courses`);
 
     this.activeCourses.forEach((crs) => {
       crs.selected = this.allSelected;
@@ -121,7 +121,7 @@ export default class SessionConfiguration extends SkldrVue {
       cl.selected = this.allSelected;
     });
 
-    this.log(JSON.stringify(this.activeCourses));
+    console.log(JSON.stringify(this.activeCourses));
   }
 
   private startSession() {
@@ -154,7 +154,7 @@ export default class SessionConfiguration extends SkldrVue {
     const classes = await (await User.instance()).getActiveClasses();
     const activeClasses: ({ classID: string } & SessionConfigMetaData)[] = [];
 
-    this.log(`Active classes: ${JSON.stringify(classes)}`);
+    console.log(`Active classes: ${JSON.stringify(classes)}`);
 
     await Promise.all(
       classes.map((c) =>

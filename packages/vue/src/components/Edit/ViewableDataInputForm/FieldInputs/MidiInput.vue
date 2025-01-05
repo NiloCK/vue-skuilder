@@ -60,7 +60,7 @@ export default class MidiInput extends FieldInput {
 
   public record() {
     this.midi.record();
-    this.midi.addNoteonListenter(e => {
+    this.midi.addNoteonListenter((e) => {
       this.SylSeq.append(e);
       this.$refs.inputVis.updateBounds();
     });
@@ -69,7 +69,7 @@ export default class MidiInput extends FieldInput {
 
   public getTransposedSeqs() {
     if (this.transpositions) {
-      return [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6].map(shift => {
+      return [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6].map((shift) => {
         return transposeSyllableSeq(this.midi.recording, shift);
       });
     } else {
@@ -78,7 +78,7 @@ export default class MidiInput extends FieldInput {
   }
 
   public clearData() {
-    this.log('midiInput clearing data...');
+    console.log('midiInput clearing data...');
     this.midi.stopRecording();
     this.midi.eraseRecording();
     this.SylSeq = eventsToSyllableSequence([]);
@@ -110,7 +110,7 @@ export default class MidiInput extends FieldInput {
     this.midi.play();
     // this.SylSeq = eventsToSyllableSequence(this.midi.recording);
     this.display = true;
-    // this.log(eventsToSyllableSequence(this.midi.recording).toString());
+    // console.log(eventsToSyllableSequence(this.midi.recording).toString());
     this.validate();
   }
 }

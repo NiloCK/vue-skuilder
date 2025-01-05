@@ -159,7 +159,7 @@ export default class MediaDragDropUploader extends FieldInput {
   }
 
   addMoreMedia() {
-    this.log('addMoreMedia');
+    console.log('addMoreMedia');
     this.triggerFileInput();
   }
 

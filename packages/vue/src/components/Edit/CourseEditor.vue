@@ -9,7 +9,7 @@
         <v-select
           v-model="selectedShape"
           label="What kind of content are you adding?"
-          v-bind:items="registeredDataShapes.map(shape => shape.name)"
+          v-bind:items="registeredDataShapes.map((shape) => shape.name)"
         />
 
         <data-input-form
@@ -59,7 +59,7 @@ export default class CourseEditor extends SkldrVue {
 
   @Watch('selectedShape')
   public onShapeSelected(value?: string, old?: string) {
-    // this.log('Selecting Shape', value, old);
+    // console.log('Selecting Shape', value, old);
 
     if (value) {
       this.dataShape = this.getDataShape(value);
@@ -90,17 +90,17 @@ export default class CourseEditor extends SkldrVue {
 
     // #55 make all 'programmed' datashapes available, rather than
     // the previous code-based name scoping
-    Courses.courses.forEach(course => {
-      course.questions.forEach(question => {
-        question.dataShapes.forEach(ds => {
+    Courses.courses.forEach((course) => {
+      course.questions.forEach((question) => {
+        question.dataShapes.forEach((ds) => {
           this.dataShapes.push(ds);
         });
       });
     });
 
-    this.courseConfig.dataShapes.forEach(ds => {
+    this.courseConfig.dataShapes.forEach((ds) => {
       this.registeredDataShapes.push(
-        this.dataShapes.find(shape => {
+        this.dataShapes.find((shape) => {
           return shape.name === NameSpacer.getDataShapeDescriptor(ds.name).dataShape;
         })!
       );
@@ -110,7 +110,7 @@ export default class CourseEditor extends SkldrVue {
   }
 
   public getDataShape(shapeName: string): DataShape {
-    return this.dataShapes.find(shape => {
+    return this.dataShapes.find((shape) => {
       return shape.name === shapeName;
     })!;
   }

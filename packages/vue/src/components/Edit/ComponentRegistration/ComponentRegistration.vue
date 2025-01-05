@@ -72,12 +72,12 @@ export default class ComponentRegistration extends SkldrVue {
 
     const dataShapeData = Courses.allDataShapes();
 
-    Courses.allDataShapesRaw().forEach(ds => {
-      this.log(`Datashape:\n${JSON.stringify(ds)}`);
+    Courses.allDataShapesRaw().forEach((ds) => {
+      console.log(`[ComponentRegistration] Datashape:\n${JSON.stringify(ds)}`);
     });
 
-    dataShapeData.forEach(shape => {
-      const index = this.courseDatashapes.find(test => {
+    dataShapeData.forEach((shape) => {
+      const index = this.courseDatashapes.find((test) => {
         return test.name === NameSpacer.getDataShapeString(shape);
       });
 
@@ -92,13 +92,13 @@ export default class ComponentRegistration extends SkldrVue {
 
     this.dataShapes = _.sortBy(this.dataShapes, ['registered', 'name']);
 
-    const courseNameList = Courses.courses.map(course => course.name);
+    const courseNameList = Courses.courses.map((course) => course.name);
     const questionData: Array<[QuestionDescriptor, typeof Displayable]> = [];
 
-    courseNameList.forEach(course => {
+    courseNameList.forEach((course) => {
       const courseQs = Courses.getCourse(course)!.questions;
 
-      courseQs.forEach(courseQ => {
+      courseQs.forEach((courseQ) => {
         questionData.push([
           {
             course,
@@ -109,8 +109,8 @@ export default class ComponentRegistration extends SkldrVue {
       });
     });
 
-    questionData.forEach(question => {
-      const index = this.courseQuestionTypes.find(test => {
+    questionData.forEach((question) => {
+      const index = this.courseQuestionTypes.find((test) => {
         return NameSpacer.getQuestionString(question[0]) === test.name;
       });
 
@@ -124,7 +124,7 @@ export default class ComponentRegistration extends SkldrVue {
   }
 
   private async registerShape(shapeName: string) {
-    const shape = this.dataShapes.find(findShape => {
+    const shape = this.dataShapes.find((findShape) => {
       return findShape.name === shapeName;
     })!;
 
@@ -145,7 +145,7 @@ export default class ComponentRegistration extends SkldrVue {
       // notes in the db and create associated cards.
       //
       // if (shape.displayable.seedData) {
-      //   this.log(`Datashape has seed data!`);
+      //   console.log(`[ComponentRegistration] Datashape has seed data!`);
       //   shape.displayable.seedData.forEach((d) => {
       //     addNote55(
       //       this.course,
@@ -156,13 +156,13 @@ export default class ComponentRegistration extends SkldrVue {
       //     );
       //   });
       // } else {
-      //   this.log(`Datashape has NO seed data!`);
+      //   console.log(`[ComponentRegistration] Datashape has NO seed data!`);
       // }
     }
   }
 
   private async registerQuestionView(questionName: string) {
-    const question = this.questions.find(q => {
+    const question = this.questions.find((q) => {
       return q.name === questionName;
     })!;
 
@@ -173,8 +173,8 @@ export default class ComponentRegistration extends SkldrVue {
 
     this.courseConfig!.questionTypes.push({
       name: nsQuestionName,
-      viewList: question.question.views.map(v => v.name),
-      dataShapeList: question.question.dataShapes.map(d =>
+      viewList: question.question.views.map((v) => v.name),
+      dataShapeList: question.question.dataShapes.map((d) =>
         NameSpacer.getDataShapeString({
           course: question.course,
           dataShape: d.name,
@@ -183,7 +183,7 @@ export default class ComponentRegistration extends SkldrVue {
     });
 
     // associate the question type with existing registered dataTypes
-    question.question.dataShapes.forEach(ds => {
+    question.question.dataShapes.forEach((ds) => {
       const nsDatashapeName = NameSpacer.getDataShapeString({
         course: question.course,
         dataShape: ds.name,
@@ -200,13 +200,13 @@ export default class ComponentRegistration extends SkldrVue {
 
     if (update.ok) {
       question.registered = true;
-      this.log(`
+      console.log(`[ComponentRegistration]
 Question: ${JSON.stringify(question)}
 CourseID: ${this.course}
       `);
       if (question.question.seedData) {
-        this.log(`Question has seed data!`);
-        question.question.seedData.forEach(d => {
+        console.log(`[ComponentRegistration] Question has seed data!`);
+        question.question.seedData.forEach((d) => {
           addNote55(
             this.course,
             question.course,
@@ -217,7 +217,7 @@ CourseID: ${this.course}
           );
         });
       } else {
-        this.log(`Question has NO seed data!`);
+        console.log(`[ComponentRegistration] Question has NO seed data!`);
       }
     }
   }

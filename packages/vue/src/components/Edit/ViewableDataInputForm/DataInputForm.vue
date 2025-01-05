@@ -164,7 +164,7 @@ export default class DataInputForm extends SkldrVue {
   };
 
   public get fieldInputs(): FieldInput[] {
-    return this.$refs.fieldInputWraps.map<FieldInput>(div => {
+    return this.$refs.fieldInputWraps.map<FieldInput>((div) => {
       // if ((div.children[0] as any).__vue__.clearData !==)
       //     return (div.children[0] as any).__vue__ as FieldInput;
       const child: Vue = (div.children[0] as any).__vue__;
@@ -241,13 +241,13 @@ export default class DataInputForm extends SkldrVue {
   public readonly chessPuzzle: string = FieldType.CHESS_PUZZLE;
 
   public updateTags(newTags: string[]) {
-    this.log(`tags updated: ${JSON.stringify(newTags)}`);
+    console.log(`[DataInputForm] tags updated: ${JSON.stringify(newTags)}`);
     this.tags = newTags;
   }
 
   public async getCourseTags() {
     const existingTags = await getCourseTagStubs(this.courseCfg.courseID!);
-    this.autoCompleteSuggestions = existingTags.rows.map(tag => {
+    this.autoCompleteSuggestions = existingTags.rows.map((tag) => {
       return {
         text: tag.doc!.name,
       };
@@ -265,22 +265,22 @@ export default class DataInputForm extends SkldrVue {
 
   public checkInput(): boolean {
     let validations = Object.getOwnPropertyNames(this.store.validation);
-    validations = validations.filter(v => v !== '__ob__'); // remove vuejs observer property
+    validations = validations.filter((v) => v !== '__ob__'); // remove vuejs observer property
 
     let inputIsValid: boolean = validations.length === this.expectedValidations();
 
-    // this.log(`Observed validations: ${validations}`);
-    // this.log(`Expected validations: ${this.expectedValidations()}`);
-    // this.log(`Validation keys: ${Object.getOwnPropertyNames(this.store.validation)}`);
+    // console.log(`[DataInputForm] Observed validations: ${validations}`);
+    // console.log(`[DataInputForm] Expected validations: ${this.expectedValidations()}`);
+    // console.log(`[DataInputForm] Validation keys: ${Object.getOwnPropertyNames(this.store.validation)}`);
 
     const invalidFields = Object.getOwnPropertyNames(this.store.validation).filter(
-      fieldName => this.store.validation[fieldName] === false
+      (fieldName) => this.store.validation[fieldName] === false
     );
 
     if (invalidFields.length > 0) {
       inputIsValid = false;
       this.error('Invalid Fields:', invalidFields);
-      invalidFields.forEach(field => {
+      invalidFields.forEach((field) => {
         console.error(`Field ${field} validation:`, this.store.validation[field]);
       });
     }
@@ -289,7 +289,7 @@ export default class DataInputForm extends SkldrVue {
       this.convertInput();
     }
     this.allowSubmit = inputIsValid;
-    this.log(`Form data is valid: ${inputIsValid}`);
+    console.log(`[DataInputForm] Form data is valid: ${inputIsValid}`);
     return inputIsValid;
   }
 
@@ -299,7 +299,7 @@ export default class DataInputForm extends SkldrVue {
 
   @Watch('dataShape')
   public onDataShapeChange(value?: DataShape, old?: DataShape) {
-    // this.log('DataShape changed, getting implementing views');
+    // console.log('[DataInputForm] DataShape changed, getting implementing views');
     this.getImplementingViews();
   }
 
@@ -337,7 +337,7 @@ export default class DataInputForm extends SkldrVue {
   }
 
   public convertInput() {
-    const supplementedFields = this.dataShape.fields.map(f => {
+    const supplementedFields = this.dataShape.fields.map((f) => {
       const copiedFieldDefinition: FieldDefinition = {
         name: f.name,
         type: f.type,
@@ -368,7 +368,7 @@ export default class DataInputForm extends SkldrVue {
       }
     }
 
-    supplementedFields.forEach(fieldDef => {
+    supplementedFields.forEach((fieldDef) => {
       this.store.convertedInput[fieldDef.name] = fieldConverters[fieldDef.type].databaseConverter(
         this.store[fieldDef.name]
       );
@@ -418,24 +418,24 @@ export default class DataInputForm extends SkldrVue {
     if (this.objectContainsFunction(o)) {
       for (let fKey in o) {
         if (typeof o[fKey] === 'function') {
-          this.log(`Key ${fKey} is a function.`);
+          console.log(`[DataInputForm] Key ${fKey} is a function.`);
           // array of objs w/ the fcn value replaced by
           // one of its outputs
           const replaced: StringIndexable[] = [];
 
-          (o[fKey]() as Array<any>).forEach(fcnOutput => {
+          (o[fKey]() as Array<any>).forEach((fcnOutput) => {
             let copy: StringIndexable = {};
             copy = _.cloneDeep(o);
             copy[fKey] = fcnOutput;
 
-            this.log(`Replaced Copy: ${JSON.stringify(copy)}`);
+            console.log(`[DataInputForm] Replaced Copy: ${JSON.stringify(copy)}`);
 
             replaced.push(copy);
           });
 
-          replaced.forEach(obj => {
+          replaced.forEach((obj) => {
             if (this.objectContainsFunction(obj)) {
-              this.log('2nd pass...');
+              console.log('[DataInputForm] 2nd pass...');
               const recursiveExpansion = this.expandO(obj);
               ret = ret.concat(recursiveExpansion);
             } else {
@@ -458,20 +458,20 @@ export default class DataInputForm extends SkldrVue {
   private getTags(): string[] {
     const dataShapeParsedTags: string[] = [];
 
-    this.fieldInputs.forEach(f => {
+    this.fieldInputs.forEach((f) => {
       if (f.generateTags) {
         const fTags = f.generateTags();
         dataShapeParsedTags.push(...fTags);
       }
     });
 
-    let manualTags = this.$refs.tagsInput.tags.map(t => t.text);
+    let manualTags = this.$refs.tagsInput.tags.map((t) => t.text);
 
     return dataShapeParsedTags.concat(manualTags);
   }
 
   private getElo(): CourseElo | undefined {
-    this.fieldInputs.forEach(f => {
+    this.fieldInputs.forEach((f) => {
       if (f.generateELO) {
         return f.generateELO();
       }
@@ -481,23 +481,23 @@ export default class DataInputForm extends SkldrVue {
 
   public async submit() {
     if (this.checkInput()) {
-      this.log(`Store: ${JSON.stringify(this.store)}`);
-      this.log(`ConvertedStore: ${JSON.stringify(this.convertedInput)}`);
+      console.log(`[DataInputForm] Store: ${JSON.stringify(this.store)}`);
+      console.log(`[DataInputForm] ConvertedStore: ${JSON.stringify(this.convertedInput)}`);
       this.uploading = true;
 
       let inputs = [];
 
       if (this.inputContainsTranspositionFcns()) {
-        this.log(`Expanded input:
+        console.log(`[DataInputForm] Expanded input:
         ${JSON.stringify(this.expandO(this.convertedInput))}`);
         inputs = this.expandO(this.convertedInput);
       } else {
-        this.log(`No Transposition fcn detected`);
+        console.log(`[DataInputForm] No Transposition fcn detected`);
         inputs = [this.convertedInput];
       }
 
       const result = await Promise.all(
-        inputs.map(async input => {
+        inputs.map(async (input) => {
           return await addNote55(
             this.courseCfg.courseID!,
             this.datashapeDescriptor.course,
@@ -542,7 +542,7 @@ export default class DataInputForm extends SkldrVue {
     this.uploading = false;
 
     // Clear all field inputs
-    this.fieldInputs.forEach(input => {
+    this.fieldInputs.forEach((input) => {
       input.clearData();
     });
 
@@ -573,7 +573,7 @@ export default class DataInputForm extends SkldrVue {
     }
 
     // Reset validation
-    Object.keys(this.store.validation).forEach(key => {
+    Object.keys(this.store.validation).forEach((key) => {
       this.store.validation[key] = {
         valid: true,
         message: '',
@@ -590,7 +590,7 @@ export default class DataInputForm extends SkldrVue {
 
   private getImplementingViews() {
     if (ENV.MOCK) {
-      // this.log('Mocking DataInputForm views');
+      // console.log('[DataInputForm] Mocking DataInputForm views');
       this.shapeViews = [FillInView]; // [ ] mock this properly
       return;
     }
@@ -599,16 +599,16 @@ export default class DataInputForm extends SkldrVue {
       // BUG: not finding blanks
       const descriptor = NameSpacer.getDataShapeDescriptor(ds.name);
 
-      this.log('descriptor', descriptor);
-      this.log('this.dataShape', this.dataShape);
-      this.log('this.dataShape.name', this.dataShape.name);
+      console.log('[DataInputForm] descriptor', descriptor);
+      console.log('[DataInputForm] this.dataShape', this.dataShape);
+      console.log('[DataInputForm] this.dataShape.name', this.dataShape.name);
 
       if (descriptor.dataShape === this.dataShape.name) {
         const crs = Courses.getCourse(descriptor.course)!;
 
         this.shapeViews = []; // clear out any previous views
 
-        crs.getBaseQTypes().forEach(qType => {
+        crs.getBaseQTypes().forEach((qType) => {
           if (qType.dataShapes[0].name === this.dataShape.name) {
             // qType.views.forEach((view) => {
             //   this.shapeViews.push(view);
@@ -621,7 +621,7 @@ export default class DataInputForm extends SkldrVue {
         for (const q of ds.questionTypes) {
           const qDescriptor = NameSpacer.getQuestionDescriptor(q);
 
-          crs.getQuestion(qDescriptor.questionType)!.views.forEach(view => {
+          crs.getQuestion(qDescriptor.questionType)!.views.forEach((view) => {
             this.shapeViews = this.shapeViews.concat(view);
           });
         }
