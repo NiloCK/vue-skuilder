@@ -35,7 +35,7 @@ import { NameSpacer, QuestionDescriptor } from '@/courses/NameSpacer';
 import { addNote55, getCredentialledCourseConfig } from '@/db/courseAPI';
 import { updateCredentialledCourseConfig } from '@/db/courseDB';
 import { CourseConfig, DataShape55, QuestionType55 } from '@/server/types';
-import SkldrVue from '@/SkldrVue';
+import Vue from 'vue';
 import * as _ from 'lodash';
 import { Component, Prop } from 'vue-property-decorator';
 

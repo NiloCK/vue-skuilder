@@ -187,6 +187,7 @@ import { StudentClassroomDB } from '../db/classroomDB';
 import { CourseRegistrationDoc, updateUserElo, User } from '../db/userDB';
 import { Status } from '../enums/Status';
 import { CourseConfig } from '../server/types';
+import Vue from 'vue';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);

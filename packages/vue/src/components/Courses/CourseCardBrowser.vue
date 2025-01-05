@@ -108,7 +108,7 @@ import { getCourseDB, getCourseDoc, getCourseDocs } from '@/db';
 import { CourseDB, getTag } from '@/db/courseDB';
 import { removeTagFromCard } from '@/db/courseDB';
 import { CardData, DisplayableData, DocType, Tag } from '@/db/types';
-import SkldrVue from '@/SkldrVue';
+import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 

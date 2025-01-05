@@ -27,7 +27,7 @@ import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import { CourseDB, getCourseConfig, updateCardElo } from '@/db/courseDB';
 import { CourseConfig } from '@/server/types';
-import SkldrVue from '@/SkldrVue';
+import Vue from 'vue';
 
 @Component({
   components: {

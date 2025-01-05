@@ -28,7 +28,7 @@
 <script lang="ts">
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import SkldrVue from '@/SkldrVue';
+import Vue from 'vue';
 import { CardHistory, CardRecord } from '@/db/types';
 import moment from 'moment';
 import { User } from '../db/userDB';

@@ -23,7 +23,7 @@
 import { log } from 'util';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import SkldrVue from '@/SkldrVue';
+import Vue from 'vue';
 import { getCourseDB } from '@/db';
 import { getCourseConfig } from '@/db/courseDB';
 import { DocType } from '@/db/types';

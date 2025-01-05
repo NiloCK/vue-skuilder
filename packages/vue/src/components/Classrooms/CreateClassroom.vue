@@ -40,7 +40,7 @@ import moment from 'moment';
 import Mousetrap from 'mousetrap';
 import { log } from 'util';
 import Component from 'vue-class-component';
-import SkldrVue from '../../SkldrVue';
+import Vue from 'vue';
 import { registerUserForClassroom } from '../../db/userDB';
 import { Status } from '../../enums/Status';
 import serverRequest from '../../server';

@@ -25,8 +25,8 @@
 </template>
 
 <script lang="ts">
-import SkldrVue from '@/SkldrVue';
 import { Component, Prop } from 'vue-property-decorator';
+import Vue from 'vue';
 
 @Component
 export default class PaginatingToolbar extends Vue {

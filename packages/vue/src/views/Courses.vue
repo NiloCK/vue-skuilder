@@ -70,7 +70,6 @@ import _ from 'lodash';
 import { log } from 'util';
 import serverRequest from '../server';
 import { ServerRequestType, CourseConfig } from '../server/types';
-import Vue from 'vue';
 import { alertUser } from '../components/SnackbarService.vue';
 import { getCourseList } from '@/db/courseDB';
 import { User } from '../db/userDB';

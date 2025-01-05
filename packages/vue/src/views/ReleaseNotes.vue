@@ -13,7 +13,6 @@
 import Vue, { VueConstructor } from 'vue';
 import { Component, Prop, Emit } from 'vue-property-decorator';
 import { log } from 'util';
-import Vue from 'vue';
 
 @Component({})
 export default class User extends Vue {}

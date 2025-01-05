@@ -47,7 +47,7 @@
 <script lang="ts">
 import { disambiguateCourse, getCachedCourseList } from '@/db/courseDB';
 import { CourseConfig } from '@/server/types';
-import SkldrVue from '@/SkldrVue';
+import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import CourseEditor from './CourseEditor.vue';

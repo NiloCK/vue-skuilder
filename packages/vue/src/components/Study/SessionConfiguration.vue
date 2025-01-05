@@ -64,7 +64,7 @@
 <script lang="ts">
 import { CourseRegistration, CourseRegistrationDoc, User } from '@/db/userDB';
 import { CourseDB, getCourseName } from '@/db/courseDB';
-import SkldrVue from '@/SkldrVue';
+import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Prop, Watch } from 'vue-property-decorator';
 import SkldrMouseTrap from '@/SkldrMouseTrap';

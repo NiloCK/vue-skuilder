@@ -32,7 +32,6 @@
 import Vue, { VueConstructor } from 'vue';
 import { Component, Prop, Emit } from 'vue-property-decorator';
 import { log } from 'util';
-import Vue from 'vue';
 import AdminDB from '../db/adminDB';
 import { GuestUsername } from '../store';
 

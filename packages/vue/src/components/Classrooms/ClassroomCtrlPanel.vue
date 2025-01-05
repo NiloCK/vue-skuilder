@@ -85,7 +85,7 @@ import TeacherClassroomDB, { AssignedContent, AssignedTag } from '@/db/classroom
 import { getCourseList, getCourseTagStubs } from '@/db/courseDB';
 import { Tag } from '@/db/types';
 import { ClassroomConfig, CourseConfig } from '@/server/types';
-import SkldrVue from '@/SkldrVue';
+import Vue from 'vue';
 
 @Component({})
 export default class ClassroomCtrlPanel extends Vue {

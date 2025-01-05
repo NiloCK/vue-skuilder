@@ -46,7 +46,6 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { log } from 'util';
 import { setTimeout } from 'timers';
-import Vue from 'vue';
 import { User } from '../db/userDB';
 
 @Component({})

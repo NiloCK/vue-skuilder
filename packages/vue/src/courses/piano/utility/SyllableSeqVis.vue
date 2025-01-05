@@ -22,8 +22,7 @@
 <script lang="ts">
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import { log } from 'util';
-import SkldrVue from '../../../SkldrVue';
+import Vue from 'vue';
 import { SyllableSequence, NoteEvent } from './midi';
 
 @Component({})

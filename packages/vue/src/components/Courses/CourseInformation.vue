@@ -64,7 +64,7 @@ import { getCourseDB } from '@/db';
 import { CourseDB, getCourseConfig, getCourseTagStubs } from '@/db/courseDB';
 import { Tag } from '@/db/types';
 import { CourseConfig } from '@/server/types';
-import SkldrVue from '@/SkldrVue';
+import Vue from 'vue';
 import CourseCardBrowser from './CourseCardBrowser.vue';
 
 @Component({

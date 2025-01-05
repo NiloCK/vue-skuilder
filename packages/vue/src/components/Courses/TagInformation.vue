@@ -67,7 +67,7 @@ import { getTag, updateTag } from '@/db/courseDB';
 import { DocType, Tag } from '@/db/types';
 import { Status } from '@/enums/Status';
 import { CourseConfig } from '@/server/types';
-import SkldrVue from '@/SkldrVue';
+import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { alertUser } from '../SnackbarService.vue';
 import CourseCardBrowser from './CourseCardBrowser.vue';

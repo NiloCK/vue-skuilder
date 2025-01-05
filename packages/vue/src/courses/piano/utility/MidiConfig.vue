@@ -40,11 +40,10 @@
 <script lang="ts">
 import Component from 'vue-class-component';
 import { alertUser } from '@/components/SnackbarService.vue';
-import { log } from 'util';
-import SkldrVue from '../../../SkldrVue';
 import SkMidi from './midi';
 import { Watch, Prop } from 'vue-property-decorator';
 import { Status } from '../../../enums/Status';
+import Vue from 'vue';
 
 @Component({})
 export default class MidiConfig extends Vue {

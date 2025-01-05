@@ -29,7 +29,7 @@ import ComponentRegistration from '@/components/Edit/ComponentRegistration/Compo
 import Courses from '@/courses';
 import { NameSpacer } from '@/courses/NameSpacer';
 import { BlanksCard, BlanksCardDataShapes } from '@/courses/default/questions/fillIn';
-import SkldrVue from '@/SkldrVue';
+import Vue from 'vue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
 import { CourseConfig } from '../../server/types';
 import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';

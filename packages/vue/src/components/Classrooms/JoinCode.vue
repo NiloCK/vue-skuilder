@@ -17,7 +17,7 @@
 import { log } from 'util';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import SkldrVue from '../../SkldrVue';
+import Vue from 'vue';
 import TeacherClassroomDB from '../../db/classroomDB';
 import { ClassroomConfig } from '../../server/types';
 

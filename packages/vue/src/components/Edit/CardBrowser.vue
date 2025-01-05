@@ -18,7 +18,7 @@
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable from '@/base-course/Viewable';
 import CardViewer from '@/components/Study/CardViewer.vue';
-import SkldrVue from '@/SkldrVue';
+import Vue from 'vue';
 import { VueConstructor } from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 

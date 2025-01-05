@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import SkldrVue from '@/SkldrVue';
+import Vue from 'vue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
 import { addTagToCard } from '@/db/courseAPI';
 import { getAppliedTags, getCourseTagStubs, removeTagFromCard } from '@/db/courseDB';

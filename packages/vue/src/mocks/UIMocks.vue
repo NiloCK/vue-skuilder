@@ -124,12 +124,12 @@ import ChessPieceMove from '@/courses/chess/questions/piecemove/piece-move.vue';
 import FillInView from '@/courses/default/questions/fillIn/fillIn.vue';
 import { BlanksCardDataShapes } from '@/courses/default/questions/fillIn/index';
 import { ChessPuzzle } from '@/courses/chess/questions/puzzle/index';
-import SkldrVue from '@/SkldrVue';
 import { Component } from 'vue-property-decorator';
 import DataInputForm from '../components/Edit/ViewableDataInputForm/DataInputForm.vue';
 import LetterQuestionView from '@/courses/typing/questions/single-letter/typeSingleLetter.vue';
 import FallingLettersView from '@/courses/typing/questions/falling-letters/FallingLetters.vue';
 import CardViewer from '@/components/Study/CardViewer.vue';
+import Vue from 'vue';
 
 @Component({
   components: {

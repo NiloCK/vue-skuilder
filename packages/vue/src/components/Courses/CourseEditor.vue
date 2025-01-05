@@ -57,7 +57,7 @@ import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import serverRequest from '../../server';
 import { CourseConfig, CreateCourse, DataShape55, QuestionType55, ServerRequestType } from '../../server/types';
-import SkldrVue from '../../SkldrVue';
+import Vue from 'vue';
 import { alertUser } from '../SnackbarService.vue';
 
 @Component({})
