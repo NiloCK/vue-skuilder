@@ -24,7 +24,7 @@ import UserRegistration from './UserRegistration.vue';
 import Component from 'vue-class-component';
 import UserChip from './UserChip.vue';
 import { GuestUsername } from '@/store';
-import SkldrVue from '../SkldrVue';
+import Vue from 'vue';
 import { User } from '../db/userDB';
 
 @Component({

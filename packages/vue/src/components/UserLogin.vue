@@ -52,7 +52,7 @@ import { log } from 'util';
 import { AppState } from '@/store';
 import { Emit } from 'vue-property-decorator';
 import { Status } from '@/enums/Status';
-import SkldrVue from '../SkldrVue';
+import Vue from 'vue';
 
 @Component({})
 export default class UserLogin extends Vue {

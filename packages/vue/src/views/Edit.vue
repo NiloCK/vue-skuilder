@@ -19,7 +19,7 @@ import Vue from 'vue';
 import CourseEditor from '../components/Edit/CourseEditor.vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { CourseConfig } from '../server/types';
-import SkldrVue from '../SkldrVue';
+import Vue from 'vue';
 
 @Component({
   components: {

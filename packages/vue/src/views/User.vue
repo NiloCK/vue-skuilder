@@ -27,7 +27,7 @@
 <script lang="ts">
 import confetti from 'canvas-confetti';
 import { Component, Prop } from 'vue-property-decorator';
-import SkldrVue from '../SkldrVue';
+import Vue from 'vue';
 
 @Component({})
 export default class User extends Vue {

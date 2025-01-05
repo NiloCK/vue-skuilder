@@ -69,7 +69,7 @@ import { AppState } from '@/store';
 import { Emit } from 'vue-property-decorator';
 import { alertUser } from './SnackbarService.vue';
 import { Status } from '../enums/Status';
-import SkldrVue from '../SkldrVue';
+import Vue from 'vue';
 
 @Component({})
 export default class UserRegistration extends Vue {
