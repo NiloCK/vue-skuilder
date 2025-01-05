@@ -146,7 +146,7 @@ type StringIndexable = { [x: string]: any };
     ChessPuzzleInput,
   },
 })
-export default class DataInputForm extends SkldrVue {
+export default class DataInputForm extends Vue {
   @Prop({
     required: true,
     default: () => {

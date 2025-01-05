@@ -109,7 +109,7 @@ interface CourseReg {
     ClassroomEditor,
   },
 })
-export default class Classroom extends SkldrVue {
+export default class Classroom extends Vue {
   public classes: string[] = [];
   private joinCode: string = '';
 

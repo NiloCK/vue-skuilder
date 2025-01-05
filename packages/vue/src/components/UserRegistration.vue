@@ -72,7 +72,7 @@ import { Status } from '../enums/Status';
 import SkldrVue from '../SkldrVue';
 
 @Component({})
-export default class UserRegistration extends SkldrVue {
+export default class UserRegistration extends Vue {
   public $refs: {
     userNameTextField: HTMLInputElement;
   };

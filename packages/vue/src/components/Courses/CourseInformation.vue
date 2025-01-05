@@ -70,7 +70,7 @@ import CourseCardBrowser from './CourseCardBrowser.vue';
 @Component({
   components: { MidiConfig, CourseCardBrowser },
 })
-export default class CourseInformation extends SkldrVue {
+export default class CourseInformation extends Vue {
   @Prop({ required: true }) private _id: string;
   private courseDB: CourseDB;
 

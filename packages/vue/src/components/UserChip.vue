@@ -50,7 +50,7 @@ import SkldrVue from '../SkldrVue';
 import { User } from '../db/userDB';
 
 @Component({})
-export default class UserChip extends SkldrVue {
+export default class UserChip extends Vue {
   private username: string = '';
   private items: string[] = [
     // 'sample1', 'sample2', 'sample3', 'sample4'

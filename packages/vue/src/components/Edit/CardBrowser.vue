@@ -27,7 +27,7 @@ import { Component, Prop } from 'vue-property-decorator';
     CardViewer,
   },
 })
-export default class CardBrowser extends SkldrVue {
+export default class CardBrowser extends Vue {
   @Prop() public views: Array<VueConstructor<Viewable>>;
   @Prop() public data: ViewData[];
   public viewIndex: number = 0;

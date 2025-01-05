@@ -41,7 +41,7 @@ import { getCredentialledCourseConfig } from '@/db/courseAPI';
     ComponentRegistration,
   },
 })
-export default class CourseEditor extends SkldrVue {
+export default class CourseEditor extends Vue {
   @Prop({
     required: true,
     type: String,

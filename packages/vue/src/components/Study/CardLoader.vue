@@ -28,7 +28,7 @@ import { getCourseDoc } from '@/db';
     CardViewer,
   },
 })
-export default class CardLoader extends SkldrVue {
+export default class CardLoader extends Vue {
   @Prop({
     required: false,
     default: 0,

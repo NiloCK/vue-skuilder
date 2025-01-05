@@ -35,7 +35,7 @@ import SkldrVue from '@/SkldrVue';
     CardLoader,
   },
 })
-export default class ELOModerator extends SkldrVue {
+export default class ELOModerator extends Vue {
   @Prop({ required: true }) private _id: string;
   private courseDB: CourseDB;
 

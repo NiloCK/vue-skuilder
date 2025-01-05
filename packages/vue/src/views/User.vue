@@ -30,7 +30,7 @@ import { Component, Prop } from 'vue-property-decorator';
 import SkldrVue from '../SkldrVue';
 
 @Component({})
-export default class User extends SkldrVue {
+export default class User extends Vue {
   @Prop({
     required: true,
   })
@@ -84,7 +84,7 @@ export default class User extends SkldrVue {
   }
 
   created() {
-    this.configLanguages.forEach(l => {
+    this.configLanguages.forEach((l) => {
       console.log(`afweatifvwzeatfvwzeta` + l.name);
     });
   }

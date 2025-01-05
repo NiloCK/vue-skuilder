@@ -1,7 +1,7 @@
 <template>
   <v-layout row wrap>
     <!-- <router-link
-   
+
   > -->
     <v-btn fab color="red" right dark absolute @click="close">
       <v-icon>close</v-icon>
@@ -22,7 +22,7 @@ import TeacherClassroomDB from '../../db/classroomDB';
 import { ClassroomConfig } from '../../server/types';
 
 @Component({})
-export default class JoinCode extends SkldrVue {
+export default class JoinCode extends Vue {
   @Prop({ required: true }) private _id: string;
 
   private _classroomCfg: ClassroomConfig;
@@ -33,7 +33,7 @@ export default class JoinCode extends SkldrVue {
     this.classroomDB = await TeacherClassroomDB.factory(this._id);
     Promise.all([(this._classroomCfg = await this.classroomDB.getConfig())]);
     log(`Route loaded w/ (prop) _id: ${this._id}`);
-    log(`Config: 
+    log(`Config:
     ${JSON.stringify(this._classroomCfg)}`);
     this.updatePending = false;
   }

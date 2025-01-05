@@ -78,7 +78,7 @@ interface SessionConfigMetaData {
 }
 
 @Component({})
-export default class SessionConfiguration extends SkldrVue {
+export default class SessionConfiguration extends Vue {
   public allSelected: boolean = true;
   public activeCourses: (CourseRegistration & SessionConfigMetaData)[] = [];
   public activeClasses: ({ classID: string } & SessionConfigMetaData)[] = [];

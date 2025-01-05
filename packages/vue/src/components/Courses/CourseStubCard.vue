@@ -30,7 +30,7 @@ import { DocType } from '@/db/types';
 import { CourseConfig } from '@/server/types';
 
 @Component({})
-export default class CourseStubCard extends SkldrVue {
+export default class CourseStubCard extends Vue {
   @Prop({ required: true }) private _id: string;
 
   public _courseConfig: CourseConfig;

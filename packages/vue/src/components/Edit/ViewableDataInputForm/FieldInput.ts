@@ -14,7 +14,7 @@ export interface ValidatedInput {
   getValidators: () => ValidatingFunction[];
 }
 
-export abstract class FieldInput extends SkldrVue {
+export abstract class FieldInput extends Vue {
   public $refs: {
     inputField: HTMLInputElement;
   };

@@ -26,7 +26,7 @@ import SkldrVue from '../SkldrVue';
     CourseEditor,
   },
 })
-export default class Edit extends SkldrVue {
+export default class Edit extends Vue {
   public courseList: CourseConfig[] = [];
   @Prop()
   public selectedCourse: string = '';

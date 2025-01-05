@@ -55,7 +55,7 @@ import { Status } from '@/enums/Status';
 import SkldrVue from '../SkldrVue';
 
 @Component({})
-export default class UserLogin extends SkldrVue {
+export default class UserLogin extends Vue {
   private username: string = '';
   private password: string = '';
   private retypedPassword: string = '';

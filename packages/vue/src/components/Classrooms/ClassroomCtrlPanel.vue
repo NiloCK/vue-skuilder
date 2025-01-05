@@ -88,7 +88,7 @@ import { ClassroomConfig, CourseConfig } from '@/server/types';
 import SkldrVue from '@/SkldrVue';
 
 @Component({})
-export default class ClassroomCtrlPanel extends SkldrVue {
+export default class ClassroomCtrlPanel extends Vue {
   @Prop({ required: true }) private _id: string;
   private _classroomCfg: ClassroomConfig;
 

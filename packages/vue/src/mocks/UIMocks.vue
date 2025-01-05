@@ -144,7 +144,7 @@ import CardViewer from '@/components/Study/CardViewer.vue';
     CardViewer,
   },
 })
-export default class SkTagsInputMock extends SkldrVue {
+export default class SkTagsInputMock extends Vue {
   mockCourseId: string = 'mock-course-001';
   mockCardId: string = 'mock-card-001';
 

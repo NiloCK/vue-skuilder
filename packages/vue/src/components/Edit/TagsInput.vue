@@ -45,7 +45,7 @@ interface TagObject {
     VueTagsInput,
   },
 })
-export default class SkTagsInput extends SkldrVue {
+export default class SkTagsInput extends Vue {
   @Prop({
     required: true,
     default: '',

@@ -16,7 +16,7 @@ import { log } from 'util';
 import SkldrVue from '../SkldrVue';
 
 @Component({})
-export default class User extends SkldrVue {}
+export default class User extends Vue {}
 </script>
 
 <style scoped></style>

@@ -75,7 +75,7 @@ import CourseCardBrowser from './CourseCardBrowser.vue';
 @Component({
   components: { CourseCardBrowser },
 })
-export default class TagInformation extends SkldrVue {
+export default class TagInformation extends Vue {
   @Prop({ required: true }) _id: string = '';
   @Prop({ required: true }) _courseId: string = '';
 

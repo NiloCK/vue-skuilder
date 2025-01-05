@@ -37,7 +37,7 @@ import AdminDB from '../db/adminDB';
 import { GuestUsername } from '../store';
 
 @Component({})
-export default class Admin extends SkldrVue {
+export default class Admin extends Vue {
   public title: string = 'Admin Panel';
 
   public db: AdminDB;

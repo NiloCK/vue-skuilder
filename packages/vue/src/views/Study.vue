@@ -202,7 +202,7 @@ function randInt(n: number) {
     HeatMap,
   },
 })
-export default class Study extends SkldrVue {
+export default class Study extends Vue {
   @Prop()
   public previewCourseID?: string;
   @Prop()

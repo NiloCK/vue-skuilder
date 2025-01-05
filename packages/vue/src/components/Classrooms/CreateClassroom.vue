@@ -48,7 +48,7 @@ import { ClassroomConfig, CreateClassroom, ServerRequestType } from '../../serve
 import { alertUser } from '../SnackbarService.vue';
 
 @Component({})
-export default class ClassroomEditor extends SkldrVue {
+export default class ClassroomEditor extends Vue {
   private mousetrap = new Mousetrap(this.$el);
 
   private peerAssist: boolean = true;

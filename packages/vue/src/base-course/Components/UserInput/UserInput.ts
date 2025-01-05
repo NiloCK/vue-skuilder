@@ -5,7 +5,7 @@ import { QuestionView } from '../../../base-course/Viewable';
 import { log } from 'util';
 import { QuestionRecord } from '../../../db/types';
 
-export default abstract class UserInput extends SkldrVue {
+export default abstract class UserInput extends Vue {
   public $el: HTMLElement;
   /**
    * This is the .submitAnswer from the parent

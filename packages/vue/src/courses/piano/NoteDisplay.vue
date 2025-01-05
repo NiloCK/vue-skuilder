@@ -128,7 +128,7 @@ import SkldrVue from '@/SkldrVue';
 import Vuetify from 'vuetify/lib';
 
 @Component({})
-export default class NoteDisplay extends SkldrVue {
+export default class NoteDisplay extends Vue {
   @Prop({
     required: true,
     type: Number,

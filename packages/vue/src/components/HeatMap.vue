@@ -45,7 +45,7 @@ interface Color {
 }
 
 @Component({})
-export default class HeatMap extends SkldrVue {
+export default class HeatMap extends Vue {
   heatmapData: { [key: string]: number } = {};
 
   weeks: DayData[][] = [];

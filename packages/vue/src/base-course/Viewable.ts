@@ -5,7 +5,6 @@ import { HotKey } from '../SkldrMouseTrap';
 import { Answer, Displayable, Question } from '../base-course/Displayable';
 import { ViewData } from '../base-course/Interfaces/ViewData';
 import { CardRecord, QuestionRecord } from '../db/types';
-import SkldrVue from '../SkldrVue';
 
 /**
  * Base class for card views in courses.

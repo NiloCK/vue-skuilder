@@ -34,7 +34,7 @@ import { User } from '../db/userDB';
     UserChip,
   },
 })
-export default class UserLoginAndRegistrationContainer extends SkldrVue {
+export default class UserLoginAndRegistrationContainer extends Vue {
   private readonly GuestUsername: string = GuestUsername;
 
   private get display(): boolean {

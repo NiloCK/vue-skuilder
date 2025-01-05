@@ -119,7 +119,7 @@ import { Prop } from 'vue-property-decorator';
     PaginatingToolbar,
   },
 })
-export default class CourseCardBrowser extends SkldrVue {
+export default class CourseCardBrowser extends Vue {
   @Prop({ required: true }) private _id: string;
   @Prop({ required: false }) private _tag: string;
 

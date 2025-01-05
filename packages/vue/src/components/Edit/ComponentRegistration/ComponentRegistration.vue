@@ -56,7 +56,7 @@ interface QuestionRegistrationStatus {
 @Component({
   components: {},
 })
-export default class ComponentRegistration extends SkldrVue {
+export default class ComponentRegistration extends Vue {
   @Prop() public course: string;
   public dataShapes: (DataShapeRegistrationStatus & { displayable: typeof Displayable })[] = [];
   public questions: QuestionRegistrationStatus[] = [];

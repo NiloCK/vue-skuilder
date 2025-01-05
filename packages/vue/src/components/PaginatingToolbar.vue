@@ -29,7 +29,7 @@ import SkldrVue from '@/SkldrVue';
 import { Component, Prop } from 'vue-property-decorator';
 
 @Component
-export default class PaginatingToolbar extends SkldrVue {
+export default class PaginatingToolbar extends Vue {
   @Prop({ required: true }) private pages: number[];
   @Prop({ required: true }) private page: number;
 

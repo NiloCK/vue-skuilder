@@ -59,7 +59,7 @@ import CourseInformation from './CourseInformation.vue';
     CourseEditor,
   },
 })
-export default class CourseRouter extends SkldrVue {
+export default class CourseRouter extends Vue {
   @Prop({
     required: true,
   })

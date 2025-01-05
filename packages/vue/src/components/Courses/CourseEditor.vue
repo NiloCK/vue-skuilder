@@ -61,7 +61,7 @@ import SkldrVue from '../../SkldrVue';
 import { alertUser } from '../SnackbarService.vue';
 
 @Component({})
-export default class CourseEditor extends SkldrVue {
+export default class CourseEditor extends Vue {
   private mousetrap = new Mousetrap(this.$el);
 
   private id: string = '';

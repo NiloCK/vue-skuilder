@@ -81,7 +81,7 @@ import { User } from '../db/userDB';
     CourseStubCard,
   },
 })
-export default class Courses extends SkldrVue {
+export default class Courses extends Vue {
   public existingCourses: CourseConfig[] = [];
   public registeredCourses: CourseConfig[] = [];
   private awaitingCreateCourse: boolean = false;

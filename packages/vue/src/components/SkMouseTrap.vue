@@ -33,7 +33,7 @@ import SkldrVue from '../SkldrVue';
 import SkldrMouseTrap, { HotKeyMetaData } from '../SkldrMouseTrap';
 
 @Component({})
-export default class SkldrControlsView extends SkldrVue {
+export default class SkldrControlsView extends Vue {
   public commands: HotKeyMetaData[] = [];
   public display: boolean = false;
 

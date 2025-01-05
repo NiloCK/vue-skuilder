@@ -26,7 +26,7 @@ import { Component, Emit, Prop } from 'vue-property-decorator';
 @Component({
   components: Courses.allViews(),
 })
-export default class CardViewer extends SkldrVue {
+export default class CardViewer extends Vue {
   @Prop({
     required: false,
     default: 0,

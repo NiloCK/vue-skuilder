@@ -17,7 +17,7 @@ import SkldrVue from '../../SkldrVue';
 import confetti from 'canvas-confetti';
 
 @Component({})
-export default class User extends SkldrVue {
+export default class User extends Vue {
   @Prop({
     required: true,
   })
