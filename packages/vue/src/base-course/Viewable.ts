@@ -13,7 +13,7 @@ import SkldrVue from '../SkldrVue';
 export default abstract class Viewable extends Vue {
   @Prop() public data: ViewData[];
   public toString(): string {
-    this.warn('toString() not implemented');
+    console.warn('toString() not implemented');
     return '!!! preview not implemented !!!';
   }
   protected startTime: moment.Moment = moment.utc();
