@@ -113,7 +113,7 @@ export default class SkTagsInput extends SkldrVue {
       });
       this.initialTags = this.tags.map((tag) => tag.text);
     } catch (e) {
-      this.error(`Error in init-getAppliedTags: ${JSON.stringify(e)}, ${e}`);
+      console.error(`Error in init-getAppliedTags: ${JSON.stringify(e)}, ${e}`);
     } finally {
       this.loading = false;
     }
@@ -127,7 +127,7 @@ export default class SkTagsInput extends SkldrVue {
         return row.doc! as Tag;
       });
     } catch (e) {
-      this.error(`Error in init-availableCourseTags: ${JSON.stringify(e)}`);
+      console.error(`Error in init-availableCourseTags: ${JSON.stringify(e)}`);
     }
   }
 
@@ -144,13 +144,13 @@ export default class SkTagsInput extends SkldrVue {
               await addTagToCard(this.courseID, this.cardID, currentTag.text);
               console.log(`[TagsInput] Successfully added tag: ${currentTag.text}`);
             } catch (error) {
-              this.error(`Failed to add tag ${currentTag.text}:`, error);
+              console.error(`Failed to add tag ${currentTag.text}:`, error);
             }
           }
         })
       );
     } catch (e) {
-      this.error(`Exception adding tags: ${JSON.stringify(e)}`);
+      console.error(`Exception adding tags: ${JSON.stringify(e)}`);
     }
 
     try {
@@ -166,13 +166,13 @@ export default class SkTagsInput extends SkldrVue {
               await removeTagFromCard(this.courseID, this.cardID, initialTag);
               console.log(`[TagsInput] Successfully removed tag: ${initialTag}`);
             } catch (error) {
-              this.error(`Failed to remove tag ${initialTag}:`, error);
+              console.error(`Failed to remove tag ${initialTag}:`, error);
             }
           }
         })
       );
     } catch (e) {
-      this.error(`Exception removing tags: ${JSON.stringify(e)}`);
+      console.error(`Exception removing tags: ${JSON.stringify(e)}`);
     }
     this.loading = false;
   }

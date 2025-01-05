@@ -146,7 +146,7 @@ File type: ${file.type}
         this.mediaRecorder.start(0);
       })
       .catch((e) => {
-        this.error('media error', e);
+        console.error('media error', e);
       });
   }
 }

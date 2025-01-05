@@ -1,7 +1,7 @@
 <template>
   <div>
     <label v-bind:for="field.name">{{ field.name }}: </label>
-    <div 
+    <div
       class="drop-zone"
       :class="{ 'drop-zone--over': isDragging }"
       @drop="dropHandler"
@@ -76,10 +76,10 @@ export default class ImageInput extends FieldInput {
         this.fetchImg(imgURL);
         console.log(`Dropped URL: ${imgURL}`);
       } else {
-        this.error('Unsupported drop type');
+        console.error('Unsupported drop type');
       }
     } else {
-      this.error('dropHandler triggered with no event');
+      console.error('dropHandler triggered with no event');
     }
   }
 
@@ -115,7 +115,7 @@ File type: ${file.type}
       this.createThumbnail(file);
       this.validate();
     } catch (error) {
-      this.error('Error fetching image:', error);
+      console.error('Error fetching image:', error);
     }
   }
 

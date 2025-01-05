@@ -279,7 +279,7 @@ export default class DataInputForm extends SkldrVue {
 
     if (invalidFields.length > 0) {
       inputIsValid = false;
-      this.error('Invalid Fields:', invalidFields);
+      console.error('Invalid Fields:', invalidFields);
       invalidFields.forEach((field) => {
         console.error(`Field ${field} validation:`, this.store.validation[field]);
       });
@@ -529,7 +529,7 @@ export default class DataInputForm extends SkldrVue {
           text: `A problem occurred. Content has not been added.`,
           status: Status.error,
         });
-        this.error(`Error in DataInputForm.submit(). Result from addNote:
+        console.error(`Error in DataInputForm.submit(). Result from addNote:
 
         ${JSON.stringify(result)}
       `);

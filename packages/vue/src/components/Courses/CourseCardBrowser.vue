@@ -238,7 +238,7 @@ export default class CourseCardBrowser extends SkldrVue {
         if (r.doc) {
           return true;
         } else {
-          this.error(`Card ${r.id} not found`);
+          console.error(`Card ${r.id} not found`);
           toRemove.push(r.id);
           removeTagFromCard(this._id, r.id, this._tag);
           return false;
