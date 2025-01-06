@@ -50,8 +50,8 @@
       v-model="timeLimit"
       mask="##"
       type="number"
-      @click:prepend="timeLimit--"
-      @click:append-outer="timeLimit++"
+      @click:prepend="dec"
+      @click:append-outer="inc"
     />
     <v-btn color="success" @click="startSession">Start Studying!</v-btn>
   </div>
@@ -82,18 +82,28 @@ export default class SessionConfiguration extends Vue {
   public allSelected: boolean = true;
   public activeCourses: (CourseRegistration & SessionConfigMetaData)[] = [];
   public activeClasses: ({ classID: string } & SessionConfigMetaData)[] = [];
-  private timeLimit: number = this.$store.state.views.study.sessionTimeLimit;
 
   private hasRegistrations: boolean = true;
+  private user: User;
+
+  public inc() {
+    this.timeLimit = this.timeLimit + 1;
+    console.log(`inc to ${this.timeLimit}`);
+  }
+
+  public dec() {
+    this.timeLimit--;
+    console.log(`dec to ${this.timeLimit}`);
+  }
 
   @Watch('cardCount')
   @Watch('timeLimit')
   private rangeCheck() {
+    console.log(`watch fcn running`);
     if (this.timeLimit <= 0) {
       this.timeLimit = 1;
     }
-
-    this.$store.state.views.study.sessionTimeLimit = this.timeLimit;
+    this.$emit('update:timeLimit', this.timeLimit);
   }
 
   public $refs: {
@@ -104,7 +114,14 @@ export default class SessionConfiguration extends Vue {
   @Prop({
     required: true,
   })
-  public startFcn: (sources: ContentSourceID[]) => void;
+  public startFcn: (sources: ContentSourceID[], timeLimit: number) => void;
+
+  @Prop({
+    required: true,
+    type: Number,
+  })
+  private initialTimeLimit: number = 5;
+  private timeLimit: number = this.initialTimeLimit;
 
   private update() {
     console.log(JSON.stringify(this.activeCourses));
@@ -137,11 +154,14 @@ export default class SessionConfiguration extends Vue {
         return { type: 'classroom', id: cl.classID };
       });
 
-    this.startFcn(selectedCourses.concat(selectedClassrooms));
+    this.startFcn(selectedCourses.concat(selectedClassrooms), this.timeLimit);
     // + classroom sources
   }
 
   public async created() {
+    this.user = await User.instance();
+    this.timeLimit = this.initialTimeLimit;
+
     this.setHotkeys();
     await Promise.all([this.getActiveCourses(), this.getActiveClassrooms()]);
 
@@ -173,7 +193,7 @@ export default class SessionConfiguration extends Vue {
   }
 
   private async getActiveCourses() {
-    this.activeCourses = (await this.$store.state._user!.getActiveCourses()).map((c) => {
+    this.activeCourses = (await this.user.getActiveCourses()).map((c) => {
       return {
         ...c,
         selected: true,

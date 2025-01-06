@@ -73,6 +73,7 @@ import { ServerRequestType, CourseConfig } from '../server/types';
 import { alertUser } from '../components/SnackbarService.vue';
 import { getCourseList } from '@/db/courseDB';
 import { User } from '../db/userDB';
+import SkldrVue from '@/SkldrVue';
 
 @Component({
   components: {
@@ -80,7 +81,7 @@ import { User } from '../db/userDB';
     CourseStubCard,
   },
 })
-export default class Courses extends Vue {
+export default class Courses extends SkldrVue {
   public existingCourses: CourseConfig[] = [];
   public registeredCourses: CourseConfig[] = [];
   private awaitingCreateCourse: boolean = false;

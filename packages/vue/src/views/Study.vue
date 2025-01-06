@@ -1,6 +1,10 @@
 <template>
   <div v-if="!$store.state.views.study.inSession">
-    <SessionConfiguration v-bind:startFcn="initStudySession" />
+    <SessionConfiguration
+      v-bind:startFcn="initStudySession"
+      v-bind:initialTimeLimit="sessionTimeLimit"
+      v-on:update:timeLimit="(val) => (sessionTimeLimit = val)"
+    />
   </div>
   <div v-else>
     <div v-if="sessionPrepared" class="Study">
@@ -259,7 +263,6 @@ export default class Study extends Vue {
 
   private timerIsActive: boolean = false;
   private timeString: string = '';
-  private timeRemaining: number = this.$store.state.views.study.sessionTimeLimit * 60;
   private _intervalHandler: NodeJS.Timeout;
   private incrementSessionClock() {
     let max = 60 * this.$store.state.views.study.sessionTimeLimit - this.timeRemaining;
@@ -273,7 +276,7 @@ export default class Study extends Vue {
 
     this.percentageRemaining =
       this.timeRemaining > 60
-        ? 100 * (this.timeRemaining / (60 * this.$store.state.views.study.sessionTimeLimit))
+        ? 100 * (this.timeRemaining / (60 * this.sessionTimeLimit))
         : 100 * (this.timeRemaining / 60);
 
     if (this.timeRemaining === 0) {
@@ -303,6 +306,8 @@ export default class Study extends Vue {
 
   private sessionContentSources: StudyContentSource[] = [];
   private sessionClassroomDBs: StudentClassroomDB[] = [];
+  private sessionTimeLimit: number = 5; // Default 5 minutes
+  private timeRemaining: number = this.sessionTimeLimit * 60;
 
   public user_elo(courseID: string) {
     const courseDoc = this.userCourseRegDoc.courses.find((c) => c.courseID === courseID);
@@ -413,11 +418,11 @@ export default class Study extends Vue {
       console.log(`COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
       await this.user.registerForCourse(this.previewCourseID, true);
 
-      this.initStudySession([{ type: 'course', id: this.previewCourseID }]);
+      this.initStudySession([{ type: 'course', id: this.previewCourseID }], this.sessionTimeLimit);
     } else if (this.focusCourseID) {
       console.log(`FOCUS study session: ${this.focusCourseID}`);
 
-      this.initStudySession([{ type: 'course', id: this.focusCourseID }]);
+      this.initStudySession([{ type: 'course', id: this.focusCourseID }], this.sessionTimeLimit);
     }
   }
 
@@ -429,10 +434,12 @@ export default class Study extends Vue {
    * NB: This function is passed to and called by the SessionConfiguration
    *     component
    */
-  private async initStudySession(sources: ContentSourceID[]) {
+  private async initStudySession(sources: ContentSourceID[], timeLimit: number) {
     console.log(`starting study session w/ sources: ${JSON.stringify(sources)}`);
 
     this.sessionContentSources = await Promise.all(sources.map((s) => getStudySource(s)));
+    this.sessionTimeLimit = timeLimit;
+    this.timeRemaining = timeLimit * 60;
 
     this.sessionClassroomDBs = await Promise.all(
       sources
@@ -446,10 +453,7 @@ export default class Study extends Vue {
       db.setChangeFcn(this.handleClassroomMessage());
     });
 
-    this.sessionController = new SessionController(
-      this.sessionContentSources,
-      60 * this.$store.state.views.study.sessionTimeLimit
-    );
+    this.sessionController = new SessionController(this.sessionContentSources, 60 * this.sessionTimeLimit);
     this.sessionController.sessionRecord = this.sessionRecord;
 
     await this.sessionController.prepareSession();

@@ -44,6 +44,7 @@ import SkMidi from './midi';
 import { Watch, Prop } from 'vue-property-decorator';
 import { Status } from '../../../enums/Status';
 import Vue from 'vue';
+import { User } from '@/db/userDB';
 
 @Component({})
 export default class MidiConfig extends Vue {
@@ -63,6 +64,8 @@ export default class MidiConfig extends Vue {
   public selectedInput: string = '';
   public selectedOutput: string = '';
   public updatePending: boolean = false;
+
+  public user: User;
 
   public playSound() {
     this.midi.play([
@@ -246,6 +249,7 @@ export default class MidiConfig extends Vue {
   }
 
   public async created() {
+    this.user = await User.instance();
     try {
       this.midi = await SkMidi.instance();
       this.midiSupported = this.midi.state === 'ready' || this.midi.state === 'nodevice';
@@ -287,7 +291,7 @@ export default class MidiConfig extends Vue {
 
   public async retrieveSettings() {
     //todo
-    this.$store.state._user!.getCourseSettings(this._id).then((s) => {
+    this.user.getCourseSettings(this._id).then((s) => {
       if (s && s.midiinput) {
         this.selectedInput = s.midiinput.toString();
       }
@@ -299,7 +303,7 @@ export default class MidiConfig extends Vue {
 
   public async saveSettings() {
     this.updatePending = true;
-    await this.$store.state._user!.updateCourseSettings(this._id, [
+    await this.user.updateCourseSettings(this._id, [
       {
         key: 'midiinput',
         value: this.selectedInput,

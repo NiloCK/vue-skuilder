@@ -19,6 +19,7 @@ import CourseEditor from '../components/Edit/CourseEditor.vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { CourseConfig } from '../server/types';
 import Vue from 'vue';
+import { User } from '../db/userDB';
 
 @Component({
   components: {
@@ -37,7 +38,8 @@ export default class Edit extends Vue {
   }
 
   private async created() {
-    const courseList = await this.$store.state._user!.getUserEditableCourses();
+    const user = await User.instance();
+    const courseList = await user.getUserEditableCourses();
 
     this.courseList = courseList.rows.map((row) => {
       return row.doc!;

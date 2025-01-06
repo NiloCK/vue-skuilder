@@ -66,6 +66,7 @@ import { Tag } from '@/db/types';
 import { CourseConfig } from '@/server/types';
 import Vue from 'vue';
 import CourseCardBrowser from './CourseCardBrowser.vue';
+import { User } from '@/db/userDB';
 
 @Component({
   components: { MidiConfig, CourseCardBrowser },
@@ -94,11 +95,13 @@ export default class CourseInformation extends Vue {
   private _courseConfig: CourseConfig;
   public userIsRegistered: boolean = false;
   private tags: Tag[] = [];
+  private user: User;
 
   private async created() {
     this.courseDB = new CourseDB(this._id);
+    this.user = await User.instance();
 
-    const userCourses = await this.$store.state._user!.getCourseRegistrationsDoc();
+    const userCourses = await this.user.getCourseRegistrationsDoc();
     this.userIsRegistered =
       userCourses.courses.filter((c) => {
         return c.courseID === this._id && (c.status === 'active' || c.status === undefined);
@@ -111,14 +114,14 @@ export default class CourseInformation extends Vue {
 
   private async register() {
     log(`Registering for ${this._id}`);
-    const res = await this.$store.state._user!.registerForCourse(this._id);
+    const res = await this.user.registerForCourse(this._id);
     if (res.ok) {
       this.userIsRegistered = true;
     }
   }
   private async drop() {
     log(`Dropping course ${this._id}`);
-    const res = await this.$store.state._user!.dropCourse(this._id);
+    const res = await this.user.dropCourse(this._id);
     if (res.ok) {
       this.userIsRegistered = false;
     }

@@ -93,11 +93,16 @@ export default class UserRegistration extends Vue {
     return typeof this.$route.name === 'string' && this.$route.name.toLowerCase() === 'signup';
   }
 
+  private user: User;
   private readonly roles: string[] = ['Student', 'Teacher', 'Author'];
 
   private readonly student: boolean = true;
   private teacher: any = false;
   private author: any = false;
+
+  private async created() {
+    this.user = await User.instance();
+  }
 
   private get buttonStatus() {
     return {
@@ -129,8 +134,8 @@ Author: ${this.author}
 `);
     if (true) {
       if (this.password === this.retypedPassword) {
-        this.$store.state
-          ._user!.createAccount(this.username, this.password)
+        this.user
+          .createAccount(this.username, this.password)
           .then(async (resp) => {
             if (resp.status === Status.ok) {
               this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;

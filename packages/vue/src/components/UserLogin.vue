@@ -52,6 +52,7 @@ import { log } from 'util';
 import { AppState } from '@/store';
 import { Emit } from 'vue-property-decorator';
 import { Status } from '@/enums/Status';
+import { User } from '@/db/userDB';
 
 @Component({})
 export default class UserLogin extends Vue {
@@ -63,6 +64,8 @@ export default class UserLogin extends Vue {
   private awaitingResponse: boolean = false;
   private badLoginAttempt: boolean = false;
   private readonly errorTimeout: number = 5000;
+  private user: User;
+
   private get loginRoute(): boolean {
     return this.$router.currentRoute.name! === 'login';
   }
@@ -84,10 +87,13 @@ export default class UserLogin extends Vue {
 
     try {
       // #172 starting point - why is the pre-existing _user being referenced here?
-      const res = await this.$store.state._user!.login(this.username, this.password);
-      this.$store.state._user!.getConfig().then((cfg) => {
+      this.user = await User.instance();
+      const res = await this.user.login(this.username, this.password);
+      this.user.getConfig().then((cfg) => {
+        // @ts-ignore v3 migrate
         this.$store.state.config = cfg;
       });
+      // @ts-ignore v3 migrate
       this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
       this.$router.push('/study');
     } catch (e) {
