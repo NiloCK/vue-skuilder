@@ -73,9 +73,8 @@ export abstract class FieldInput extends Vue {
     return this.field.tagger ? this.field.tagger(this.userInput()) : [];
   }
 
-
   public generateELO(): CourseElo | undefined {
-    this.log('Running generic generateELO() in FieldInput.ts');
+    console.log('[FieldInput] Running generic generateELO() in FieldInput.ts');
     return this.field.generateELO ? this.field.generateELO(this.userInput()) : undefined;
   }
 
