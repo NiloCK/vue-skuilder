@@ -39,9 +39,22 @@ interface TagObject {
   };
 }
 
+export interface TagsInputInstance {
+  tags: Array<{
+    text: string;
+    style?: string;
+    classes?: string;
+    data?: {
+      snippet: string;
+    };
+  }>;
+  submit: () => Promise<void>;
+  updateAvailableCourseTags: () => Promise<void>;
+}
+
 export default defineComponent({
   name: 'SkTagsInput',
-  
+
   components: {
     VueTagsInput,
   },
