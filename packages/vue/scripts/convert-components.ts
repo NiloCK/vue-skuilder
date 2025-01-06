@@ -22,6 +22,7 @@ The project is currently on
 
 - Only modify the <script> section of the component
 - Keep TypeScript support as far as possible. If type safety is removed, please note it.
+- Prefer \`defineComponent()\` over \`Vue.extend()\`
 - Preserve all existing functionality including base class features (if possible - else note it)
 - Keep the same external component API (props, events, refs)
 - Leave <template> and <style> sections unchanged
