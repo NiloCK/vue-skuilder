@@ -11,19 +11,21 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 import { FieldInput } from '../FieldInput';
 import SimpleMDE from 'simplemde';
 
-@Component
-export default class MarkdownInput extends FieldInput {
-  public get validators() {
-    const ret = super.validators;
-    return ret;
-  }
-
-  public mounted() {}
-}
+export default defineComponent({
+  name: 'MarkdownInput',
+  extends: FieldInput,
+  computed: {
+    validators() {
+      const ret = FieldInput.prototype.validators;
+      return ret;
+    }
+  },
+  mounted() {}
+});
 </script>
 
 <style scoped>
