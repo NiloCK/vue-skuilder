@@ -80,107 +80,113 @@
 
 <script lang="ts">
 import moment from 'moment';
-import Component from 'vue-class-component';
-import { Prop, Watch } from 'vue-property-decorator';
 import TeacherClassroomDB, { AssignedContent, AssignedTag } from '@/db/classroomDB';
 import { getCourseList, getCourseTagStubs } from '@/db/courseDB';
 import { Tag } from '@/db/types';
 import { ClassroomConfig, CourseConfig } from '@/server/types';
 import Vue from 'vue';
 
-@Component({})
-export default class ClassroomCtrlPanel extends Vue {
-  @Prop({ required: true }) private _id: string;
-  private _classroomCfg: ClassroomConfig;
+export default Vue.extend({
+  name: 'ClassroomCtrlPanel',
 
-  private classroomDB: TeacherClassroomDB;
-
-  private _assignedContent: AssignedContent[];
-  private get _assignedCourses() {
-    return this._assignedContent.filter((c) => {
-      return c.type === 'course';
-    });
-  }
-  private get _assignedTags() {
-    return this._assignedContent.filter((c) => {
-      return c.type === 'tag';
-    }) as AssignedTag[];
-  }
-
-  private nameRules: Array<(value: string) => string | boolean> = [
-    (value) => {
-      const max = 30;
-      if (value.length > max) {
-        return `Course name must be ${max} characters or less`;
-      } else {
-        return true;
-      }
+  props: {
+    _id: {
+      type: String,
+      required: true,
     },
-  ];
+  },
 
-  private updatePending: boolean = true;
+  data() {
+    return {
+      _classroomCfg: null as ClassroomConfig | null,
+      classroomDB: null as TeacherClassroomDB | null,
+      _assignedContent: [] as AssignedContent[],
+      nameRules: [
+        (value: string): string | boolean => {
+          const max = 30;
+          return value.length > max ? `Course name must be ${max} characters or less` : true;
+        },
+      ],
+      updatePending: true,
+      addingContent: false,
+      availableCourses: [] as CourseConfig[],
+      selectedCourse: '',
+      availableTags: [] as Tag[],
+      selectedTags: [] as string[],
+    };
+  },
 
-  private addingContent: boolean = false;
-  private availableCourses: CourseConfig[] = [];
-  private selectedCourse: string = '';
-  private availableTags: Tag[] = [];
-  private selectedTags: string[] = [];
+  computed: {
+    _assignedCourses(): AssignedContent[] {
+      return this._assignedContent.filter((c) => c.type === 'course');
+    },
+    _assignedTags(): AssignedTag[] {
+      return this._assignedContent.filter((c) => c.type === 'tag') as AssignedTag[];
+    },
+  },
 
-  private async created() {
+  watch: {
+    async selectedCourse() {
+      const tags = (await getCourseTagStubs(this.selectedCourse)).rows.map((row) => row.doc!);
+      this.availableTags = tags;
+    },
+  },
+
+  async created() {
     this.classroomDB = await TeacherClassroomDB.factory(this._id);
-    Promise.all([
-      (this._assignedContent = await this.classroomDB.getAssignedContent()),
-      (this._classroomCfg = await this.classroomDB.getConfig()),
-    ]);
+    this._assignedContent = await this.classroomDB.getAssignedContent();
+    this._classroomCfg = this.classroomDB.getConfig();
+
     console.log(`[ClassroomCtrlPanel] Route loaded w/ (prop) _id: ${this._id}`);
-    console.log(`[ClassroomCtrlPanel] Config:
-    ${JSON.stringify(this._classroomCfg)}`);
+    console.log(`[ClassroomCtrlPanel] Config: ${JSON.stringify(this._classroomCfg)}`);
 
     this.availableCourses = (await getCourseList()).rows.map((r) => r.doc!);
-
     this.updatePending = false;
-  }
+  },
 
-  @Watch('selectedCourse')
-  private async getCourseTags() {
-    let tags = (await getCourseTagStubs(this.selectedCourse)).rows.map((row) => row.doc!);
-    this.availableTags = tags;
-  }
+  methods: {
+    async assignContent() {
+      if (!this.classroomDB) return;
 
-  private async assignContent() {
-    if (this.selectedTags.length === 0) {
-      await this.classroomDB.assignContent({
-        assignedOn: moment(),
-        activeOn: moment(),
-        type: 'course',
-        courseID: this.selectedCourse,
-        assignedBy: this.$store.state._user!.username,
-      });
-    } else {
-      await this.selectedTags.forEach((tag) => {
-        this.classroomDB.assignContent({
+      if (this.selectedTags.length === 0) {
+        await this.classroomDB.assignContent({
           assignedOn: moment(),
           activeOn: moment(),
-          type: 'tag',
+          type: 'course',
           courseID: this.selectedCourse,
-          tagID: tag,
           assignedBy: this.$store.state._user!.username,
         });
-      });
-    }
+      } else {
+        await Promise.all(
+          this.selectedTags.map((tag) =>
+            this.classroomDB!.assignContent({
+              assignedOn: moment(),
+              activeOn: moment(),
+              type: 'tag',
+              courseID: this.selectedCourse,
+              tagID: tag,
+              assignedBy: this.$store.state._user!.username,
+            })
+          )
+        );
+      }
 
-    this._assignedContent = await this.classroomDB.getAssignedContent();
-    this.addingContent = false;
-    this.selectedCourse = '';
-    this.selectedTags = [];
-    this.availableTags = [];
-  }
-  private async removeContent(c: AssignedContent) {
-    this.classroomDB.removeContent(c);
-  }
+      this._assignedContent = await this.classroomDB.getAssignedContent();
+      this.addingContent = false;
+      this.selectedCourse = '';
+      this.selectedTags = [];
+      this.availableTags = [];
+    },
 
-  private async submit() {
-    this.updatePending = true;
-  }
-}
+    async removeContent(c: AssignedContent) {
+      if (this.classroomDB) {
+        await this.classroomDB.removeContent(c);
+      }
+    },
+
+    async submit() {
+      this.updatePending = true;
+    },
+  },
+});
 </script>
