@@ -73,7 +73,6 @@ import { ServerRequestType, CourseConfig } from '../server/types';
 import { alertUser } from '../components/SnackbarService.vue';
 import { getCourseList } from '@/db/courseDB';
 import { User } from '../db/userDB';
-import SkldrVue from '@/SkldrVue';
 
 @Component({
   components: {
@@ -81,13 +80,14 @@ import SkldrVue from '@/SkldrVue';
     CourseStubCard,
   },
 })
-export default class Courses extends SkldrVue {
+export default class Courses extends Vue {
   public existingCourses: CourseConfig[] = [];
   public registeredCourses: CourseConfig[] = [];
   private awaitingCreateCourse: boolean = false;
   private spinnerMap: { [key: string]: boolean } = {};
 
   private newCourseDialog: boolean = false;
+  private user: User;
 
   public get availableCourses() {
     const availableCourses = _.without(this.existingCourses, ...this.registeredCourses);
@@ -112,7 +112,7 @@ export default class Courses extends SkldrVue {
 
   private async refreshData() {
     log(`Pulling user course data...`);
-    const userCourseIDs = (await this.$store.state._user!.getRegisteredCourses())
+    const userCourseIDs = (await this.user.getRegisteredCourses())
       .filter((c) => {
         return c.status === 'active' || c.status === 'maintenance-mode' || c.status === undefined;
       })
@@ -145,6 +145,7 @@ export default class Courses extends SkldrVue {
   }
 
   private async created() {
+    this.user = await User.instance();
     this.refreshData();
     // this.$on('refresh', () => {
     //   this.refreshData();
