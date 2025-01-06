@@ -56,48 +56,55 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, PropType } from 'vue';
 import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
 import { log } from 'util';
-import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
 import { getCourseDB } from '@/db';
 import { CourseDB, getCourseConfig, getCourseTagStubs } from '@/db/courseDB';
 import { Tag } from '@/db/types';
 import { CourseConfig } from '@/server/types';
-import Vue from 'vue';
 import CourseCardBrowser from './CourseCardBrowser.vue';
 import { User } from '@/db/userDB';
 
-@Component({
-  components: { MidiConfig, CourseCardBrowser },
-})
-export default class CourseInformation extends Vue {
-  @Prop({ required: true }) private _id: string;
-  private courseDB: CourseDB;
+export default defineComponent({
+  name: 'CourseInformation',
+  
+  components: { 
+    MidiConfig, 
+    CourseCardBrowser 
+  },
 
-  private get isPianoCourse(): boolean {
-    return this._courseConfig.name.toLowerCase().includes('piano');
-  }
+  props: {
+    _id: {
+      type: String as PropType<string>,
+      required: true
+    }
+  },
 
-  private nameRules: Array<(value: string) => string | boolean> = [
-    (value) => {
-      const max = 30;
-      if (value.length > max) {
-        return `Course name must be ${max} characters or less`;
-      } else {
-        return true;
-      }
-    },
-  ];
+  data() {
+    return {
+      courseDB: null as CourseDB | null,
+      nameRules: [
+        (value: string): string | boolean => {
+          const max = 30;
+          return value.length > max ? `Course name must be ${max} characters or less` : true;
+        }
+      ],
+      updatePending: true,
+      _courseConfig: {} as CourseConfig,
+      userIsRegistered: false,
+      tags: [] as Tag[],
+      user: null as User | null
+    };
+  },
 
-  private updatePending: boolean = true;
+  computed: {
+    isPianoCourse(): boolean {
+      return this._courseConfig.name.toLowerCase().includes('piano');
+    }
+  },
 
-  private _courseConfig: CourseConfig;
-  public userIsRegistered: boolean = false;
-  private tags: Tag[] = [];
-  private user: User;
-
-  private async created() {
+  async created() {
     this.courseDB = new CourseDB(this._id);
     this.user = await User.instance();
 
@@ -106,27 +113,31 @@ export default class CourseInformation extends Vue {
       userCourses.courses.filter((c) => {
         return c.courseID === this._id && (c.status === 'active' || c.status === undefined);
       }).length === 1;
-    const db = await getCourseDB(this._id);
+      
+    await getCourseDB(this._id);
     this._courseConfig = (await getCourseConfig(this._id))!;
     this.tags = (await getCourseTagStubs(this._id)).rows.map((r) => r.doc!);
     this.updatePending = false;
-  }
+  },
 
-  private async register() {
-    log(`Registering for ${this._id}`);
-    const res = await this.user.registerForCourse(this._id);
-    if (res.ok) {
-      this.userIsRegistered = true;
+  methods: {
+    async register() {
+      log(`Registering for ${this._id}`);
+      const res = await this.user!.registerForCourse(this._id);
+      if (res.ok) {
+        this.userIsRegistered = true;
+      }
+    },
+
+    async drop() {
+      log(`Dropping course ${this._id}`);
+      const res = await this.user!.dropCourse(this._id);
+      if (res.ok) {
+        this.userIsRegistered = false;
+      }
     }
   }
-  private async drop() {
-    log(`Dropping course ${this._id}`);
-    const res = await this.user.dropCourse(this._id);
-    if (res.ok) {
-      this.userIsRegistered = false;
-    }
-  }
-}
+});
 </script>
 
 <style scoped>
