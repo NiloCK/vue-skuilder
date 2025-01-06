@@ -178,7 +178,6 @@ import { getCardDataShape } from '@/db/getCardDataShape';
 import SessionController, { StudySessionRecord } from '@/db/SessionController';
 import { newInterval } from '@/db/SpacedRepetition';
 import { CardData, CardHistory, CardRecord, DisplayableData, isQuestionRecord } from '@/db/types';
-import SkldrVue from '@/SkldrVue';
 import { adjustCourseScores, toCourseElo } from '@/tutor/Elo';
 import confetti from 'canvas-confetti';
 import moment from 'moment';

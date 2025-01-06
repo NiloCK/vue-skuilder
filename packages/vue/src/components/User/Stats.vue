@@ -13,7 +13,6 @@
 import Vue, { VueConstructor } from 'vue';
 import { Component, Prop, Emit, Watch } from 'vue-property-decorator';
 import { log } from 'util';
-import SkldrVue from '../../SkldrVue';
 import confetti from 'canvas-confetti';
 
 @Component({})

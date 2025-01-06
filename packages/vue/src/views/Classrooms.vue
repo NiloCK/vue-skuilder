@@ -89,7 +89,6 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import SkldrVue from '@/SkldrVue';
 import serverRequest from '@/server/index';
 import { ServerRequestType, JoinClassroom, CreateClassroom, LeaveClassroom } from '@/server/types';
 import { alertUser } from '@/components/SnackbarService.vue';

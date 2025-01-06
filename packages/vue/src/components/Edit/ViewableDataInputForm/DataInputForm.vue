@@ -111,7 +111,6 @@ import { fieldConverters, FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
 import ENV from '@/ENVIRONMENT_VARS';
 import { CourseConfig } from '@/server/types';
-import SkldrVue from '@/SkldrVue';
 import _ from 'lodash';
 import Vue from 'vue';
 import { Component, Prop, Watch } from 'vue-property-decorator';

@@ -1,4 +1,3 @@
-import SkldrVue from '../../../SkldrVue';
 import { Prop, Vue } from 'vue-property-decorator';
 import { Answer, Question } from '../../../base-course/Displayable';
 import { QuestionView } from '../../../base-course/Viewable';

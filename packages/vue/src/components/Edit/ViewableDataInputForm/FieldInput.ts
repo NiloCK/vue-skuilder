@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import { Prop } from 'vue-property-decorator';
-import SkldrVue from '../../../SkldrVue';
 import { FieldDefinition } from '../../../base-course/Interfaces/FieldDefinition';
 import {
   ValidatingFunction,

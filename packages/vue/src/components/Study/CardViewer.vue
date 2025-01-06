@@ -18,7 +18,6 @@ import { ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable from '@/base-course/Viewable';
 import Courses from '@/courses';
 import { CardRecord } from '@/db/types';
-import SkldrVue from '@/SkldrVue';
 import { CourseElo } from '@/tutor/Elo';
 import Vue, { VueConstructor } from 'vue';
 import { Component, Emit, Prop } from 'vue-property-decorator';

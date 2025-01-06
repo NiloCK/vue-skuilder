@@ -8,9 +8,8 @@
 import Vue from 'vue';
 import UserRegistration from '@/components/UserRegistration.vue';
 import SkldrVueMixin from '@/mixins/SkldrVueMixin';
-import Skldr from '../SkldrVue';
 
-export default Skldr.extend({
+export default Vue.extend({
   name: 'LoginRoute',
 
   components: {

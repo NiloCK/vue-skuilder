@@ -19,7 +19,6 @@ import Viewable from '@/base-course/Viewable';
 import { displayableDataToViewData, ViewData } from '@/base-course/Interfaces/ViewData';
 import { CardData, CardRecord, DisplayableData } from '@/db/types';
 import { log } from 'util';
-import SkldrVue from '@/SkldrVue';
 import CardViewer from './CardViewer.vue';
 import { getCourseDoc } from '@/db';
 
