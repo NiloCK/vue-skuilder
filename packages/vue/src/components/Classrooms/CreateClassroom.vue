@@ -39,7 +39,6 @@
 import moment from 'moment';
 import Mousetrap from 'mousetrap';
 import { log } from 'util';
-import Component from 'vue-class-component';
 import Vue from 'vue';
 import { registerUserForClassroom } from '../../db/userDB';
 import { Status } from '../../enums/Status';
@@ -47,38 +46,36 @@ import serverRequest from '../../server';
 import { ClassroomConfig, CreateClassroom, ServerRequestType } from '../../server/types';
 import { alertUser } from '../SnackbarService.vue';
 
-@Component({})
-export default class ClassroomEditor extends Vue {
-  private mousetrap = new Mousetrap(this.$el);
+export default Vue.extend({
+  data() {
+    return {
+      mousetrap: new Mousetrap(this.$el),
+      peerAssist: true,
+      name: '',
+      birthYear: undefined as number | undefined,
+      id: '',
+      nameRules: [
+        (value: string): string | boolean => {
+          const max = 30;
+          if (value.length > max) {
+            return `Course name must be ${max} characters or less`;
+          } else {
+            return true;
+          }
+        },
+      ],
+      description: '',
+      banner: undefined as Blob | undefined,
+      thumb: undefined as Blob | undefined,
+      updatePending: false,
+      birthYears: [] as Array<{
+        text: string;
+        value: number;
+      }>,
+    };
+  },
 
-  private peerAssist: boolean = true;
-  private name: string = '';
-  private birthYear: number | undefined = undefined;
-
-  private id: string = '';
-  private nameRules: Array<(value: string) => string | boolean> = [
-    (value) => {
-      const max = 30;
-      if (value.length > max) {
-        return `Course name must be ${max} characters or less`;
-      } else {
-        return true;
-      }
-    },
-  ];
-  private description: string = '';
-
-  private banner?: Blob = undefined;
-  private thumb?: Blob = undefined;
-
-  private updatePending: boolean = false;
-
-  private birthYears: Array<{
-    text: string;
-    value: number;
-  }> = [];
-
-  private created() {
+  created() {
     this.mousetrap.bind('esc', this.clearFormAndDismiss);
 
     const year: number = moment().year();
@@ -99,49 +96,56 @@ export default class ClassroomEditor extends Vue {
       text: `>${year - 6} (K or younger)`,
       value: year - 5,
     });
-  }
+  },
 
-  private async submit() {
-    this.updatePending = true;
+  methods: {
+    async submit() {
+      this.updatePending = true;
 
-    const config: ClassroomConfig = {
-      name: this.name,
-      teachers: [this.$store.state._user!.username],
-      students: [],
-      birthYear: this.birthYear,
-      classMeetingSchedule: '',
-      peerAssist: this.peerAssist,
-      joinCode: '',
-    };
+      const config: ClassroomConfig = {
+        name: this.name,
+        teachers: [this.$store.state._user!.username],
+        students: [],
+        birthYear: this.birthYear,
+        classMeetingSchedule: '',
+        peerAssist: this.peerAssist,
+        joinCode: '',
+      };
 
-    log(`Class Config:
-    ${JSON.stringify(config)}`);
+      log(`Class Config:
+      ${JSON.stringify(config)}`);
 
-    const result = await serverRequest<CreateClassroom>({
-      data: config,
-      type: ServerRequestType.CREATE_CLASSROOM,
-      response: null,
-      user: this.$store.state._user!.username,
-    });
-
-    if (result.response) {
-      alertUser({
-        text: `Class created successfully. Join code: ${result.response.joincode}`,
-        status: Status.ok,
+      const result = await serverRequest<CreateClassroom>({
+        data: config,
+        type: ServerRequestType.CREATE_CLASSROOM,
+        response: null,
+        user: this.$store.state._user!.username,
       });
 
-      registerUserForClassroom(this.$store.state._user!.username, result.response.uuid, 'teacher');
-    }
+      if (result.response && result.response.ok) {
+        alertUser({
+          text: `Class created successfully. Join code: ${result.response.joincode}`,
+          status: Status.ok,
+        });
 
-    this.clearFormAndDismiss();
-    this.updatePending = false;
-  }
+        registerUserForClassroom(this.$store.state._user!.username, result.response.uuid, 'teacher');
+      } else {
+        alertUser({
+          text: `Failed to create class. Please try again.`,
+          status: Status.error,
+        });
+      }
 
-  private clearFormAndDismiss() {
-    this.name = '';
-    this.description = '';
+      this.clearFormAndDismiss();
+      this.updatePending = false;
+    },
 
-    this.$emit('ClassroomEditingComplete');
-  }
-}
+    clearFormAndDismiss() {
+      this.name = '';
+      this.description = '';
+
+      this.$emit('ClassroomEditingComplete');
+    },
+  },
+});
 </script>
