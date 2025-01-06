@@ -28,6 +28,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import { Displayable } from '@/base-course/Displayable';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import Courses from '@/courses';
@@ -35,37 +36,43 @@ import { NameSpacer, QuestionDescriptor } from '@/courses/NameSpacer';
 import { addNote55, getCredentialledCourseConfig } from '@/db/courseAPI';
 import { updateCredentialledCourseConfig } from '@/db/courseDB';
 import { CourseConfig, DataShape55, QuestionType55 } from '@/server/types';
-import Vue from 'vue';
 import * as _ from 'lodash';
-import { Component, Prop } from 'vue-property-decorator';
 
 interface DataShapeRegistrationStatus {
   name: string;
-  course: string; // the namespacing "in-code" course
+  course: string;
   dataShape: DataShape;
   registered: boolean;
 }
 
 interface QuestionRegistrationStatus {
   name: string;
-  course: string; // the namespacing "in-code" course
+  course: string;
   question: typeof Displayable;
   registered: boolean;
 }
 
-@Component({
-  components: {},
-})
-export default class ComponentRegistration extends Vue {
-  @Prop() public course: string;
-  public dataShapes: (DataShapeRegistrationStatus & { displayable: typeof Displayable })[] = [];
-  public questions: QuestionRegistrationStatus[] = [];
+export default defineComponent({
+  name: 'ComponentRegistration',
+  
+  props: {
+    course: {
+      type: String,
+      required: true
+    }
+  },
 
-  private courseDatashapes: DataShape55[] = [];
-  private courseQuestionTypes: QuestionType55[] = [];
-  private courseConfig?: CourseConfig = undefined;
+  data() {
+    return {
+      dataShapes: [] as (DataShapeRegistrationStatus & { displayable: typeof Displayable })[],
+      questions: [] as QuestionRegistrationStatus[],
+      courseDatashapes: [] as DataShape55[],
+      courseQuestionTypes: [] as QuestionType55[],
+      courseConfig: undefined as CourseConfig | undefined
+    };
+  },
 
-  public async created() {
+  async created() {
     this.courseConfig = await getCredentialledCourseConfig(this.course);
     this.courseDatashapes = this.courseConfig.dataShapes;
     this.courseQuestionTypes = this.courseConfig.questionTypes;
@@ -121,107 +128,90 @@ export default class ComponentRegistration extends Vue {
         question: question[1],
       });
     });
-  }
+  },
 
-  private async registerShape(shapeName: string) {
-    const shape = this.dataShapes.find((findShape) => {
-      return findShape.name === shapeName;
-    })!;
+  methods: {
+    async registerShape(shapeName: string) {
+      const shape = this.dataShapes.find((findShape) => {
+        return findShape.name === shapeName;
+      })!;
 
-    this.courseConfig!.dataShapes.push({
-      name: NameSpacer.getDataShapeString({
-        dataShape: shape.name,
-        course: shape.course,
-      }),
-      questionTypes: [],
-    });
-
-    const update = await updateCredentialledCourseConfig(this.course, this.courseConfig!);
-
-    if (update.ok) {
-      shape.registered = true;
-
-      // activate this when: adding a new questionView can find existing
-      // notes in the db and create associated cards.
-      //
-      // if (shape.displayable.seedData) {
-      //   console.log(`[ComponentRegistration] Datashape has seed data!`);
-      //   shape.displayable.seedData.forEach((d) => {
-      //     addNote55(
-      //       this.course,
-      //       shape.course,
-      //       shape.displayable.dataShapes[0],
-      //       d,
-      //       this.$store.state._user!.username
-      //     );
-      //   });
-      // } else {
-      //   console.log(`[ComponentRegistration] Datashape has NO seed data!`);
-      // }
-    }
-  }
-
-  private async registerQuestionView(questionName: string) {
-    const question = this.questions.find((q) => {
-      return q.name === questionName;
-    })!;
-
-    const nsQuestionName = NameSpacer.getQuestionString({
-      course: question.course,
-      questionType: question.name,
-    });
-
-    this.courseConfig!.questionTypes.push({
-      name: nsQuestionName,
-      viewList: question.question.views.map((v) => v.name),
-      dataShapeList: question.question.dataShapes.map((d) =>
-        NameSpacer.getDataShapeString({
-          course: question.course,
-          dataShape: d.name,
-        })
-      ),
-    });
-
-    // associate the question type with existing registered dataTypes
-    question.question.dataShapes.forEach((ds) => {
-      const nsDatashapeName = NameSpacer.getDataShapeString({
-        course: question.course,
-        dataShape: ds.name,
+      this.courseConfig!.dataShapes.push({
+        name: NameSpacer.getDataShapeString({
+          dataShape: shape.name,
+          course: shape.course,
+        }),
+        questionTypes: [],
       });
 
-      for (const db of this.courseConfig!.dataShapes) {
-        if (db.name === nsDatashapeName) {
-          db.questionTypes.push(nsQuestionName);
-        }
+      const update = await updateCredentialledCourseConfig(this.course, this.courseConfig!);
+
+      if (update.ok) {
+        shape.registered = true;
       }
-    });
+    },
 
-    const update = await updateCredentialledCourseConfig(this.course, this.courseConfig!);
+    async registerQuestionView(questionName: string) {
+      const question = this.questions.find((q) => {
+        return q.name === questionName;
+      })!;
 
-    if (update.ok) {
-      question.registered = true;
-      console.log(`[ComponentRegistration]
+      const nsQuestionName = NameSpacer.getQuestionString({
+        course: question.course,
+        questionType: question.name,
+      });
+
+      this.courseConfig!.questionTypes.push({
+        name: nsQuestionName,
+        viewList: question.question.views.map((v) => v.name),
+        dataShapeList: question.question.dataShapes.map((d) =>
+          NameSpacer.getDataShapeString({
+            course: question.course,
+            dataShape: d.name,
+          })
+        ),
+      });
+
+      question.question.dataShapes.forEach((ds) => {
+        const nsDatashapeName = NameSpacer.getDataShapeString({
+          course: question.course,
+          dataShape: ds.name,
+        });
+
+        for (const db of this.courseConfig!.dataShapes) {
+          if (db.name === nsDatashapeName) {
+            db.questionTypes.push(nsQuestionName);
+          }
+        }
+      });
+
+      const update = await updateCredentialledCourseConfig(this.course, this.courseConfig!);
+
+      if (update.ok) {
+        question.registered = true;
+        console.log(`[ComponentRegistration]
 Question: ${JSON.stringify(question)}
 CourseID: ${this.course}
-      `);
-      if (question.question.seedData) {
-        console.log(`[ComponentRegistration] Question has seed data!`);
-        question.question.seedData.forEach((d) => {
-          addNote55(
-            this.course,
-            question.course,
-            question.question.dataShapes[0],
-            d,
-            this.$store.state._user!.username,
-            []
-          );
-        });
-      } else {
-        console.log(`[ComponentRegistration] Question has NO seed data!`);
+        `);
+        if (question.question.seedData) {
+          console.log(`[ComponentRegistration] Question has seed data!`);
+          question.question.seedData.forEach((d) => {
+            addNote55(
+              this.course,
+              question.course,
+              question.question.dataShapes[0],
+              d,
+              this.$store.state._user!.username,
+              []
+            );
+          });
+        } else {
+          console.log(`[ComponentRegistration] Question has NO seed data!`);
+        }
       }
     }
   }
-}
+});
 </script>
 
 <style scoped>
