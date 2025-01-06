@@ -2,7 +2,7 @@
   <div>
     <h3>DataShapes</h3>
     <ul>
-      <li v-for="dataShape in dataShapes" :key="dataShape.name">
+      <li class="ma-2" v-for="dataShape in dataShapes" :key="dataShape.name">
         <v-btn small v-if="!dataShape.registered" @click="registerShape(dataShape.name)"> Register </v-btn>
         <span class="inset" v-else> (Registered) </span>
         {{ dataShape.name }}
@@ -18,7 +18,7 @@
 
     <h3>Questions</h3>
     <ul>
-      <li v-for="question in questions" :key="question.name">
+      <li class="ma-2" v-for="question in questions" :key="question.name">
         <v-btn small v-if="!question.registered" @click="registerQuestionView(question.name)"> Register </v-btn>
         <span class="inset" v-else> (Registered) </span>
         {{ question.name }}
@@ -54,12 +54,12 @@ interface QuestionRegistrationStatus {
 
 export default defineComponent({
   name: 'ComponentRegistration',
-  
+
   props: {
     course: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data() {
@@ -68,7 +68,7 @@ export default defineComponent({
       questions: [] as QuestionRegistrationStatus[],
       courseDatashapes: [] as DataShape55[],
       courseQuestionTypes: [] as QuestionType55[],
-      courseConfig: undefined as CourseConfig | undefined
+      courseConfig: undefined as CourseConfig | undefined,
     };
   },
 
@@ -209,8 +209,8 @@ CourseID: ${this.course}
           console.log(`[ComponentRegistration] Question has NO seed data!`);
         }
       }
-    }
-  }
+    },
+  },
 });
 </script>
 
