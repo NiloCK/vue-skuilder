@@ -8,7 +8,7 @@
     v-bind:label="field.name"
     v-bind:rules="vuetifyRules()"
     v-bind:autofocus="autofocus"
-    v-on:input="validate"
+    v-on:input="() => validate()"
   />
 </template>
 

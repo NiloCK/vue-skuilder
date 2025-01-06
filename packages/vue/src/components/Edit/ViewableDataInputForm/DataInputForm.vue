@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
-    <v-layout row wrap>
-      <v-flex xl6>
+    <v-row>
+      <v-col cols="12" xl="6">
         <v-form ma-2 autocomplete="off">
           <div
             ref="fieldInputWraps"
@@ -75,22 +75,22 @@
 
           <tags-input hideSubmit="true" ref="tagsInput" v-bind:courseID="courseCfg.courseID" cardID="" />
           <v-btn
-            right
+            class="float-right"
             type="submit"
             color="primary"
             v-bind:loading="uploading"
             v-bind:disabled="!allowSubmit"
-            v-on:click.native.prevent="submit"
+            v-on:click.prevent="submit"
           >
             Add card
-            <v-icon right dark>add_circle</v-icon>
+            <v-icon right>mdi-plus-circle</v-icon>
           </v-btn>
         </v-form>
-      </v-flex>
-      <v-flex xl6>
+      </v-col>
+      <v-col cols="12" xl="6">
         <card-browser class="ml-4" v-if="inputIsValidated" v-bind:views="shapeViews" v-bind:data="[previewInput]" />
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -471,11 +471,11 @@ export default class DataInputForm extends Vue {
   }
 
   private getElo(): CourseElo | undefined {
-    this.fieldInputs.forEach((f) => {
+    for (const f of this.fieldInputs) {
       if (f.generateELO) {
         return f.generateELO();
       }
-    });
+    }
     return undefined;
   }
 
