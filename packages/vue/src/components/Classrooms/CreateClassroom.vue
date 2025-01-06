@@ -122,13 +122,18 @@ export default Vue.extend({
         user: this.$store.state._user!.username,
       });
 
-      if (result.response) {
+      if (result.response && result.response.ok) {
         alertUser({
           text: `Class created successfully. Join code: ${result.response.joincode}`,
           status: Status.ok,
         });
 
         registerUserForClassroom(this.$store.state._user!.username, result.response.uuid, 'teacher');
+      } else {
+        alertUser({
+          text: `Failed to create class. Please try again.`,
+          status: Status.error,
+        });
       }
 
       this.clearFormAndDismiss();
