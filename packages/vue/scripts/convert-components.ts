@@ -6,150 +6,17 @@ const { execSync } = require('child_process');
 
 const conversionPrompt: string = `
 System context:
-Here is the base class that many components inherit from:
-
-\`\`\`ts
-// SkldrVue.ts
-import Vue from 'vue';
-import { Store } from 'vuex';
-import { AppState } from './store';
-import { User } from './db/userDB';
-
-export default class SkldrVue extends Vue {
-  public declare $store: Store<AppState>;
-
-  /**
-    * Print a message to the console. Prefixes the message with the component
-    * name.
-    */
-  protected log(message?: any, ...optionalParams: any[]): void {
-    console.log(\`[SK.\${this.$options.name}]: \`, message, ...optionalParams);
-  }
-
-  /**
-    * Print an error message to the console. Prefixes the message with the
-    * component name.
-    *
-    * @param message
-    */
-  protected error(message?: any, ...optionalParams: any[]): void {
-    console.error(\`[SK.\${this.$options.name}]: \`, message, ...optionalParams);
-  }
-
-  /**
-    * Print a warning message to the console. Prefixes the message with the
-    * component name.
-    * @param message
-    */
-  protected warn(message?: any, ...optionalParams: any[]): void {
-    console.warn(\`[SK.\${this.$options.name}]: \`, message, ...optionalParams);
-  }
-
-  /**
-    * Get the current user from the Vuex store. Throws an error if the user is
-    * not logged in
-    */
-  protected user(): User {
-    if (!this.$store.state._user) {
-      throw new Error('User not logged in');
-    } else {
-      return this.$store.state._user;
-    }
-  }
-}
-\`\`\`
-
-Here is a Mixin that can be used as a substitute in Options API:
-
-\`\`\`ts
-// @/mixins/SkldrVueMixin.ts
-import Vue from 'vue';
-import { Store } from 'vuex';
-import { AppState } from '../store';
-import { User } from '../db/userDB';
-
-export default Vue.extend({
-  methods: {
-    log(message?: any, ...optionalParams: any[]): void {
-      console.log(\`[SK.\${this.$options.name}]: \`, message, ...optionalParams);
-    },
-
-    error(message?: any, ...optionalParams: any[]): void {
-      console.error(\`[SK.\${this.$options.name}]: \`, message, ...optionalParams);
-    },
-
-    warn(message?: any, ...optionalParams: any[]): void {
-      console.warn(\`[SK.\${this.$options.name}]: \`, message, ...optionalParams);
-    },
-
-    user(): User {
-      if (!(this.$store as Store<AppState>).state._user) {
-        throw new Error('User not logged in');
-      } else {
-        return (this.$store as Store<AppState>).state._user!;
-      }
-    },
-  },
-});
-
-export interface ISkldrMixin {
-  log(message?: any, ...optionalParams: any[]): void;
-  error(message?: any, ...optionalParams: any[]): void;
-  warn(message?: any, ...optionalParams: any[]): void;
-  user(): User;
-}
-\`\`\`
-
-And a composables version for the Composition API:
-
-\`\`\`ts
-// @/mixins/SkldrComposable.ts
-import { getCurrentInstance, version } from 'vue';
-import type { User } from '../db/userDB';
-
-export function SkldrComposable() {
-  const instance = getCurrentInstance();
-  let componentName: string = 'unknown';
-
-  if (version.startsWith('2')) {
-    // vue 2
-    componentName = (instance as any).$options.name;
-  } else {
-    // vue 3
-    console.warn(\`Migration to Vue 3 complete. Consider revising compat layer in SkldrComposable.\`);
-    componentName = (instance as any).type?.__name;
-  }
-
-  const log = (message?: any, ...optionalParams: any[]): void => {
-    console.log(\`[SK.\${componentName}]: \`, message, ...optionalParams);
-  };
-
-  const error = (message?: any, ...optionalParams: any[]): void => {
-    console.error(\`[SK.\${componentName}]: \`, message, ...optionalParams);
-  };
-
-  const warn = (message?: any, ...optionalParams: any[]): void => {
-    console.warn(\`[SK.\${componentName}]: \`, message, ...optionalParams);
-  };
-
-  return {
-    log,
-    error,
-    warn,
-  };
-}
-
-\`\`\`
 
 # Task:
 
-Please convert the following Vue 2 class-based component to either Options API or Composition API format.
+Please convert the following Vue 2 class-based component to an Options API based component.
 
 # Context:
 
-Part of a migration effort toward Vue 3 and Vuetify 3.
-
-The project is currently on Vue 2.7.16 - the latest available 2.x build, with migration features enabled.
+Part of a migration effort toward Vue 3.
+The project is currently on
+- Vue 2.7.16 - the latest available 2.x build, with migration features enabled.
+- Typescript 5.7.2 - the current version.
 
 # Requirements:
 
@@ -158,19 +25,19 @@ The project is currently on Vue 2.7.16 - the latest available 2.x build, with mi
 - Preserve all existing functionality including base class features (if possible - else note it)
 - Keep the same external component API (props, events, refs)
 - Leave <template> and <style> sections unchanged
-- Flag any potential mixin merge conflicts or concerns
+- Retain any blocks of commented-code that contain "system design" thoughts
 
 Please provide:
 1. The new <script> section, properly typed for TypeScript, enclosed in a <script><script/> tag and not in a code block.
 2. A generic comment on the overall conversion process, in a <summary> section.
-3. Any warnings about potential issues with base class functionality, in a <warnings> section
+3. Any warnings about potential issues with base class functionality, in a <warnings> section. Be conservative - only include information that is likely to flag a problem. It is ok for this to be empty.
 
 
 Here is the component to convert:
 
 `;
 
-const EXCLUDE_DIRS = ['node_modules', 'dist', 'tests'];
+const EXCLUDE_DIRS = ['node_modules', 'dist', 'tests', 'UserInput'];
 const SPECIFIC_PATH = ''; // optional: set to process specific subdirectory
 
 async function* findVueFiles(dir: string): AsyncGenerator<string> {
