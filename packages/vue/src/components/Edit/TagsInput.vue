@@ -23,11 +23,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component, Prop, Watch } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 import { addTagToCard } from '@/db/courseAPI';
 import { getAppliedTags, getCourseTagStubs, removeTagFromCard } from '@/db/courseDB';
-import { Tag } from '@/db/types';
+import type { Tag } from '@/db/types';
 // @ts-ignore
 import VueTagsInput from '@johmun/vue-tags-input';
 
@@ -40,143 +39,170 @@ interface TagObject {
   };
 }
 
-@Component({
+export interface TagsInputInstance {
+  tags: Array<{
+    text: string;
+    style?: string;
+    classes?: string;
+    data?: {
+      snippet: string;
+    };
+  }>;
+  submit: () => Promise<void>;
+  updateAvailableCourseTags: () => Promise<void>;
+}
+
+export default defineComponent({
+  name: 'SkTagsInput',
+
   components: {
     VueTagsInput,
   },
-})
-export default class SkTagsInput extends Vue {
-  @Prop({
-    required: true,
-    default: '',
-  })
-  public courseID: string;
-  @Prop({
-    required: false,
-    default: '',
-  })
-  public cardID: string;
-  @Prop({
-    required: false,
-    default: false,
-  })
-  public hideSubmit = false;
 
-  public loading: boolean = true;
+  props: {
+    courseID: {
+      type: String,
+      required: true,
+      default: '',
+    },
+    cardID: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    hideSubmit: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+  },
 
-  public tag: string = ''; // 'current' tag input
-  public tags: TagObject[] = [];
-  public initialTags: string[] = [];
-  public availableCourseTags: Tag[] = [];
+  data() {
+    return {
+      loading: true,
+      tag: '',
+      tags: [] as TagObject[],
+      initialTags: [] as string[],
+      availableCourseTags: [] as Tag[],
+      separators: [';', ',', ' '] as string[],
+    };
+  },
 
-  public readonly separators: string[] = [';', ',', ' '];
+  computed: {
+    autoCompleteSuggestions(): TagObject[] {
+      return this.availableCourseTags
+        .filter((availableTag) => {
+          return availableTag.name.toLowerCase().indexOf(this.tag.toLowerCase()) !== -1;
+        })
+        .map((availableTag) => {
+          return {
+            text: availableTag.name,
+            data: {
+              snippet: availableTag.snippet,
+            },
+          };
+        });
+    },
+  },
 
-  public tagsChanged(newTags: TagObject[]) {
-    console.log(`[TagsInput] Tags changing: ${JSON.stringify(newTags)}`);
-    this.tags = newTags;
-  }
+  watch: {
+    async cardID() {
+      await this.getAppliedTags();
+    },
+    async courseID() {
+      await this.updateAvailableCourseTags();
+    },
+  },
 
-  public get autoCompleteSuggestions(): TagObject[] {
-    return this.availableCourseTags
-      .filter((availableTag) => {
-        return availableTag.name.toLowerCase().indexOf(this.tag.toLowerCase()) !== -1;
-      })
-      .map((availableTag) => {
-        return {
-          text: availableTag.name,
-          data: {
-            snippet: availableTag.snippet,
-          },
-        };
-      });
-  }
-
-  public async created() {
+  async created() {
     await this.updateAvailableCourseTags();
     await this.getAppliedTags();
-  }
+  },
 
-  @Watch('cardID')
-  private async getAppliedTags() {
-    this.initialTags = [];
-    this.tags = [];
-    try {
-      const appliedDocsFindResult = await getAppliedTags(this.courseID, this.cardID);
-      appliedDocsFindResult.rows.forEach((row) => {
-        console.log(`[TagsInput] The following tag is applied:
+  methods: {
+    tagsChanged(newTags: TagObject[]) {
+      console.log(`[TagsInput] Tags changing: ${JSON.stringify(newTags)}`);
+      this.tags = newTags;
+    },
+
+    async getAppliedTags() {
+      this.initialTags = [];
+      this.tags = [];
+      try {
+        const appliedDocsFindResult = await getAppliedTags(this.courseID, this.cardID);
+        appliedDocsFindResult.rows.forEach((row) => {
+          console.log(`[TagsInput] The following tag is applied:
 \t${JSON.stringify(row)}`);
-        this.tags.push({
-          text: row!.value.name,
-          style: '',
-          classes: '',
+          this.tags.push({
+            text: row!.value.name,
+            style: '',
+            classes: '',
+          });
         });
-      });
-      this.initialTags = this.tags.map((tag) => tag.text);
-    } catch (e) {
-      console.error(`Error in init-getAppliedTags: ${JSON.stringify(e)}, ${e}`);
-    } finally {
+        this.initialTags = this.tags.map((tag) => tag.text);
+      } catch (e) {
+        console.error(`Error in init-getAppliedTags: ${JSON.stringify(e)}, ${e}`);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async updateAvailableCourseTags() {
+      try {
+        this.availableCourseTags = (await getCourseTagStubs(this.courseID)).rows.map((row) => {
+          console.log(`[TagsInput] available tag: ${JSON.stringify(row)}`);
+          return row.doc! as Tag;
+        });
+      } catch (e) {
+        console.error(`Error in init-availableCourseTags: ${JSON.stringify(e)}`);
+      }
+    },
+
+    async submit() {
+      console.log(`[TagsInput] tagsInput is submitting...`);
+      this.loading = true;
+
+      try {
+        await Promise.all(
+          this.tags.map(async (currentTag) => {
+            if (!this.initialTags.includes(currentTag.text)) {
+              try {
+                await addTagToCard(this.courseID, this.cardID, currentTag.text);
+                console.log(`[TagsInput] Successfully added tag: ${currentTag.text}`);
+              } catch (error) {
+                console.error(`Failed to add tag ${currentTag.text}:`, error);
+              }
+            }
+          })
+        );
+      } catch (e) {
+        console.error(`Exception adding tags: ${JSON.stringify(e)}`);
+      }
+
+      try {
+        await Promise.all(
+          this.initialTags.map(async (initialTag) => {
+            if (
+              this.tags.filter((tag) => {
+                return tag.text === initialTag;
+              }).length === 0
+            ) {
+              try {
+                await removeTagFromCard(this.courseID, this.cardID, initialTag);
+                console.log(`[TagsInput] Successfully removed tag: ${initialTag}`);
+              } catch (error) {
+                console.error(`Failed to remove tag ${initialTag}:`, error);
+              }
+            }
+          })
+        );
+      } catch (e) {
+        console.error(`Exception removing tags: ${JSON.stringify(e)}`);
+      }
       this.loading = false;
-    }
-  }
-
-  @Watch('courseID')
-  public async updateAvailableCourseTags() {
-    try {
-      this.availableCourseTags = (await getCourseTagStubs(this.courseID)).rows.map((row) => {
-        console.log(`[TagsInput] available tag: ${JSON.stringify(row)}`);
-        return row.doc! as Tag;
-      });
-    } catch (e) {
-      console.error(`Error in init-availableCourseTags: ${JSON.stringify(e)}`);
-    }
-  }
-
-  public async submit() {
-    console.log(`[TagsInput] tagsInput is submitting...`);
-    this.loading = true;
-
-    try {
-      // 'upload' each 'tag' that's not an initialTag
-      await Promise.all(
-        this.tags.map(async (currentTag) => {
-          if (!this.initialTags.includes(currentTag.text)) {
-            try {
-              await addTagToCard(this.courseID, this.cardID, currentTag.text);
-              console.log(`[TagsInput] Successfully added tag: ${currentTag.text}`);
-            } catch (error) {
-              console.error(`Failed to add tag ${currentTag.text}:`, error);
-            }
-          }
-        })
-      );
-    } catch (e) {
-      console.error(`Exception adding tags: ${JSON.stringify(e)}`);
-    }
-
-    try {
-      // 'remove' initialTags that are no longer in 'tags'
-      await Promise.all(
-        this.initialTags.map(async (initialTag) => {
-          if (
-            this.tags.filter((tag) => {
-              return tag.text === initialTag;
-            }).length === 0
-          ) {
-            try {
-              await removeTagFromCard(this.courseID, this.cardID, initialTag);
-              console.log(`[TagsInput] Successfully removed tag: ${initialTag}`);
-            } catch (error) {
-              console.error(`Failed to remove tag ${initialTag}:`, error);
-            }
-          }
-        })
-      );
-    } catch (e) {
-      console.error(`Exception removing tags: ${JSON.stringify(e)}`);
-    }
-    this.loading = false;
-  }
-}
+    },
+  },
+});
 </script>
 
 <style scoped>
