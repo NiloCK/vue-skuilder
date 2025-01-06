@@ -98,7 +98,6 @@
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
-import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue'; // [ ] remove? unused?
 import TagsInput from '@/components/Edit/TagsInput.vue';
 import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
 import { alertUser } from '@/components/SnackbarService.vue';
@@ -138,7 +137,6 @@ type StringIndexable = { [x: string]: any };
     MarkdownInput,
     MidiInput,
     CardBrowser,
-    DataShapeTable,
     MediaUploader,
     MediaDragDropUploader,
     TagsInput,
