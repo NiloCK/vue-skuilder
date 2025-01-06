@@ -1,19 +1,29 @@
 <template>
-  <v-row column v-if="!updatePending">
-    <v-row cols="1">
-      <h1>Which seems <em>harder</em>?</h1>
+  <v-container v-if="!updatePending">
+    <v-row>
+      <v-col cols="12">
+        <h1>Which seems <em>harder</em>?</h1>
+      </v-col>
     </v-row>
 
     <v-row>
-      <v-btn v-on:click="vote('a')" color="success" class="ma-5"><v-icon>check</v-icon></v-btn>
-      <card-loader class="ma-2" v-bind:qualified_id="id1" />
+      <v-col>
+        <v-btn @click="vote('a')" color="success" class="ma-5">
+          <v-icon>mdi-check</v-icon>
+        </v-btn>
+        <card-loader class="ma-2" :qualified_id="id1" />
+      </v-col>
     </v-row>
 
     <v-row>
-      <v-btn v-on:click="vote('b')" color="success" class="ma-5"><v-icon>check</v-icon></v-btn>
-      <card-loader class="ma-2" v-bind:qualified_id="id2" />
+      <v-col>
+        <v-btn @click="vote('b')" color="success" class="ma-5">
+          <v-icon>mdi-check</v-icon>
+        </v-btn>
+        <card-loader class="ma-2" :qualified_id="id2" />
+      </v-col>
     </v-row>
-  </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -26,7 +36,7 @@ import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: 'ELOModerator',
-  
+
   components: {
     CardViewer,
     CardLoader,
@@ -35,8 +45,8 @@ export default defineComponent({
   props: {
     _id: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data() {
@@ -53,8 +63,8 @@ export default defineComponent({
       id1: '',
       id2: '',
       elo1: null as CourseElo | null,
-      elo2: null as CourseElo | null
-    }
+      elo2: null as CourseElo | null,
+    };
   },
 
   async created() {
@@ -71,7 +81,7 @@ export default defineComponent({
   methods: {
     vote(x: 'a' | 'b') {
       if (!this.elo1 || !this.elo2) return;
-      
+
       const scores = adjustCourseScores(this.elo1, this.elo2, x === 'a' ? 1 : 0, {
         globalOnly: true,
       });
@@ -84,7 +94,7 @@ export default defineComponent({
 
     async getNewCards() {
       if (!this.courseDB) return;
-      
+
       this.updatePending = true;
       this.cards = await this.courseDB.getInexperiencedCards();
 
@@ -100,8 +110,8 @@ export default defineComponent({
       this.elo2 = this.cards[1].elo;
 
       this.updatePending = false;
-    }
-  }
+    },
+  },
 });
 </script>
 
