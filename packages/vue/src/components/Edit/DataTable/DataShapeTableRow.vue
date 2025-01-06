@@ -7,15 +7,22 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import { defineComponent, PropType } from 'vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 
-@Component
-export default class DataShapeTableRows extends Vue {
-  @Prop() private dataShape: DataShape;
-  @Prop() private data: {};
-}
+export default defineComponent({
+  name: 'DataShapeTableRows',
+  props: {
+    dataShape: {
+      type: Object as PropType<DataShape>,
+      required: true
+    },
+    data: {
+      type: Object as PropType<Record<string, unknown>>,
+      required: true,
+    }
+  }
+});
 </script>
 
 <style scoped>
