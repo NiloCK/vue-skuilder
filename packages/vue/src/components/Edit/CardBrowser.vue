@@ -23,7 +23,7 @@ import { VueConstructor } from 'vue';
 
 export default defineComponent({
   name: 'CardBrowser',
-  
+
   components: {
     CardViewer,
   },
@@ -31,24 +31,24 @@ export default defineComponent({
   props: {
     views: {
       type: Array as PropType<Array<VueConstructor<Viewable>>>,
-      required: true
+      required: true,
     },
     data: {
       type: Array as PropType<ViewData[]>,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data() {
     return {
-      viewIndex: 0
-    }
+      viewIndex: 0,
+    };
   },
 
   computed: {
     spinner(): boolean {
       return this.views.length > 1;
-    }
+    },
   },
 
   created() {
@@ -66,11 +66,11 @@ export default defineComponent({
       this.viewIndex++;
       this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
     },
-    
+
     decrementView() {
       this.viewIndex--;
       this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
-    }
-  }
+    },
+  },
 });
 </script>
