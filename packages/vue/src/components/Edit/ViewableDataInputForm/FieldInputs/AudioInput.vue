@@ -34,21 +34,37 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
 import WaveSurfer from 'wavesurfer.js';
-import { FieldInput } from '../FieldInput';
+import FieldInput from '../OptionsFieldInput';
 const MediaStreamRecorder = require('msr');
+import { FieldDefinition } from '../../../../base-course/Interfaces/FieldDefinition';
 
 export default defineComponent({
   extends: FieldInput,
+  props: {
+    field: {
+      type: Object as PropType<FieldDefinition>,
+      required: true,
+    },
+    store: {
+      type: Object as PropType<any>,
+      required: true,
+    },
+    uiValidationFunction: {
+      type: Function as PropType<() => boolean>,
+      required: true,
+    },
+    autofocus: Boolean,
+  },
   data() {
     return {
       recording: false as boolean,
       blob: null as Blob | null,
       blobURL: 'f' as string,
       mediaRecorder: null as any,
-      wavesurfer: null as WaveSurfer | null
+      wavesurfer: null as WaveSurfer | null,
     };
   },
   computed: {
@@ -63,7 +79,7 @@ export default defineComponent({
     },
     blobInputElement(): HTMLInputElement {
       return document.getElementById(this.blobInputID) as HTMLInputElement;
-    }
+    },
   },
   methods: {
     getValidators(): ValidatingFunction[] {
@@ -150,8 +166,8 @@ File type: ${file.type}
         .catch((e) => {
           console.error('media error', e);
         });
-    }
-  }
+    },
+  },
 });
 </script>
 
