@@ -9,6 +9,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+  name: 'UnregisteredComponentsTable',
+});
 </script>
