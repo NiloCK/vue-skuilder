@@ -76,8 +76,8 @@ import CourseCardBrowser from './CourseCardBrowser.vue';
   components: { CourseCardBrowser },
 })
 export default class TagInformation extends Vue {
-  @Prop({ required: true }) _id: string = '';
-  @Prop({ required: true }) _courseId: string = '';
+  @Prop({ required: true }) _id!: string;
+  @Prop({ required: true }) _courseId!: string;
 
   public $refs: {
     snippetEditor: HTMLInputElement;
