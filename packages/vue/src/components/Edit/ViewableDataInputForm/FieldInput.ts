@@ -43,9 +43,9 @@ export abstract class FieldInput extends Vue {
     this.$refs.inputField.focus();
   }
 
-  public userInput = () => {
+  public userInput() {
     return this.store[this.field.name];
-  };
+  }
 
   public setData(data: any) {
     this.store[this.field.name] = data;
@@ -68,21 +68,18 @@ export abstract class FieldInput extends Vue {
     }
   }
 
-  public generateTags = () => {
+  public generateTags() {
     console.log('[FieldInput] Running generic generateTags() in FieldInput.ts');
     return this.field.tagger ? this.field.tagger(this.userInput()) : [];
-  };
+  }
 
-  public generateELO: () => CourseElo | null = () => {
-    console.log('[FieldInput] Running generic generateELO() in FieldInput.ts');
-    return this.field.generateELO ? this.field.generateELO(this.userInput()) : null;
-  };
 
-  public validate = () => {
-    // 'this' is null if
-    // public validate() {...} used instead
-    // ...
+  public generateELO(): CourseElo | undefined {
+    this.log('Running generic generateELO() in FieldInput.ts');
+    return this.field.generateELO ? this.field.generateELO(this.userInput()) : undefined;
+  }
 
+  public validate() {
     let ret: ValidationResult = {
       status: Status.ok,
       msg: '',
@@ -117,5 +114,5 @@ export abstract class FieldInput extends Vue {
     this.uiValidationFunction();
 
     return ret;
-  };
+  }
 }

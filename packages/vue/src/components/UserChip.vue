@@ -1,21 +1,16 @@
 <template>
-  <v-badge overlap color="accent" v-model="hasNewItems">
-    <template v-slot:badge>
-      <span dark small>{{ items.length }}</span>
-    </template>
-
+  <v-badge :content="items.length" :value="hasNewItems" color="accent" overlap>
     <v-menu offset-y transition="scale-transition">
       <template v-slot:activator="{ on, attrs }">
-        <v-chip v-bind="attrs" v-on="on">
-          <v-avatar class="primary">
-            <v-icon dark>school</v-icon>
+        <v-chip v-bind="attrs" v-on="on" class="ma-2">
+          <v-avatar left class="primary">
+            <v-icon dark>mdi-school</v-icon>
           </v-avatar>
           {{ username }}
         </v-chip>
       </template>
 
       <v-list>
-        <!-- eventual notifications bar -->
         <v-list-item v-for="item in items" :key="item" @click="dismiss(item)">
           <v-list-item-title>{{ item }}</v-list-item-title>
         </v-list-item>
@@ -23,17 +18,23 @@
         <v-divider v-if="items.length" />
 
         <v-list-item @click="gotoStats">
-          <v-icon left>trending_up</v-icon>
+          <v-list-item-icon>
+            <v-icon>mdi-trending-up</v-icon>
+          </v-list-item-icon>
           <v-list-item-title>Stats</v-list-item-title>
         </v-list-item>
 
         <v-list-item @click="gotoSettings">
-          <v-icon left>settings</v-icon>
+          <v-list-item-icon>
+            <v-icon>mdi-cog</v-icon>
+          </v-list-item-icon>
           <v-list-item-title>Settings</v-list-item-title>
         </v-list-item>
 
         <v-list-item @click="logout">
-          <v-icon left>launch</v-icon>
+          <v-list-item-icon>
+            <v-icon>mdi-logout</v-icon>
+          </v-list-item-icon>
           <v-list-item-title>Log out</v-list-item-title>
         </v-list-item>
       </v-list>
