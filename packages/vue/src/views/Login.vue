@@ -7,7 +7,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import UserLogin from '@/components/UserLogin.vue';
-import SkldrVue from '@/SkldrVue';
+import SkldrMixin from '@/mixins/SkldrVueMixin';
 
 export default Vue.extend({
   name: 'LoginRoute',
@@ -17,7 +17,7 @@ export default Vue.extend({
   },
 
   // Extending SkldrVue functionality
-  mixins: [SkldrVue],
+  mixins: [SkldrMixin],
 });
 </script>
 
