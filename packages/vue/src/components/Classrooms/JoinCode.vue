@@ -15,30 +15,42 @@
 
 <script lang="ts">
 import { log } from 'util';
-import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
 import Vue from 'vue';
 import TeacherClassroomDB from '../../db/classroomDB';
 import { ClassroomConfig } from '../../server/types';
 
-@Component({})
-export default class JoinCode extends Vue {
-  @Prop({ required: true }) private _id: string;
+export default Vue.extend({
+  name: 'JoinCode',
+  
+  props: {
+    _id: {
+      type: String,
+      required: true
+    }
+  },
 
-  private _classroomCfg: ClassroomConfig;
-  private classroomDB: TeacherClassroomDB;
-  private updatePending: boolean = true;
+  data() {
+    return {
+      _classroomCfg: null as ClassroomConfig | null,
+      classroomDB: null as TeacherClassroomDB | null,
+      updatePending: true
+    }
+  },
 
-  private async created() {
+  async created() {
     this.classroomDB = await TeacherClassroomDB.factory(this._id);
-    Promise.all([(this._classroomCfg = await this.classroomDB.getConfig())]);
+    this._classroomCfg = await this.classroomDB.getConfig();
+    await Promise.all([]);
     log(`Route loaded w/ (prop) _id: ${this._id}`);
     log(`Config:
     ${JSON.stringify(this._classroomCfg)}`);
     this.updatePending = false;
+  },
+
+  methods: {
+    close() {
+      this.$router.back();
+    }
   }
-  private close() {
-    this.$router.back();
-  }
-}
+});
 </script>
