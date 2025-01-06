@@ -62,141 +62,148 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import { getCredentialledCourseConfig } from '@/db/courseAPI';
 import { getTag, updateTag } from '@/db/courseDB';
 import { DocType, Tag } from '@/db/types';
 import { Status } from '@/enums/Status';
 import { CourseConfig } from '@/server/types';
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
-import { alertUser } from '../SnackbarService.vue';
 import CourseCardBrowser from './CourseCardBrowser.vue';
+import { alertUser } from '../SnackbarService.vue';
 
-@Component({
-  components: { CourseCardBrowser },
-})
-export default class TagInformation extends Vue {
-  @Prop({ required: true }) _id!: string;
-  @Prop({ required: true }) _courseId!: string;
+export default defineComponent({
+  name: 'TagInformation',
 
-  public $refs: {
-    snippetEditor: HTMLInputElement;
-    wikiEditor: HTMLInputElement;
-  };
+  components: {
+    CourseCardBrowser,
+  },
 
-  public snippetModel: string = '';
-  public editingSnippet: boolean = false;
-  public snippetSaving: boolean = false;
+  props: {
+    _id: {
+      type: String,
+      required: true,
+    },
+    _courseId: {
+      type: String,
+      required: true,
+    },
+  },
 
-  public wikiModel: string = '';
-  public editingWiki: boolean = false;
-  public wikiSaving: boolean = false;
+  data() {
+    return {
+      snippetModel: '',
+      editingSnippet: false,
+      snippetSaving: false,
 
-  public tag: Tag = {
-    course: this._courseId,
-    name: this._id,
-    snippet: '',
-    wiki: '',
-    taggedCards: [],
-    docType: DocType.TAG,
-  };
-  public course: CourseConfig = {
-    courseID: this._courseId,
-    name: '',
-    description: '',
-    public: false,
-    deleted: false,
+      wikiModel: '',
+      editingWiki: false,
+      wikiSaving: false,
 
-    dataShapes: [],
-    questionTypes: [],
+      tag: {
+        course: this._courseId,
+        name: this._id,
+        snippet: '',
+        wiki: '',
+        taggedCards: [],
+        docType: DocType.TAG,
+      } as Tag,
 
-    creator: '',
-    admins: [],
-    moderators: [],
-  };
+      course: {
+        courseID: this._courseId,
+        name: '',
+        description: '',
+        public: false,
+        deleted: false,
+        dataShapes: [],
+        questionTypes: [],
+        creator: '',
+        admins: [],
+        moderators: [],
+      } as CourseConfig,
+    };
+  },
 
-  public editSnippet() {
-    console.log('[TagInformation] EditSnip');
-    this.editingSnippet = true;
-    this.$refs.snippetEditor.focus(); // not doing anything
-  }
-  public editWiki() {
-    console.log('[TagInformation] EditWiki');
-    this.editingWiki = true;
-    this.$refs.wikiEditor.focus(); // not doing anything
-  }
+  methods: {
+    editSnippet() {
+      console.log('[TagInformation] EditSnip');
+      this.editingSnippet = true;
+      (this.$refs.snippetEditor as HTMLInputElement).focus();
+    },
 
-  public async saveSnippet() {
-    this.snippetSaving = true;
+    editWiki() {
+      console.log('[TagInformation] EditWiki');
+      this.editingWiki = true;
+      (this.$refs.wikiEditor as HTMLInputElement).focus();
+    },
 
-    const update = await updateTag({
-      ...this.tag,
-      snippet: this.snippetModel,
-    });
+    async saveSnippet() {
+      this.snippetSaving = true;
 
-    if (update.ok) {
-      console.log('[TagInformation] OK');
-      // update local copy
-      this.tag.snippet = this.snippetModel;
-      alertUser({
-        text: `Updated applied - thanks!`,
-        status: Status.ok,
+      const update = await updateTag({
+        ...this.tag,
+        snippet: this.snippetModel,
       });
-    } else {
-      alertUser({
-        text: `error in applying update!`,
-        status: Status.error,
+
+      if (update.ok) {
+        console.log('[TagInformation] OK');
+        this.tag.snippet = this.snippetModel;
+        alertUser({
+          text: `Updated applied - thanks!`,
+          status: Status.ok,
+        });
+      } else {
+        alertUser({
+          text: `error in applying update!`,
+          status: Status.error,
+        });
+      }
+
+      this.editingSnippet = false;
+      this.snippetSaving = false;
+    },
+
+    async saveWiki() {
+      this.wikiSaving = true;
+
+      const update = await updateTag({
+        ...this.tag,
+        wiki: this.wikiModel,
       });
-    }
 
-    // leave edit-mode
-    this.editingSnippet = false;
-    this.snippetSaving = false;
-  }
+      if (update.ok) {
+        this.tag.wiki = this.wikiModel;
+        alertUser({
+          text: `Updated applied - thanks!`,
+          status: Status.ok,
+        });
+      } else {
+        alertUser({
+          text: `error in applying update!`,
+          status: Status.error,
+        });
+      }
 
-  public async saveWiki() {
-    this.wikiSaving = true;
+      this.editingWiki = false;
+      this.wikiSaving = false;
+    },
 
-    const update = await updateTag({
-      ...this.tag,
-      wiki: this.wikiModel,
-    });
+    cancelEditSnippet() {
+      console.log('[TagInformation] Cancelling EditSnip');
+      this.editingSnippet = false;
+      this.snippetModel = this.tag.snippet;
+    },
 
-    if (update.ok) {
-      // update local copy
-      this.tag.wiki = this.wikiModel;
-      alertUser({
-        text: `Updated applied - thanks!`,
-        status: Status.ok,
-      });
-    } else {
-      alertUser({
-        text: `error in applying update!`,
-        status: Status.error,
-      });
-    }
+    cancelEditWiki() {
+      this.editingWiki = false;
+      this.wikiModel = this.tag.wiki;
+    },
+  },
 
-    // leave edit-mode
-    this.editingWiki = false;
-    this.wikiSaving = false;
-  }
-
-  public cancelEditSnippet() {
-    console.log('[TagInformation] Cancelling EditSnip');
-    this.editingSnippet = false;
-    // this.snippetModel = 'test';
-    this.snippetModel = this.tag.snippet;
-  }
-  public cancelEditWiki() {
-    this.editingWiki = false;
-    this.wikiModel = this.tag.wiki;
-  }
-
-  private async created() {
+  async created() {
     this.tag = await getTag(this._courseId, this._id);
     this.snippetModel = this.tag.snippet;
     this.wikiModel = this.tag.wiki;
     this.course = await getCredentialledCourseConfig(this._courseId);
-  }
-}
+  },
+});
 </script>
