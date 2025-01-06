@@ -112,7 +112,7 @@ import Vue from 'vue';
 
 export default Vue.extend({
   name: 'CourseCardBrowser',
-  
+
   components: {
     CardLoader,
     TagsInput,
@@ -122,12 +122,12 @@ export default Vue.extend({
   props: {
     _id: {
       type: String,
-      required: true
+      required: true,
     },
     _tag: {
       type: String,
-      required: false
-    }
+      required: false,
+    },
   },
 
   data() {
@@ -143,8 +143,8 @@ export default Vue.extend({
       updatePending: true,
       userIsRegistered: false,
       questionCount: 0,
-      tags: [] as Tag[]
-    }
+      tags: [] as Tag[],
+    };
   },
 
   async created() {
@@ -263,7 +263,11 @@ export default Vue.extend({
         const _courseID: string = c.id.split('-')[0];
         const _cardID: string = c.id.split('-')[1];
 
-        const tmpCardData = hydratedCardData.find((c) => c._id == _cardID)!;
+        const tmpCardData = hydratedCardData.find((c) => c._id == _cardID);
+        if (!tmpCardData || !tmpCardData.id_displayable_data) {
+          console.error(`No valid data found for card ${_cardID}`);
+          return;
+        }
         const tmpView = Courses.getView(tmpCardData.id_view || 'default.question.BlanksCard.FillInView');
 
         const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
@@ -289,8 +293,8 @@ export default Vue.extend({
         this.updatePending = false;
         this.$forceUpdate();
       });
-    }
-  }
+    },
+  },
 });
 </script>
 
