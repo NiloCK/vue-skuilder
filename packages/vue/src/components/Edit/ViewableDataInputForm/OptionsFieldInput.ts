@@ -53,12 +53,16 @@ export default defineComponent({
     },
 
     userInput() {
-      if (!this.field?.name) return;
+      if (!this.field?.name) {
+        throw new Error('Field name is required for FieldInput component');
+      }
       return this.store[this.field.name];
     },
 
     setData(data: any) {
-      if (!this.field?.name) return;
+      if (!this.field?.name) {
+        throw new Error('Field name is required for FieldInput component');
+      }
       this.store[this.field.name] = data;
     },
 
