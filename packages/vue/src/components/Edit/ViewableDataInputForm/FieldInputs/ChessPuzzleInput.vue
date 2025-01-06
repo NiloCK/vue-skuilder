@@ -12,58 +12,53 @@
 </template>
 
 <script lang="ts">
-import { Component, Watch } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 import { FieldInput } from '../FieldInput';
 import { toCourseElo, CourseElo } from '@/tutor/Elo';
 
-@Component
-export default class ChessPuzzleInput extends FieldInput {
-  /*
-  From https://database.lichess.org/#puzzles
+export default defineComponent({
+  name: 'ChessPuzzleInput',
+  extends: FieldInput,
 
-  Puzzles are formatted as standard CSV. The fields are as follows:
-
-  PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
-
-  */
-
-  public mounted() {
+  mounted() {
     this.validate();
-  }
+  },
 
-  public generateELO() {
-    const split = (this.store[this.field.name] as string).split(',');
-    const elo = parseInt(split[3]);
-    const count = parseInt(split[6]);
+  methods: {
+    generateELO(): CourseElo {
+      const split = (this.store[this.field.name] as string).split(',');
+      const elo = parseInt(split[3]);
+      const count = parseInt(split[6]);
 
-    let crsElo: CourseElo = {
-      global: {
-        score: elo,
-        count,
-      },
-      tags: {},
-      misc: {},
-    };
-
-    const tags = this.generateTags();
-    tags.forEach((t) => {
-      crsElo.tags[t] = {
-        score: elo,
-        count,
+      let crsElo: CourseElo = {
+        global: {
+          score: elo,
+          count,
+        },
+        tags: {},
+        misc: {},
       };
-    });
 
-    console.log('generateELO', JSON.stringify(crsElo));
+      const tags = this.generateTags();
+      tags.forEach((t) => {
+        crsElo.tags[t] = {
+          score: elo,
+          count,
+        };
+      });
 
-    return crsElo;
+      console.log('generateELO', JSON.stringify(crsElo));
+
+      return crsElo;
+    },
+
+    generateTags(): string[] {
+      const split = (this.store[this.field.name] as string).split(',');
+      const themes = split[7].split(' ');
+      const openingTags = split[9].split(' ');
+
+      return themes.map((t) => `theme-${t}`).concat(openingTags.map((t) => `opening-${t}`));
+    }
   }
-
-  public generateTags() {
-    const split = (this.store[this.field.name] as string).split(',');
-    const themes = split[7].split(' ');
-    const openingTags = split[9].split(' ');
-
-    return themes.map((t) => `theme-${t}`).concat(openingTags.map((t) => `opening-${t}`));
-  };
-}
+});
 </script>
