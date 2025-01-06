@@ -123,11 +123,17 @@ export default defineComponent({
         user: this.$store.state._user!.username,
       });
 
-      if (result.response) {
+      if (result.response && result.response.ok) {
         alertUser({
           text: `Course ${this.name} created.`,
           status: result.response!.status,
         });
+      } else {
+        alertUser({
+          text: `Failed to create course ${this.name}.`,
+          status: result.response!.status,
+        });
+        console.warn(`Resp: ${JSON.stringify(result.response)}`);
       }
 
       this.clearFormAndDismiss();
