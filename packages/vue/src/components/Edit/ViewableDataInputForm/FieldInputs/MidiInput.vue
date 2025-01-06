@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 import { FieldInput } from '../FieldInput';
 import SkMidi, {
   eventsToSyllableSequence,
@@ -29,89 +29,83 @@ import SkMidi, {
 } from '../../../../courses/piano/utility/midi';
 import SyllableSeqVis from '../../../../courses/piano/utility/SyllableSeqVis.vue';
 
-@Component({
+export default defineComponent({
+  name: 'MidiInput',
+  extends: FieldInput,
   components: {
     SyllableSeqVis,
   },
-})
-export default class MidiInput extends FieldInput {
-  public midi: SkMidi;
-  public recording: boolean = false;
-  public SylSeq: SyllableSequence = eventsToSyllableSequence([]);
-  public display: boolean = false;
-  public transpositions: boolean = false;
 
-  public declare $refs: {
-    inputVis: SyllableSeqVis;
-    inputField: HTMLInputElement;
-  };
+  data() {
+    return {
+      midi: null as SkMidi | null,
+      recording: false,
+      SylSeq: eventsToSyllableSequence([]) as SyllableSequence,
+      display: false,
+      transpositions: false,
+    };
+  },
 
   async created() {
     try {
       this.midi = await SkMidi.instance();
       this.record();
-
-      // this.store[this.field.name] = this.midi.recording;
       this.store[this.field.name] = this.getTransposedSeqs;
     } catch (e) {
       throw e;
     }
-  }
+  },
 
-  public record() {
-    this.midi.record();
-    this.midi.addNoteonListenter((e) => {
-      this.SylSeq.append(e);
-      this.$refs.inputVis.updateBounds();
-    });
-    this.recording = true;
-  }
-
-  public getTransposedSeqs() {
-    if (this.transpositions) {
-      return [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6].map((shift) => {
-        return transposeSyllableSeq(this.midi.recording, shift);
+  methods: {
+    record() {
+      if (!this.midi) return;
+      this.midi.record();
+      this.midi.addNoteonListenter((e) => {
+        this.SylSeq.append(e);
+        (this.$refs.inputVis as InstanceType<typeof SyllableSeqVis>).updateBounds();
       });
-    } else {
-      return [this.midi.recording];
-    }
-  }
+      this.recording = true;
+    },
 
-  public clearData() {
-    console.log('midiInput clearing data...');
-    this.midi.stopRecording();
-    this.midi.eraseRecording();
-    this.SylSeq = eventsToSyllableSequence([]);
-    this.record();
-    this.recording = true;
-
-    this.store.convertedInput[this.field.name] = this.midi.recording;
-    this.store.validation[this.field.name] = false;
-
-    // this.store[this.field.name] = this.midi.recording;
-    this.store[this.field.name] = this.getTransposedSeqs;
-  }
-
-  public hasRecording(): boolean {
-    // return this.midi.hasRecording;
-    if (this.midi) {
-      if (this.midi.hasRecording) {
-        return this.midi.hasRecording;
+    getTransposedSeqs() {
+      if (!this.midi) return [];
+      if (this.transpositions) {
+        return [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6].map((shift) => {
+          return transposeSyllableSeq(this.midi!.recording, shift);
+        });
+      } else {
+        return [this.midi.recording];
       }
+    },
+
+    clearData() {
+      if (!this.midi) return;
+      console.log('midiInput clearing data...');
+      this.midi.stopRecording();
+      this.midi.eraseRecording();
+      this.SylSeq = eventsToSyllableSequence([]);
+      this.record();
+      this.recording = true;
+
+      this.store.convertedInput[this.field.name] = this.midi.recording;
+      this.store.validation[this.field.name] = false;
+      this.store[this.field.name] = this.getTransposedSeqs;
+    },
+
+    hasRecording(): boolean {
+      return this.midi?.hasRecording ?? false;
+    },
+
+    reset() {
+      this.clearData();
+    },
+
+    play() {
+      if (!this.midi) return;
+      this.midi.play();
+      this.display = true;
+      this.validate();
     }
-    return false;
   }
-
-  public reset() {
-    this.clearData();
-  }
-
-  public play() {
-    this.midi.play();
-    // this.SylSeq = eventsToSyllableSequence(this.midi.recording);
-    this.display = true;
-    // console.log(eventsToSyllableSequence(this.midi.recording).toString());
-    this.validate();
-  }
-}
+});
 </script>
