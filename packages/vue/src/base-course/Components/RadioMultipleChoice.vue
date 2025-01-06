@@ -1,5 +1,5 @@
 <template>
-  <div class="multipleChoice">
+  <div class="multipleChoice" ref="containerRef">
     <MultipleChoiceOption
       v-for="(choice, i) in choiceList"
       v-bind:key="i"
@@ -14,17 +14,17 @@
 </template>
 
 <script lang="ts">
-import UserInput from '@/base-course/Components/UserInput/UserInput';
+import UserInput from '@/base-course/Components/UserInput/OptionsUserInput';
 import MultipleChoiceOption from './MultipleChoiceOption.vue';
 import { Answer } from '../Displayable';
-import { PropType } from 'vue';
+import { defineComponent, PropType } from 'vue';
 
 export interface RadioSelectAnswer extends Answer {
   choiceList: string[];
   selection: number;
 }
 
-export default {
+export default defineComponent({
   name: 'RadioSelect',
   extends: UserInput,
   components: {
@@ -37,17 +37,20 @@ export default {
     },
     MouseTrap: {
       type: Object,
-      required: false,
+      required: true,
     },
   },
   data() {
     return {
       currentSelection: -1,
       incorrectSelections: [] as number[],
+      containerRef: null as null | HTMLElement,
     };
   },
   mounted() {
-    this.$el.focus();
+    if (this.containerRef) {
+      this.containerRef.focus();
+    }
   },
   created() {
     this.MouseTrap.bind('left', this.decrementSelection);
@@ -108,5 +111,5 @@ export default {
       });
     },
   },
-};
+});
 </script>
