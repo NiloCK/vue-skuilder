@@ -99,7 +99,7 @@ import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
 import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue'; // [ ] remove? unused?
-import TagsInput from '@/components/Edit/TagsInput.vue';
+import TagsInput, { TagsInputInstance } from '@/components/Edit/TagsInput.vue';
 import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
 import { alertUser } from '@/components/SnackbarService.vue';
 import Courses from '@/courses';
@@ -159,6 +159,7 @@ export default class DataInputForm extends Vue {
   private timer: NodeJS.Timeout;
   public $refs: {
     fieldInputWraps: HTMLDivElement[];
+    // @ts-ignore
     tagsInput: TagsInput;
   };
 
@@ -464,6 +465,7 @@ export default class DataInputForm extends Vue {
       }
     });
 
+    // @ts-ignore
     let manualTags = this.$refs.tagsInput.tags.map((t) => t.text);
 
     return dataShapeParsedTags.concat(manualTags);
