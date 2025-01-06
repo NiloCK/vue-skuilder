@@ -52,93 +52,97 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import Mousetrap from 'mousetrap';
-import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
 import serverRequest from '../../server';
 import { CourseConfig, CreateCourse, DataShape55, QuestionType55, ServerRequestType } from '../../server/types';
-import Vue from 'vue';
 import { alertUser } from '../SnackbarService.vue';
 
-@Component({})
-export default class CourseEditor extends Vue {
-  private mousetrap = new Mousetrap(this.$el);
+export default defineComponent({
+  name: 'CourseEditor',
 
-  private id: string = '';
-  @Prop({
-    required: false,
-    default: '',
-  })
-  private name: string = '';
-  private nameRules: Array<(value: string) => string | boolean> = [
-    (value) => {
-      const max = 30;
-      if (value.length > max) {
-        return `Course name must be ${max} characters or less`;
-      } else {
-        return true;
-      }
+  props: {
+    name: {
+      type: String,
+      required: false,
+      default: '',
     },
-  ];
-  private description: string = '';
-  private publicCourse: boolean = false;
-  private deleted: boolean = false;
-  private admins: string[] = [];
-  private moderators: string[] = [];
-  private dataShapes: DataShape55[] = [];
-  private questionTypes: QuestionType55[] = [];
+  },
 
-  private banner?: Blob = undefined;
-  private thumb?: Blob = undefined;
-
-  private updatePending: boolean = false;
-
-  private created() {
-    this.mousetrap.bind('esc', this.clearFormAndDismiss);
-  }
-
-  private async submit() {
-    this.updatePending = true;
-
-    const config: CourseConfig = {
-      name: this.name,
-      description: this.description,
-      public: this.publicCourse,
-      deleted: this.deleted,
-      creator: this.$store.state._user!.username,
-      admins: this.admins,
-      moderators: this.moderators,
-      dataShapes: this.dataShapes,
-      questionTypes: this.questionTypes,
+  data() {
+    return {
+      mousetrap: new Mousetrap(this.$el),
+      id: '',
+      description: '',
+      publicCourse: false,
+      deleted: false,
+      admins: [] as string[],
+      moderators: [] as string[],
+      dataShapes: [] as DataShape55[],
+      questionTypes: [] as QuestionType55[],
+      banner: undefined as Blob | undefined,
+      thumb: undefined as Blob | undefined,
+      updatePending: false,
+      nameRules: [
+        (value: string): string | boolean => {
+          const max = 30;
+          if (value.length > max) {
+            return `Course name must be ${max} characters or less`;
+          } else {
+            return true;
+          }
+        },
+      ],
     };
+  },
 
-    const result = await serverRequest<CreateCourse>({
-      data: config,
-      type: ServerRequestType.CREATE_COURSE,
-      response: null,
-      user: this.$store.state._user!.username,
-    });
+  created() {
+    this.mousetrap.bind('esc', this.clearFormAndDismiss);
+  },
 
-    if (result.response) {
-      alertUser({
-        text: `Course ${this.name} created.`,
-        status: result.response!.status,
+  methods: {
+    async submit() {
+      this.updatePending = true;
+
+      const config: CourseConfig = {
+        name: this.name,
+        description: this.description,
+        public: this.publicCourse,
+        deleted: this.deleted,
+        creator: this.$store.state._user!.username,
+        admins: this.admins,
+        moderators: this.moderators,
+        dataShapes: this.dataShapes,
+        questionTypes: this.questionTypes,
+      };
+
+      const result = await serverRequest<CreateCourse>({
+        data: config,
+        type: ServerRequestType.CREATE_COURSE,
+        response: null,
+        user: this.$store.state._user!.username,
       });
-    }
 
-    this.clearFormAndDismiss();
-    this.updatePending = false;
-  }
+      if (result.response) {
+        alertUser({
+          text: `Course ${this.name} created.`,
+          status: result.response!.status,
+        });
+      }
 
-  private clearFormAndDismiss() {
-    this.name = '';
-    this.publicCourse = false;
-    this.deleted = false;
-    this.description = '';
-    this.admins = [];
-    this.moderators = [];
+      this.clearFormAndDismiss();
+      this.updatePending = false;
+    },
 
-    this.$emit('CourseEditingComplete');
-  }
-}
+    clearFormAndDismiss() {
+      this.description = '';
+      this.publicCourse = false;
+      this.deleted = false;
+      this.admins = [];
+      this.moderators = [];
+
+      this.$emit('CourseEditingComplete');
+    },
+  },
+});
 </script>
