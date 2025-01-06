@@ -45,67 +45,73 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import { disambiguateCourse, getCachedCourseList } from '@/db/courseDB';
 import { CourseConfig } from '@/server/types';
-import Vue from 'vue';
-import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
 import CourseEditor from './CourseEditor.vue';
 import CourseInformation from './CourseInformation.vue';
 
-@Component({
+export default defineComponent({
+  name: 'CourseRouter',
+  
   components: {
     CourseInformation,
     CourseEditor,
   },
-})
-export default class CourseRouter extends Vue {
-  @Prop({
-    required: true,
-  })
-  private query: string;
 
-  private courseList: CourseConfig[];
-
-  private courseId: string;
-  private candidates: CourseConfig[] = [];
-
-  private newCourseDialog: boolean = false;
-
-  private initComplete: boolean = false;
-
-  private update(c: CourseConfig) {
-    if (c.courseID && c.disambiguator) {
-      disambiguateCourse(c.courseID, c.disambiguator);
-    } else {
-      // todo: indicate error on input box
+  props: {
+    query: {
+      type: String,
+      required: true
     }
-  }
+  },
 
-  private loadQuery() {
-    this.query = this.query.toLowerCase();
-
-    this.candidates = this.courseList.filter((c) => {
-      const snakedName = c.name.replace(' ', '_').toLowerCase();
-      return (
-        this.query === snakedName || this.query === c.courseID || this.query === `${snakedName}_(${c.disambiguator})`
-      );
-    });
-
-    if (this.candidates.length === 1) {
-      this.courseId = this.candidates[0].courseID!;
-    } else if (this.candidates.length === 0) {
-      this.courseId = '';
+  data() {
+    return {
+      courseList: [] as CourseConfig[],
+      courseId: undefined as string | undefined,
+      candidates: [] as CourseConfig[],
+      newCourseDialog: false,
+      initComplete: false
     }
+  },
 
-    this.initComplete = true;
-  }
+  methods: {
+    update(c: CourseConfig) {
+      if (c.courseID && c.disambiguator) {
+        disambiguateCourse(c.courseID, c.disambiguator);
+      } else {
+        // todo: indicate error on input box
+      }
+    },
 
-  public async created() {
+    loadQuery() {
+      const query = this.query.toLowerCase();
+
+      this.candidates = this.courseList.filter((c) => {
+        const snakedName = c.name.replace(' ', '_').toLowerCase();
+        return (
+          query === snakedName || 
+          query === c.courseID || 
+          query === `${snakedName}_(${c.disambiguator})`
+        );
+      });
+
+      if (this.candidates.length === 1) {
+        this.courseId = this.candidates[0].courseID!;
+      } else if (this.candidates.length === 0) {
+        this.courseId = '';
+      }
+
+      this.initComplete = true;
+    }
+  },
+
+  async created() {
     this.courseList = await getCachedCourseList();
     this.loadQuery();
   }
-}
+});
 </script>
 
 <style></style>
