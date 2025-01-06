@@ -128,6 +128,7 @@ export default defineComponent({
           text: `Course ${this.name} created.`,
           status: result.response!.status,
         });
+        this.clearFormAndDismiss();
       } else {
         alertUser({
           text: `Failed to create course ${this.name}.`,
@@ -136,7 +137,6 @@ export default defineComponent({
         console.warn(`Resp: ${JSON.stringify(result.response)}`);
       }
 
-      this.clearFormAndDismiss();
       this.updatePending = false;
     },
 
