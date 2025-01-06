@@ -11,6 +11,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 
+// [ ] delete this file
+
 export default defineComponent({
   name: 'UnregisteredComponentsTable',
 });
