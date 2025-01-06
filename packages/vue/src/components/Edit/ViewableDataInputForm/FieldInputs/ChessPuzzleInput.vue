@@ -12,13 +12,30 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { FieldInput } from '../FieldInput';
+import { defineComponent, PropType } from 'vue';
+import FieldInput from '../OptionsFieldInput';
 import { toCourseElo, CourseElo } from '@/tutor/Elo';
+import { FieldDefinition } from '../../../../base-course/Interfaces/FieldDefinition';
 
 export default defineComponent({
   name: 'ChessPuzzleInput',
   extends: FieldInput,
+
+  props: {
+    field: {
+      type: Object as PropType<FieldDefinition>,
+      required: true,
+    },
+    store: {
+      type: Object as PropType<any>,
+      required: true,
+    },
+    uiValidationFunction: {
+      type: Function as PropType<() => boolean>,
+      required: true,
+    },
+    autofocus: Boolean,
+  },
 
   mounted() {
     this.validate();
@@ -58,7 +75,7 @@ export default defineComponent({
       const openingTags = split[9].split(' ');
 
       return themes.map((t) => `theme-${t}`).concat(openingTags.map((t) => `opening-${t}`));
-    }
-  }
+    },
+  },
 });
 </script>
