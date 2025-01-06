@@ -1,111 +1,117 @@
 <template>
-  <div v-if="initComplete">
-    <course-information v-if="courseId !== undefined && courseId !== ''" v-bind:_id="courseId" />
-    <v-container v-else-if="candidates.length === 0">
-      <v-layout class="display-1" row wrap>
-        {{ query }}
-      </v-layout>
-      <v-divider></v-divider>
-      <v-layout row wrap ma-3 class="headline">Nothing here! </v-layout>
-
-      <v-layout row wrap ma-3>
-        <v-dialog v-model="newCourseDialog" fullscreen transition="dialog-bottom-transition" :overlay="false">
-          <v-btn color="primary" dark slot="activator">Start a new Quilt</v-btn>
-          <course-editor v-bind:name="query" v-on:CourseEditingComplete="newCourseDialog = false" />
-        </v-dialog>
-      </v-layout>
-    </v-container>
-    <v-container v-else grid-list-md>
-      <div>
-        <span class="display-2">{{ query }} </span> <span class="headline">could refer to:</span>
+  <div>
+    <div v-if="initComplete">
+      <course-information v-if="courseId !== undefined && courseId !== ''" v-bind:_id="courseId" />
+      <v-container v-else-if="candidates.length === 0">
+        <v-row class="text-h4">
+          {{ query }}
+        </v-row>
         <v-divider></v-divider>
+        <v-row class="ma-3 text-h5">Nothing here!</v-row>
 
-        <div class="ma-5" v-bind:key="i" v-for="(c, i) in candidates">
-          <v-layout class="headline">
-            <a
-              v-on:click="
-                query = c.courseID;
-                loadQuery();
-              "
-              >{{ c.name }}
-            </a>
-            -
-            <v-text-field
-              label="Disambiguator"
-              vibind:id="`${i}-disambiguator`"
-              v-model="c.disambiguator"
-              v-on:change="update(c)"
-            ></v-text-field>
-            {{ c.description }}
-          </v-layout>
+        <v-row class="ma-3">
+          <v-dialog v-model="newCourseDialog" fullscreen transition="dialog-bottom-transition" :overlay="false">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn color="primary" dark v-bind="attrs" v-on="on">Start a new Quilt</v-btn>
+            </template>
+            <course-editor v-bind:name="query" v-on:CourseEditingComplete="newCourseDialog = false" />
+          </v-dialog>
+        </v-row>
+      </v-container>
+      <v-container v-else>
+        <div>
+          <span class="text-h3">{{ query }} </span> <span class="text-h5">could refer to:</span>
+          <v-divider></v-divider>
+
+          <div class="ma-5" v-bind:key="i" v-for="(c, i) in candidates">
+            <v-row class="text-h5">
+              <a
+                v-on:click="
+                  query = c.courseID;
+                  loadQuery();
+                "
+                >{{ c.name }}
+              </a>
+              -
+              <v-text-field
+                label="Disambiguator"
+                :id="`${i}-disambiguator`"
+                v-model="c.disambiguator"
+                v-on:change="update(c)"
+              ></v-text-field>
+              {{ c.description }}
+            </v-row>
+          </div>
         </div>
-      </div>
-    </v-container>
+      </v-container>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import { disambiguateCourse, getCachedCourseList } from '@/db/courseDB';
 import { CourseConfig } from '@/server/types';
-import Vue from 'vue';
-import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
 import CourseEditor from './CourseEditor.vue';
 import CourseInformation from './CourseInformation.vue';
 
-@Component({
+export default defineComponent({
+  name: 'CourseRouter',
+
   components: {
     CourseInformation,
     CourseEditor,
   },
-})
-export default class CourseRouter extends Vue {
-  @Prop({
-    required: true,
-  })
-  private query: string;
 
-  private courseList: CourseConfig[];
+  props: {
+    query: {
+      type: String,
+      required: true,
+    },
+  },
 
-  private courseId: string;
-  private candidates: CourseConfig[] = [];
+  data() {
+    return {
+      courseList: [] as CourseConfig[],
+      courseId: undefined as string | undefined,
+      candidates: [] as CourseConfig[],
+      newCourseDialog: false,
+      initComplete: false,
+    };
+  },
 
-  private newCourseDialog: boolean = false;
+  methods: {
+    update(c: CourseConfig) {
+      if (c.courseID && c.disambiguator) {
+        disambiguateCourse(c.courseID, c.disambiguator);
+      } else {
+        // todo: indicate error on input box
+      }
+    },
 
-  private initComplete: boolean = false;
+    loadQuery() {
+      const query = this.query.toLowerCase();
 
-  private update(c: CourseConfig) {
-    if (c.courseID && c.disambiguator) {
-      disambiguateCourse(c.courseID, c.disambiguator);
-    } else {
-      // todo: indicate error on input box
-    }
-  }
+      this.candidates = this.courseList.filter((c) => {
+        const snakedName = c.name.replace(' ', '_').toLowerCase();
+        return query === snakedName || query === c.courseID || query === `${snakedName}_(${c.disambiguator})`;
+      });
 
-  private loadQuery() {
-    this.query = this.query.toLowerCase();
+      if (this.candidates.length === 1) {
+        this.courseId = this.candidates[0].courseID!;
+      } else if (this.candidates.length === 0) {
+        this.courseId = '';
+      }
 
-    this.candidates = this.courseList.filter((c) => {
-      const snakedName = c.name.replace(' ', '_').toLowerCase();
-      return (
-        this.query === snakedName || this.query === c.courseID || this.query === `${snakedName}_(${c.disambiguator})`
-      );
-    });
+      this.initComplete = true;
+    },
+  },
 
-    if (this.candidates.length === 1) {
-      this.courseId = this.candidates[0].courseID!;
-    } else if (this.candidates.length === 0) {
-      this.courseId = '';
-    }
-
-    this.initComplete = true;
-  }
-
-  public async created() {
+  async created() {
     this.courseList = await getCachedCourseList();
     this.loadQuery();
-  }
-}
+  },
+});
 </script>
 
 <style></style>
