@@ -12,9 +12,11 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 import { FieldInput } from '../FieldInput';
 
-@Component
-export default class StringInput extends FieldInput {}
+export default defineComponent({
+  name: 'StringInput',
+  extends: FieldInput
+});
 </script>
