@@ -43,55 +43,64 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import Component from 'vue-class-component';
+import { defineComponent } from 'vue';
 import { log } from 'util';
 import { setTimeout } from 'timers';
 import { User } from '../db/userDB';
 
-@Component({})
-export default class UserChip extends Vue {
-  private username: string = '';
-  private items: string[] = [
-    // 'sample1', 'sample2', 'sample3', 'sample4'
-  ];
+export default defineComponent({
+  name: 'UserChip',
 
-  private checked: boolean = false;
+  data() {
+    return {
+      username: '',
+      items: [] as string[],
+      checked: false
+    };
+  },
+
+  computed: {
+    hasNewItems(): boolean {
+      return this.items.length > 0;
+    }
+  },
+
   created() {
     User.instance().then((u) => {
       this.username = u.username;
     });
-  }
-  public async gotoSettings() {
-    this.$router.push(`/u/${(await User.instance()).username}`);
-  }
-  public async gotoStats() {
-    this.$router.push(`/u/${(await User.instance()).username}/stats`);
-  }
+  },
 
-  private dismiss(item: string) {
-    const index = this.items.indexOf(item);
-    this.items.splice(index, 1);
-  }
-  private async logout() {
-    const res = await this.$store.state._user!.logout();
-    if (res.ok) {
-      this.$store.state.userLoginAndRegistrationContainer = {
-        init: true,
-        loggedIn: false,
-        regDialogOpen: false,
-        loginDialogOpen: false,
-      };
+  methods: {
+    async gotoSettings() {
+      this.$router.push(`/u/${(await User.instance()).username}`);
+    },
 
-      this.$store.state.config.darkMode = false;
-      this.$store.state.config.likesConfetti = false;
+    async gotoStats() {
+      this.$router.push(`/u/${(await User.instance()).username}/stats`);
+    },
 
-      this.$router.push('/home');
+    dismiss(item: string) {
+      const index = this.items.indexOf(item);
+      this.items.splice(index, 1);
+    },
+
+    async logout() {
+      const res = await this.$store.state._user!.logout();
+      if (res.ok) {
+        this.$store.state.userLoginAndRegistrationContainer = {
+          init: true,
+          loggedIn: false,
+          regDialogOpen: false,
+          loginDialogOpen: false,
+        };
+
+        this.$store.state.config.darkMode = false;
+        this.$store.state.config.likesConfetti = false;
+
+        this.$router.push('/home');
+      }
     }
   }
-
-  public get hasNewItems(): boolean {
-    return this.items.length > 0;
-  }
-}
+});
 </script>
