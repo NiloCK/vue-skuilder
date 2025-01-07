@@ -4,17 +4,22 @@
 
 <script lang="ts">
 import abc from 'abcjs';
-import Component from 'vue-class-component';
-import { Prop, Vue } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 
-@Component({})
-export default class MusicScoreRenderer extends Vue {
-  @Prop() public abcString: string;
+export default defineComponent({
+  name: 'MusicScoreRenderer',
 
-  public mounted() {
+  props: {
+    abcString: {
+      type: String,
+      required: true
+    }
+  },
+
+  mounted() {
     abc.renderAbc('abc', this.abcString);
   }
-}
+});
 </script>
 
 <style>
