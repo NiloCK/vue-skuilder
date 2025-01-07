@@ -15,19 +15,21 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { integerValidator } from './typeValidators';
-import { log } from 'util';
-import { FieldInput } from '../FieldInput';
+import FieldInput from '../OptionsFieldInput';
 
 export default defineComponent({
   name: 'IntegerInput',
   extends: FieldInput,
   computed: {
     validators(): Function[] {
-      const ret = (this as InstanceType<typeof FieldInput>).validators;
-      ret.unshift(integerValidator);
-      log(`validators for ${this.field.name} has ${ret.length} entries`);
+      const baseValidators = FieldInput.computed?.validators.call(this);
+      const ret = [integerValidator];
+      if (baseValidators) {
+        return ret.concat(baseValidators);
+      }
+      console.log(`validators for ${this.field.name} has ${ret.length} entries`);
       return ret;
-    }
-  }
+    },
+  },
 });
 </script>
