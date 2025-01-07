@@ -56,12 +56,11 @@
         v-bind:data="[{ puzzleData: Math.random() > 0.5 ? puzzleBlack : puzzleWhite }]"
       />
     </div>
-    <!--
+
     <div class="component">
       <h2>Heatmap</h2>
       <HeatMap :data="{}" />
     </div>
-    -->
 
     <!-- <div class="component">
       <h2>DataInputForm</h2>
