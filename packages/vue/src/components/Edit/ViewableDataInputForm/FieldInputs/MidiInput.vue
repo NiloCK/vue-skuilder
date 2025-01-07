@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { FieldInput } from '../FieldInput';
+import FieldInput from '../OptionsFieldInput';
 import SkMidi, {
   eventsToSyllableSequence,
   SyllableSequence,
@@ -105,7 +105,7 @@ export default defineComponent({
       this.midi.play();
       this.display = true;
       this.validate();
-    }
-  }
+    },
+  },
 });
 </script>
