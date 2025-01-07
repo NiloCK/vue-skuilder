@@ -15,7 +15,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { numberValidator } from './typeValidators';
-import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
+import FieldInput from '../OptionsFieldInput';
 
 export default defineComponent({
   name: 'NumberInput',
@@ -24,7 +24,7 @@ export default defineComponent({
     validators(): Array<(v: any) => boolean | string> {
       const parentValidators = FieldInput.options?.computed?.validators?.call(this) || [];
       return [numberValidator, ...parentValidators];
-    }
-  }
+    },
+  },
 });
 </script>
