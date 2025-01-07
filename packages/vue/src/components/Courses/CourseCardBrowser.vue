@@ -110,6 +110,15 @@ import { removeTagFromCard } from '@/db/courseDB';
 import { CardData, DisplayableData, DocType, Tag } from '@/db/types';
 import Vue from 'vue';
 
+function isConstructor(obj: any) {
+  try {
+    new obj();
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 export default Vue.extend({
   name: 'CourseCardBrowser',
 
@@ -283,10 +292,16 @@ export default Vue.extend({
             const tmpData = [];
             tmpData.unshift(displayableDataToViewData(doc));
 
-            const view = new tmpView();
-            (view as any).data = tmpData;
+            // [ ] remove/replace this after the vue 3 migration is complete
+            // see PR #510
+            if (isConstructor(tmpView)) {
+              const view = new tmpView();
+              (view as any).data = tmpData;
 
-            this.cardPreview[c.id] = view.toString();
+              this.cardPreview[c.id] = view.toString();
+            } else {
+              this.cardPreview[c.id] = tmpView.name ? tmpView.name : 'Unknown';
+            }
           })
         );
 
