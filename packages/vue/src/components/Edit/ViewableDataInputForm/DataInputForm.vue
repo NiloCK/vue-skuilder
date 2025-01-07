@@ -118,7 +118,6 @@ import ImageInput from './FieldInputs/ImageInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
 import MarkdownInput from './FieldInputs/MarkdownInput.vue';
 import MediaDragDropUploader from './FieldInputs/MediaDragDropUploader.vue';
-import MediaUploader from './FieldInputs/MediaUploader.vue';
 import MidiInput from './FieldInputs/MidiInput.vue';
 import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
@@ -137,7 +136,6 @@ type StringIndexable = { [x: string]: any };
     MarkdownInput,
     MidiInput,
     CardBrowser,
-    MediaUploader,
     MediaDragDropUploader,
     TagsInput,
     ChessPuzzleInput,
