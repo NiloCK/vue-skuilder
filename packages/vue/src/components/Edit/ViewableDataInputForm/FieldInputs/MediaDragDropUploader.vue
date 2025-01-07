@@ -39,7 +39,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { FieldInput } from '../FieldInput';
+import FieldInput from '../OptionsFieldInput';
 import { Status } from '@/enums/Status';
 
 interface MediaItem {
@@ -56,7 +56,7 @@ interface MDDURefs {
 export default defineComponent({
   name: 'MediaDragDropUploader',
   extends: FieldInput,
-  
+
   data() {
     return {
       isDragging: false,
