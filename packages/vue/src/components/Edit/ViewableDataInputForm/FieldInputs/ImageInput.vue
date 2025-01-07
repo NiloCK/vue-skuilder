@@ -33,17 +33,19 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
-import { FieldInput } from '../FieldInput';
+import FieldInput from '../OptionsFieldInput';
+
+// [ ] delete this file ? (Jan 6, 2025)
 
 export default defineComponent({
   name: 'ImageInput',
   extends: FieldInput,
-  
+
   data() {
     return {
       isDragging: false,
       dragCounter: 0,
-      thumbnailUrl: null as string | null
+      thumbnailUrl: null as string | null,
     };
   },
 
@@ -54,7 +56,7 @@ export default defineComponent({
 
     blobInputElement(): HTMLInputElement {
       return document.getElementById(this.blobInputID) as HTMLInputElement;
-    }
+    },
   },
 
   methods: {
@@ -188,8 +190,8 @@ File type: ${file.type}
       if (this.$refs.inputField) {
         (this.$refs.inputField as HTMLInputElement).value = '';
       }
-    }
-  }
+    },
+  },
 });
 </script>
 
