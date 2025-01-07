@@ -12,9 +12,25 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
-import { FieldInput } from '../FieldInput';
+import { defineComponent, PropType } from 'vue';
+import FieldInput from '../OptionsFieldInput';
+import { FieldDefinition } from '../../../../base-course/Interfaces/FieldDefinition';
 
-@Component
-export default class StringInput extends FieldInput {}
+export default defineComponent({
+  name: 'StringInput',
+  extends: FieldInput,
+
+  props: {
+    autofocus: Boolean,
+    field: Object as PropType<FieldDefinition>,
+    store: {
+      type: Object as PropType<any>,
+      required: true,
+    },
+    uiValidationFu2nction: {
+      type: Function as PropType<() => boolean>,
+      required: true,
+    },
+  },
+});
 </script>
