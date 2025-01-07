@@ -15,13 +15,13 @@ import { log } from 'util';
 import confetti from 'canvas-confetti';
 
 export default defineComponent({
-  name: 'User',
-  
+  name: 'Stats',
+
   props: {
     _id: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data() {
@@ -29,14 +29,14 @@ export default defineComponent({
       u: this.$store.state._user!,
       confetti: this.$store.state.config.likesConfetti as boolean,
       darkMode: this.$store.state.config.darkMode as boolean,
-      scheduledReviews: [] as number[]
+      scheduledReviews: [] as number[],
     };
   },
 
   computed: {
     isNewUser(): boolean {
       return this.$route.path.endsWith('new');
-    }
+    },
   },
 
   methods: {
@@ -62,14 +62,14 @@ export default defineComponent({
           },
         });
       }
-    }
+    },
   },
 
   async created() {
     [1, 7, 30].forEach(async (d) => {
       this.scheduledReviews.push((await this.u.getReviewsForcast(d)).length);
     });
-  }
+  },
 });
 </script>
 
