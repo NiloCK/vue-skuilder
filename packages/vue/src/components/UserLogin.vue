@@ -45,80 +45,86 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import Component from 'vue-class-component';
+import { defineComponent } from 'vue';
 import { alertUser } from '@/components/SnackbarService.vue';
 import { log } from 'util';
 import { AppState } from '@/store';
-import { Emit } from 'vue-property-decorator';
 import { Status } from '@/enums/Status';
 import { User } from '@/db/userDB';
 
-@Component({})
-export default class UserLogin extends Vue {
-  private username: string = '';
-  private password: string = '';
-  private retypedPassword: string = '';
-  private passwordVisible: boolean = false;
+export default defineComponent({
+  name: 'UserLogin',
 
-  private awaitingResponse: boolean = false;
-  private badLoginAttempt: boolean = false;
-  private readonly errorTimeout: number = 5000;
-  private user: User;
-
-  private get loginRoute(): boolean {
-    return this.$router.currentRoute.name! === 'login';
-  }
-
-  private initBadLogin() {
-    this.badLoginAttempt = true;
-    alertUser({
-      text: 'Username or password was incorrect.',
-      status: Status.error,
-      timeout: this.errorTimeout,
-    });
-    setTimeout(() => {
-      this.badLoginAttempt = false;
-    }, this.errorTimeout);
-  }
-
-  private async login() {
-    this.awaitingResponse = true;
-
-    try {
-      // #172 starting point - why is the pre-existing _user being referenced here?
-      this.user = await User.instance();
-      const res = await this.user.login(this.username, this.password);
-      this.user.getConfig().then((cfg) => {
-        // @ts-ignore v3 migrate
-        this.$store.state.config = cfg;
-      });
-      // @ts-ignore v3 migrate
-      this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
-      this.$router.push('/study');
-    } catch (e) {
-      // entry #186
-      console.log(`login error: ${e}`);
-      // - differentiate response
-      // - return better message to UI
-      this.initBadLogin();
-    }
-
-    this.awaitingResponse = false;
-  }
-
-  private get buttonStatus() {
+  data() {
     return {
-      color: this.badLoginAttempt ? 'error' : 'success',
-      text: this.badLoginAttempt ? 'Try again' : 'Log In',
+      username: '',
+      password: '',
+      retypedPassword: '',
+      passwordVisible: false,
+      awaitingResponse: false,
+      badLoginAttempt: false,
+      errorTimeout: 5000,
+      user: undefined as User | undefined
     };
-  }
+  },
 
-  @Emit() // tslint:disable-next-line:no-empty
-  private toggle() {
-    log('Toggling registration / login forms.');
+  computed: {
+    loginRoute(): boolean {
+      return this.$router.currentRoute.name! === 'login';
+    },
+
+    buttonStatus() {
+      return {
+        color: this.badLoginAttempt ? 'error' : 'success',
+        text: this.badLoginAttempt ? 'Try again' : 'Log In',
+      };
+    }
+  },
+
+  methods: {
+    initBadLogin() {
+      this.badLoginAttempt = true;
+      alertUser({
+        text: 'Username or password was incorrect.',
+        status: Status.error,
+        timeout: this.errorTimeout,
+      });
+      setTimeout(() => {
+        this.badLoginAttempt = false;
+      }, this.errorTimeout);
+    },
+
+    async login() {
+      this.awaitingResponse = true;
+
+      try {
+        // #172 starting point - why is the pre-existing _user being referenced here?
+        this.user = await User.instance();
+        const res = await this.user.login(this.username, this.password);
+        this.user.getConfig().then((cfg) => {
+          // @ts-ignore v3 migrate
+          this.$store.state.config = cfg;
+        });
+        // @ts-ignore v3 migrate
+        this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
+        this.$router.push('/study');
+      } catch (e) {
+        // entry #186
+        console.log(`login error: ${e}`);
+        // - differentiate response
+        // - return better message to UI
+        this.initBadLogin();
+      }
+
+      this.awaitingResponse = false;
+    },
+
+    toggle() {
+      log('Toggling registration / login forms.');
+      this.$emit('toggle');
+    }
   }
-}
+});
 </script>
 
 <style lang="css" scoped>
