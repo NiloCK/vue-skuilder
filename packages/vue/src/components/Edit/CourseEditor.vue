@@ -4,6 +4,10 @@
       <v-progress-circular indeterminate color="secondary"></v-progress-circular>
     </div>
     <div v-else>
+      <h1 class="text-h4">
+        <router-link to="/q">Quilts</router-link> /
+        <router-link :to="`/q/${courseConfig ? courseConfig.name : course}`">{{ courseConfig?.name }}</router-link>
+      </h1>
       <v-btn v-on:click="toggleComponent" color="success">Content Editing / Component Registration</v-btn>
       <div v-if="editingMode">
         <v-select
@@ -36,7 +40,7 @@ import { getCredentialledCourseConfig } from '@/db/courseAPI';
 
 export default defineComponent({
   name: 'CourseEditor',
-  
+
   components: {
     DataInputForm,
     ComponentRegistration,
@@ -76,8 +80,8 @@ export default defineComponent({
 
           this.$store.state.dataInputForm.course = this.courseConfig;
         }
-      }
-    }
+      },
+    },
   },
 
   async created() {
@@ -120,11 +124,11 @@ export default defineComponent({
         return shape.name === shapeName;
       })!;
     },
-    
+
     toggleComponent() {
       this.editingMode = !this.editingMode;
-    }
-  }
+    },
+  },
 });
 </script>
 
