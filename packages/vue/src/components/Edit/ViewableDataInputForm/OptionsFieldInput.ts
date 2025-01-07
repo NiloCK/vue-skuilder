@@ -17,7 +17,10 @@ export default defineComponent({
 
   props: {
     autofocus: Boolean,
-    field: Object as PropType<FieldDefinition>,
+    field: {
+      type: Object as PropType<FieldDefinition>,
+      required: true,
+    },
     store: {
       type: Object as PropType<any>,
       required: true,
