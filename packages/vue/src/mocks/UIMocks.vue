@@ -122,7 +122,7 @@ import PuzzleView from '@/courses/chess/questions/puzzle/puzzle.vue';
 import ChessPieceMove from '@/courses/chess/questions/piecemove/piece-move.vue';
 import FillInView from '@/courses/default/questions/fillIn/fillIn.vue';
 import { BlanksCardDataShapes } from '@/courses/default/questions/fillIn/index';
-import { ChessPuzzle } from '@/courses/chess/questions/puzzle/index';
+import { Puzzle } from '@/courses/chess/questions/puzzle/index';
 import { Component } from 'vue-property-decorator';
 import DataInputForm from '../components/Edit/ViewableDataInputForm/DataInputForm.vue';
 import LetterQuestionView from '@/courses/typing/questions/single-letter/typeSingleLetter.vue';
@@ -158,7 +158,7 @@ export default class SkTagsInputMock extends Vue {
     'v2n1N,5Q1k/2pbq1p1/8/pp1P4/4B1P1/7P/PP6/1K3R2 b - - 4 34,e7f8 f1f8,615,86,73,189,endgame mate mateIn1 oneMove,https://lichess.org/Czh6F7z3/black#68,';
   promotionPuzzle = `o2mD7,8/2K5/p4p2/8/1P4k1/8/P7/8 w - - 0 35,c7b7 f6f5 b7a6 f5f4 b4b5 f4f3 b5b6 f3f2 b6b7 f2f1q,846,99,92,589,advancedPawn crushing endgame pawnEndgame promotion quietMove veryLong,https://lichess.org/x0LpCJ7V#69,`;
   BlanksCardDataShapes = BlanksCardDataShapes;
-  ChessPuzzleDataShapes = ChessPuzzle.dataShapes;
+  ChessPuzzleDataShapes = Puzzle.dataShapes;
   FillInView = FillInView;
 
   created() {

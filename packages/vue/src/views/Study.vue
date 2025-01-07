@@ -44,11 +44,11 @@
 
       <br />
 
-      <div v-if="!checkLoggedIn" class="display-1">
+      <div v-if="!checkLoggedIn" class="text-h4">
         <p>Sign up to get to work!</p>
       </div>
 
-      <div v-else-if="sessionFinished" class="display-1">
+      <div v-else-if="sessionFinished" class="text-h4">
         <p>Study session finished! Great job!</p>
         <p>{{ sessionController.report }}</p>
         <p>
@@ -128,7 +128,7 @@
             :color="timerColor"
             :value="percentageRemaining"
           >
-            <v-icon v-if="timerIsActive" large dark>add</v-icon>
+            <v-icon v-if="timerIsActive" large dark>mdi-add</v-icon>
           </v-progress-circular>
         </v-btn>
         {{ timeString }}
@@ -136,13 +136,12 @@
       <v-speed-dial v-if="!sessionFinished" v-model="fab" fixed bottom right transition="scale-transition">
         <template v-slot:activator>
           <v-btn v-model="fab" color="blue darken-2" dark fab>
-            <v-icon v-if="fab">close</v-icon>
-            <v-icon v-else>edit</v-icon>
+            <v-icon>{{ fab ? 'mdi-close' : 'mdi-pencil' }}</v-icon>
           </v-btn>
         </template>
         <router-link :to="`/edit/${courseID}`">
           <v-btn fab small dark color="indigo" title="Add content to this course">
-            <v-icon>add</v-icon>
+            <v-icon>mdi-plus</v-icon>
           </v-btn>
         </router-link>
         <v-btn
@@ -154,7 +153,7 @@
           @click="editTags = !editTags"
           :loading="editCard"
         >
-          <v-icon>bookmark</v-icon>
+          <v-icon>mdi-bookmark</v-icon>
         </v-btn>
       </v-speed-dial>
     </div>
@@ -191,6 +190,7 @@ import { CourseRegistrationDoc, updateUserElo, User } from '../db/userDB';
 import { Status } from '../enums/Status';
 import { CourseConfig } from '../server/types';
 import Vue from 'vue';
+import { ViewComponent } from '@/base-course/Displayable';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
@@ -225,7 +225,7 @@ export default class Study extends Vue {
   public editCardReady: boolean = false; // editor for this card is ready to display
   // the currently displayed card
   public cardID: PouchDB.Core.DocumentId = '';
-  public view: VueConstructor;
+  public view: ViewComponent;
   public constructedView: Viewable;
   public data: ViewData[] = [];
   public courseID: string = '';
@@ -680,7 +680,7 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
       // const tmpCardData = await CardCache.getDoc<CardData>(qualified_id);
       const tmpCardData = await getCourseDoc<CardData>(_courseID, _cardID);
       const tmpView = Courses.getView(tmpCardData.id_view);
-      const tmpDataDocs = await tmpCardData.id_displayable_data.map((id) => {
+      const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
         return getCourseDoc<DisplayableData>(_courseID, id, {
           attachments: true,
           binary: true,
