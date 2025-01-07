@@ -16,7 +16,7 @@
       v-bind:uiValidationFunction="uiValidationFunction"
       v-for="(a, i) in audio"
       :autofocus="false"
-      v-bind:key="'audio'+i"
+      v-bind:key="'audio' + i"
       v-bind:field="a.fieldDef"
       v-bind:store="store"
     ></audio-input>
@@ -25,7 +25,7 @@
       v-bind:uiValidationFunction="uiValidationFunction"
       v-for="(img, i) in image"
       :autofocus="false"
-      v-bind:key="'image'+i"
+      v-bind:key="'image' + i"
       v-bind:field="img.fieldDef"
       v-bind:store="store"
     ></image-input>
@@ -39,7 +39,7 @@ import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction'
 import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
 import WaveSurfer from 'wavesurfer.js';
-import { FieldInput } from '../FieldInput';
+import FieldInput from '../OptionsFieldInput';
 import AudioInput from './AudioInput.vue';
 import ImageInput from './ImageInput.vue';
 var MediaStreamRecorder = require('msr');
@@ -61,13 +61,13 @@ export default defineComponent({
       audio: [] as MediaData[],
       image: [] as MediaData[],
       mediaRecorder: null as any,
-      wavesurfer: null as WaveSurfer | null
+      wavesurfer: null as WaveSurfer | null,
     };
   },
   computed: {
     title(): string {
       return this.field.name;
-    }
+    },
   },
   methods: {
     clearData(): void {
@@ -103,8 +103,8 @@ export default defineComponent({
           msg: '',
         }),
       ];
-    }
-  }
+    },
+  },
 });
 </script>
 
