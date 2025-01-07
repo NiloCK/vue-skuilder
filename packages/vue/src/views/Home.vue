@@ -38,6 +38,7 @@ import UserLogin from '../components/UserLogin.vue';
 import TextSwap from '@/components/TextSwap.vue';
 import { Status } from '@/enums/Status';
 import Vue from 'vue';
+import { ITextSwap } from '@/components/TextSwap.vue';
 
 interface Data {
   swapIntervalID: number | null;
@@ -66,12 +67,12 @@ export default Vue.extend({
   },
 
   computed: {
-    swaps(): TextSwap[] {
+    swaps(): ITextSwap[] {
       return [
-        this.$refs.swap1 as TextSwap,
-        this.$refs.swap2 as TextSwap,
-        this.$refs.swap3 as TextSwap,
-        this.$refs.swap4 as TextSwap,
+        this.$refs.swap1 as ITextSwap,
+        this.$refs.swap2 as ITextSwap,
+        this.$refs.swap3 as ITextSwap,
+        this.$refs.swap4 as ITextSwap,
       ];
     },
   },

@@ -7,19 +7,25 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 
+export interface ITextSwap extends Vue {
+  next: () => void;
+  text: string[];
+  index: number;
+}
+
 export default defineComponent({
   name: 'TextSwap',
-  
+
   props: {
     text: {
       type: Array as () => string[],
-      required: true
-    }
+      required: true,
+    },
   },
 
   data() {
     return {
-      index: 0
+      index: 0,
     };
   },
 
@@ -33,8 +39,8 @@ export default defineComponent({
           this.index = Math.floor(Math.random() * this.text.length);
         }
       }
-    }
-  }
+    },
+  },
 });
 </script>
 
