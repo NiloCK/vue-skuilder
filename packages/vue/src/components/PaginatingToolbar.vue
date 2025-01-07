@@ -25,17 +25,32 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop } from 'vue-property-decorator';
-import Vue from 'vue';
+import { defineComponent, PropType } from 'vue'
 
-@Component
-export default class PaginatingToolbar extends Vue {
-  @Prop({ required: true }) private pages: number[];
-  @Prop({ required: true }) private page: number;
+export default defineComponent({
+  name: 'PaginatingToolbar',
+  
+  props: {
+    pages: {
+      type: Array as PropType<number[]>,
+      required: true
+    },
+    page: {
+      type: Number,
+      required: true
+    },
+    title: {
+      type: String,
+      required: false
+    },
+    subtitle: {
+      type: String,
+      required: false
+    }
+  },
 
-  @Prop({ required: false }) private title: string;
-  @Prop({ required: false }) private subtitle: string;
-}
+  emits: ['first', 'prev', 'next', 'last', 'set-page']
+})
 </script>
 
 <style scoped>
