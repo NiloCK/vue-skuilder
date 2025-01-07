@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 import { InformationView } from '@/base-course/Viewable';
 import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
 import { Displayable } from '@/base-course/Displayable';
@@ -39,20 +39,31 @@ class BasicCard extends Displayable {
   }
 }
 
-// tslint:disable-next-line:max-classes-per-file
-@Component({
+export default defineComponent({
+  name: 'BasicView',
+  
   components: {
     UserInputNumber,
   },
-})
-export default class BasicView extends InformationView<BasicCard> {
-  public answer: string = '';
 
-  public get displayable() {
-    return new BasicCard(this.data);
-  }
-  public submit() {
-    // (no nag tslint!)
-  }
-}
+  data() {
+    return {
+      answer: '',
+    };
+  },
+
+  computed: {
+    displayable(): BasicCard {
+      return new BasicCard(this.data);
+    }
+  },
+
+  methods: {
+    submit(): void {
+      // (no nag tslint!)
+    }
+  },
+
+  extends: InformationView
+});
 </script>
