@@ -162,21 +162,20 @@ export default class DataInputForm extends Vue {
   };
 
   public get fieldInputs(): FieldInput[] {
-    return this.$refs.fieldInputWraps.map<FieldInput>((div) => {
-      // if ((div.children[0] as any).__vue__.clearData !==)
-      //     return (div.children[0] as any).__vue__ as FieldInput;
+    const ret: FieldInput[] = [];
+
+    for (const div of this.$refs.fieldInputWraps) {
       const child: Vue = (div.children[0] as any).__vue__;
       if (this.isFieldInput(child)) {
-        return child;
+        ret.push(child);
       } else {
         const parent = child.$parent;
         if (this.isFieldInput(parent)) {
-          return parent;
+          ret.push(parent);
         }
       }
-
-      return new IntegerInput({}); // ???
-    });
+    }
+    return ret;
   }
 
   @Prop({ required: true }) public dataShape: DataShape;
