@@ -4,10 +4,10 @@
     &nbsp;&nbsp; {{ subtitle }}
     <v-spacer></v-spacer>
     <v-btn v-on:click="() => $emit('first')" text icon color="secondary" v-bind:disabled="page == 1">
-      <v-icon>first_page</v-icon>
+      <v-icon>mdi-page-first</v-icon>
     </v-btn>
     <v-btn v-on:click="() => $emit('prev')" text icon color="secondary" v-bind:disabled="page == 1">
-      <v-icon>chevron_left</v-icon>
+      <v-icon>mdi-chevron-left</v-icon>
     </v-btn>
     <v-select
       v-bind:items="pages"
@@ -16,41 +16,41 @@
       class="pageSelect"
     ></v-select>
     <v-btn v-on:click="() => $emit('next')" text icon color="secondary" v-bind:disabled="page == pages.length">
-      <v-icon>chevron_right</v-icon>
+      <v-icon>mdi-chevron-right</v-icon>
     </v-btn>
     <v-btn v-on:click="() => $emit('last')" text icon color="secondary" v-bind:disabled="page == pages.length">
-      <v-icon>last_page</v-icon>
+      <v-icon>mdi-page-last</v-icon>
     </v-btn>
   </v-toolbar>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
   name: 'PaginatingToolbar',
-  
+
   props: {
     pages: {
       type: Array as PropType<number[]>,
-      required: true
+      required: true,
     },
     page: {
       type: Number,
-      required: true
+      required: true,
     },
     title: {
       type: String,
-      required: false
+      required: false,
     },
     subtitle: {
       type: String,
-      required: false
-    }
+      required: false,
+    },
   },
 
-  emits: ['first', 'prev', 'next', 'last', 'set-page']
-})
+  emits: ['first', 'prev', 'next', 'last', 'set-page'],
+});
 </script>
 
 <style scoped>
