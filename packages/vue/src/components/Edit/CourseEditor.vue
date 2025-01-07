@@ -4,6 +4,10 @@
       <v-progress-circular indeterminate color="secondary"></v-progress-circular>
     </div>
     <div v-else>
+      <h1 class="text-h4">
+        <router-link to="/q">Quilts</router-link> /
+        <router-link :to="`/q/${courseConfig ? courseConfig.name : course}`">{{ courseConfig?.name }}</router-link>
+      </h1>
       <v-btn v-on:click="toggleComponent" color="success">Content Editing / Component Registration</v-btn>
       <div v-if="editingMode">
         <v-select
@@ -24,58 +28,63 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import ComponentRegistration from '@/components/Edit/ComponentRegistration/ComponentRegistration.vue';
 import Courses from '@/courses';
 import { NameSpacer } from '@/courses/NameSpacer';
 import { BlanksCard, BlanksCardDataShapes } from '@/courses/default/questions/fillIn';
-import Vue from 'vue';
-import { Component, Prop, Watch } from 'vue-property-decorator';
 import { CourseConfig } from '../../server/types';
 import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
 import { getCredentialledCourseConfig } from '@/db/courseAPI';
 
-@Component({
+export default defineComponent({
+  name: 'CourseEditor',
+
   components: {
     DataInputForm,
     ComponentRegistration,
   },
-})
-export default class CourseEditor extends Vue {
-  @Prop({
-    required: true,
-    type: String,
-  })
-  public course: string;
-  public registeredDataShapes: DataShape[] = [];
-  public dataShapes: DataShape[] = [];
 
-  public selectedShape: string = BlanksCard.dataShapes[0].name; // default to 'BlanksCard'
-  public courseConfig: CourseConfig;
-  public dataShape: DataShape = BlanksCardDataShapes[0];
+  props: {
+    course: {
+      type: String,
+      required: true,
+    },
+  },
 
-  private loading: boolean = true; // datashapes are loading on init
-  private editingMode: boolean = true;
+  data() {
+    return {
+      registeredDataShapes: [] as DataShape[],
+      dataShapes: [] as DataShape[],
+      selectedShape: BlanksCard.dataShapes[0].name,
+      courseConfig: null as CourseConfig | null,
+      dataShape: BlanksCardDataShapes[0] as DataShape,
+      loading: true,
+      editingMode: true,
+    };
+  },
 
-  @Watch('selectedShape')
-  public onShapeSelected(value?: string, old?: string) {
-    // console.log('Selecting Shape', value, old);
+  watch: {
+    selectedShape: {
+      handler(value?: string, old?: string) {
+        if (value) {
+          this.dataShape = this.getDataShape(value);
+          this.$store.state.dataInputForm.dataShape = this.dataShape;
 
-    if (value) {
-      this.dataShape = this.getDataShape(value);
-      this.$store.state.dataInputForm.dataShape = this.dataShape;
+          const validations: { [x: string]: string } = {};
+          for (const field of this.dataShape.fields) {
+            validations[field.name] = '';
+          }
+          this.$store.state.dataInputForm.localStore.validation = validations;
 
-      // clear the validation store of fields from the prior shape
-      let validations: { [x: string]: string } = {};
-      for (let field of this.dataShape.fields) {
-        validations[field.name] = '';
-      }
-      this.$store.state.dataInputForm.localStore.validation = validations;
+          this.$store.state.dataInputForm.course = this.courseConfig;
+        }
+      },
+    },
+  },
 
-      this.$store.state.dataInputForm.course = this.courseConfig;
-    }
-  }
-  public async created() {
+  async created() {
     this.courseConfig = await getCredentialledCourseConfig(this.course);
 
     // for testing getCourseTagStubs...
@@ -107,18 +116,20 @@ export default class CourseEditor extends Vue {
     });
 
     this.loading = false;
-  }
+  },
 
-  public getDataShape(shapeName: string): DataShape {
-    return this.dataShapes.find((shape) => {
-      return shape.name === shapeName;
-    })!;
-  }
+  methods: {
+    getDataShape(shapeName: string): DataShape {
+      return this.dataShapes.find((shape) => {
+        return shape.name === shapeName;
+      })!;
+    },
 
-  private toggleComponent() {
-    this.editingMode = !this.editingMode;
-  }
-}
+    toggleComponent() {
+      this.editingMode = !this.editingMode;
+    },
+  },
+});
 </script>
 
 <style scoped>
