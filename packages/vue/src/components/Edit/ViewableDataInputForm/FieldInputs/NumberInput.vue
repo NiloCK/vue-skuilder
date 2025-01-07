@@ -13,16 +13,18 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 import { numberValidator } from './typeValidators';
-import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
+import FieldInput from '../OptionsFieldInput';
 
-@Component({})
-export default class NumberInput extends FieldInput {
-  public get validators() {
-    const ret = super.validators;
-    ret.unshift(numberValidator);
-    return ret;
-  }
-}
+export default defineComponent({
+  name: 'NumberInput',
+  extends: FieldInput,
+  computed: {
+    validators(): Array<(v: any) => boolean | string> {
+      const parentValidators = FieldInput.options?.computed?.validators?.call(this) || [];
+      return [numberValidator, ...parentValidators];
+    },
+  },
+});
 </script>
