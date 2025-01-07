@@ -27,6 +27,7 @@ The project is currently on
 - Keep the same external component API (props, events, refs)
 - Leave <template> and <style> sections unchanged
 - Retain any blocks of commented-code that contain "system design" thoughts
+- \`name\` the component according to the filename, unless there is some specific reason not to
 
 Please provide:
 1. The new <script> section, properly typed for TypeScript, enclosed in a <script><script/> tag and not in a code block.
