@@ -2,7 +2,7 @@
   <v-dialog max-width="500px" transition="dialog-transition" v-if="display">
     <template v-slot:activator="{ on, attrs }">
       <v-btn fab dark color="primary" v-bind="attrs" v-on="on">
-        <v-icon dark>keyboard</v-icon>
+        <v-icon dark>mdi-keyboard</v-icon>
       </v-btn>
     </template>
 
@@ -32,11 +32,11 @@ import SkldrMouseTrap, { HotKeyMetaData } from '../SkldrMouseTrap';
 
 export default defineComponent({
   name: 'SkldrControlsView',
-  
+
   data() {
     return {
       commands: [] as HotKeyMetaData[],
-      display: false
+      display: false,
     };
   },
 
@@ -49,7 +49,7 @@ export default defineComponent({
       // console.log(`this.display: ${this.display}`);
       this.commands = SkldrMouseTrap.commands;
       this.display = this.commands.length > 0;
-    }
-  }
+    },
+  },
 });
 </script>
