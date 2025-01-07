@@ -1,47 +1,46 @@
 <template>
-  <!-- <v-container grid-list-xs align-center class='login'> -->
+  <v-card>
+    <v-card-title v-if="!loginRoute" class="text-h5 grey lighten-2">Log In</v-card-title>
 
-  <v-row align="center">
-    <v-col>
-      <v-card>
-        <v-card-title v-if="!loginRoute" class="headline grey lighten-2" primary-title> Log In </v-card-title>
+    <v-card-text>
+      <v-form onsubmit="return false;">
+        <v-text-field
+          autofocus
+          name="name"
+          label="Username"
+          id=""
+          v-model="username"
+          prepend-icon="mdi-account-circle"
+        ></v-text-field>
+        <v-text-field
+          prepend-icon="mdi-lock"
+          name="name"
+          hover="Show password input"
+          label="Enter your password"
+          hint=""
+          min="0"
+          :append-icon="passwordVisible ? 'mdi-eye-off' : 'mdi-eye'"
+          @click:append="() => (passwordVisible = !passwordVisible)"
+          :type="passwordVisible ? 'text' : 'password'"
+          v-model="password"
+        ></v-text-field>
 
-        <v-card-text>
-          <v-form onsubmit="return false;">
-            <v-text-field
-              autofocus
-              name="name"
-              label="Username"
-              id=""
-              v-model="username"
-              prepend-icon="account_circle"
-            ></v-text-field>
-            <v-text-field
-              prepend-icon="lock"
-              name="name"
-              hover="Show password input"
-              label="Enter your password"
-              hint=""
-              min="0"
-              :append-icon="passwordVisible ? 'visibility_off' : 'visibility'"
-              @click:append="() => (passwordVisible = !passwordVisible)"
-              :type="passwordVisible ? 'text' : 'password'"
-              v-model="password"
-            ></v-text-field>
-            <v-btn class="mr-2" type="submit" :loading="awaitingResponse" @click="login" :color="buttonStatus.color">
-              <v-icon left dark>lock_open</v-icon>
-              Log In
-            </v-btn>
-            <router-link v-if="loginRoute" to="signup">
-              <v-btn text>Create New Account</v-btn>
-            </router-link>
-            <v-btn v-else @click="toggle" text> Create New Account </v-btn>
-          </v-form>
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
-  <!-- </v-container> -->
+        <v-snackbar v-model="badLoginAttempt" bottom right :timeout="errorTimeout">
+          Username or password was incorrect.
+          <v-btn color="pink" text @click="badLoginAttempt = false">Close</v-btn>
+        </v-snackbar>
+
+        <v-btn class="mr-2" type="submit" :loading="awaitingResponse" @click="login" :color="buttonStatus.color">
+          <v-icon left>mdi-lock-open</v-icon>
+          Log In
+        </v-btn>
+        <router-link v-if="loginRoute" to="signup">
+          <v-btn text>Create New Account</v-btn>
+        </router-link>
+        <v-btn v-else text @click="toggle">Create New Account</v-btn>
+      </v-form>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script lang="ts">
@@ -64,7 +63,7 @@ export default defineComponent({
       awaitingResponse: false,
       badLoginAttempt: false,
       errorTimeout: 5000,
-      user: undefined as User | undefined
+      user: undefined as User | undefined,
     };
   },
 
@@ -78,7 +77,7 @@ export default defineComponent({
         color: this.badLoginAttempt ? 'error' : 'success',
         text: this.badLoginAttempt ? 'Try again' : 'Log In',
       };
-    }
+    },
   },
 
   methods: {
@@ -122,8 +121,8 @@ export default defineComponent({
     toggle() {
       log('Toggling registration / login forms.');
       this.$emit('toggle');
-    }
-  }
+    },
+  },
 });
 </script>
 
