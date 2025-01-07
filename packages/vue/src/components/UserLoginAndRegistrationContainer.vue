@@ -19,72 +19,84 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import UserLogin from './UserLogin.vue';
 import UserRegistration from './UserRegistration.vue';
-import Component from 'vue-class-component';
 import UserChip from './UserChip.vue';
 import { GuestUsername } from '@/store';
-import Vue from 'vue';
 import { User } from '../db/userDB';
 
-@Component({
+export default defineComponent({
+  name: 'UserLoginAndRegistrationContainer',
+
   components: {
     UserLogin,
     UserRegistration,
     UserChip,
   },
-})
-export default class UserLoginAndRegistrationContainer extends Vue {
-  private readonly GuestUsername: string = GuestUsername;
 
-  private get display(): boolean {
-    if (
-      (this.$route.name && this.$route.name.toLowerCase() === 'login') ||
-      (this.$route.name && this.$route.name.toLowerCase() === 'signup')
-    ) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+  data() {
+    return {
+      GuestUsername,
+    };
+  },
 
-  private get guestMode(): boolean {
-    if (this.$store.state._user) {
-      return this.$store.state._user.username.startsWith(GuestUsername);
-    } else {
-      return !this.$store.state.userLoginAndRegistrationContainer.loggedIn;
-    }
-  }
+  computed: {
+    display(): boolean {
+      if (
+        (this.$route.name && this.$route.name.toLowerCase() === 'login') ||
+        (this.$route.name && this.$route.name.toLowerCase() === 'signup')
+      ) {
+        return false;
+      } else {
+        return true;
+      }
+    },
 
-  private get regDialog(): boolean {
-    return this.$store.state.userLoginAndRegistrationContainer.regDialogOpen;
-  }
-  private set regDialog(value: boolean) {
-    this.$store.state.userLoginAndRegistrationContainer.regDialogOpen = value;
-  }
+    guestMode(): boolean {
+      if (this.$store.state._user) {
+        return this.$store.state._user.username.startsWith(this.GuestUsername);
+      } else {
+        return !this.$store.state.userLoginAndRegistrationContainer.loggedIn;
+      }
+    },
 
-  private get loginDialog(): boolean {
-    return this.$store.state.userLoginAndRegistrationContainer.loginDialogOpen;
-  }
-  private set loginDialog(value: boolean) {
-    this.$store.state.userLoginAndRegistrationContainer.loginDialogOpen = value;
-  }
+    regDialog: {
+      get(): boolean {
+        return this.$store.state.userLoginAndRegistrationContainer.regDialogOpen;
+      },
+      set(value: boolean) {
+        this.$store.state.userLoginAndRegistrationContainer.regDialogOpen = value;
+      },
+    },
 
-  private toggle() {
-    if (this.regDialog && this.loginDialog) {
-      throw new Error(`
+    loginDialog: {
+      get(): boolean {
+        return this.$store.state.userLoginAndRegistrationContainer.loginDialogOpen;
+      },
+      set(value: boolean) {
+        this.$store.state.userLoginAndRegistrationContainer.loginDialogOpen = value;
+      },
+    },
+  },
+
+  methods: {
+    toggle(): void {
+      if (this.regDialog && this.loginDialog) {
+        throw new Error(`
 Registration / Login dialogs both activated.
 `);
-    } else if (this.regDialog === this.loginDialog) {
-      throw new Error(`
+      } else if (this.regDialog === this.loginDialog) {
+        throw new Error(`
 Registration / Login dialogs toggled while both were dormant.
 `);
-    } else {
-      this.regDialog = !this.regDialog;
-      this.loginDialog = !this.loginDialog;
-    }
-  }
-}
+      } else {
+        this.regDialog = !this.regDialog;
+        this.loginDialog = !this.loginDialog;
+      }
+    },
+  },
+});
 </script>
 
 <style scoped>
