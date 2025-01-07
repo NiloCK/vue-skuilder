@@ -1,6 +1,6 @@
 <template>
   <v-textarea
-    box
+    filled
     ref="inputField"
     v-model="store[field.name]"
     v-bind:name="field.name"
