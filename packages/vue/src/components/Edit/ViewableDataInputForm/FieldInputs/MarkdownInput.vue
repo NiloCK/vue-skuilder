@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { FieldInput } from '../FieldInput';
+import FieldInput from '../OptionsFieldInput';
 import SimpleMDE from 'simplemde';
 
 export default defineComponent({
@@ -20,11 +20,11 @@ export default defineComponent({
   extends: FieldInput,
   computed: {
     validators() {
-      const ret = FieldInput.prototype.validators;
+      const ret = FieldInput.computed?.validators;
       return ret;
-    }
+    },
   },
-  mounted() {}
+  mounted() {},
 });
 </script>
 
