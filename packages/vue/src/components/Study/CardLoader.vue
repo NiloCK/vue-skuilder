@@ -1,6 +1,5 @@
 <template>
   <card-viewer
-    class="ma-2"
     v-if="!loading"
     v-bind:class="loading ? 'muted' : ''"
     v-bind:view="view"
@@ -15,16 +14,17 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import Courses from '@/courses';
+import Viewable from '@/base-course/Viewable';
 import { displayableDataToViewData, ViewData } from '@/base-course/Interfaces/ViewData';
 import { CardData, CardRecord, DisplayableData } from '@/db/types';
 import { log } from 'util';
 import CardViewer from './CardViewer.vue';
 import { getCourseDoc } from '@/db';
-import { ViewComponent } from '@/base-course/Displayable';
+import { VueConstructor } from 'vue';
 
 export default defineComponent({
   name: 'CardLoader',
-
+  
   components: {
     CardViewer,
   },
@@ -44,8 +44,9 @@ export default defineComponent({
   data() {
     return {
       loading: true,
-      view: null as ViewComponent | null,
+      view: null as VueConstructor<Viewable> | null,
       data: [] as ViewData[],
+      constructedView: null as Viewable | null,
       courseID: '',
       cardID: '',
     };
@@ -86,9 +87,11 @@ export default defineComponent({
         }
 
         this.data = tmpData;
-        this.view = tmpView as ViewComponent;
+        this.view = tmpView as VueConstructor<Viewable>;
         this.cardID = _cardID;
         this.courseID = _courseID;
+
+        this.constructedView = new this.view();
       } catch (e) {
         throw new Error(`Error loading card: ${JSON.stringify(e)}, ${e}`);
       } finally {

@@ -1,4 +1,4 @@
-import { Answer, Question, ViewComponent } from '@/base-course/Displayable';
+import { Answer, Question } from '@/base-course/Displayable';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { DataShapeName } from '@/enums/DataShapeNames';
@@ -7,7 +7,7 @@ import { Status } from '@/enums/Status';
 import PuzzleView from './puzzle.vue';
 import { Key as cgKey } from '../../chessground/types';
 
-export class Puzzle extends Question {
+export class ChessPuzzle extends Question {
   public static dataShapes: DataShape[] = [
     {
       name: DataShapeName.CHESS_puzzle,
@@ -17,7 +17,7 @@ export class Puzzle extends Question {
           type: FieldType.CHESS_PUZZLE,
           validator: {
             instructions: 'insert a valid fen string',
-            test: function (s: string) {
+            test: function(s: string) {
               console.log(`running puzzle validator on ${s}`);
 
               if (!s) {
@@ -49,7 +49,7 @@ export class Puzzle extends Question {
       ],
     },
   ];
-  public static views: ViewComponent[] = [PuzzleView];
+  public static views = [PuzzleView];
   public static acceptsUserData: boolean = true;
 
   public static readonly CHECKMATE = 'CHECKMATE';
@@ -94,17 +94,17 @@ export class Puzzle extends Question {
     return 0.5;
   }
   dataShapes() {
-    return Puzzle.dataShapes;
+    return ChessPuzzle.dataShapes;
   }
 
-  views(): Array<ViewComponent> {
-    return Puzzle.views;
+  views() {
+    return ChessPuzzle.views;
   }
 
   isCorrect(a: Answer) {
     // player actions have exhausted the move tree
     const sequenceComplete = this.moves.length === 0;
 
-    return a === Puzzle.CHECKMATE || sequenceComplete;
+    return a === ChessPuzzle.CHECKMATE || sequenceComplete;
   }
 }
