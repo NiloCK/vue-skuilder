@@ -606,7 +606,7 @@ User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
 
       Promise.all([
         updateUserElo(this.$store.state._user!.username, course_id, eloUpdate.userElo),
-        updateCardElo(course_id, card_id, eloUpdate.cardElo),
+        updateCardElo(course_id, card_id, eloUpdate.cardElo), // [ ] error popping here
       ]).then((results) => {
         const user = results[0];
         const card = results[1];
