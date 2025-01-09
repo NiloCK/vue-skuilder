@@ -5,14 +5,13 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 import { SingleDigitMultiplicationQuestion } from '@/courses/math/questions/multiplication';
 import { randomInt } from '@/courses/math/utility';
 
-export default {
-  // problem: SingleDigitMultiplicationQuestion = new SingleDigitMultiplicationQuestion();
-  data: () => {
+export default defineComponent({
+  name: 'About',
+  data() {
     return {
       type: 'Viewable',
       problem: new SingleDigitMultiplicationQuestion([
@@ -24,5 +23,5 @@ export default {
     };
   },
   components: {},
-};
+});
 </script>
