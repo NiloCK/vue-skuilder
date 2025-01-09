@@ -1,60 +1,76 @@
 <template>
   <v-container fluid>
-    <v-row justify="space-around">
-      <v-col cols="12" sm="12" md="4">
-        <v-card>
-          <v-toolbar flat>
-            <v-toolbar-title>My Registered Quilts</v-toolbar-title>
-          </v-toolbar>
+    <!-- Fixed Action Button -->
+    <v-btn
+      color="primary"
+      dark
+      fixed
+      bottom
+      right
+      fab
+      class="mb-4 mr-4"
+      v-bind="newCourseAttrs"
+      v-on="newCourseAttrs.on"
+    >
+      <v-icon>mdi-plus</v-icon>
+    </v-btn>
 
-          <v-list>
-            <transition-group name="component-fade" mode="out-in" key="registered">
-              <template v-for="course in registeredCourses">
-                <v-list-item :key="course._id" avatar>
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      <router-link :to="`/q/${course.name.replace(' ', '_')}`">
-                        {{ course.name }}
-                      </router-link>
-                      <v-icon v-if="!course.public">visibility_off</v-icon>
-                    </v-list-item-title>
-                  </v-list-item-content>
-                  <v-list-item-action>
-                    <v-btn
-                      small
-                      color="secondary"
-                      @click="dropCourse(course._id)"
-                      :loading="spinnerMap[course._id] !== undefined"
-                    >
-                      Drop
-                    </v-btn>
-                  </v-list-item-action>
-                </v-list-item>
-              </template>
-            </transition-group>
-          </v-list>
-        </v-card>
+    <!-- Main Content Area -->
+    <v-row>
+      <!-- My Quilts Panel -->
+      <v-col cols="12">
+        <v-expansion-panels v-model="myQuiltsPanel" :mandatory="false">
+          <v-expansion-panel>
+            <v-expansion-panel-header> My Registered Quilts </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-row>
+                <v-col v-for="course in registeredCourses" :key="course._id" cols="12" sm="6" md="4" lg="3">
+                  <v-card outlined dense class="pa-2">
+                    <div class="d-flex align-center justify-space-between">
+                      <div class="d-flex align-center">
+                        <router-link :to="`/q/${course.name.replace(' ', '_')}`" class="text-subtitle-2">
+                          {{ course.name }}
+                        </router-link>
+                        <v-icon v-if="!course.public" x-small class="ml-1">mdi-eye-off</v-icon>
+                      </div>
+                      <v-btn
+                        x-small
+                        text
+                        color="error"
+                        @click="dropCourse(course._id)"
+                        :loading="spinnerMap[course._id] !== undefined"
+                      >
+                        Drop
+                      </v-btn>
+                    </div>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-col>
+
+      <!-- Available Quilts Section -->
+      <v-col cols="12" class="mt-4">
+        <h2 class="headline mb-3">Available Quilts</h2>
+        <v-row>
+          <v-col v-for="(course, index) in displayedAvailableCourses" :key="course._id" cols="12" sm="6" md="4" lg="3">
+            <course-stub-card v-on:refresh="refreshData" :_id="course._id" />
+          </v-col>
+        </v-row>
+
+        <!-- Show More Button -->
+        <v-row v-if="hasMoreCourses" justify="center" class="mt-2">
+          <v-btn text color="primary" @click="toggleShowMore">
+            {{ showAllCourses ? 'Show Less' : 'Show More' }}
+          </v-btn>
+        </v-row>
       </v-col>
     </v-row>
 
-    <h1 class="display-1">Available Quilts:</h1>
-    <v-row align="space-between" class="fill-height" wrap>
-      <v-col
-        class="fill-height pa-2"
-        cols="12"
-        sm="6"
-        md="4"
-        lg="3"
-        v-for="course in availableCourses"
-        :key="course._id"
-      >
-        <course-stub-card v-on:refresh="refreshData" :_id="course._id" />
-      </v-col>
-    </v-row>
+    <!-- New Course Dialog -->
     <v-dialog v-model="newCourseDialog" fullscreen transition="dialog-bottom-transition" :overlay="false">
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn color="primary" dark v-bind="attrs" v-on="on"> Start a new Quilt </v-btn>
-      </template>
       <course-editor v-on:CourseEditingComplete="processResponse($event)" />
     </v-dialog>
   </v-container>
@@ -75,7 +91,7 @@ import { User } from '../db/userDB';
 
 export default defineComponent({
   name: 'Courses',
-  
+
   components: {
     CourseEditor,
     CourseStubCard,
@@ -88,7 +104,10 @@ export default defineComponent({
       awaitingCreateCourse: false,
       spinnerMap: {} as { [key: string]: boolean },
       newCourseDialog: false,
-      user: null as User | null
+      user: null as User | null,
+      myQuiltsPanel: 0, // Controls expansion panel
+      showAllCourses: false,
+      coursesPerPage: 8,
     };
   },
 
@@ -107,13 +126,38 @@ export default defineComponent({
       });
 
       return viewableCourses;
-    }
+    },
+    displayedAvailableCourses(): CourseConfig[] {
+      if (this.showAllCourses) {
+        return this.availableCourses;
+      }
+      return this.availableCourses.slice(0, this.coursesPerPage);
+    },
+
+    hasMoreCourses(): boolean {
+      return this.availableCourses.length > this.coursesPerPage;
+    },
+
+    newCourseAttrs() {
+      return {
+        attrs: {
+          'aria-label': 'Create new quilt',
+        },
+        on: {
+          click: () => (this.newCourseDialog = true),
+        },
+      };
+    },
   },
 
   methods: {
     processResponse(event: string): void {
       this.newCourseDialog = false;
       this.refreshData();
+    },
+
+    toggleShowMore() {
+      this.showAllCourses = !this.showAllCourses;
     },
 
     async refreshData(): Promise<void> {
@@ -190,13 +234,13 @@ export default defineComponent({
       await this.$store.state._user!.dropCourse(course);
       this.$set(this.spinnerMap, course, undefined);
       this.refreshData();
-    }
+    },
   },
 
   async created() {
     this.user = await User.instance();
     this.refreshData();
-  }
+  },
 });
 </script>
 
