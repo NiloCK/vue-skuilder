@@ -26,12 +26,11 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { Chessground } from '../../chessground/chessground';
-import { Key, MoveMetadata } from '../../chessground/types';
+import { Key } from '../../chessground/types';
 import { Api as cgAPI } from '../../chessground/api';
-import { QuestionView } from '@/base-course/OptionsViewable';
-import { Puzzle } from './index';
-import { Chess, SQUARES, Square, Piece } from 'chess.js';
-import { ViewComponent } from '@/base-course/Displayable';
+import { QuestionView } from '@/base-course/Viewable';
+import { ChessPuzzle } from './index';
+import { Chess, SQUARES } from 'chess.js';
 
 type PromotionPiece = 'q' | 'r' | 'b' | 'n';
 type Color = 'cg-white' | 'cg-black';
@@ -54,29 +53,14 @@ function parseUciMove(moveString: string): UciMove {
   };
 }
 
-type EngineType = InstanceType<typeof Chess>;
-
-type EngineIsh = {
-  moves: (options?: { verbose: boolean }) => MoveMetadata[];
-  turn: () => 'w' | 'b';
-  get: (square: Square) => Piece | null;
-  move: (move: UciMove) => MoveMetadata | null;
-  undo: () => void;
-  fen: () => string;
-  isCheckmate: () => boolean;
-};
-
-function toDests(chess: EngineIsh | Chess): Map<Key, Key[]> {
-  if (!chess) return new Map();
-
+function toDests(chess: Chess) {
   const dests = new Map();
   SQUARES.forEach((s) => {
-    const ms = chess.moves({ square: s as Square, verbose: true });
+    const ms = chess.moves({ square: s, verbose: true });
     if (ms.length)
       dests.set(
         s,
-        // @ts-ignore
-        ms.map((m) => m.to as Key)
+        ms.map((m) => m.to)
       );
   });
   return dests;
@@ -87,45 +71,36 @@ function swapColor(color: Color): Color {
   return color === 'cg-white' ? 'cg-black' : 'cg-white';
 }
 
-function toColor(chess: EngineIsh | Chess): Color {
-  if (!chess) return 'cg-white';
-
+function toColor(chess: Chess): Color {
   return chess.turn() === 'w' ? 'cg-white' : 'cg-black';
 }
 
-// @ts-ignore
-const PuzzleView: ViewComponent = defineComponent({
+export default defineComponent({
   name: 'PuzzleView',
   extends: QuestionView,
   data() {
     return {
       answer: '',
-      chessEngine: null as EngineIsh | null,
+      chessEngine: null as Chess | null,
       chessBoard: null as cgAPI | null,
       playerColor: 'cg-white' as Color,
       showPromotionDialog: false,
-      promotionMove: null as { from: Key; to: Key } | null,
+      promotionMove: null as { from: string; to: string } | null,
       animDelay: 300,
     };
   },
   computed: {
-    question(): Puzzle {
-      return new Puzzle(this.data);
+    question(): ChessPuzzle {
+      return new ChessPuzzle(this.data);
     },
     files(): string[] {
       const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
       return this.playerColor === 'cg-white' ? files : files.reverse();
     },
   },
-  created() {},
   mounted() {
-    const c = toColor(new Chess()); // ok
-    const newChess = new Chess();
-    const cc = toColor(newChess); // ok
-
-    this.chessEngine = new Chess(this.question.fen) as any as EngineIsh;
+    this.chessEngine = new Chess(this.question.fen);
     this.playerColor = swapColor(toColor(this.chessEngine));
-
     console.log(`Player color: ${this.playerColor}`);
 
     this.chessBoard = Chessground(document.getElementById('cg')!, {
@@ -149,7 +124,6 @@ const PuzzleView: ViewComponent = defineComponent({
     this.chessBoard.set({
       movable: {
         events: {
-          // @ts-ignore
           after: this.checkMove,
         },
       },
@@ -161,11 +135,11 @@ const PuzzleView: ViewComponent = defineComponent({
     this.updateChessground();
   },
   methods: {
-    isUnfinishedPromotion(from: Key, to: Key, promotionPiece?: PromotionPiece): boolean {
+    isUnfinishedPromotion(from: string, to: string, promotionPiece?: PromotionPiece): boolean {
       if (this.isPromotionPiece(promotionPiece)) {
         return false;
       }
-      const piece = this.chessEngine!.get(from as Square);
+      const piece = this.chessEngine!.get(from);
       return piece?.type === 'p' && (to[1] === '8' || to[1] === '1');
     },
     handlePromotion(promotionPiece: PromotionPiece) {
@@ -214,7 +188,7 @@ const PuzzleView: ViewComponent = defineComponent({
       } else {
         this.chessEngine!.move({ from: orig, to: dest, promotion: promotionPiece });
         if (this.chessEngine!.isCheckmate()) {
-          this.submitAnswer(Puzzle.CHECKMATE);
+          this.submitAnswer(ChessPuzzle.CHECKMATE);
         } else {
           this.chessEngine!.undo();
         }
@@ -234,8 +208,6 @@ const PuzzleView: ViewComponent = defineComponent({
     },
   },
 });
-
-export default PuzzleView;
 </script>
 
 <style scoped>
