@@ -15,35 +15,46 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, PropType } from 'vue';
 import CourseEditor from '../components/Edit/CourseEditor.vue';
-import { Component, Prop } from 'vue-property-decorator';
 import { CourseConfig } from '../server/types';
-import Vue from 'vue';
 import { User } from '../db/userDB';
 
-@Component({
+export default defineComponent({
+  name: 'Edit',
+
   components: {
     CourseEditor,
   },
-})
-export default class Edit extends Vue {
-  public courseList: CourseConfig[] = [];
-  @Prop()
-  public selectedCourse: string = '';
 
-  private get courseNames() {
-    return this.courseList.map((course) => {
-      return course.name;
-    });
-  }
+  props: {
+    selectedCourse: {
+      type: String as PropType<string>,
+      default: '',
+    },
+  },
 
-  private async created() {
+  data() {
+    return {
+      courseList: [] as CourseConfig[],
+    };
+  },
+
+  computed: {
+    courseNames(): string[] {
+      return this.courseList.map((course) => {
+        return course.name;
+      });
+    },
+  },
+
+  async created() {
     const user = await User.instance();
     const courseList = await user.getUserEditableCourses();
 
     this.courseList = courseList.rows.map((row) => {
       return row.doc!;
     });
-  }
-}
+  },
+});
 </script>
