@@ -15,25 +15,44 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import UserInput from './UserInput';
+// import { Component, Prop, Vue } from 'vue-property-decorator';
+import UserInput from './OptionsUserInput';
+import { defineComponent, PropType } from 'vue';
 
-@Component({})
-export default class UserInputString extends UserInput {
-  @Prop({
-    required: false,
-    default: true,
-  })
-  public icon: boolean;
-
-  private get prependIcon(): string {
-    return this.icon ? 'edit' : '';
-  }
-
-  public mounted() {
-    this.$el.focus();
-  }
+interface InputStringRefs {
+  input: HTMLInputElement;
 }
+
+type InputStringInstance = ReturnType<typeof defineComponent> & {
+  $refs: InputStringRefs;
+};
+
+export default defineComponent({
+  name: 'UserInputString',
+
+  extends: UserInput,
+
+  ref: {} as InputStringRefs,
+
+  props: {
+    icon: {
+      type: Boolean,
+      required: false,
+    },
+  },
+
+  computed: {
+    prependIcon(): string {
+      return this.icon ? 'edit' : '';
+    },
+  },
+
+  methods: {
+    mounted(this: InputStringInstance) {
+      this.$refs.input.focus();
+    },
+  },
+});
 </script>
 
 <style scoped>
