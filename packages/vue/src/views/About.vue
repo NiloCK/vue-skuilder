@@ -1,6 +1,10 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    <h1>Todo.</h1>
+
+    <p>This is a placeholder for the about page. It will be filled in with more information later.</p>
+
+    <router-link to="./notes">Release Notes</router-link>
   </div>
 </template>
 
