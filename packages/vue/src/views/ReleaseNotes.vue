@@ -10,12 +10,12 @@
 </template>
 
 <script lang="ts">
-import Vue, { VueConstructor } from 'vue';
-import { Component, Prop, Emit } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 import { log } from 'util';
 
-@Component({})
-export default class User extends Vue {}
+export default defineComponent({
+  name: 'ReleaseNotes'
+});
 </script>
 
 <style scoped></style>
