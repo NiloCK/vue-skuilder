@@ -29,28 +29,33 @@
 </template>
 
 <script lang="ts">
-import Vue, { VueConstructor } from 'vue';
-import { Component, Prop, Emit } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 import { log } from 'util';
 import AdminDB from '../db/adminDB';
 import { GuestUsername } from '../store';
 
-@Component({})
-export default class Admin extends Vue {
-  public title: string = 'Admin Panel';
+export default defineComponent({
+  name: 'Admin',
 
-  public db: AdminDB;
-  public users: any[] = [];
-  public courses: any[] = [];
-  public classrooms: any[] = [];
+  data() {
+    return {
+      title: 'Admin Panel',
+      db: null as AdminDB | null,
+      users: [] as any[],
+      courses: [] as any[],
+      classrooms: [] as any[]
+    };
+  },
 
-  public get registeredUsers(): any[] {
-    return this.users.filter((u) => {
-      return !(u.name as string).startsWith(GuestUsername);
-    });
-  }
+  computed: {
+    registeredUsers(): any[] {
+      return this.users.filter((u) => {
+        return !(u.name as string).startsWith(GuestUsername);
+      });
+    }
+  },
 
-  public async created() {
+  async created() {
     try {
       this.db = await AdminDB.factory();
       this.users = await this.db.getUsers();
@@ -60,13 +65,17 @@ export default class Admin extends Vue {
       this.title = 'This page is for database admins only.';
       throw `${JSON.stringify(e)} - ${e}\n\nNot an admin!`;
     }
-  }
+  },
 
-  public removeCourse(id: string) {
-    console.log(`Removing ${id}`);
-    this.db.removeCourse(id);
+  methods: {
+    removeCourse(id: string): void {
+      console.log(`Removing ${id}`);
+      if (this.db) {
+        this.db.removeCourse(id);
+      }
+    }
   }
-}
+});
 </script>
 
 <style scoped></style>
