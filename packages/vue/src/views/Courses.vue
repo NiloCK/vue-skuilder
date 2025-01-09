@@ -61,10 +61,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import CourseEditor from '@/components/Courses/CourseEditor.vue';
 import CourseStubCard from '@/components/Courses/CourseStubCard.vue';
-import { Component } from 'vue-property-decorator';
 import CourseList from '../courses';
 import _ from 'lodash';
 import { log } from 'util';
@@ -74,125 +73,131 @@ import { alertUser } from '../components/SnackbarService.vue';
 import { getCourseList } from '@/db/courseDB';
 import { User } from '../db/userDB';
 
-@Component({
+export default defineComponent({
+  name: 'Courses',
+  
   components: {
     CourseEditor,
     CourseStubCard,
   },
-})
-export default class Courses extends Vue {
-  public existingCourses: CourseConfig[] = [];
-  public registeredCourses: CourseConfig[] = [];
-  private awaitingCreateCourse: boolean = false;
-  private spinnerMap: { [key: string]: boolean } = {};
 
-  private newCourseDialog: boolean = false;
-  private user: User;
+  data() {
+    return {
+      existingCourses: [] as CourseConfig[],
+      registeredCourses: [] as CourseConfig[],
+      awaitingCreateCourse: false,
+      spinnerMap: {} as { [key: string]: boolean },
+      newCourseDialog: false,
+      user: null as User | null
+    }
+  },
 
-  public get availableCourses() {
-    const availableCourses = _.without(this.existingCourses, ...this.registeredCourses);
-    const viewableCourses = availableCourses.filter((course) => {
-      const user = this.$store.state._user!.username;
-      const viewable: boolean =
-        course.public ||
-        course.creator === user ||
-        course.admins.indexOf(user) !== -1 ||
-        course.moderators.indexOf(user) !== -1;
+  computed: {
+    availableCourses(): CourseConfig[] {
+      const availableCourses = _.without(this.existingCourses, ...this.registeredCourses);
+      const viewableCourses = availableCourses.filter((course) => {
+        const user = this.$store.state._user!.username;
+        const viewable: boolean =
+          course.public ||
+          course.creator === user ||
+          course.admins.indexOf(user) !== -1 ||
+          course.moderators.indexOf(user) !== -1;
 
-      return viewable;
-    });
-
-    return viewableCourses;
-  }
-
-  private processResponse(event: string) {
-    this.newCourseDialog = false;
-    this.refreshData();
-  }
-
-  private async refreshData() {
-    log(`Pulling user course data...`);
-    const userCourseIDs = (await this.user.getRegisteredCourses())
-      .filter((c) => {
-        return c.status === 'active' || c.status === 'maintenance-mode' || c.status === undefined;
-      })
-      .map((c) => {
-        return c.courseID;
-      });
-    const courseList = await getCourseList();
-
-    this.existingCourses = courseList.rows
-      .filter((course) => {
-        return course && course.doc;
-      })
-      .map((course) => {
-        return course.doc!;
+        return viewable;
       });
 
-    this.registeredCourses = courseList.rows
-      .filter((course) => {
-        let match: boolean = false;
-        userCourseIDs.forEach((id) => {
-          if (course.id === id) {
-            match = true;
-          }
+      return viewableCourses;
+    }
+  },
+
+  methods: {
+    processResponse(event: string) {
+      this.newCourseDialog = false;
+      this.refreshData();
+    },
+
+    async refreshData() {
+      log(`Pulling user course data...`);
+      const userCourseIDs = (await this.user!.getRegisteredCourses())
+        .filter((c) => {
+          return c.status === 'active' || c.status === 'maintenance-mode' || c.status === undefined;
+        })
+        .map((c) => {
+          return c.courseID;
         });
-        return match;
-      })
-      .map((course) => {
-        return course.doc!;
-      });
-  }
+      const courseList = await getCourseList();
 
-  private async created() {
+      this.existingCourses = courseList.rows
+        .filter((course) => {
+          return course && course.doc;
+        })
+        .map((course) => {
+          return course.doc!;
+        });
+
+      this.registeredCourses = courseList.rows
+        .filter((course) => {
+          let match: boolean = false;
+          userCourseIDs.forEach((id) => {
+            if (course.id === id) {
+              match = true;
+            }
+          });
+          return match;
+        })
+        .map((course) => {
+          return course.doc!;
+        });
+    },
+
+    async createCourse() {
+      this.awaitingCreateCourse = true;
+      const resp = await serverRequest({
+        type: ServerRequestType.CREATE_COURSE,
+        data: {
+          name: 'testCourseName',
+          description: 'All of these courses will be the same!',
+          public: true,
+          deleted: false,
+          creator: this.$store.state._user!.username,
+          admins: [this.$store.state._user!.username],
+          moderators: [],
+          dataShapes: [],
+          questionTypes: [],
+        },
+        user: this.$store.state._user!.username,
+        response: null,
+      });
+
+      alertUser({
+        status: resp.response!,
+        text: `Course ${JSON.stringify(resp)} created`,
+      });
+      this.awaitingCreateCourse = false;
+    },
+
+    async addCourse(course: string) {
+      this.$set(this.spinnerMap, course, true);
+      log(`Attempting to register for ${course}.`);
+      await this.$store.state._user!.registerForCourse(course);
+      this.$set(this.spinnerMap, course, undefined);
+      this.refreshData();
+    },
+
+    async dropCourse(course: string) {
+      this.$set(this.spinnerMap, course, true);
+      log(`Attempting to drop ${course}.`);
+      await this.$store.state._user!.dropCourse(course);
+      this.$set(this.spinnerMap, course, undefined);
+      this.refreshData();
+    }
+  },
+
+  async created() {
     this.user = await User.instance();
     this.refreshData();
-    // this.$on('refresh', () => {
-    //   this.refreshData();
-    // });
   }
-
-  private async createCourse() {
-    this.awaitingCreateCourse = true;
-    const resp = await serverRequest({
-      type: ServerRequestType.CREATE_COURSE,
-      data: {
-        name: 'testCourseName',
-        description: 'All of these courses will be the same!',
-        public: true,
-        deleted: false,
-        creator: this.$store.state._user!.username,
-        admins: [this.$store.state._user!.username],
-        moderators: [],
-        dataShapes: [],
-        questionTypes: [],
-      },
-      user: this.$store.state._user!.username,
-      response: null,
-    });
-
-    alertUser({
-      status: resp.response!,
-      text: `Course ${JSON.stringify(resp)} created`,
-    });
-    this.awaitingCreateCourse = false;
-  }
-
-  private async addCourse(course: string) {
-    this.$set(this.spinnerMap, course, true);
-    log(`Attempting to register for ${course}.`);
-    await this.$store.state._user!.registerForCourse(course);
-    this.$set(this.spinnerMap, course, undefined);
-    this.refreshData();
-  }
-  private async dropCourse(course: string) {
-    this.$set(this.spinnerMap, course, true);
-    log(`Attempting to drop ${course}.`);
-    await this.$store.state._user!.dropCourse(course);
-    this.$set(this.spinnerMap, course, undefined);
-    this.refreshData();
-  }
-}
+});
 </script>
 
 <style scoped>
