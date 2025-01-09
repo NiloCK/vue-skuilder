@@ -39,7 +39,7 @@ Here is the component to convert:
 
 `;
 
-const EXCLUDE_DIRS = ['node_modules', 'dist', 'tests', 'UserInput'];
+const EXCLUDE_DIRS = ['node_modules', 'dist', 'tests', 'UserInput', 'courses'];
 const SPECIFIC_PATH = ''; // optional: set to process specific subdirectory
 
 async function* findVueFiles(dir: string): AsyncGenerator<string> {
