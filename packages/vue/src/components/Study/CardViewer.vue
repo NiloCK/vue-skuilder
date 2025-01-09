@@ -2,7 +2,7 @@
   <v-card elevation="12">
     <transition name="component-fade" mode="out-in">
       <component
-        class="cardView ma-2 pa-2"
+        class="cardView"
         v-bind:is="view"
         v-bind:data="data"
         v-bind:key="course_id + '-' + card_id + '-' + sessionOrder"
@@ -14,60 +14,58 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { defineComponent } from 'vue';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable from '@/base-course/Viewable';
 import Courses from '@/courses';
 import { CardRecord } from '@/db/types';
 import { CourseElo } from '@/tutor/Elo';
 import { VueConstructor } from 'vue';
-import { DefineComponent } from 'vue';
-import { ViewComponent } from '@/base-course/Displayable';
 
 export default defineComponent({
   name: 'CardViewer',
-
+  
   components: Courses.allViews(),
-
+  
   props: {
     sessionOrder: {
       type: Number,
       required: false,
-      default: 0,
+      default: 0
     },
     card_id: {
       type: String as () => PouchDB.Core.DocumentId,
       required: true,
-      default: '',
+      default: ''
     },
     course_id: {
       type: String,
       required: true,
-      default: '',
+      default: ''
     },
     view: {
-      type: [Function, Object] as PropType<ViewComponent>,
-      required: true,
+      type: Object as () => VueConstructor<Viewable>,
+      required: true
     },
     data: {
       type: Array as () => ViewData[],
-      required: true,
+      required: true
     },
     user_elo: {
       type: Object as () => CourseElo,
       default: () => ({
         global: {
           score: 1000,
-          count: 0,
+          count: 0
         },
         tags: {},
-        misc: {},
-      }),
+        misc: {}
+      })
     },
     card_elo: {
       type: Number,
-      default: 1000,
-    },
+      default: 1000
+    }
   },
 
   emits: ['emitResponse'],
@@ -79,8 +77,8 @@ export default defineComponent({
         User spent ${r.timeSpent} milliseconds with the card.
         `);
       this.$emit('emitResponse', r);
-    },
-  },
+    }
+  }
 });
 </script>
 
