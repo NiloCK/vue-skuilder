@@ -163,13 +163,7 @@ export default defineComponent({
 
       this.courseConfig!.questionTypes.push({
         name: nsQuestionName,
-        viewList: question.question.views.map((v) => {
-          if (v.name) {
-            return v.name;
-          } else {
-            return 'unnamedComponent';
-          }
-        }),
+        viewList: question.question.views.map((v) => v.name),
         dataShapeList: question.question.dataShapes.map((d) =>
           NameSpacer.getDataShapeString({
             course: question.course,
