@@ -27,6 +27,7 @@
 <script lang="ts">
 import confetti from 'canvas-confetti';
 import { defineComponent, PropType } from 'vue';
+import { User } from '@/db/userDB';
 
 interface Language {
   name: string;
@@ -35,17 +36,17 @@ interface Language {
 
 export default defineComponent({
   name: 'User',
-  
+
   props: {
     _id: {
       type: String as PropType<string>,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data() {
     return {
-      u: this.$store.state._user!,
+      u: {} as User,
       confetti: this.$store.state.config.likesConfetti as boolean,
       darkMode: this.$store.state.config.darkMode as boolean,
       configLanguages: [
@@ -58,14 +59,14 @@ export default defineComponent({
           code: 'fr',
         },
       ] as Language[],
-      selectedLanguages: [] as string[]
-    }
+      selectedLanguages: [] as string[],
+    };
   },
 
   computed: {
     isNewUser(): boolean {
       return this.$route.path.endsWith('new');
-    }
+    },
   },
 
   methods: {
@@ -91,14 +92,15 @@ export default defineComponent({
           },
         });
       }
-    }
+    },
   },
 
-  created() {
+  async created() {
+    this.u = await User.instance();
     this.configLanguages.forEach((l) => {
       console.log(`afweatifvwzeatfvwzeta` + l.name);
     });
-  }
+  },
 });
 </script>
 
