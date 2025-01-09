@@ -1,6 +1,6 @@
 import { Course } from '../../base-course/Course';
-import { Puzzle } from './questions/puzzle';
+import { ChessPuzzle } from './questions/puzzle';
 
-const chess: Course = new Course('chess', [Puzzle]);
+const chess: Course = new Course('chess', [ChessPuzzle]);
 
 export default chess;

@@ -1,4 +1,4 @@
-import { Displayable, ViewComponent } from '../base-course/Displayable';
+import { Displayable } from '../base-course/Displayable';
 import Vue, { VueConstructor } from 'vue';
 import defaultCourse from '../courses/default';
 import { BlanksCard } from '../courses/default/questions/fillIn/';
@@ -9,8 +9,8 @@ export class Course {
     return this.questionList;
   }
 
-  public get allViews(): Array<ViewComponent> {
-    const ret = new Array<ViewComponent>();
+  public get allViews(): Array<VueConstructor<Vue>> {
+    const ret = new Array<VueConstructor<Vue>>();
 
     this.questionList.forEach((question) => {
       question.views.forEach((view) => {
@@ -25,15 +25,11 @@ export class Course {
    * This function returns the map {[index:string]: string} of display
    * components needed by the CardViewer component
    */
-  public get allViewsMap(): { [index: string]: ViewComponent } {
-    const ret: { [index: string]: ViewComponent } = {};
+  public get allViewsMap(): { [index: string]: VueConstructor<Vue> } {
+    const ret: { [index: string]: VueConstructor<Vue> } = {};
 
     this.allViews.forEach((view) => {
-      if (view.name) {
-        ret[view.name] = view;
-      } else {
-        throw new Error('View has no name');
-      }
+      ret[view.name] = view;
     });
 
     return ret;
