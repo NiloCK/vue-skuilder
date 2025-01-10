@@ -11,6 +11,7 @@
     hide-details
     hide-headers
     hide-overlay
+    ref="input"
   ></v-text-field>
 </template>
 
