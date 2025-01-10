@@ -28,10 +28,10 @@ export default class FillInInput extends FillInBase {
   }
 
   private created() {
-    this.log(`fillinCreated w/ text: ${this.text}`);
+    console.log(`fillinCreated w/ text: ${this.text}`);
     this.text = this.text.substring(2);
     this.text = this.text.substring(0, this.text.length - 2);
-    this.log(`fillin text trimmed to: ${this.text}`);
+    console.log(`fillin text trimmed to: ${this.text}`);
 
     const split = this.text.split('||');
     if (split.length > 1) {

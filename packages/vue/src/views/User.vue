@@ -26,69 +26,82 @@
 
 <script lang="ts">
 import confetti from 'canvas-confetti';
-import { Component, Prop } from 'vue-property-decorator';
-import SkldrVue from '../SkldrVue';
+import { defineComponent, PropType } from 'vue';
+import { User } from '@/db/userDB';
 
-@Component({})
-export default class User extends SkldrVue {
-  @Prop({
-    required: true,
-  })
-  public _id: string;
-  private u = this.$store.state._user!;
-
-  public confetti: boolean = this.$store.state.config.likesConfetti;
-  public darkMode: boolean = this.$store.state.config.darkMode;
-
-  public configLanguages: {
-    name: string;
-    code: string;
-  }[] = [
-    {
-      name: 'English',
-      code: 'en',
-    },
-    {
-      name: 'French',
-      code: 'fr',
-    },
-  ];
-  public selectedLanguages: string[] = [];
-
-  updateDark() {
-    this.u.setConfig({
-      darkMode: this.darkMode,
-    });
-    this.$store.state.config.darkMode = this.darkMode;
-  }
-
-  updateConfetti() {
-    this.log(`Confetti updated...`);
-    this.u.setConfig({
-      likesConfetti: this.confetti,
-    });
-    this.$store.state.config.likesConfetti = this.confetti;
-
-    if (this.$store.state.config.likesConfetti) {
-      confetti({
-        origin: {
-          x: 0.5,
-          y: 1,
-        },
-      });
-    }
-  }
-
-  public get isNewUser(): boolean {
-    return this.$route.path.endsWith('new');
-  }
-
-  created() {
-    this.configLanguages.forEach(l => {
-      this.log(`afweatifvwzeatfvwzeta` + l.name);
-    });
-  }
+interface Language {
+  name: string;
+  code: string;
 }
+
+export default defineComponent({
+  name: 'User',
+
+  props: {
+    _id: {
+      type: String as PropType<string>,
+      required: true,
+    },
+  },
+
+  data() {
+    return {
+      u: {} as User,
+      confetti: this.$store.state.config.likesConfetti as boolean,
+      darkMode: this.$store.state.config.darkMode as boolean,
+      configLanguages: [
+        {
+          name: 'English',
+          code: 'en',
+        },
+        {
+          name: 'French',
+          code: 'fr',
+        },
+      ] as Language[],
+      selectedLanguages: [] as string[],
+    };
+  },
+
+  computed: {
+    isNewUser(): boolean {
+      return this.$route.path.endsWith('new');
+    },
+  },
+
+  methods: {
+    updateDark(): void {
+      this.u.setConfig({
+        darkMode: this.darkMode,
+      });
+      this.$store.state.config.darkMode = this.darkMode;
+    },
+
+    updateConfetti(): void {
+      console.log(`Confetti updated...`);
+      this.u.setConfig({
+        likesConfetti: this.confetti,
+      });
+      this.$store.state.config.likesConfetti = this.confetti;
+
+      if (this.$store.state.config.likesConfetti) {
+        confetti({
+          origin: {
+            x: 0.5,
+            y: 1,
+          },
+        });
+      }
+    },
+  },
+
+  async created() {
+    this.u = await User.instance();
+    this.configLanguages.forEach((l) => {
+      console.log(`afweatifvwzeatfvwzeta` + l.name);
+    });
+  },
+});
 </script>
 
 <style scoped></style>

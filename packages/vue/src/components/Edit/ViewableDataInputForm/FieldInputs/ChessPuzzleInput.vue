@@ -12,58 +12,70 @@
 </template>
 
 <script lang="ts">
-import { Component, Watch } from 'vue-property-decorator';
-import { FieldInput } from '../FieldInput';
+import { defineComponent, PropType } from 'vue';
+import FieldInput from '../OptionsFieldInput';
 import { toCourseElo, CourseElo } from '@/tutor/Elo';
+import { FieldDefinition } from '../../../../base-course/Interfaces/FieldDefinition';
 
-@Component
-export default class ChessPuzzleInput extends FieldInput {
-  /*
-  From https://database.lichess.org/#puzzles
+export default defineComponent({
+  name: 'ChessPuzzleInput',
+  extends: FieldInput,
 
-  Puzzles are formatted as standard CSV. The fields are as follows:
+  props: {
+    field: {
+      type: Object as PropType<FieldDefinition>,
+      required: true,
+    },
+    store: {
+      type: Object as PropType<any>,
+      required: true,
+    },
+    uiValidationFunction: {
+      type: Function as PropType<() => boolean>,
+      required: true,
+    },
+    autofocus: Boolean,
+  },
 
-  PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
-
-  */
-
-  public mounted() {
+  mounted() {
     this.validate();
-  }
+  },
 
-  public generateELO() {
-    const split = (this.store[this.field.name] as string).split(',');
-    const elo = parseInt(split[3]);
-    const count = parseInt(split[6]);
+  methods: {
+    generateELO(): CourseElo {
+      const split = (this.store[this.field.name] as string).split(',');
+      const elo = parseInt(split[3]);
+      const count = parseInt(split[6]);
 
-    let crsElo: CourseElo = {
-      global: {
-        score: elo,
-        count,
-      },
-      tags: {},
-      misc: {},
-    };
-
-    const tags = this.generateTags();
-    tags.forEach((t) => {
-      crsElo.tags[t] = {
-        score: elo,
-        count,
+      let crsElo: CourseElo = {
+        global: {
+          score: elo,
+          count,
+        },
+        tags: {},
+        misc: {},
       };
-    });
 
-    this.log('generateELO', JSON.stringify(crsElo));
+      const tags = this.generateTags();
+      tags.forEach((t) => {
+        crsElo.tags[t] = {
+          score: elo,
+          count,
+        };
+      });
 
-    return crsElo;
-  }
+      console.log('generateELO', JSON.stringify(crsElo));
 
-  public generateTags() {
-    const split = (this.store[this.field.name] as string).split(',');
-    const themes = split[7].split(' ');
-    const openingTags = split[9].split(' ');
+      return crsElo;
+    },
 
-    return themes.map((t) => `theme-${t}`).concat(openingTags.map((t) => `opening-${t}`));
-  }
-}
+    generateTags(): string[] {
+      const split = (this.store[this.field.name] as string).split(',');
+      const themes = split[7].split(' ');
+      const openingTags = split[9].split(' ');
+
+      return themes.map((t) => `theme-${t}`).concat(openingTags.map((t) => `opening-${t}`));
+    },
+  },
+});
 </script>

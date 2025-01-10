@@ -16,7 +16,7 @@
       v-bind:uiValidationFunction="uiValidationFunction"
       v-for="(a, i) in audio"
       :autofocus="false"
-      v-bind:key="'audio'+i"
+      v-bind:key="'audio' + i"
       v-bind:field="a.fieldDef"
       v-bind:store="store"
     ></audio-input>
@@ -25,7 +25,7 @@
       v-bind:uiValidationFunction="uiValidationFunction"
       v-for="(img, i) in image"
       :autofocus="false"
-      v-bind:key="'image'+i"
+      v-bind:key="'image' + i"
       v-bind:field="img.fieldDef"
       v-bind:store="store"
     ></image-input>
@@ -33,13 +33,13 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
 import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
-import { Component } from 'vue-property-decorator';
 import WaveSurfer from 'wavesurfer.js';
-import { FieldInput } from '../FieldInput';
+import FieldInput from '../OptionsFieldInput';
 import AudioInput from './AudioInput.vue';
 import ImageInput from './ImageInput.vue';
 var MediaStreamRecorder = require('msr');
@@ -49,62 +49,63 @@ type MediaData = {
   fieldDef: FieldDefinition;
 };
 
-@Component({
+export default defineComponent({
+  name: 'MediaUploadInput',
   components: {
     AudioInput,
     ImageInput,
   },
-})
-export default class MediaUploadInput extends FieldInput {
-  public get title(): string {
-    return this.field.name;
-  }
-  public clearData() {
-    this.audio = [];
-    this.image = [];
-  }
-
-  public audio: MediaData[] = [];
-  public image: MediaData[] = [];
-
-  private mediaRecorder: any;
-  private wavesurfer: WaveSurfer;
-
-  newImage() {
-    const name = `image-${this.image.length + 1}`;
-    this.store[name] = {};
-    this.image.push({
-      data: new Blob(),
-      fieldDef: {
-        name,
-        type: FieldType.IMAGE,
-      },
-    });
-  }
-
-  newAudio() {
-    const name = `audio-${this.audio.length + 1}`;
-    this.store[name] = {};
-    this.audio.push({
-      data: new Blob(),
-      fieldDef: {
-        name,
-        type: FieldType.AUDIO,
-      },
-    });
-    this.field;
-  }
-  public getValidators(): ValidatingFunction[] {
-    return [
-      () => {
-        return {
+  extends: FieldInput,
+  data() {
+    return {
+      audio: [] as MediaData[],
+      image: [] as MediaData[],
+      mediaRecorder: null as any,
+      wavesurfer: null as WaveSurfer | null,
+    };
+  },
+  computed: {
+    title(): string {
+      return this.field.name;
+    },
+  },
+  methods: {
+    clearData(): void {
+      this.audio = [];
+      this.image = [];
+    },
+    newImage(): void {
+      const name = `image-${this.image.length + 1}`;
+      this.store[name] = {};
+      this.image.push({
+        data: new Blob(),
+        fieldDef: {
+          name,
+          type: FieldType.IMAGE,
+        },
+      });
+    },
+    newAudio(): void {
+      const name = `audio-${this.audio.length + 1}`;
+      this.store[name] = {};
+      this.audio.push({
+        data: new Blob(),
+        fieldDef: {
+          name,
+          type: FieldType.AUDIO,
+        },
+      });
+    },
+    getValidators(): ValidatingFunction[] {
+      return [
+        () => ({
           status: Status.ok,
           msg: '',
-        };
-      },
-    ];
-  }
-}
+        }),
+      ];
+    },
+  },
+});
 </script>
 
 <style scoped>

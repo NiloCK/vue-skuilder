@@ -22,12 +22,11 @@
 <script lang="ts">
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import { log } from 'util';
-import SkldrVue from '../../../SkldrVue';
+import Vue from 'vue';
 import { SyllableSequence, NoteEvent } from './midi';
 
 @Component({})
-export default class SyllableSeqVis extends SkldrVue {
+export default class SyllableSeqVis extends Vue {
   @Prop()
   public seq: SyllableSequence;
   @Prop({
@@ -42,7 +41,7 @@ export default class SyllableSeqVis extends SkldrVue {
   public low: number = 500;
 
   public sayNote(note: NoteEvent) {
-    this.log(`${JSON.stringify(note)}`);
+    console.log(`${JSON.stringify(note)}`);
   }
 
   get getLastTS(): number {
@@ -54,8 +53,8 @@ export default class SyllableSeqVis extends SkldrVue {
   get getHeight(): number {
     let high = 0;
     let low = 500;
-    this.seq.syllables.forEach(s => {
-      s.notes.forEach(n => {
+    this.seq.syllables.forEach((s) => {
+      s.notes.forEach((n) => {
         if (n.note.number > high) {
           high = n.note.number;
         }
@@ -75,8 +74,8 @@ export default class SyllableSeqVis extends SkldrVue {
 
       this.lastTS = Math.max(dataTS, suggestedTS);
     } catch {}
-    this.seq.syllables.forEach(s => {
-      s.notes.forEach(n => {
+    this.seq.syllables.forEach((s) => {
+      s.notes.forEach((n) => {
         if (n.note.number > this.high) {
           this.high = n.note.number;
         }
@@ -88,7 +87,7 @@ export default class SyllableSeqVis extends SkldrVue {
   }
 
   created() {
-    this.log(`SyllableSeqVis created w/ input: \n${this.seq}`);
+    console.log(`SyllableSeqVis created w/ input: \n${this.seq}`);
 
     this.updateBounds();
   }

@@ -9,6 +9,10 @@ export interface IServerRequest {
     status: Status;
     ok: boolean;
   } | null;
+  /**
+   * milliseconds to wait for a request to complete before timing out
+   */
+  timeout?: number;
 }
 
 export interface CreateClassroom extends IServerRequest {

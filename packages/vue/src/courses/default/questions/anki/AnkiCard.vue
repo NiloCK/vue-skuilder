@@ -4,7 +4,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Component from 'vue-class-component';
 import Viewable from '@/base-course/Viewable';
 
 interface AnkiField {
@@ -47,8 +46,7 @@ const template1 = {
   __type__: 'NoteModel',
   crowdanki_uuid: '383671d6-79af-11e8-94bb-40f02f569107',
   // tslint:disable-next-line:max-line-length
-  css:
-    '.card {\n font-family: arial;\n font-size: 40px;\n text-align: center;\n color: black;\n background-color: white;\n}\n',
+  css: '.card {\n font-family: arial;\n font-size: 40px;\n text-align: center;\n color: black;\n background-color: white;\n}\n',
   flds: [
     {
       font: 'Arial',
@@ -86,8 +84,7 @@ const template1 = {
       name: 'Card 1',
       ord: 0,
       // tslint:disable-next-line:max-line-length
-      qfmt:
-        '{{Front}}\n\n<br>\n<br>\n\n<div id="pips"></div>\n\n<script>\nvar div = document.getElementById("pips");\nsetTimeout(function(){\n  //div.innerHTML = div.innerHTML + "*";\n}, 3000)<\/script>',
+      qfmt: '{{Front}}\n\n<br>\n<br>\n\n<div id="pips"></div>\n\n<script>\nvar div = document.getElementById("pips");\nsetTimeout(function(){\n  //div.innerHTML = div.innerHTML + "*";\n}, 3000)<\/script>',
     },
   ],
   type: 0,
@@ -98,8 +95,7 @@ const basicTemplate = {
   __type__: 'NoteModel',
   crowdanki_uuid: '38364ac0-79af-11e8-b58c-40f02f569107',
   // tslint:disable-next-line:max-line-length
-  css:
-    '.card {\n font-family: arial;\n font-size: 20px;\n text-align: center;\n color: black;\n background-color: white;\n}',
+  css: '.card {\n font-family: arial;\n font-size: 20px;\n text-align: center;\n color: black;\n background-color: white;\n}',
   flds: [
     {
       font: 'Arial',
@@ -155,6 +151,5 @@ const noteData = {
   tags: ['marked'],
 };
 
-@Component({})
 export default class AnkiCard extends Viewable {}
 </script>

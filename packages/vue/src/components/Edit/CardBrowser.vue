@@ -18,39 +18,59 @@
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable from '@/base-course/Viewable';
 import CardViewer from '@/components/Study/CardViewer.vue';
-import SkldrVue from '@/SkldrVue';
+import { defineComponent, PropType } from 'vue';
 import { VueConstructor } from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
 
-@Component({
+export default defineComponent({
+  name: 'CardBrowser',
+
   components: {
     CardViewer,
   },
-})
-export default class CardBrowser extends SkldrVue {
-  @Prop() public views: Array<VueConstructor<Viewable>>;
-  @Prop() public data: ViewData[];
-  public viewIndex: number = 0;
-  public get spinner(): boolean {
-    return this.views.length > 1;
-  }
 
-  private created() {
-    this.log(`Card browser created. Cards now in 'prewviewMode'`);
+  props: {
+    views: {
+      type: Array as PropType<Array<VueConstructor<Viewable>>>,
+      required: true,
+    },
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+  },
+
+  data() {
+    return {
+      viewIndex: 0,
+    };
+  },
+
+  computed: {
+    spinner(): boolean {
+      return this.views.length > 1;
+    },
+  },
+
+  created() {
+    console.log(`[CardBrowser] Card browser created. Cards now in 'prewviewMode'`);
     this.$store.state.cardPreviewMode = true;
-  }
-  private destroyed() {
-    this.log(`Card browser destroyed. Cards no longer in 'prewviewMode'`);
-    this.$store.state.cardPreviewMode = false;
-  }
+  },
 
-  private incrementView() {
-    this.viewIndex++;
-    this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
-  }
-  private decrementView() {
-    this.viewIndex--;
-    this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
-  }
-}
+  destroyed() {
+    console.log(`[CardBrowser] Card browser destroyed. Cards no longer in 'prewviewMode'`);
+    this.$store.state.cardPreviewMode = false;
+  },
+
+  methods: {
+    incrementView() {
+      this.viewIndex++;
+      this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
+    },
+
+    decrementView() {
+      this.viewIndex--;
+      this.viewIndex = (this.viewIndex + this.views.length) % this.views.length;
+    },
+  },
+});
 </script>

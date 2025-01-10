@@ -7,7 +7,6 @@ import vuetify from './plugins/vuetify'; // Only import once
 import './registerServiceWorker';
 import router from './router';
 import store from './store';
-import SkldrVue from './SkldrVue';
 import Vuex from 'vuex';
 import 'vuetify/dist/vuetify.min.css';
 
@@ -16,7 +15,7 @@ Vue.config.productionTip = false;
 // Ensure Vue uses Vuex before creating the app instance
 Vue.use(Vuex);
 
-new SkldrVue({
+new Vue({
   router,
   store,
   vuetify, // Add the vuetify instance here

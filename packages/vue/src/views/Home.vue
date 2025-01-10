@@ -17,7 +17,7 @@
       </v-flex>
       <!-- <div class="section"></div> -->
       <!-- <div class="section step1">
-          
+
           <ul class="headline">
             <li>Somebody starts a new Quilt</li>
             <li>Anybody can add content or make connections between content</li>
@@ -37,50 +37,65 @@
 import UserLogin from '../components/UserLogin.vue';
 import TextSwap from '@/components/TextSwap.vue';
 import { Status } from '@/enums/Status';
-import SkldrVue from '../SkldrVue';
-import { Prop, Component } from 'vue-property-decorator';
+import Vue from 'vue';
+import { ITextSwap } from '@/components/TextSwap.vue';
 
-@Component({
+interface Data {
+  swapIntervalID: number | null;
+  label: string[];
+  adjective: string[];
+  subject: string[];
+  verb: string[];
+}
+
+export default Vue.extend({
+  name: 'Home',
+
   components: {
     UserLogin,
     TextSwap,
   },
-})
-export default class Home extends SkldrVue {
-  $refs: {
-    swap1: TextSwap;
-    swap2: TextSwap;
-    swap3: TextSwap;
-    swap4: TextSwap;
-  };
-  private get swaps(): TextSwap[] {
-    return [this.$refs.swap1, this.$refs.swap2, this.$refs.swap3, this.$refs.swap4];
-  }
-  
-  private swapIntervalID: number | null = null;
 
-  private created() {
+  data(): Data {
+    return {
+      swapIntervalID: null,
+      label: ['collection', 'patchwork', 'network', 'jumble'],
+      adjective: ['interactive', 'adaptive', 'interlinked', 'intelligent'],
+      subject: ['anyone', 'everyone', 'you'],
+      verb: ['edit', 'start', 'study', 'improve'],
+    };
+  },
+
+  computed: {
+    swaps(): ITextSwap[] {
+      return [
+        this.$refs.swap1 as ITextSwap,
+        this.$refs.swap2 as ITextSwap,
+        this.$refs.swap3 as ITextSwap,
+        this.$refs.swap4 as ITextSwap,
+      ];
+    },
+  },
+
+  created() {
     this.swapIntervalID = window.setInterval(this.randomSwap, 7000);
-  }
-  
-  private beforeDestroy() {
+  },
+
+  beforeDestroy() {
     if (this.swapIntervalID !== null) {
       clearInterval(this.swapIntervalID);
       this.swapIntervalID = null;
     }
-  }
+  },
 
-  private randomSwap() {
-    this.swaps.forEach((s) => {
-      if (Math.random() < 0.33) s.next();
-    });
-  }
-
-  private label: string[] = ['collection', 'patchwork', 'network', 'jumble'];
-  private adjective: string[] = ['interactive', 'adaptive', 'interlinked', 'intelligent'];
-  private subject: string[] = ['anyone', 'everyone', 'you']; // grandma, grandpa, an MBA
-  private verb: string[] = ['edit', 'start', 'study', 'improve'];
-}
+  methods: {
+    randomSwap(): void {
+      this.swaps.forEach((s) => {
+        if (Math.random() < 0.33) s.next();
+      });
+    },
+  },
+});
 </script>
 
 <style scoped>

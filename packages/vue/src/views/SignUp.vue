@@ -5,17 +5,19 @@
 </template>
 
 <script lang="ts">
-import UserRegistration from '@/components/UserRegistration.vue';
-import SkldrVue from '@/SkldrVue';
 import Vue from 'vue';
-import Component from 'vue-class-component';
+import UserRegistration from '@/components/UserRegistration.vue';
+import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 
-@Component({
+export default Vue.extend({
+  name: 'LoginRoute',
+
   components: {
     UserRegistration,
   },
-})
-export default class LoginRoute extends SkldrVue {}
+
+  mixins: [SkldrVueMixin],
+});
 </script>
 
 <style lang="css" scoped>

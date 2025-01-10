@@ -124,11 +124,10 @@ import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { QuestionView } from '@/base-course/Viewable';
 import moment from 'moment';
-import SkldrVue from '@/SkldrVue';
 import Vuetify from 'vuetify/lib';
 
 @Component({})
-export default class NoteDisplay extends SkldrVue {
+export default class NoteDisplay extends Vue {
   @Prop({
     required: true,
     type: Number,

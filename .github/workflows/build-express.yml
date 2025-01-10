@@ -31,7 +31,7 @@ jobs:
           echo VERSION=${{ github.SHA }} >> ./packages/express/.env.development.local
           cd ./packages/express
           yarn remove @types/jest
-          yarn remove @types/pouchdb
+          # yarn remove @types/pouchdb
           yarn build
           # nohup yarn serve & # Run the server in the background
           # sleep 15s

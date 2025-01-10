@@ -12,7 +12,6 @@ import About from './views/About.vue';
 import Admin from './views/Admin.vue';
 import Classrooms from './views/Classrooms.vue';
 import Courses from './views/Courses.vue';
-import Edit from './views/Edit.vue';
 import Home from './views/Home.vue';
 import Login from './views/Login.vue';
 import ReleaseNotes from './views/ReleaseNotes.vue';
@@ -24,7 +23,7 @@ import ENV from './ENVIRONMENT_VARS';
 
 Vue.use(Router);
 
-// todo: 
+// todo:
 //
 // beforeEnter: () => authenticateAdmin ?
 //
@@ -62,11 +61,6 @@ export default new Router({
       path: '/signup',
       name: 'signup',
       component: SignUp,
-    },
-    {
-      path: '/edit',
-      name: 'edit',
-      component: Edit,
     },
     {
       path: '/notes',
@@ -171,6 +165,6 @@ export default new Router({
     {
       path: '/uimocks',
       component: ENV.MOCK ? UIMocks : Home,
-    }
+    },
   ],
 });

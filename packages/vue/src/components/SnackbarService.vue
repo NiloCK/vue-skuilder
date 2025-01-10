@@ -18,12 +18,8 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import Component from 'vue-class-component';
+import { defineComponent } from 'vue';
 import { Status } from '@/enums/Status';
-import { Prop, Watch } from 'vue-property-decorator';
-import { watch } from 'fs';
-import { log } from 'util';
 
 interface SnackbarOptions {
   text: string;
@@ -32,8 +28,8 @@ interface SnackbarOptions {
 }
 
 export function alertUser(msg: SnackbarOptions): void {
-  const snackBarService: SnackbarService = (document.getElementById('SnackbarService')! as any)
-    .__vue__ as SnackbarService;
+  const snackBarService = (document.getElementById('SnackbarService')! as any)
+    .__vue__ as InstanceType<typeof SnackbarService>;
 
   msg = {
     text: msg.text,
@@ -44,35 +40,45 @@ export function alertUser(msg: SnackbarOptions): void {
   snackBarService.addSnack(msg);
 }
 
-@Component
-export default class SnackbarService extends Vue {
-  /**
-   * A history of snacks served in this session.
-   *
-   * Possible future work: write these to localstorage/pouchdb
-   * for persistance
-   */
-  private snacks: SnackbarOptions[] = [];
-  private show: boolean[] = [];
+const SnackbarService = defineComponent({
+  name: 'SnackbarService',
 
-  public addSnack(snack: SnackbarOptions) {
-    this.snacks.push(snack);
-    this.show.push(true);
-  }
+  data() {
+    return {
+      /**
+       * A history of snacks served in this session.
+       *
+       * Possible future work: write these to localstorage/pouchdb
+       * for persistance
+       */
+      snacks: [] as SnackbarOptions[],
+      show: [] as boolean[]
+    };
+  },
 
-  private close() {
-    this.show.pop();
-    this.show.push(false);
-  }
+  methods: {
+    addSnack(snack: SnackbarOptions): void {
+      this.snacks.push(snack);
+      this.show.push(true);
+    },
 
-  private getColor(snack: SnackbarOptions) {
-    if (snack.status === Status.ok) {
-      return 'success';
-    } else if (snack.status === Status.error) {
-      return 'error';
-    } else if (snack.status === Status.warning) {
-      return 'yellow';
+    close(): void {
+      this.show.pop();
+      this.show.push(false);
+    },
+
+    getColor(snack: SnackbarOptions): string | undefined {
+      if (snack.status === Status.ok) {
+        return 'success';
+      } else if (snack.status === Status.error) {
+        return 'error';
+      } else if (snack.status === Status.warning) {
+        return 'yellow';
+      }
+      return undefined;
     }
   }
-}
+});
+
+export default SnackbarService;
 </script>

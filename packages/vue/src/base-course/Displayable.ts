@@ -1,8 +1,13 @@
-import Vue, { VueConstructor } from 'vue';
+import Vue, { VueConstructor, DefineComponent, defineComponent, ComponentOptions } from 'vue';
 import { DataShape } from '../base-course/Interfaces/DataShape';
 import { ViewData } from '../base-course/Interfaces/ViewData';
-import Viewable from './Viewable';
+import { Viewable } from './OptionsViewable';
 import { FieldType } from '../enums/FieldType';
+
+export type ViewComponent =
+  | VueConstructor<Vue>
+  | DefineComponent<any, any, any, any, any, any, any>
+  | ReturnType<typeof defineComponent>;
 
 export interface Answer {}
 
@@ -10,7 +15,7 @@ export interface Answer {}
 export abstract class Displayable {
   public static dataShapes: DataShape[];
 
-  public static views: Array<VueConstructor>;
+  public static views: Array<ViewComponent>;
   public static seedData?: Array<any>;
   /**
    * True if this displayable content type is meant to have
@@ -34,7 +39,7 @@ Displayable Constructor was called with no view Data.
   }
 
   public abstract dataShapes(): DataShape[];
-  public abstract views(): Array<VueConstructor>;
+  public abstract views(): Array<ViewComponent>;
 }
 
 function validateData(shape: DataShape[], data: ViewData[]) {

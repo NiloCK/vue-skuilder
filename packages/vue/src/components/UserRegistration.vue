@@ -61,65 +61,66 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import Component from 'vue-class-component';
+import { defineComponent } from 'vue';
 import { doesUserExist, User } from '@/db/userDB';
 import { log } from 'util';
 import { AppState } from '@/store';
-import { Emit } from 'vue-property-decorator';
 import { alertUser } from './SnackbarService.vue';
 import { Status } from '../enums/Status';
-import SkldrVue from '../SkldrVue';
 
-@Component({})
-export default class UserRegistration extends SkldrVue {
-  public $refs: {
-    userNameTextField: HTMLInputElement;
-  };
+export default defineComponent({
+  name: 'UserRegistration',
 
-  private username: string = '';
-  private password: string = '';
-  private retypedPassword: string = '';
-  private passwordVisible: boolean = false;
-
-  private usernameValidationInProgress: boolean = false;
-  private usernameError: boolean = false;
-  private usernameHint: string = '';
-  private awaitingResponse: boolean = false;
-  private badLoginAttempt: boolean = false;
-
-  private userSecret: string = '';
-  private secret: string = 'goons';
-  private get registrationRoute(): boolean {
-    return typeof this.$route.name === 'string' && this.$route.name.toLowerCase() === 'signup';
-  }
-
-  private readonly roles: string[] = ['Student', 'Teacher', 'Author'];
-
-  private readonly student: boolean = true;
-  private teacher: any = false;
-  private author: any = false;
-
-  private get buttonStatus() {
+  data() {
     return {
-      color: this.badLoginAttempt ? 'error' : 'success',
-      text: this.badLoginAttempt ? 'Try again' : 'Log In',
-    };
-  }
+      username: '',
+      password: '',
+      retypedPassword: '',
+      passwordVisible: false,
+      usernameValidationInProgress: false,
+      usernameError: false,
+      usernameHint: '',
+      awaitingResponse: false,
+      badLoginAttempt: false,
+      userSecret: '',
+      secret: 'goons',
+      user: null as User | null,
+      roles: ['Student', 'Teacher', 'Author'] as string[],
+      student: true,
+      teacher: false,
+      author: false
+    }
+  },
 
-  @Emit() // tslint:disable-next-line:no-empty
-  private toggle() {
-    log('Toggling registration / login forms.');
-  }
+  computed: {
+    registrationRoute(): boolean {
+      return typeof this.$route.name === 'string' && this.$route.name.toLowerCase() === 'signup';
+    },
+    buttonStatus() {
+      return {
+        color: this.badLoginAttempt ? 'error' : 'success',
+        text: this.badLoginAttempt ? 'Try again' : 'Log In',
+      };
+    }
+  },
 
-  private validateUsername() {
-    // empty code block! to do...?...!
-    this.usernameError = false;
-  }
+  async created() {
+    this.user = await User.instance();
+  },
 
-  private async createUser() {
-    this.awaitingResponse = true;
-    log(`
+  methods: {
+    toggle() {
+      log('Toggling registration / login forms.');
+      this.$emit('toggle');
+    },
+
+    validateUsername() {
+      this.usernameError = false;
+    },
+
+    async createUser() {
+      this.awaitingResponse = true;
+      log(`
 User creation
 -------------
 
@@ -128,56 +129,58 @@ Student: ${this.student}
 Teacher: ${this.teacher}
 Author: ${this.author}
 `);
-    if (true) {
-      if (this.password === this.retypedPassword) {
-        this.$store.state
-          ._user!.createAccount(this.username, this.password)
-          .then(async (resp) => {
-            if (resp.status === Status.ok) {
-              this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
-              this.$store.state.userLoginAndRegistrationContainer.init = false;
-              this.$store.state.userLoginAndRegistrationContainer.init = true;
+      if (true) {
+        if (this.password === this.retypedPassword) {
+          if (!this.user) return;
+          
+          this.user
+            .createAccount(this.username, this.password)
+            .then(async (resp) => {
+              if (resp.status === Status.ok) {
+                this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
+                this.$store.state.userLoginAndRegistrationContainer.init = false;
+                this.$store.state.userLoginAndRegistrationContainer.init = true;
 
-              this.$router.push(`/u/${(await User.instance()).username}/new`);
-            } else {
-              if (resp.error === 'This username is taken!') {
-                this.usernameError = true;
-                this.usernameHint = 'Try a different name.';
-                this.$refs.userNameTextField.focus();
-                alertUser({
-                  text: `The name ${this.username} is taken!`,
-                  status: resp.status,
-                });
+                this.$router.push(`/u/${(await User.instance()).username}/new`);
               } else {
-                alertUser({
-                  text: resp.error,
-                  status: resp.status,
-                });
+                if (resp.error === 'This username is taken!') {
+                  this.usernameError = true;
+                  this.usernameHint = 'Try a different name.';
+                  (this.$refs.userNameTextField as HTMLInputElement).focus();
+                  alertUser({
+                    text: `The name ${this.username} is taken!`,
+                    status: resp.status,
+                  });
+                } else {
+                  alertUser({
+                    text: resp.error,
+                    status: resp.status,
+                  });
+                }
               }
-            }
-          })
-          .catch((e) => {
-            if (e)
-              alertUser({
-                text: JSON.stringify(e),
-                status: Status.error,
-              });
+            })
+            .catch((e) => {
+              if (e)
+                alertUser({
+                  text: JSON.stringify(e),
+                  status: Status.error,
+                });
+            });
+        } else {
+          alertUser({
+            text: 'Passwords do not match',
+            status: Status.error,
           });
+        }
+        this.awaitingResponse = false;
       } else {
         alertUser({
-          text: 'Passwords do not match',
+          text: 'Secret join code is not correct.',
           status: Status.error,
         });
+        this.awaitingResponse = false;
       }
-      this.awaitingResponse = false;
-      // this.$router.push('/quilts');
-    } else {
-      alertUser({
-        text: 'Secret join code is not correct.',
-        status: Status.error,
-      });
-      this.awaitingResponse = false;
     }
   }
-}
+});
 </script>

@@ -56,12 +56,11 @@
         v-bind:data="[{ puzzleData: Math.random() > 0.5 ? puzzleBlack : puzzleWhite }]"
       />
     </div>
-    <!--
+
     <div class="component">
       <h2>Heatmap</h2>
       <HeatMap :data="{}" />
     </div>
-    -->
 
     <!-- <div class="component">
       <h2>DataInputForm</h2>
@@ -115,6 +114,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
 import ImageInput from '@/components/Edit/ViewableDataInputForm/FieldInputs/ImageInput.vue';
 import MediaUploader from '@/components/Edit/ViewableDataInputForm/FieldInputs/MediaUploader.vue';
@@ -123,15 +123,15 @@ import PuzzleView from '@/courses/chess/questions/puzzle/puzzle.vue';
 import ChessPieceMove from '@/courses/chess/questions/piecemove/piece-move.vue';
 import FillInView from '@/courses/default/questions/fillIn/fillIn.vue';
 import { BlanksCardDataShapes } from '@/courses/default/questions/fillIn/index';
-import { ChessPuzzle } from '@/courses/chess/questions/puzzle/index';
-import SkldrVue from '@/SkldrVue';
-import { Component } from 'vue-property-decorator';
+import { Puzzle } from '@/courses/chess/questions/puzzle/index';
 import DataInputForm from '../components/Edit/ViewableDataInputForm/DataInputForm.vue';
 import LetterQuestionView from '@/courses/typing/questions/single-letter/typeSingleLetter.vue';
 import FallingLettersView from '@/courses/typing/questions/falling-letters/FallingLetters.vue';
 import CardViewer from '@/components/Study/CardViewer.vue';
 
-@Component({
+export default defineComponent({
+  name: 'UIMocks',
+  
   components: {
     SkTagsInput,
     DataInputForm,
@@ -143,29 +143,27 @@ import CardViewer from '@/components/Study/CardViewer.vue';
     FallingLettersView,
     CardViewer,
   },
-})
-export default class SkTagsInputMock extends SkldrVue {
-  mockCourseId: string = 'mock-course-001';
-  mockCardId: string = 'mock-card-001';
 
-  flvCtr = FallingLettersView;
-
-  // validFenString: string = 'q3k1nr/1pp1nQpp/3p4/1P2p3/4P3/B1PP1b2/B5PP/5K2 b k - 0 17';
-  // examplePuzzleString =
-  //   '00sJ9,r3r1k1/p4ppp/2p2n2/1p6/3P1qb1/2NQR3/PPB2PP1/R1B3K1 w - - 5 18,e3g3 e8e1 g1h2 e1c1 a1c1 f4h6 h2g1 h6c1,2671,105,87,325,advantage attraction fork middlegame sacrifice veryLong,https://lichess.org/gyFeQsOE#35,French_Defense French_Defense_Exchange_Variation';
-  puzzleWhite =
-    '00sJb,Q1b2r1k/p2np2p/5bp1/q7/5P2/4B3/PPP3PP/2KR1B1R w - - 1 17,d1d7 a5e1 d7d1 e1e3 c1b1 e3b6,2235,76,97,64,advantage fork long,https://lichess.org/kiuvTFoE#33,Sicilian_Defense Sicilian_Defense_Dragon_Variation';
-  puzzleBlack =
-    'v2n1N,5Q1k/2pbq1p1/8/pp1P4/4B1P1/7P/PP6/1K3R2 b - - 4 34,e7f8 f1f8,615,86,73,189,endgame mate mateIn1 oneMove,https://lichess.org/Czh6F7z3/black#68,';
-  promotionPuzzle = `o2mD7,8/2K5/p4p2/8/1P4k1/8/P7/8 w - - 0 35,c7b7 f6f5 b7a6 f5f4 b4b5 f4f3 b5b6 f3f2 b6b7 f2f1q,846,99,92,589,advancedPawn crushing endgame pawnEndgame promotion quietMove veryLong,https://lichess.org/x0LpCJ7V#69,`;
-  BlanksCardDataShapes = BlanksCardDataShapes;
-  ChessPuzzleDataShapes = ChessPuzzle.dataShapes;
-  FillInView = FillInView;
+  data() {
+    return {
+      mockCourseId: 'mock-course-001',
+      mockCardId: 'mock-card-001',
+      flvCtr: FallingLettersView,
+      // validFenString: 'q3k1nr/1pp1nQpp/3p4/1P2p3/4P3/B1PP1b2/B5PP/5K2 b k - 0 17',
+      // examplePuzzleString: '00sJ9,r3r1k1/p4ppp/2p2n2/1p6/3P1qb1/2NQR3/PPB2PP1/R1B3K1 w - - 5 18,e3g3 e8e1 g1h2 e1c1 a1c1 f4h6 h2g1 h6c1,2671,105,87,325,advantage attraction fork middlegame sacrifice veryLong,https://lichess.org/gyFeQsOE#35,French_Defense French_Defense_Exchange_Variation',
+      puzzleWhite: '00sJb,Q1b2r1k/p2np2p/5bp1/q7/5P2/4B3/PPP3PP/2KR1B1R w - - 1 17,d1d7 a5e1 d7d1 e1e3 c1b1 e3b6,2235,76,97,64,advantage fork long,https://lichess.org/kiuvTFoE#33,Sicilian_Defense Sicilian_Defense_Dragon_Variation',
+      puzzleBlack: 'v2n1N,5Q1k/2pbq1p1/8/pp1P4/4B1P1/7P/PP6/1K3R2 b - - 4 34,e7f8 f1f8,615,86,73,189,endgame mate mateIn1 oneMove,https://lichess.org/Czh6F7z3/black#68,',
+      promotionPuzzle: 'o2mD7,8/2K5/p4p2/8/1P4k1/8/P7/8 w - - 0 35,c7b7 f6f5 b7a6 f5f4 b4b5 f4f3 b5b6 f3f2 b6b7 f2f1q,846,99,92,589,advancedPawn crushing endgame pawnEndgame promotion quietMove veryLong,https://lichess.org/x0LpCJ7V#69,',
+      BlanksCardDataShapes,
+      ChessPuzzleDataShapes: Puzzle.dataShapes,
+      FillInView,
+    }
+  },
 
   created() {
-    return (this.$store.state.dataInputForm.shapeViews = [FillInView]);
+    this.$store.state.dataInputForm.shapeViews = [FillInView];
   }
-}
+});
 </script>
 
 <style scoped>

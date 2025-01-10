@@ -1,18 +1,21 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    <h1>Todo.</h1>
+
+    <p>This is a placeholder for the about page. It will be filled in with more information later.</p>
+
+    <router-link to="./notes">Release Notes</router-link>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 import { SingleDigitMultiplicationQuestion } from '@/courses/math/questions/multiplication';
 import { randomInt } from '@/courses/math/utility';
 
-export default {
-  // problem: SingleDigitMultiplicationQuestion = new SingleDigitMultiplicationQuestion();
-  data: () => {
+export default defineComponent({
+  name: 'About',
+  data() {
     return {
       type: 'Viewable',
       problem: new SingleDigitMultiplicationQuestion([
@@ -24,5 +27,5 @@ export default {
     };
   },
   components: {},
-};
+});
 </script>

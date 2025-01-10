@@ -5,17 +5,20 @@
 </template>
 
 <script lang="ts">
-import UserLogin from '@/components/UserLogin.vue';
-import SkldrVue from '@/SkldrVue';
 import Vue from 'vue';
-import Component from 'vue-class-component';
+import UserLogin from '@/components/UserLogin.vue';
+import SkldrMixin from '@/mixins/SkldrVueMixin';
 
-@Component({
+export default Vue.extend({
+  name: 'LoginRoute',
+
   components: {
     UserLogin,
   },
-})
-export default class LoginRoute extends SkldrVue {}
+
+  // Extending SkldrVue functionality
+  mixins: [SkldrMixin],
+});
 </script>
 
 <style lang="css" scoped>

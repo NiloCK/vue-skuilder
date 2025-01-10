@@ -160,7 +160,7 @@ export default class Playback extends QuestionView<EchoQuestion> {
       this.initialized = true;
     }
 
-    this.log(`Playback is running init with state: ${this.state}`);
+    console.log(`Playback is running init with state: ${this.state}`);
 
     if (this.state === 'ready') {
       this.playbackDuration = this.question.duration;
@@ -173,7 +173,7 @@ export default class Playback extends QuestionView<EchoQuestion> {
     this.recording = true;
 
     // attach listeners
-    this.midi.addNoteonListenter(e => {
+    this.midi.addNoteonListenter((e) => {
       this.notesOn++;
       this.inputSeq.append(e);
       this.$refs.inputVis.updateBounds();
@@ -181,7 +181,7 @@ export default class Playback extends QuestionView<EchoQuestion> {
         this.submit();
       }
     });
-    this.midi.addNoteoffListenter(e => {
+    this.midi.addNoteoffListenter((e) => {
       this.notesOff++;
       if (this.notesOn + this.notesOff >= this.question.midi.length) {
         this.submit();
@@ -204,13 +204,13 @@ export default class Playback extends QuestionView<EchoQuestion> {
 
     // start listening for input after last note is played
     setTimeout(() => {
-      this.log('done playback...');
+      console.log('done playback...');
       this.record();
     }, this.question.lastNoteOnTimestamp);
   }
 
   private runProgressBar() {
-    // this.log('running progress bar...');
+    // console.log('running progress bar...');
     try {
       this.$refs.progressBar.style.animationName = '';
       requestAnimationFrame(() => {
@@ -234,8 +234,8 @@ export default class Playback extends QuestionView<EchoQuestion> {
     this.gradedSeq = qSylSeq.grade(aSylSeq);
     this.inputSeq = eventsToSyllableSequence([]);
 
-    // this.log("Graded Sequence:\n" + this.gradedSeq.toString());
-    this.log('Graded Sequence is correct: ' + this.gradedSeq.isCorrect());
+    // console.log("Graded Sequence:\n" + this.gradedSeq.toString());
+    console.log('Graded Sequence is correct: ' + this.gradedSeq.isCorrect());
 
     if (!this.submitAnswer(this.midi.recording).isCorrect) {
       this.attempts++;

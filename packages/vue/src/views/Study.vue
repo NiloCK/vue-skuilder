@@ -1,6 +1,10 @@
 <template>
   <div v-if="!$store.state.views.study.inSession">
-    <SessionConfiguration v-bind:startFcn="initStudySession" />
+    <SessionConfiguration
+      v-bind:startFcn="initStudySession"
+      v-bind:initialTimeLimit="sessionTimeLimit"
+      v-on:update:timeLimit="(val) => (sessionTimeLimit = val)"
+    />
   </div>
   <div v-else>
     <div v-if="sessionPrepared" class="Study">
@@ -40,13 +44,13 @@
 
       <br />
 
-      <div v-if="!checkLoggedIn" class="display-1">
+      <div v-if="!checkLoggedIn" class="text-h4">
         <p>Sign up to get to work!</p>
       </div>
 
-      <div v-else-if="sessionFinished" class="display-1">
+      <div v-else-if="sessionFinished" class="text-h4">
         <p>Study session finished! Great job!</p>
-        <p>{{ sessionController.report }}</p>
+        <p v-if="sessionController">{{ sessionController.report }}</p>
         <p>
           Start <a @click="refreshRoute">another study session</a>, or try
           <router-link :to="`/edit/${courseID}`">adding some new content</router-link> to challenge yourself and others!
@@ -124,7 +128,7 @@
             :color="timerColor"
             :value="percentageRemaining"
           >
-            <v-icon v-if="timerIsActive" large dark>add</v-icon>
+            <v-icon v-if="timerIsActive" large dark>mdi-add</v-icon>
           </v-progress-circular>
         </v-btn>
         {{ timeString }}
@@ -132,13 +136,12 @@
       <v-speed-dial v-if="!sessionFinished" v-model="fab" fixed bottom right transition="scale-transition">
         <template v-slot:activator>
           <v-btn v-model="fab" color="blue darken-2" dark fab>
-            <v-icon v-if="fab">close</v-icon>
-            <v-icon v-else>edit</v-icon>
+            <v-icon>{{ fab ? 'mdi-close' : 'mdi-pencil' }}</v-icon>
           </v-btn>
         </template>
         <router-link :to="`/edit/${courseID}`">
           <v-btn fab small dark color="indigo" title="Add content to this course">
-            <v-icon>add</v-icon>
+            <v-icon>mdi-plus</v-icon>
           </v-btn>
         </router-link>
         <v-btn
@@ -150,7 +153,7 @@
           @click="editTags = !editTags"
           :loading="editCard"
         >
-          <v-icon>bookmark</v-icon>
+          <v-icon>mdi-bookmark</v-icon>
         </v-btn>
       </v-speed-dial>
     </div>
@@ -158,6 +161,8 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
+import { ViewComponent } from '@/base-course/Displayable';
 import { displayableDataToViewData, ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable, { isQuestionView } from '@/base-course/Viewable';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
@@ -174,12 +179,9 @@ import { getCardDataShape } from '@/db/getCardDataShape';
 import SessionController, { StudySessionRecord } from '@/db/SessionController';
 import { newInterval } from '@/db/SpacedRepetition';
 import { CardData, CardHistory, CardRecord, DisplayableData, isQuestionRecord } from '@/db/types';
-import SkldrVue from '@/SkldrVue';
-import { adjustCourseScores, toCourseElo } from '@/tutor/Elo';
+import { adjustCourseScores, CourseElo, toCourseElo } from '@/tutor/Elo';
 import confetti from 'canvas-confetti';
 import moment from 'moment';
-import { VueConstructor } from 'vue';
-import { Component, Emit, Prop, Watch } from 'vue-property-decorator';
 import SkldrControlsView from '../components/SkMouseTrap.vue';
 import { alertUser } from '../components/SnackbarService.vue';
 import { randomInt } from '../courses/math/utility';
@@ -192,7 +194,23 @@ function randInt(n: number) {
   return Math.floor(Math.random() * n);
 }
 
-@Component({
+interface StudyRefs {
+  shadowWrapper: HTMLDivElement;
+}
+
+type StudyInstance = ReturnType<typeof defineComponent> & {
+  $refs: StudyRefs;
+};
+
+export default defineComponent({
+  name: 'Study',
+
+  ref: {} as StudyRefs,
+
+  emits: {
+    emitResponse: (response: CardRecord) => true,
+  },
+
   components: {
     CardViewer,
     CardLoader,
@@ -201,526 +219,482 @@ function randInt(n: number) {
     SessionConfiguration,
     HeatMap,
   },
-})
-export default class Study extends SkldrVue {
-  @Prop()
-  public previewCourseID?: string;
-  @Prop()
-  public randomPreview?: boolean;
-  @Prop()
-  public focusCourseID?: string;
 
-  public previewCourseConfig?: CourseConfig;
-  public previewMode: boolean = false;
+  props: {
+    previewCourseID: {
+      type: String,
+      required: false,
+    },
+    randomPreview: {
+      type: Boolean,
+      required: false,
+    },
+    focusCourseID: {
+      type: String,
+      required: false,
+    },
+  },
 
-  public fab: boolean = false; // open the speed-dial fab
-  public editTags: boolean = false; // open the tagsInput for this card
-  public editCard: boolean = false; // open the editor for this card
-  public editCardReady: boolean = false; // editor for this card is ready to display
-  // the currently displayed card
-  public cardID: PouchDB.Core.DocumentId = '';
-  public view: VueConstructor;
-  public constructedView: Viewable;
-  public data: ViewData[] = [];
-  public courseID: string = '';
-  public card_elo: number = 1000;
-
-  public courseNames: { [courseID: string]: string } = {};
-  // public courseName(id: string): string {
-  //   if (this.courseNames[id]) {
-  //     return this.courseNames[id];
-  //   } else {
-  //     getCourseName(id).then((name) => {
-  //       this.courseNames[id] = name;
-  //     });
-  //     return '';
-  //   }
-  // }
-
-  public cardCount: number = 1;
-
-  // public session: StudySessionItem[] = [];
-  private sessionController: SessionController;
-  public sessionPrepared: boolean = false;
-  public sessionFinished: boolean = false;
-  public sessionRecord: StudySessionRecord[] = [];
-
-  private percentageRemaining: number = 100;
-  private get timerColor(): string {
-    if (this.timeRemaining > 60) {
-      return 'primary';
-    } else {
-      return 'orange darken-3';
-    }
-  }
-
-  private timerIsActive: boolean = false;
-  private timeString: string = '';
-  private timeRemaining: number = this.$store.state.views.study.sessionTimeLimit * 60;
-  private _intervalHandler: NodeJS.Timeout;
-  private incrementSessionClock() {
-    let max = 60 * this.$store.state.views.study.sessionTimeLimit - this.timeRemaining;
-
-    this.sessionController.addTime(Math.min(max, 60));
-    this.tick();
-  }
-  private tick() {
-    this.timeRemaining = this.sessionController.secondsRemaining;
-    this.setTimeString();
-
-    this.percentageRemaining =
-      this.timeRemaining > 60
-        ? 100 * (this.timeRemaining / (60 * this.$store.state.views.study.sessionTimeLimit))
-        : 100 * (this.timeRemaining / 60);
-
-    if (this.timeRemaining === 0) {
-      clearInterval(this._intervalHandler);
-    }
-  }
-  private setTimeString() {
-    this.timeString = '';
-    if (this.timeRemaining > 60) {
-      this.timeString = Math.floor(this.timeRemaining / 60).toString() + ':';
-    }
-    const secondsRemaining: number = this.timeRemaining % 60;
-    this.timeString += secondsRemaining >= 10 ? secondsRemaining : '0' + secondsRemaining;
-    if (this.timeRemaining <= 60) {
-      this.timeString += ' seconds';
-    }
-    this.timeString += ' left!';
-  }
-
-  public loading: boolean = false;
-  // public user: User;
-
-  public $refs: {
-    shadowWrapper: HTMLDivElement;
-  };
-  private userCourseRegDoc: CourseRegistrationDoc;
-
-  private sessionContentSources: StudyContentSource[] = [];
-  private sessionClassroomDBs: StudentClassroomDB[] = [];
-
-  public user_elo(courseID: string) {
-    const courseDoc = this.userCourseRegDoc.courses.find(c => c.courseID === courseID);
-    if (courseDoc) {
-      return toCourseElo(courseDoc.elo);
-    } else {
-      return toCourseElo(undefined);
-    }
-  }
-
-  public checkLoggedIn(): boolean {
-    // return !this.$store.state._user!.username.startsWith(GuestUsername);
-    return true;
-  }
-
-  @Watch('editCard')
-  public async onEditToggle(value?: boolean, old?: boolean) {
-    // this section was wip for editing cards w/ dataInputForm (defunct plan)
-    // Refactor to a different location for future use...
-    if (value) {
-      this.$store.state.dataInputForm.dataShape = await getCardDataShape(this.courseID, this.cardID);
-
-      const cfg = await getCredentialledCourseConfig(this.courseID);
-      this.$store.state.dataInputForm.course = cfg!;
-
-      this.editCardReady = true;
-
-      // clear any stale data from the inputForm 'store'
-      for (const oldField in this.$store.state.dataInputForm.localStore) {
-        if (oldField) {
-          this.log(`Removing old data: ${oldField}`);
-          delete this.$store.state.dataInputForm.localStore[oldField];
-        }
-      }
-
-      // repopulate the inputForm store w/ this card's data
-      for (const field in this.data[0]) {
-        if (field) {
-          this.log(`Writing ${field}: ${this.data[0][field]} to the dataInputForm state...`);
-          this.$store.state.dataInputForm.localStore[field] = this.data[0][field];
-        }
-      }
-
-      // this.$refs.dataInputForm.convertInput();
-
-      // this.$store.state.dataInputForm.dataShape = this.view.question().dataShapes[0];
-    } else {
-      this.editCardReady = false;
-    }
-  }
-
-  public handleClassroomMessage(): (v: any) => {} {
-    return (v: any) => {
-      alertUser({
-        text: this.$store.state._user!.username,
-        status: Status.ok,
-      });
-      this.log(`There was a change in the classroom DB:`);
-      this.log(`change: ${v}`);
-      this.log(`Stringified change: ${JSON.stringify(v)}`);
-      return {};
+  data() {
+    return {
+      user: null as User | null,
+      previewCourseConfig: undefined as CourseConfig | undefined,
+      previewMode: false,
+      fab: false,
+      editTags: false,
+      editCard: false,
+      editCardReady: false,
+      cardID: '',
+      view: null as ViewComponent | null,
+      constructedView: null as Viewable | null,
+      data: [] as ViewData[],
+      courseID: '',
+      card_elo: 1000,
+      courseNames: {} as { [courseID: string]: string },
+      cardCount: 1,
+      sessionController: null as SessionController | null,
+      sessionPrepared: false,
+      sessionFinished: false,
+      sessionRecord: [] as StudySessionRecord[],
+      percentageRemaining: 100,
+      timerIsActive: false,
+      timeString: '',
+      loading: false,
+      userCourseRegDoc: null as CourseRegistrationDoc | null,
+      sessionContentSources: [] as StudyContentSource[],
+      sessionClassroomDBs: [] as StudentClassroomDB[],
+      sessionTimeLimit: 5,
+      timeRemaining: 300, // 5 minutes * 60 seconds
+      _intervalHandler: null as NodeJS.Timeout | null,
+      cardType: '',
     };
-  }
+  },
 
-  public refreshRoute() {
-    this.$router.go(0);
-  }
+  computed: {
+    timerColor(): string {
+      return this.timeRemaining > 60 ? 'primary' : 'orange darken-3';
+    },
 
-  public async created() {
+    checkLoggedIn(): boolean {
+      // [ ] TODO: check if user is logged in
+      return true;
+    },
+
+    currentCard(): StudySessionRecord {
+      return this.sessionRecord[this.sessionRecord.length - 1];
+    },
+  },
+
+  watch: {
+    editCard: {
+      async handler(value: boolean) {
+        if (value) {
+          this.$store.state.dataInputForm.dataShape = await getCardDataShape(this.courseID, this.cardID);
+
+          const cfg = await getCredentialledCourseConfig(this.courseID);
+          this.$store.state.dataInputForm.course = cfg!;
+
+          this.editCardReady = true;
+
+          for (const oldField in this.$store.state.dataInputForm.localStore) {
+            if (oldField) {
+              console.log(`Removing old data: ${oldField}`);
+              delete this.$store.state.dataInputForm.localStore[oldField];
+            }
+          }
+
+          for (const field in this.data[0]) {
+            if (field) {
+              console.log(`Writing ${field}: ${this.data[0][field]} to the dataInputForm state...`);
+              this.$store.state.dataInputForm.localStore[field] = this.data[0][field];
+            }
+          }
+        } else {
+          this.editCardReady = false;
+        }
+      },
+    },
+  },
+
+  async created() {
     this.sessionPrepared = false;
     this.$store.state.views.study.inSession = false;
 
-    // this.user = await User.instance();
-    this.userCourseRegDoc = await this.user().getCourseRegistrationsDoc();
+    this.user = await User.instance();
+    this.userCourseRegDoc = await this.user.getCourseRegistrationsDoc();
 
-    // handle special cases from the router:
-    // preview, randomPreview, focusCourse / focusClass
+    let singletonStudyCourseID = '';
 
     if (this.randomPreview) {
-      // set a .previewCourseID
-      const allCourses = (await getCourseList()).rows.map(r => r.id);
-      this.log(`RANDOMPREVIEW:
-      Courses:
-      ${allCourses.toString()}`);
-      const unRegisteredCourses = allCourses.filter(c => {
-        return !this.userCourseRegDoc.courses.some(rc => rc.courseID === c);
+      const allCourses = (await getCourseList()).rows.map((r) => r.id);
+      const unRegisteredCourses = allCourses.filter((c) => {
+        return !this.userCourseRegDoc!.courses.some((rc) => rc.courseID === c);
       });
       if (unRegisteredCourses.length > 0) {
-        this.previewCourseID = unRegisteredCourses[randomInt(0, unRegisteredCourses.length)];
+        singletonStudyCourseID = unRegisteredCourses[randomInt(0, unRegisteredCourses.length)];
       } else {
-        this.previewCourseID = allCourses[randomInt(0, allCourses.length)];
+        singletonStudyCourseID = allCourses[randomInt(0, allCourses.length)];
       }
-    } else if (this.previewCourseID) {
-      {
-        // set metadata for displaying a signup CTA
-
-        this.previewMode = true;
-        getCourseList().then(courses => {
-          courses.rows.forEach(c => {
-            if (c.id === this.previewCourseID) {
-              this.previewCourseConfig = c.doc!;
-              this.previewCourseConfig.courseID = c.id;
-            }
-          });
-        });
-      }
-
-      this.log(`COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
-      await this.user().registerForCourse(this.previewCourseID, true);
-
-      this.initStudySession([{ type: 'course', id: this.previewCourseID }]);
-    } else if (this.focusCourseID) {
-      this.log(`FOCUS study session: ${this.focusCourseID}`);
-
-      this.initStudySession([{ type: 'course', id: this.focusCourseID }]);
     }
-  }
 
-  /**
-   * Pulls scheduled reviews, prescribes new cards, and
-   * declares session to be started (activating card-viewer
-   * and main flow).
-   *
-   * NB: This function is passed to and called by the SessionConfiguration
-   *     component
-   */
-  private async initStudySession(sources: ContentSourceID[]) {
-    this.log(`starting study session w/ sources: ${JSON.stringify(sources)}`);
+    if (this.previewCourseID) {
+      this.previewMode = true;
+      getCourseList().then((courses) => {
+        courses.rows.forEach((c) => {
+          if (c.id === this.previewCourseID) {
+            this.previewCourseConfig = c.doc!;
+            this.previewCourseConfig.courseID = c.id;
+          }
+        });
+      });
 
-    this.sessionContentSources = await Promise.all(sources.map(s => getStudySource(s)));
+      console.log(`COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
+      await this.user!.registerForCourse(this.previewCourseID, true);
 
-    this.sessionClassroomDBs = await Promise.all(
+      singletonStudyCourseID = this.previewCourseID;
+    }
+
+    if (this.focusCourseID) {
+      console.log(`FOCUS study session: ${this.focusCourseID}`);
+      singletonStudyCourseID = this.focusCourseID;
+    }
+
+    if (singletonStudyCourseID) {
+      this.initStudySession([{ type: 'course', id: singletonStudyCourseID }], this.sessionTimeLimit);
+    }
+  },
+
+  methods: {
+    user_elo(courseID: string): CourseElo {
+      const courseDoc = this.userCourseRegDoc!.courses.find((c) => c.courseID === courseID);
+      if (courseDoc) {
+        return toCourseElo(courseDoc.elo);
+      }
+      return toCourseElo(undefined);
+    },
+
+    refreshRoute() {
+      this.$router.go(0);
+    },
+
+    handleClassroomMessage() {
+      return (v: any) => {
+        alertUser({
+          text: this.$store.state._user!.username,
+          status: Status.ok,
+        });
+        console.log(`There was a change in the classroom DB:`);
+        console.log(`change: ${v}`);
+        console.log(`Stringified change: ${JSON.stringify(v)}`);
+        return {};
+      };
+    },
+
+    incrementSessionClock() {
+      const max = 60 * this.$store.state.views.study.sessionTimeLimit - this.timeRemaining;
+      this.sessionController!.addTime(Math.min(max, 60));
+      this.tick();
+    },
+
+    tick() {
+      this.timeRemaining = this.sessionController!.secondsRemaining;
+      this.setTimeString();
+
+      this.percentageRemaining =
+        this.timeRemaining > 60
+          ? 100 * (this.timeRemaining / (60 * this.sessionTimeLimit))
+          : 100 * (this.timeRemaining / 60);
+
+      if (this.timeRemaining === 0) {
+        clearInterval(this._intervalHandler!);
+      }
+    },
+
+    setTimeString() {
+      this.timeString = '';
+      if (this.timeRemaining > 60) {
+        this.timeString = Math.floor(this.timeRemaining / 60).toString() + ':';
+      }
+      const secondsRemaining: number = this.timeRemaining % 60;
+      this.timeString += secondsRemaining >= 10 ? secondsRemaining : '0' + secondsRemaining;
+      if (this.timeRemaining <= 60) {
+        this.timeString += ' seconds';
+      }
+      this.timeString += ' left!';
+    },
+
+    async initStudySession(sources: ContentSourceID[], timeLimit: number) {
+      console.log(`starting study session w/ sources: ${JSON.stringify(sources)}`);
+
+      this.sessionContentSources = await Promise.all(sources.map((s) => getStudySource(s)));
+      this.sessionTimeLimit = timeLimit;
+      this.timeRemaining = timeLimit * 60;
+
+      this.sessionClassroomDBs = await Promise.all(
+        sources.filter((s) => s.type === 'classroom').map(async (c) => StudentClassroomDB.factory(c.id))
+      );
+
+      this.sessionClassroomDBs.forEach((db) => {
+        db.setChangeFcn(this.handleClassroomMessage());
+      });
+
+      this.sessionController = new SessionController(this.sessionContentSources, 60 * this.sessionTimeLimit);
+      this.sessionController.sessionRecord = this.sessionRecord;
+
+      await this.sessionController.prepareSession();
+      this._intervalHandler = setInterval(this.tick, 1000);
+
+      this.sessionPrepared = true;
+
       sources
-        .filter(s => s.type === 'classroom')
-        .map(async c => {
-          return StudentClassroomDB.factory(c.id);
-        })
-    );
+        .filter((s) => s.type === 'course')
+        .forEach(async (c) => (this.courseNames[c.id] = await getCourseName(c.id)));
 
-    this.sessionClassroomDBs.forEach(db => {
-      db.setChangeFcn(this.handleClassroomMessage());
-    });
+      console.log(`Session created:
+        ${this.sessionController.toString()}
+        User courses: ${sources
+          .filter((s) => s.type === 'course')
+          .map((c) => c.id)
+          .toString()}
+        User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
+      `);
 
-    this.sessionController = new SessionController(
-      this.sessionContentSources,
-      60 * this.$store.state.views.study.sessionTimeLimit
-    );
-    this.sessionController.sessionRecord = this.sessionRecord;
+      this.$store.state.views.study.inSession = true;
+      this.loadCard(this.sessionController.nextCard());
+    },
 
-    await this.sessionController.prepareSession();
-    this._intervalHandler = setInterval(this.tick, 1000);
+    registerUserForPreviewCourse() {
+      this.user!.registerForCourse(this.previewCourseConfig!.courseID!).then(() =>
+        this.$router.push(`/quilts/${this.previewCourseConfig!.courseID!}`)
+      );
+    },
 
-    this.sessionPrepared = true;
+    countCardViews(course_id: string, card_id: string): number {
+      return this.sessionRecord.filter((r) => r.card.course_id === course_id && r.card.card_id === card_id).length;
+    },
 
-    // Populate course names from IDs
-    sources.filter(s => s.type === 'course').forEach(async c => (this.courseNames[c.id] = await getCourseName(c.id)));
+    async processResponse(this: StudyInstance, r: CardRecord) {
+      this.$emit('emitResponse', r);
 
-    this.log(`Session created:
-${this.sessionController.toString()}
-User courses: ${sources
-      .filter(s => s.type === 'course')
-      .map(c => c.id)
-      .toString()}
-User classrooms: ${this.sessionClassroomDBs.map(db => db._id)}
-`);
+      this.timerIsActive = false;
 
-    this.$store.state.views.study.inSession = true;
-    this.loadCard(this.sessionController.nextCard());
-  }
+      r.cardID = this.cardID;
+      r.courseID = this.courseID;
+      this.currentCard.records.push(r);
 
-  private registerUserForPreviewCourse() {
-    this.user()
-      .registerForCourse(this.previewCourseConfig!.courseID!)
-      .then(() => this.$router.push(`/quilts/${this.previewCourseConfig!.courseID!}`));
-  }
+      console.log(`Study.processResponse is running...`);
+      const cardHistory = this.logCardRecord(r);
 
-  private get currentCard(): StudySessionRecord {
-    return this.sessionRecord[this.sessionRecord.length - 1];
-  }
+      if (isQuestionRecord(r)) {
+        console.log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
+        if (r.isCorrect) {
+          try {
+            if (this.$refs.shadowWrapper) {
+              this.$refs.shadowWrapper.setAttribute(
+                'style',
+                `--r: ${255 * (1 - (r.performance as number))}; --g:${255}`
+              );
+              this.$refs.shadowWrapper.classList.add('correct');
+            }
+          } catch (e) {
+            // swallow error
+          }
 
-  private countCardViews(course_id: string, card_id: string): number {
-    return this.sessionRecord.filter(r => r.card.course_id === course_id && r.card.card_id === card_id).length;
-  }
+          if (this.$store.state.config.likesConfetti) {
+            confetti({
+              origin: {
+                y: 1,
+                x: 0.25 + 0.5 * Math.random(),
+              },
+              disableForReducedMotion: true,
+              angle: 60 + 60 * Math.random(),
+            });
+          }
 
-  @Emit('emitResponse')
-  private processResponse(r: CardRecord) {
-    // alert(JSON.stringify(r));
-    // clear the timer state
-    this.timerIsActive = false;
+          if (r.priorAttemps === 0) {
+            const item: StudySessionItem = {
+              ...this.currentCard.item,
+            };
+            this.loadCard(this.sessionController!.nextCard('dismiss-success'));
 
-    r.cardID = this.cardID;
-    r.courseID = this.courseID;
-    this.currentCard.records.push(r);
+            cardHistory.then((history: CardHistory<CardRecord>) => {
+              this.scheduleReview(history, item);
+              if (history.records.length === 1) {
+                this.updateUserAndCardElo(0.5 + (r.performance as number) / 2, this.courseID, this.cardID);
+              } else {
+                const k = Math.ceil(32 / history.records.length);
+                this.updateUserAndCardElo(0.5 + (r.performance as number) / 2, this.courseID, this.cardID, k);
+              }
+            });
+          } else {
+            this.loadCard(this.sessionController!.nextCard('marked-failed'));
+          }
+        } else {
+          try {
+            if (this.$refs.shadowWrapper) {
+              this.$refs.shadowWrapper.classList.add('incorrect');
+            }
+          } catch (e) {
+            // swallow error
+          }
 
-    this.log(`Study.processResponse is running...`);
-    const cardHistory = this.logCardRecord(r);
-
-    if (isQuestionRecord(r)) {
-      this.log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
-      if (r.isCorrect) {
-        this.$refs.shadowWrapper.setAttribute('style', `--r: ${255 * (1 - (r.performance as number))}; --g:${255}`);
-        this.$refs.shadowWrapper.classList.add('correct');
-
-        if (this.$store.state.config.likesConfetti) {
-          confetti({
-            origin: {
-              y: 1,
-              x: 0.25 + 0.5 * Math.random(),
-            },
-            disableForReducedMotion: true,
-            angle: 60 + 60 * Math.random(),
-          });
-        }
-
-        if (r.priorAttemps === 0) {
-          const item: StudySessionItem = {
-            ...this.currentCard.item,
-          };
-          // user got the question right on 'the first try'.
-          // dismiss the card from this study session, and
-          // schedule its review in the future.
-          this.loadCard(this.sessionController.nextCard('dismiss-success'));
-          // this.nextCard(`${r.courseID}-${r.cardID}-${this.currentCard.card.card_elo}`, 'dismiss-success');
-
-          // elo win for the user
-          cardHistory.then(history => {
-            this.scheduleReview(history, item);
-            if (history.records.length === 1) {
-              // correct answer on first sight: elo win for student
-              this.updateUserAndCardElo(0.5 + (r.performance as number) / 2, this.courseID, this.cardID);
-            } else {
-              // win for the student, but adjust less aggressively as
-              // the card is more familiar
-              const k = Math.ceil(32 / history.records.length);
-              this.updateUserAndCardElo(0.5 + (r.performance as number) / 2, this.courseID, this.cardID, k);
+          cardHistory.then((history: CardHistory<CardRecord>) => {
+            if (history.records.length !== 1 && r.priorAttemps === 0) {
+              this.updateUserAndCardElo(0, this.courseID, this.cardID);
             }
           });
-        } else {
-          // user got the question right, but with multiple
-          // attempts. Dismiss it, but don't remove from
-          // currrent study session
-          // this.nextCard();
-          this.loadCard(this.sessionController.nextCard('marked-failed'));
-          // this.nextCard(`${r.courseID}-${r.cardID}-${this.currentCard.card.card_elo}`, 'mark-failed');
+
+          if (isQuestionView(this.constructedView)) {
+            if (this.currentCard.records.length >= this.constructedView.maxAttemptsPerView) {
+              const sessionViews: number = this.countCardViews(this.courseID, this.cardID);
+              if (sessionViews >= this.constructedView.maxSessionViews) {
+                this.loadCard(this.sessionController!.nextCard('dismiss-failed'));
+                this.updateUserAndCardElo(0, this.courseID, this.cardID);
+              } else {
+                this.loadCard(this.sessionController!.nextCard('marked-failed'));
+              }
+            }
+          }
         }
       } else {
-        this.$refs.shadowWrapper.classList.add('incorrect');
-        // elo loss for the user
-        cardHistory.then(history => {
-          if (history.records.length !== 1 && r.priorAttemps === 0) {
-            // incorrect answer on a scheduled review: elo win for card
-            this.updateUserAndCardElo(0, this.courseID, this.cardID);
+        this.loadCard(this.sessionController!.nextCard('dismiss-success'));
+      }
+
+      this.clearFeedbackShadow();
+    },
+
+    async updateUserAndCardElo(userScore: number, course_id: string, card_id: string, k?: number) {
+      const userElo = toCourseElo(this.userCourseRegDoc!.courses.find((c) => c.courseID === course_id)!.elo);
+      const cardElo = (
+        await new CourseDB(this.currentCard.card.course_id).getCardEloData([this.currentCard.card.card_id])
+      )[0];
+
+      if (cardElo && userElo) {
+        const eloUpdate = adjustCourseScores(userElo, cardElo, userScore);
+        this.userCourseRegDoc!.courses.find((c) => c.courseID === course_id)!.elo = eloUpdate.userElo;
+
+        Promise.all([
+          updateUserElo(this.$store.state._user!.username, course_id, eloUpdate.userElo),
+          updateCardElo(course_id, card_id, eloUpdate.cardElo),
+        ]).then((results) => {
+          const user = results[0];
+          const card = results[1];
+
+          if (user.ok && card && card.ok) {
+            console.log(
+              `Updated ELOS:
+              \tUser: ${JSON.stringify(eloUpdate.userElo)})
+              \tCard: ${JSON.stringify(eloUpdate.cardElo)})
+              `
+            );
           }
         });
+      }
+    },
 
-        if (isQuestionView(this.constructedView)) {
-          if (this.currentCard.records.length >= this.constructedView.maxAttemptsPerView) {
-            const sessionViews: number = this.countCardViews(this.courseID, this.cardID);
-            if (sessionViews >= this.constructedView.maxSessionViews) {
-              // max attempts per view and session have been reached:
-              // dismiss the card from the session without scheduling
-              // a review - it is too hard!
-              this.loadCard(this.sessionController.nextCard('dismiss-failed'));
-              // this.nextCard(`${r.courseID}-${r.cardID}-${this.currentCard.card.card_elo}`, 'dismiss-failed');
-
-              // ELO - this is a 'win' for the card
-              this.updateUserAndCardElo(0, this.courseID, this.cardID);
-            } else {
-              // max attempts on the view have been reached, but
-              // card may be viewed again this session.
-              // this.nextCard();
-              this.loadCard(this.sessionController.nextCard('marked-failed'));
-              // this.nextCard(`${r.courseID}-${r.cardID}-${this.currentCard.card.card_elo}`, 'mark-failed');
-            }
+    clearFeedbackShadow() {
+      setTimeout(() => {
+        try {
+          if (this.$refs.shadowWrapper) {
+            (this.$refs.shadowWrapper as any).classList.remove('correct', 'incorrect');
           }
+        } catch (e) {
+          // swallow error
         }
-        // clear user input? todo: needs to be a fcn on CardViewer
+      }, 1250);
+    },
+
+    async logCardRecord(r: CardRecord): Promise<CardHistory<CardRecord>> {
+      return await putCardRecord(r, this.$store.state._user!.username);
+    },
+
+    async scheduleReview(history: CardHistory<CardRecord>, item: StudySessionItem) {
+      const nextInterval = newInterval(history);
+      const nextReviewTime = moment.utc().add(nextInterval, 'seconds');
+
+      if (isReview(item)) {
+        console.log(`Removing previously scheduled review for: ${item.cardID}`);
+        removeScheduledCardReview(this.user!.username, item.reviewID);
       }
-    } else {
-      this.loadCard(this.sessionController.nextCard('dismiss-success'));
-      // this.nextCard(`${r.courseID}-${r.cardID}-${this.currentCard.card.card_elo}`, 'dismiss-success');
-    }
 
-    this.clearFeedbackShadow();
-  }
-
-  private async updateUserAndCardElo(userScore: number, course_id: string, card_id: string, k?: number) {
-    const userElo = toCourseElo(this.userCourseRegDoc.courses.find(c => c.courseID === course_id)!.elo);
-    const cardElo = (
-      await new CourseDB(this.currentCard.card.course_id).getCardEloData([this.currentCard.card.card_id])
-    )[0];
-
-    if (cardElo && userElo) {
-      const eloUpdate = adjustCourseScores(userElo, cardElo, userScore);
-      this.userCourseRegDoc.courses.find(c => c.courseID === course_id)!.elo = eloUpdate.userElo;
-
-      Promise.all([
-        updateUserElo(this.$store.state._user!.username, course_id, eloUpdate.userElo),
-        updateCardElo(course_id, card_id, eloUpdate.cardElo),
-      ]).then(results => {
-        const user = results[0];
-        const card = results[1];
-
-        if (user.ok && card && card.ok) {
-          this.log(
-            `Updated ELOS:
-\tUser: ${JSON.stringify(eloUpdate.userElo)})
-\tCard: ${JSON.stringify(eloUpdate.cardElo)})
-`
-          );
-        }
+      scheduleCardReview({
+        user: this.$store.state._user!.username,
+        course_id: history.courseID,
+        card_id: history.cardID,
+        time: nextReviewTime,
+        scheduledFor: item.contentSourceType,
+        schedulingAgentId: item.contentSourceID,
       });
-    }
-  }
+    },
 
-  private clearFeedbackShadow() {
-    setTimeout(() => {
-      this.$refs.shadowWrapper.classList.remove('correct', 'incorrect');
-    }, 1250);
-  }
+    async loadCard(item: StudySessionItem | null) {
+      console.log(`loading: ${JSON.stringify(item)}`);
+      if (item === null) {
+        this.sessionFinished = true;
+        return;
+      }
+      this.cardType = item.status;
 
-  private async logCardRecord(r: CardRecord) {
-    return await putCardRecord(r, this.$store.state._user!.username);
-  }
+      const qualified_id = item.qualifiedID;
+      this.loading = true;
+      const _courseID = qualified_id.split('-')[0];
+      const _cardID = qualified_id.split('-')[1];
+      const _cardElo = qualified_id.split('-')[2];
 
-  private async scheduleReview(history: CardHistory<CardRecord>, item: StudySessionItem) {
-    const nextInterval = newInterval(history);
-    const nextReviewTime = moment.utc().add(nextInterval, 'seconds');
+      console.log(`Now displaying: ${qualified_id}`);
 
-    if (isReview(item)) {
-      this.log(`Removing previously scheduled review for: ${item.cardID}`);
-      removeScheduledCardReview(this.user().username, item.reviewID);
-    }
-
-    scheduleCardReview({
-      user: this.$store.state._user!.username,
-      course_id: history.courseID,
-      card_id: history.cardID,
-      time: nextReviewTime,
-      scheduledFor: item.contentSourceType,
-      schedulingAgentId: item.contentSourceID,
-    });
-  }
-
-  public cardType: string = '';
-
-  /**
-   * async fetch card data and view from the db
-   * for the given qualified card id ("courseid-cardid-elo"),
-   * and then display the card to the user.
-   */
-  private async loadCard(item: StudySessionItem | null) {
-    this.log(`loading: ${JSON.stringify(item)}`);
-    if (item === null) {
-      this.sessionFinished = true; // ??
-      return;
-    }
-    this.cardType = item.status;
-
-    const qualified_id = item.qualifiedID;
-
-    this.loading = true;
-    const _courseID = qualified_id.split('-')[0];
-    const _cardID = qualified_id.split('-')[1];
-    const _cardElo = qualified_id.split('-')[2];
-
-    this.log(`Now displaying: ${qualified_id}`);
-
-    try {
-      // const tmpCardData = await CardCache.getDoc<CardData>(qualified_id);
-      const tmpCardData = await getCourseDoc<CardData>(_courseID, _cardID);
-      const tmpView = Courses.getView(tmpCardData.id_view);
-      const tmpDataDocs = await tmpCardData.id_displayable_data.map(id => {
-        return getCourseDoc<DisplayableData>(_courseID, id, {
-          attachments: true,
-          binary: true,
+      try {
+        const tmpCardData = await getCourseDoc<CardData>(_courseID, _cardID);
+        const tmpView = Courses.getView(tmpCardData.id_view);
+        const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
+          return getCourseDoc<DisplayableData>(_courseID, id, {
+            attachments: true,
+            binary: true,
+          });
         });
-      });
 
-      const tmpData = [];
+        const tmpData = [];
 
-      for (const docPromise of tmpDataDocs) {
-        const doc = await docPromise;
+        for (const docPromise of tmpDataDocs) {
+          const doc = await docPromise;
+          tmpData.unshift(displayableDataToViewData(doc));
+        }
 
-        tmpData.unshift(displayableDataToViewData(doc));
+        this.cardCount++;
+        this.data = tmpData;
+        this.view = tmpView;
+        this.cardID = _cardID;
+        this.courseID = _courseID;
+        this.card_elo = tmpCardData.elo.global.score;
+
+        // @ts-ignore
+        this.constructedView = new this.view() as Viewable;
+
+        this.sessionRecord.push({
+          card: {
+            course_id: _courseID,
+            card_id: _cardID,
+            card_elo: tmpCardData.elo.global.score,
+          },
+          item: item,
+          records: [],
+        });
+      } catch (e) {
+        console.warn(`Error loading card: ${JSON.stringify(e)}, ${e}`);
+
+        const err = e as Error;
+        if (docIsDeleted(err) && isReview(item)) {
+          console.warn(`Card was deleted: ${qualified_id}`);
+          removeScheduledCardReview(this.user!.username, item.reviewID);
+        }
+
+        this.loadCard(this.sessionController!.nextCard('dismiss-error'));
+      } finally {
+        this.loading = false;
       }
-
-      this.cardCount++;
-      this.data = tmpData;
-      this.view = tmpView;
-      this.cardID = _cardID;
-      this.courseID = _courseID;
-      this.card_elo = tmpCardData.elo.global.score;
-
-      // bleeding memory? Do these get GCd?
-      this.constructedView = new this.view() as Viewable;
-
-      this.sessionRecord.push({
-        card: {
-          course_id: _courseID,
-          card_id: _cardID,
-          card_elo: tmpCardData.elo.global.score,
-        },
-        item: item,
-        records: [],
-      });
-    } catch (e) {
-      this.warn(`Error loading card: ${JSON.stringify(e)}, ${e}`);
-
-      const err = e as Error;
-      if (docIsDeleted(err) && isReview(item)) {
-        this.warn(`Card was deleted: ${qualified_id}`);
-        removeScheduledCardReview(this.user().username, item.reviewID);
-      }
-
-      this.loadCard(this.sessionController.nextCard('dismiss-error'));
-    } finally {
-      this.loading = false;
-    }
-  }
-}
+    },
+  },
+});
 </script>
 
 <style scoped>

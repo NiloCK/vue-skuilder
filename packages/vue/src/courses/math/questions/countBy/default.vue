@@ -39,7 +39,7 @@ export default class VerbalAddition extends QuestionView<CountBy> {
   }
 
   public track(n: number): void {
-    this.log(`change in ${n}!
+    console.log(`change in ${n}!
     userAnswer: ${this.answer.toString()}\n
     qAnswer:    ${this.question.answer.toString()}`);
     if (this.question.answer[n].toString().length === this.answer[n].length) {
@@ -58,7 +58,7 @@ export default class VerbalAddition extends QuestionView<CountBy> {
       } else {
         document.getElementById('input' + n)!.classList.add('incorrect');
         this.submitAnswer(this.answer);
-        this.log(`Wrong! ${this.answer[n]} !== ${this.question.answer[n]}`);
+        console.log(`Wrong! ${this.answer[n]} !== ${this.question.answer[n]}`);
       }
     }
   }
@@ -74,7 +74,7 @@ export default class VerbalAddition extends QuestionView<CountBy> {
   };
 
   public mounted() {
-    this.log('focusingb...');
+    console.log('focusingb...');
     this.$refs.input0[0].focus();
   }
 

@@ -81,10 +81,9 @@ function filterFactory(courseID: string) {
         const atts = doc._attachments;
         for (const attachment in atts) {
           const content_type: string = atts[attachment]['content_type'];
-          logger.info(`Course: ${courseID}`);
-          logger.info(`\tAttachment ${attachment} in:`);
-          logger.info(`\t${doc._id}`);
-          logger.info(` should be processed...`);
+          logger.info(
+            `Course: ${courseID}\n\tAttachment ${attachment} in:\n\t${doc._id}\n should be processed...`
+          );
 
           if (content_type.includes('audio')) {
             processingRequest.fields.push({

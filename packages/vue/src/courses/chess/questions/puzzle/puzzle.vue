@@ -1,3 +1,4 @@
+yarn
 <template>
   <div>
     <p class="headline">
@@ -29,7 +30,7 @@ import { Chessground } from '../../chessground/chessground';
 import { Key } from '../../chessground/types';
 import { Api as cgAPI } from '../../chessground/api';
 import { QuestionView } from '@/base-course/Viewable';
-import { ChessPuzzle } from './index';
+import { Puzzle } from './index';
 import { Chess, SQUARES } from 'chess.js';
 
 type PromotionPiece = 'q' | 'r' | 'b' | 'n';
@@ -53,7 +54,7 @@ function parseUciMove(moveString: string): UciMove {
 }
 
 @Component({})
-export default class PuzzleView extends QuestionView<ChessPuzzle> {
+export default class PuzzleView extends QuestionView<Puzzle> {
   public answer: string = '';
   private chessEngine: Chess;
   private chessBoard: cgAPI;
@@ -65,7 +66,7 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
   private promotionMove: { from: string; to: string } | null = null;
 
   get question() {
-    return new ChessPuzzle(this.data);
+    return new Puzzle(this.data);
   }
 
   get files(): string[] {
@@ -74,10 +75,10 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
   }
 
   public mounted() {
-    // this.log(`data: ${this.data}`);
+    // console.log(`data: ${this.data}`);
     this.chessEngine = new Chess(this.question.fen);
     this.playerColor = swapColor(toColor(this.chessEngine));
-    this.log(`Player color: ${this.playerColor}`);
+    console.log(`Player color: ${this.playerColor}`);
 
     this.chessBoard = Chessground(document.getElementById('cg')!, {
       movable: {
@@ -127,7 +128,7 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
   public handlePromotion(promotionPiece: PromotionPiece) {
     if (!this.promotionMove) return;
 
-    this.log(`promoting to ${promotionPiece}`);
+    console.log(`promoting to ${promotionPiece}`);
     this.showPromotionDialog = false;
     this.checkMove(this.promotionMove.from, this.promotionMove.to, promotionPiece);
   }
@@ -145,8 +146,8 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
    * @param dest
    */
   checkMove(orig: any, dest: any, promotionPiece?: PromotionPiece) {
-    this.log('checkMove', orig, dest);
-    this.log('moves: ' + this.question.moves);
+    console.log('checkMove', orig, dest);
+    console.log('moves: ' + this.question.moves);
     if (this.question.moves.length === 0) {
       throw new Error('No moves');
     }
@@ -158,13 +159,13 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
     }
 
     let expectedMove = this.question.moves[0];
-    this.log(`Expected move: ${expectedMove}`);
+    console.log(`Expected move: ${expectedMove}`);
 
     const moveMade = this.isPromotionPiece(promotionPiece) ? `${orig}${dest}${promotionPiece}` : `${orig}${dest}`;
-    this.log(`Move made: ${moveMade}`);
+    console.log(`Move made: ${moveMade}`);
 
     if (expectedMove === moveMade) {
-      this.log('move is correct');
+      console.log('move is correct');
       this.chessEngine.move({
         from: orig,
         to: dest,
@@ -173,15 +174,15 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
       this.updateChessground();
 
       this.question.moves.shift();
-      this.log(this.question.moves);
+      console.log(this.question.moves);
 
       if (this.question.moves.length === 0) {
-        this.log('no more moves - puzzle completed');
+        console.log('no more moves - puzzle completed');
         this.submitAnswer('');
       } else {
         window.setTimeout(() => {
           let nextMove = this.question.moves.shift()!;
-          this.log('computerMove', nextMove);
+          console.log('computerMove', nextMove);
           const move = parseUciMove(nextMove);
           this.chessEngine.move(move);
           this.updateChessground();
@@ -191,14 +192,14 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
       // check for a checkmate
       this.chessEngine.move({ from: orig, to: dest, promotion: promotionPiece });
       if (this.chessEngine.isCheckmate()) {
-        this.log('checkmate');
-        this.submitAnswer(ChessPuzzle.CHECKMATE);
+        console.log('checkmate');
+        this.submitAnswer(Puzzle.CHECKMATE);
       } else {
         // revert the move
         this.chessEngine.undo();
       }
 
-      this.log('incorrect - revert the move'); // [ ] visual feedback? emit 'wrongness' event?
+      console.log('incorrect - revert the move'); // [ ] visual feedback? emit 'wrongness' event?
       this.submitAnswer(orig + dest + promotionPiece);
       this.updateChessground();
     }
@@ -218,12 +219,12 @@ export default class PuzzleView extends QuestionView<ChessPuzzle> {
 
 function toDests(chess: Chess) {
   const dests = new Map();
-  SQUARES.forEach(s => {
+  SQUARES.forEach((s) => {
     const ms = chess.moves({ square: s, verbose: true });
     if (ms.length)
       dests.set(
         s,
-        ms.map(m => m.to)
+        ms.map((m) => m.to)
       );
   });
   // console.log(dests);

@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import { Prop } from 'vue-property-decorator';
-import SkldrVue from '../../../SkldrVue';
 import { FieldDefinition } from '../../../base-course/Interfaces/FieldDefinition';
 import {
   ValidatingFunction,
@@ -14,7 +13,7 @@ export interface ValidatedInput {
   getValidators: () => ValidatingFunction[];
 }
 
-export abstract class FieldInput extends SkldrVue {
+export abstract class FieldInput extends Vue {
   public $refs: {
     inputField: HTMLInputElement;
   };
@@ -70,12 +69,12 @@ export abstract class FieldInput extends SkldrVue {
   }
 
   public generateTags() {
-    this.log('Running generic generateTags() in FieldInput.ts');
+    console.log('[FieldInput] Running generic generateTags() in FieldInput.ts');
     return this.field.tagger ? this.field.tagger(this.userInput()) : [];
   }
 
   public generateELO(): CourseElo | undefined {
-    this.log('Running generic generateELO() in FieldInput.ts');
+    console.log('[FieldInput] Running generic generateELO() in FieldInput.ts');
     return this.field.generateELO ? this.field.generateELO(this.userInput()) : undefined;
   }
 
@@ -89,7 +88,7 @@ export abstract class FieldInput extends SkldrVue {
     let index = 0;
     while (ret.status === Status.ok && index < validators.length) {
       ret = validators[index](this.userInput());
-      this.log(`validation[${index}]\n ${ret.status}\n  ${ret.msg}`);
+      console.log(`[FieldInput] validation[${index}]\n ${ret.status}\n  ${ret.msg}`);
       index++;
     }
 

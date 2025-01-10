@@ -95,11 +95,11 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
-import DataShapeTable from '@/components/Edit/DataTable/DataShapeTable.vue'; // [ ] remove? unused?
-import TagsInput from '@/components/Edit/TagsInput.vue';
+import TagsInput, { TagsInputInstance } from '@/components/Edit/TagsInput.vue';
 import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
 import { alertUser } from '@/components/SnackbarService.vue';
 import Courses from '@/courses';
@@ -111,16 +111,12 @@ import { fieldConverters, FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
 import ENV from '@/ENVIRONMENT_VARS';
 import { CourseConfig } from '@/server/types';
-import SkldrVue from '@/SkldrVue';
 import _ from 'lodash';
-import Vue from 'vue';
-import { Component, Prop, Watch } from 'vue-property-decorator';
 import AudioInput from './FieldInputs/AudioInput.vue';
 import ImageInput from './FieldInputs/ImageInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
 import MarkdownInput from './FieldInputs/MarkdownInput.vue';
 import MediaDragDropUploader from './FieldInputs/MediaDragDropUploader.vue';
-import MediaUploader from './FieldInputs/MediaUploader.vue';
 import MidiInput from './FieldInputs/MidiInput.vue';
 import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
@@ -129,7 +125,22 @@ import { CourseElo } from '@/tutor/Elo';
 
 type StringIndexable = { [x: string]: any };
 
-@Component({
+interface ComponentData {
+  tag: string;
+  tags: any[];
+  autoCompleteSuggestions: any[];
+  allowSubmit: boolean;
+  timer?: NodeJS.Timeout;
+}
+
+interface ComponentRefs {
+  fieldInputWraps: HTMLDivElement[];
+  tagsInput: TagsInputInstance;
+}
+
+export default defineComponent({
+  name: 'DataInputForm',
+
   components: {
     AudioInput,
     NumberInput,
@@ -139,190 +150,178 @@ type StringIndexable = { [x: string]: any };
     MarkdownInput,
     MidiInput,
     CardBrowser,
-    DataShapeTable,
-    MediaUploader,
     MediaDragDropUploader,
     TagsInput,
     ChessPuzzleInput,
   },
-})
-export default class DataInputForm extends SkldrVue {
-  @Prop({
-    required: true,
-    default: () => {
-      return {
+
+  props: {
+    courseCfg: {
+      type: Object as () => CourseConfig,
+      required: true,
+      default: () => ({
         courseID: 'default-test',
-      };
+      }),
     },
-  })
-  public courseCfg: CourseConfig;
+    dataShape: {
+      type: Object as () => DataShape,
+      required: true,
+    },
+  },
 
-  private timer: NodeJS.Timeout;
-  public $refs: {
-    fieldInputWraps: HTMLDivElement[];
-    tagsInput: TagsInput;
-  };
+  data(): ComponentData {
+    return {
+      tag: '',
+      tags: [],
+      autoCompleteSuggestions: [],
+      allowSubmit: false,
+      timer: undefined,
+    };
+  },
 
-  public get fieldInputs(): FieldInput[] {
-    return this.$refs.fieldInputWraps.map<FieldInput>((div) => {
-      // if ((div.children[0] as any).__vue__.clearData !==)
-      //     return (div.children[0] as any).__vue__ as FieldInput;
-      const child: Vue = (div.children[0] as any).__vue__;
-      if (this.isFieldInput(child)) {
-        return child;
-      } else {
-        const parent = child.$parent;
-        if (this.isFieldInput(parent)) {
-          return parent;
+  computed: {
+    ftString() {
+      return FieldType.STRING;
+    },
+    int() {
+      return FieldType.INT;
+    },
+    num() {
+      return FieldType.NUMBER;
+    },
+    img() {
+      return FieldType.IMAGE;
+    },
+    mkd() {
+      return FieldType.MARKDOWN;
+    },
+    audio() {
+      return FieldType.AUDIO;
+    },
+    midi() {
+      return FieldType.MIDI;
+    },
+    uploader() {
+      return FieldType.MEDIA_UPLOADS;
+    },
+    chessPuzzle() {
+      return FieldType.CHESS_PUZZLE;
+    },
+    fieldInputs(): FieldInput[] {
+      const ret: FieldInput[] = [];
+      if (!this.$refs.fieldInputWraps) return ret;
+
+      // Convert to array to ensure iterability
+      const wraps = Array.isArray(this.$refs.fieldInputWraps)
+        ? this.$refs.fieldInputWraps
+        : [this.$refs.fieldInputWraps];
+
+      for (const div of wraps) {
+        // Ensure div is HTMLElement
+        if (div instanceof HTMLElement) {
+          const firstChild = div.children[0];
+          if (firstChild) {
+            const child = (firstChild as any).__vue__;
+            if (this.isFieldInput(child)) {
+              ret.push(child);
+            } else if (child.$parent && this.isFieldInput(child.$parent)) {
+              ret.push(child.$parent);
+            }
+          }
+        }
+      }
+      return ret;
+    },
+
+    existingData: {
+      get() {
+        return this.$store.state.dataInputForm.existingData;
+      },
+      set(data: any) {
+        this.$store.state.dataInputForm.existingData = data;
+      },
+    },
+
+    shapeViews: {
+      get() {
+        return this.$store.state.dataInputForm.shapeViews;
+      },
+      set(views: any) {
+        this.$store.state.dataInputForm.shapeViews = views;
+      },
+    },
+
+    fields: {
+      get() {
+        return this.$store.state.dataInputForm.fields;
+      },
+      set(fields: any) {
+        this.$store.state.dataInputForm.fields = fields;
+      },
+    },
+
+    store: {
+      get() {
+        return this.$store.state.dataInputForm.localStore;
+      },
+      set(store: any) {
+        this.$store.state.dataInputForm.localStore = store;
+      },
+    },
+
+    uploading: {
+      get(): boolean {
+        return this.$store.state.dataInputForm.uploading;
+      },
+      set(uploading: boolean) {
+        this.$store.state.dataInputForm.uploading = uploading;
+      },
+    },
+
+    previewInput() {
+      this.convertInput();
+      return this.store.previewInput;
+    },
+
+    convertedInput() {
+      this.convertInput();
+      return this.store.convertedInput;
+    },
+
+    inputIsValidated(): boolean {
+      return this.checkInput();
+    },
+
+    datashapeDescriptor(): ShapeDescriptor {
+      for (const ds of this.courseCfg.dataShapes) {
+        const descriptor = NameSpacer.getDataShapeDescriptor(ds.name);
+        if (descriptor.dataShape === this.dataShape.name) {
+          return descriptor;
         }
       }
 
-      return new IntegerInput({}); // ???
-    });
-  }
-
-  @Prop({ required: true }) public dataShape: DataShape;
-
-  public get existingData() {
-    return this.$store.state.dataInputForm.existingData;
-  }
-  public set existingData(data) {
-    this.$store.state.dataInputForm.existingData = data;
-  }
-
-  public tag: string = '';
-  public tags: any[] = [];
-  public autoCompleteSuggestions: any[] = [];
-
-  // public shapeViews: Array<VueConstructor<Vue>>;
-  public get shapeViews() {
-    return this.$store.state.dataInputForm.shapeViews;
-  }
-  public set shapeViews(views) {
-    this.$store.state.dataInputForm.shapeViews = views;
-  }
-
-  // public fields: FormInput[] = [];
-  public get fields() {
-    return this.$store.state.dataInputForm.fields;
-  }
-  public set fields(fields) {
-    this.$store.state.dataInputForm.fields = fields;
-  }
-
-  // public store: any = {
-  //   validation: {},
-  //   convertedInput: {},
-  //   previewInput: {}
-  // }; // todo: see about typing this
-  public get store() {
-    return this.$store.state.dataInputForm.localStore;
-  }
-  public set store(store) {
-    this.$store.state.dataInputForm.localStore = store;
-  }
-
-  // private uploading: boolean = false;
-  public get uploading() {
-    return this.$store.state.dataInputForm.uploading;
-  }
-  public set uploading(uploading) {
-    this.$store.state.dataInputForm.uploading = uploading;
-  }
-
-  public readonly ftString: string = FieldType.STRING;
-  public readonly int: string = FieldType.INT;
-  public readonly num: string = FieldType.NUMBER;
-  public readonly img: string = FieldType.IMAGE;
-  public readonly mkd: string = FieldType.MARKDOWN;
-  public readonly audio: string = FieldType.AUDIO;
-  public readonly midi: string = FieldType.MIDI;
-  public readonly uploader: string = FieldType.MEDIA_UPLOADS;
-  public readonly chessPuzzle: string = FieldType.CHESS_PUZZLE;
-
-  public updateTags(newTags: string[]) {
-    this.log(`tags updated: ${JSON.stringify(newTags)}`);
-    this.tags = newTags;
-  }
-
-  public async getCourseTags() {
-    const existingTags = await getCourseTagStubs(this.courseCfg.courseID!);
-    this.autoCompleteSuggestions = existingTags.rows.map((tag) => {
       return {
-        text: tag.doc!.name,
+        course: '',
+        dataShape: '',
       };
-    });
-  }
-  public allowSubmit: boolean = false;
+    },
+  },
 
-  /**
-   * Returns the number of expected validations based on the dataShape's
-   * fields array. One validation is expected for each field.
-   */
-  private expectedValidations(): number {
-    return this.dataShape.fields.length;
-  }
+  watch: {
+    dataShape: {
+      handler(value?: DataShape, old?: DataShape) {
+        this.getImplementingViews();
+      },
+      immediate: true,
+    },
+    store: {
+      handler(v: {}, old?: any) {
+        this.convertInput();
+      },
+    },
+  },
 
-  public checkInput(): boolean {
-    let validations = Object.getOwnPropertyNames(this.store.validation);
-    validations = validations.filter((v) => v !== '__ob__'); // remove vuejs observer property
-
-    let inputIsValid: boolean = validations.length === this.expectedValidations();
-
-    // this.log(`Observed validations: ${validations}`);
-    // this.log(`Expected validations: ${this.expectedValidations()}`);
-    // this.log(`Validation keys: ${Object.getOwnPropertyNames(this.store.validation)}`);
-
-    const invalidFields = Object.getOwnPropertyNames(this.store.validation).filter(
-      (fieldName) => this.store.validation[fieldName] === false
-    );
-
-    if (invalidFields.length > 0) {
-      inputIsValid = false;
-      this.error('Invalid Fields:', invalidFields);
-      invalidFields.forEach((field) => {
-        console.error(`Field ${field} validation:`, this.store.validation[field]);
-      });
-    }
-
-    if (inputIsValid) {
-      this.convertInput();
-    }
-    this.allowSubmit = inputIsValid;
-    this.log(`Form data is valid: ${inputIsValid}`);
-    return inputIsValid;
-  }
-
-  public get inputIsValidated(): boolean {
-    return this.checkInput();
-  }
-
-  @Watch('dataShape')
-  public onDataShapeChange(value?: DataShape, old?: DataShape) {
-    // this.log('DataShape changed, getting implementing views');
-    this.getImplementingViews();
-  }
-
-  @Watch('store')
-  public storeChange(v: {}, old?: any) {
-    this.convertInput();
-  }
-
-  private get datashapeDescriptor(): ShapeDescriptor {
-    for (const ds of this.courseCfg.dataShapes) {
-      const descriptor = NameSpacer.getDataShapeDescriptor(ds.name);
-      if (descriptor.dataShape === this.dataShape.name) {
-        return descriptor;
-      }
-    }
-
-    return {
-      course: '',
-      dataShape: '',
-    };
-  }
-
-  public created() {
+  created() {
     this.existingData = [];
     this.fields = [];
     this.store = {
@@ -332,305 +331,313 @@ export default class DataInputForm extends SkldrVue {
     };
     this.uploading = false;
 
-    this.onDataShapeChange();
     this.getCourseTags();
-  }
+  },
 
-  public convertInput() {
-    const supplementedFields = this.dataShape.fields.map((f) => {
-      const copiedFieldDefinition: FieldDefinition = {
+  methods: {
+    async updateTags(newTags: string[]) {
+      console.log(`[DataInputForm] tags updated: ${JSON.stringify(newTags)}`);
+      this.tags = newTags;
+    },
+
+    async getCourseTags() {
+      const existingTags = await getCourseTagStubs(this.courseCfg.courseID!);
+      this.autoCompleteSuggestions = existingTags.rows.map((tag) => ({
+        text: tag.doc!.name,
+      }));
+    },
+
+    expectedValidations(): number {
+      return this.dataShape.fields.length;
+    },
+
+    checkInput(): boolean {
+      let validations = Object.getOwnPropertyNames(this.store.validation);
+      validations = validations.filter((v) => v !== '__ob__');
+
+      let inputIsValid: boolean = validations.length === this.expectedValidations();
+
+      const invalidFields = Object.getOwnPropertyNames(this.store.validation).filter(
+        (fieldName) => this.store.validation[fieldName] === false
+      );
+
+      if (invalidFields.length > 0) {
+        inputIsValid = false;
+        console.error('Invalid Fields:', invalidFields);
+        invalidFields.forEach((field) => {
+          console.error(`Field ${field} validation:`, this.store.validation[field]);
+        });
+      }
+
+      if (inputIsValid) {
+        this.convertInput();
+      }
+      this.allowSubmit = inputIsValid;
+      console.log(`[DataInputForm] Form data is valid: ${inputIsValid}`);
+      return inputIsValid;
+    },
+
+    convertInput() {
+      const supplementedFields = this.dataShape.fields.map((f) => ({
         name: f.name,
         type: f.type,
         validator: f.validator,
-      };
-      return copiedFieldDefinition;
-    });
+      }));
 
-    for (let i = 1; i < 11; i++) {
-      if (this.store[`audio-${i}`]) {
-        supplementedFields.push({
-          name: `audio-${i}`,
-          type: FieldType.AUDIO,
-        });
-      } else {
-        break;
-      }
-    }
-
-    for (let i = 1; i < 11; i++) {
-      if (this.store[`image-${i}`]) {
-        supplementedFields.push({
-          name: `image-${i}`,
-          type: FieldType.IMAGE,
-        });
-      } else {
-        break;
-      }
-    }
-
-    supplementedFields.forEach((fieldDef) => {
-      this.store.convertedInput[fieldDef.name] = fieldConverters[fieldDef.type].databaseConverter(
-        this.store[fieldDef.name]
-      );
-      this.store.previewInput[fieldDef.name] = fieldConverters[fieldDef.type].previewConverter(
-        this.store[fieldDef.name]
-      );
-    });
-    if (this.store.convertedInput.toggle) {
-      delete this.store.convertedInput.toggle;
-    } else {
-      this.store.convertedInput.toggle = true;
-    }
-  }
-
-  public get previewInput() {
-    this.convertInput();
-    return this.store.previewInput;
-  }
-
-  public get convertedInput() {
-    this.convertInput();
-    return this.store.convertedInput;
-  }
-
-  public inputContainsTranspositionFcns(): boolean {
-    this.convertInput();
-    for (let input in this.convertedInput) {
-      if (typeof this.convertedInput[input] === 'function') {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private objectContainsFunction(o: StringIndexable): boolean {
-    for (let key in o) {
-      if (typeof o[key] === 'function') {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private expandO(o: StringIndexable) {
-    let ret: StringIndexable[] = [];
-
-    if (this.objectContainsFunction(o)) {
-      for (let fKey in o) {
-        if (typeof o[fKey] === 'function') {
-          this.log(`Key ${fKey} is a function.`);
-          // array of objs w/ the fcn value replaced by
-          // one of its outputs
-          const replaced: StringIndexable[] = [];
-
-          (o[fKey]() as Array<any>).forEach((fcnOutput) => {
-            let copy: StringIndexable = {};
-            copy = _.cloneDeep(o);
-            copy[fKey] = fcnOutput;
-
-            this.log(`Replaced Copy: ${JSON.stringify(copy)}`);
-
-            replaced.push(copy);
+      for (let i = 1; i < 11; i++) {
+        if (this.store[`audio-${i}`]) {
+          supplementedFields.push({
+            name: `audio-${i}`,
+            type: FieldType.AUDIO,
+            validator: undefined,
           });
+        } else {
+          break;
+        }
+      }
 
-          replaced.forEach((obj) => {
-            if (this.objectContainsFunction(obj)) {
-              this.log('2nd pass...');
-              const recursiveExpansion = this.expandO(obj);
-              ret = ret.concat(recursiveExpansion);
-            } else {
-              ret.push(obj);
+      for (let i = 1; i < 11; i++) {
+        if (this.store[`image-${i}`]) {
+          supplementedFields.push({
+            name: `image-${i}`,
+            type: FieldType.IMAGE,
+            validator: undefined,
+          });
+        } else {
+          break;
+        }
+      }
+
+      supplementedFields.forEach((fieldDef) => {
+        this.store.convertedInput[fieldDef.name] = fieldConverters[fieldDef.type].databaseConverter(
+          this.store[fieldDef.name]
+        );
+        this.store.previewInput[fieldDef.name] = fieldConverters[fieldDef.type].previewConverter(
+          this.store[fieldDef.name]
+        );
+      });
+
+      if (this.store.convertedInput.toggle) {
+        delete this.store.convertedInput.toggle;
+      } else {
+        this.store.convertedInput.toggle = true;
+      }
+    },
+
+    inputContainsTranspositionFcns(): boolean {
+      this.convertInput();
+      for (const input in this.convertedInput) {
+        if (typeof this.convertedInput[input] === 'function') {
+          return true;
+        }
+      }
+      return false;
+    },
+
+    objectContainsFunction(o: StringIndexable): boolean {
+      for (const key in o) {
+        if (typeof o[key] === 'function') {
+          return true;
+        }
+      }
+      return false;
+    },
+
+    expandO(o: StringIndexable): StringIndexable[] {
+      let ret: StringIndexable[] = [];
+
+      if (this.objectContainsFunction(o)) {
+        for (const fKey in o) {
+          if (typeof o[fKey] === 'function') {
+            console.log(`[DataInputForm] Key ${fKey} is a function.`);
+            const replaced: StringIndexable[] = [];
+
+            (o[fKey]() as Array<any>).forEach((fcnOutput) => {
+              let copy: StringIndexable = {};
+              copy = _.cloneDeep(o);
+              copy[fKey] = fcnOutput;
+
+              console.log(`[DataInputForm] Replaced Copy: ${JSON.stringify(copy)}`);
+
+              replaced.push(copy);
+            });
+
+            replaced.forEach((obj) => {
+              if (this.objectContainsFunction(obj)) {
+                console.log('[DataInputForm] 2nd pass...');
+                const recursiveExpansion = this.expandO(obj);
+                ret = ret.concat(recursiveExpansion);
+              } else {
+                ret.push(obj);
+              }
+            });
+          }
+        }
+        return ret;
+      } else {
+        return [];
+      }
+    },
+
+    getTags(): string[] {
+      const dataShapeParsedTags: string[] = [];
+
+      this.fieldInputs.forEach((f) => {
+        if (f.generateTags) {
+          const fTags = f.generateTags();
+          dataShapeParsedTags.push(...fTags);
+        }
+      });
+
+      const manualTags = (this.$refs.tagsInput as any as TagsInputInstance).tags.map((t) => t.text);
+
+      return dataShapeParsedTags.concat(manualTags);
+    },
+
+    getElo(): CourseElo | undefined {
+      for (const f of this.fieldInputs) {
+        if (f.generateELO) {
+          return f.generateELO();
+        }
+      }
+      return undefined;
+    },
+
+    async submit() {
+      if (this.checkInput()) {
+        console.log(`[DataInputForm] Store: ${JSON.stringify(this.store)}`);
+        console.log(`[DataInputForm] ConvertedStore: ${JSON.stringify(this.convertedInput)}`);
+        this.uploading = true;
+
+        let inputs = [];
+
+        if (this.inputContainsTranspositionFcns()) {
+          console.log(`[DataInputForm] Expanded input: ${JSON.stringify(this.expandO(this.convertedInput))}`);
+          inputs = this.expandO(this.convertedInput);
+        } else {
+          console.log(`[DataInputForm] No Transposition fcn detected`);
+          inputs = [this.convertedInput];
+        }
+
+        const result = await Promise.all(
+          inputs.map(async (input) => {
+            return await addNote55(
+              this.courseCfg.courseID!,
+              this.datashapeDescriptor.course,
+              this.dataShape,
+              input,
+              this.$store.state._user!.username,
+              this.getTags(),
+              undefined,
+              this.getElo()
+            );
+          })
+        );
+
+        if (result[0].ok) {
+          alertUser({
+            text: `Content added... Thank you!`,
+            status: Status.ok,
+          });
+          const ti = this.$refs.tagsInput as any as TagsInputInstance;
+          if (ti.tags.length) {
+            ti.updateAvailableCourseTags();
+            ti.tags = [];
+          }
+          this.reset();
+        } else {
+          alertUser({
+            text: `A problem occurred. Content has not been added.`,
+            status: Status.error,
+          });
+          console.error(`Error in DataInputForm.submit(). Result from addNote: ${JSON.stringify(result)}`);
+          this.uploading = false;
+        }
+      }
+    },
+
+    reset() {
+      this.uploading = false;
+
+      this.fieldInputs.forEach((input) => {
+        input.clearData();
+      });
+
+      const max_media_inputs = 10;
+
+      for (let i = 1; i <= max_media_inputs; i++) {
+        const audioKey = `audio-${i}`;
+        if (this.store.hasOwnProperty(audioKey)) {
+          this.$delete(this.store, audioKey);
+          this.$delete(this.store.convertedInput, audioKey);
+          this.$delete(this.store.previewInput, audioKey);
+        } else {
+          break;
+        }
+      }
+
+      for (let i = 1; i <= max_media_inputs; i++) {
+        const imageKey = `image-${i}`;
+        if (this.store.hasOwnProperty(imageKey)) {
+          this.$delete(this.store, imageKey);
+          this.$delete(this.store.convertedInput, imageKey);
+          this.$delete(this.store.previewInput, imageKey);
+        } else {
+          break;
+        }
+      }
+
+      Object.keys(this.store.validation).forEach((key) => {
+        this.store.validation[key] = {
+          valid: true,
+          message: '',
+        };
+      });
+
+      this.store.convertedInput = {};
+      this.store.previewInput = {};
+
+      this.fieldInputs[0].focus();
+      this.convertInput();
+    },
+
+    getImplementingViews() {
+      if (ENV.MOCK) {
+        this.shapeViews = [FillInView];
+        return;
+      }
+
+      for (const ds of this.courseCfg.dataShapes) {
+        const descriptor = NameSpacer.getDataShapeDescriptor(ds.name);
+
+        console.log('[DataInputForm] descriptor', descriptor);
+        console.log('[DataInputForm] this.dataShape', this.dataShape);
+        console.log('[DataInputForm] this.dataShape.name', this.dataShape.name);
+
+        if (descriptor.dataShape === this.dataShape.name) {
+          const crs = Courses.getCourse(descriptor.course)!;
+
+          this.shapeViews = [];
+
+          crs.getBaseQTypes().forEach((qType) => {
+            if (qType.dataShapes[0].name === this.dataShape.name) {
+              this.shapeViews = this.shapeViews.concat(qType.views);
             }
           });
-        }
-      }
-      return ret;
-    } else {
-      return [];
-    }
-  }
 
-  /**
-   * Gets note tags from
-   *  - the tagsInput UI component
-   *  - the fieldInputs (generated tags)
-   */
-  private getTags(): string[] {
-    const dataShapeParsedTags: string[] = [];
-
-    this.fieldInputs.forEach((f) => {
-      if (f.generateTags) {
-        const fTags = f.generateTags();
-        dataShapeParsedTags.push(...fTags);
-      }
-    });
-
-    let manualTags = this.$refs.tagsInput.tags.map((t) => t.text);
-
-    return dataShapeParsedTags.concat(manualTags);
-  }
-
-  private getElo(): CourseElo | undefined {
-    for (const f of this.fieldInputs) {
-      if (f.generateELO) {
-        return f.generateELO();
-      }
-    }
-    return undefined;
-  }
-
-  public async submit() {
-    if (this.checkInput()) {
-      this.log(`Store: ${JSON.stringify(this.store)}`);
-      this.log(`ConvertedStore: ${JSON.stringify(this.convertedInput)}`);
-      this.uploading = true;
-
-      let inputs = [];
-
-      if (this.inputContainsTranspositionFcns()) {
-        this.log(`Expanded input:
-        ${JSON.stringify(this.expandO(this.convertedInput))}`);
-        inputs = this.expandO(this.convertedInput);
-      } else {
-        this.log(`No Transposition fcn detected`);
-        inputs = [this.convertedInput];
-      }
-
-      const result = await Promise.all(
-        inputs.map(async (input) => {
-          return await addNote55(
-            this.courseCfg.courseID!,
-            this.datashapeDescriptor.course,
-            this.dataShape,
-            input,
-            this.$store.state._user!.username,
-            this.getTags(),
-            undefined, // generic (non-required by datashape) attachments here
-            this.getElo()
-          );
-        })
-      );
-
-      if (result[0].ok) {
-        alertUser({
-          text: `Content added... Thank you!`,
-          status: Status.ok,
-        });
-        const ti = this.$refs.tagsInput;
-        if (ti.tags.length) {
-          // pull down any tags just added for auto-complete suggest
-          ti.updateAvailableCourseTags();
-          // clear applied tags
-          ti.tags = [];
-        }
-        this.reset();
-      } else {
-        alertUser({
-          text: `A problem occurred. Content has not been added.`,
-          status: Status.error,
-        });
-        this.error(`Error in DataInputForm.submit(). Result from addNote:
-
-        ${JSON.stringify(result)}
-      `);
-        this.uploading = false;
-      }
-    }
-  }
-
-  private reset() {
-    this.uploading = false;
-
-    // Clear all field inputs
-    this.fieldInputs.forEach((input) => {
-      input.clearData();
-    });
-
-    const max_media_inputs = 10;
-
-    // Clear audio data
-    for (let i = 1; i <= max_media_inputs; i++) {
-      const audioKey = `audio-${i}`;
-      if (this.store.hasOwnProperty(audioKey)) {
-        this.$delete(this.store, audioKey);
-        this.$delete(this.store.convertedInput, audioKey);
-        this.$delete(this.store.previewInput, audioKey);
-      } else {
-        break; // No need to continue if we've reached a non-existent key
-      }
-    }
-
-    // Clear image data
-    for (let i = 1; i <= max_media_inputs; i++) {
-      const imageKey = `image-${i}`;
-      if (this.store.hasOwnProperty(imageKey)) {
-        this.$delete(this.store, imageKey);
-        this.$delete(this.store.convertedInput, imageKey);
-        this.$delete(this.store.previewInput, imageKey);
-      } else {
-        break; // No need to continue if we've reached a non-existent key
-      }
-    }
-
-    // Reset validation
-    Object.keys(this.store.validation).forEach((key) => {
-      this.store.validation[key] = {
-        valid: true,
-        message: '',
-      };
-    });
-
-    // Reset converted and preview inputs
-    this.store.convertedInput = {};
-    this.store.previewInput = {};
-
-    this.fieldInputs[0].focus();
-    this.convertInput();
-  }
-
-  private getImplementingViews() {
-    if (ENV.MOCK) {
-      // this.log('Mocking DataInputForm views');
-      this.shapeViews = [FillInView]; // [ ] mock this properly
-      return;
-    }
-
-    for (const ds of this.courseCfg.dataShapes) {
-      // BUG: not finding blanks
-      const descriptor = NameSpacer.getDataShapeDescriptor(ds.name);
-
-      this.log('descriptor', descriptor);
-      this.log('this.dataShape', this.dataShape);
-      this.log('this.dataShape.name', this.dataShape.name);
-
-      if (descriptor.dataShape === this.dataShape.name) {
-        const crs = Courses.getCourse(descriptor.course)!;
-
-        this.shapeViews = []; // clear out any previous views
-
-        crs.getBaseQTypes().forEach((qType) => {
-          if (qType.dataShapes[0].name === this.dataShape.name) {
-            // qType.views.forEach((view) => {
-            //   this.shapeViews.push(view);
-            // })
-            // // this.shapeViews.push(qType.views);
-            this.shapeViews = this.shapeViews.concat(qType.views);
+          for (const q of ds.questionTypes) {
+            const qDescriptor = NameSpacer.getQuestionDescriptor(q);
+            crs.getQuestion(qDescriptor.questionType)!.views.forEach((view) => {
+              this.shapeViews = this.shapeViews.concat(view);
+            });
           }
-        });
-
-        for (const q of ds.questionTypes) {
-          const qDescriptor = NameSpacer.getQuestionDescriptor(q);
-
-          crs.getQuestion(qDescriptor.questionType)!.views.forEach((view) => {
-            this.shapeViews = this.shapeViews.concat(view);
-          });
         }
       }
-    }
-  }
+    },
 
-  private isFieldInput(component: any): component is FieldInput {
-    return (component as FieldInput).clearData !== undefined;
-  }
-}
+    isFieldInput(component: any): component is FieldInput {
+      return (component as FieldInput).clearData !== undefined;
+    },
+  },
+});
 </script>

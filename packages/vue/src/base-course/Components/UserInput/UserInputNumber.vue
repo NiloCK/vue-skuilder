@@ -8,29 +8,54 @@
   <v-text-field
     v-model="answer"
     prepend-icon="edit"
-    @keyup.enter="submitAnswer(strToNumber(answer))"
+    @keyup.enter="submitAnswer(makeNumeric(answer))"
     :autofocus="autofocus"
     row-height="24"
     toggle-keys="[13,32]"
-    type="text"
     class="headline"
+    ref="input"
+    :rules="[isNumeric]"
   ></v-text-field>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import UserInput from './UserInput';
+import { Answer } from '@/base-course/Displayable';
+import UserInput from './OptionsUserInput';
+import { defineComponent } from 'vue';
 
-@Component({})
-export default class UserInputNumber extends UserInput {
-  public mounted() {
-    this.$el.focus();
-  }
+type InputNumberRefs = {
+  input: HTMLInputElement;
+};
 
-  private strToNumber(num: string): number {
-    return Number.parseFloat(num);
-  }
-}
+type InputNumberInstance = ReturnType<typeof defineComponent> & {
+  $refs: InputNumberRefs;
+};
+
+export default defineComponent({
+  name: 'UserInputNumber',
+
+  ref: {} as InputNumberRefs,
+
+  extends: UserInput,
+
+  methods: {
+    mounted(this: InputNumberInstance) {
+      this.$refs.input.focus();
+    },
+
+    isNumeric(s: string): boolean {
+      return !isNaN(Number.parseFloat(s));
+    },
+
+    makeNumeric(num: Answer): number {
+      if (typeof num === 'string') {
+        return Number.parseFloat(num);
+      } else {
+        throw new Error('Expected a string, got ' + typeof num);
+      }
+    },
+  },
+});
 </script>
 
 <style scoped>

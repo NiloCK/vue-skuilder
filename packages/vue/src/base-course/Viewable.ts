@@ -5,7 +5,6 @@ import { HotKey } from '../SkldrMouseTrap';
 import { Answer, Displayable, Question } from '../base-course/Displayable';
 import { ViewData } from '../base-course/Interfaces/ViewData';
 import { CardRecord, QuestionRecord } from '../db/types';
-import SkldrVue from '../SkldrVue';
 
 /**
  * Base class for card views in courses.
@@ -13,7 +12,7 @@ import SkldrVue from '../SkldrVue';
 export default abstract class Viewable extends Vue {
   @Prop() public data: ViewData[];
   public toString(): string {
-    this.warn('toString() not implemented');
+    console.warn('toString() not implemented');
     return '!!! preview not implemented !!!';
   }
   protected startTime: moment.Moment = moment.utc();

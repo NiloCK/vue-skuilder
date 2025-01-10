@@ -147,7 +147,7 @@ export default class SessionController extends Loggable {
     }
 
     const ret: number = time / 1000;
-    this.log(`Failed card cleanup estimate: ${Math.round(ret)}`);
+    console.log(`Failed card cleanup estimate: ${Math.round(ret)}`);
     return ret;
   }
 
@@ -157,7 +157,7 @@ export default class SessionController extends Loggable {
    */
   private estimateReviewTime(): number {
     const ret = 5 * this.reviewQ.length;
-    this.log(`Review card time estimate: ${ret}`);
+    console.log(`Review card time estimate: ${ret}`);
     return ret;
   }
 
@@ -319,7 +319,7 @@ export default class SessionController extends Loggable {
     } else if (this.failedQ.length) {
       this._currentCard = this.failedQ.dequeue();
     } else {
-      this.log(`No more cards available for the session!`);
+      console.log(`No more cards available for the session!`);
       this._currentCard = null;
     }
 
@@ -334,13 +334,13 @@ export default class SessionController extends Loggable {
       | 'dismiss-error' = 'dismiss-success'
   ) {
     if (this._currentCard) {
-      // this.log(`Running dismissCurrentCard on ${this._currentCard!.qualifiedID}`);
+      // console.log(`Running dismissCurrentCard on ${this._currentCard!.qualifiedID}`);
       // if (action.includes('dismiss')) {
       //   if (this._currentCard.status === 'review' ||
       //     this._currentCard.status === 'failed-review') {
       //     removeScheduledCardReview(this.user.username,
       //       (this._currentCard as StudySessionReviewItem).reviewID);
-      //     this.log(`Dismissed review card: ${this._currentCard.qualifiedID}`)
+      //     console.log(`Dismissed review card: ${this._currentCard.qualifiedID}`)
       //   }
       // }
 

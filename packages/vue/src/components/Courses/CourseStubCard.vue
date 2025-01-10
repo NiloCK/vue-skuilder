@@ -20,27 +20,34 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import { log } from 'util';
-import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
-import SkldrVue from '@/SkldrVue';
 import { getCourseDB } from '@/db';
 import { getCourseConfig } from '@/db/courseDB';
 import { DocType } from '@/db/types';
 import { CourseConfig } from '@/server/types';
 
-@Component({})
-export default class CourseStubCard extends SkldrVue {
-  @Prop({ required: true }) private _id: string;
+export default defineComponent({
+  name: 'CourseStubCard',
+  
+  props: {
+    _id: {
+      type: String,
+      required: true
+    }
+  },
 
-  public _courseConfig: CourseConfig;
-  public questionCount: number;
-  public isPrivate: boolean = false;
+  data() {
+    return {
+      _courseConfig: null as CourseConfig | null,
+      questionCount: 0,
+      isPrivate: false,
+      updatePending: true,
+      addingCourse: false
+    };
+  },
 
-  private updatePending: boolean = true;
-  private addingCourse: boolean = false;
-
-  private async created() {
+  async created() {
     const db = await getCourseDB(this._id);
     this._courseConfig = (await getCourseConfig(this._id))!;
     this.isPrivate = !this._courseConfig.public;
@@ -53,19 +60,19 @@ export default class CourseStubCard extends SkldrVue {
       })
     ).docs.length;
     this.updatePending = false;
-  }
+  },
 
-  routeToCourse() {
-    this.$router.push(`/q/${this._courseConfig.name.replace(' ', '_')}`);
-  }
+  methods: {
+    routeToCourse() {
+      this.$router.push(`/q/${this._courseConfig!.name.replace(' ', '_')}`);
+    },
 
-  async registerForCourse() {
-    this.addingCourse = true;
-    log(`Attempting to register for ${this._id}.`);
-    await this.$store.state._user!.registerForCourse(this._id);
-    // this.$set(this.spinnerMap, course, undefined);
-    // this.refreshData();
-    this.$emit('refresh');
+    async registerForCourse() {
+      this.addingCourse = true;
+      log(`Attempting to register for ${this._id}.`);
+      await this.$store.state._user!.registerForCourse(this._id);
+      this.$emit('refresh');
+    }
   }
-}
+});
 </script>

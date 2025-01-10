@@ -5,76 +5,101 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import { defineComponent, PropType } from 'vue';
 
-@Component({
+export default defineComponent({
+  name: 'MultipleChoiceOption',
+
   components: {
     MarkdownRenderer: () => import('@/base-course/Components/MarkdownRenderer.vue'),
   },
-})
-export default class MultipleChoiceOption extends Vue {
-  @Prop() public content: string;
-  @Prop() public selected: boolean;
-  @Prop() public number: number;
-  @Prop() public setSelection: (selection: number) => void;
-  @Prop() public submit: () => void;
-  @Prop() public markedWrong: boolean;
 
-  public select(): void {
-    this.setSelection(this.number);
-  }
+  props: {
+    content: {
+      type: String,
+      required: true,
+    },
+    selected: {
+      type: Boolean,
+      required: true,
+    },
+    number: {
+      type: Number,
+      required: true,
+    },
+    setSelection: {
+      type: Function as PropType<(selection: number) => void>,
+      required: true,
+    },
+    submit: {
+      type: Function as PropType<() => void>,
+      required: true,
+    },
+    markedWrong: {
+      type: Boolean,
+      required: true,
+    },
+  },
 
-  public submitThisOption(): void {
-    if (this.markedWrong) {
-      return;
-    } else {
-      this.select();
-      this.submit();
-    }
-  }
+  methods: {
+    select(): void {
+      this.setSelection(this.number);
+    },
 
-  get className(): string {
-    let color: string;
+    submitThisOption(): void {
+      if (this.markedWrong) {
+        return;
+      } else {
+        this.select();
+        this.submit();
+      }
+    },
+  },
 
-    switch (this.number) {
-      case 0:
-        color = 'red';
-        break;
-      case 1:
-        color = 'purple';
-        break;
-      case 2:
-        color = 'indigo';
-        break;
-      case 3:
-        color = 'light-blue';
-        break;
-      case 4:
-        color = 'teal';
-        break;
-      case 5:
-        color = 'deep-orange';
-        break;
-      default:
-        color = 'grey';
-        break;
-    }
+  computed: {
+    className(): string {
+      let color: string;
 
-    if (this.selected && !this.markedWrong) {
-      // return `choice selected ${color} darken-4 white--text elevation-8`;
-      return `choice selected ${color} lighten-3 elevation-8`;
-    } else if (!this.selected && !this.markedWrong) {
-      return `choice not-selected ${color} lighten-4 elevation-1`;
-    } else if (this.selected && this.markedWrong) {
-      return `choice selected grey lighten-2 elevation-8`;
-    } else if (!this.selected && this.markedWrong) {
-      return 'choice not-selected grey lighten-2 elevation-0';
-    } else {
-      throw new Error(`'selected' and 'markedWrong' props in MultipleChoiceOption are in an impossible configuration.`);
-    }
-  }
-}
+      switch (this.number) {
+        case 0:
+          color = 'red';
+          break;
+        case 1:
+          color = 'purple';
+          break;
+        case 2:
+          color = 'indigo';
+          break;
+        case 3:
+          color = 'light-blue';
+          break;
+        case 4:
+          color = 'teal';
+          break;
+        case 5:
+          color = 'deep-orange';
+          break;
+        default:
+          color = 'grey';
+          break;
+      }
+
+      if (this.selected && !this.markedWrong) {
+        return `choice selected ${color} lighten-3 elevation-8`;
+      } else if (!this.selected && !this.markedWrong) {
+        return `choice not-selected ${color} lighten-4 elevation-1`;
+      } else if (this.selected && this.markedWrong) {
+        return `choice selected grey lighten-2 elevation-8`;
+      } else if (!this.selected && this.markedWrong) {
+        return 'choice not-selected grey lighten-2 elevation-0';
+      } else {
+        throw new Error(
+          `'selected' and 'markedWrong' props in MultipleChoiceOption are in an impossible configuration.`
+        );
+      }
+    },
+  },
+});
 </script>
 
 <style scoped>

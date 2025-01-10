@@ -40,14 +40,14 @@
 <script lang="ts">
 import Component from 'vue-class-component';
 import { alertUser } from '@/components/SnackbarService.vue';
-import { log } from 'util';
-import SkldrVue from '../../../SkldrVue';
 import SkMidi from './midi';
 import { Watch, Prop } from 'vue-property-decorator';
 import { Status } from '../../../enums/Status';
+import Vue from 'vue';
+import { User } from '@/db/userDB';
 
 @Component({})
-export default class MidiConfig extends SkldrVue {
+export default class MidiConfig extends Vue {
   @Prop() public _id: string;
   public midi: SkMidi;
   public midiSupported: boolean = true;
@@ -64,6 +64,8 @@ export default class MidiConfig extends SkldrVue {
   public selectedInput: string = '';
   public selectedOutput: string = '';
   public updatePending: boolean = false;
+
+  public user: User;
 
   public playSound() {
     this.midi.play([
@@ -247,26 +249,27 @@ export default class MidiConfig extends SkldrVue {
   }
 
   public async created() {
+    this.user = await User.instance();
     try {
       this.midi = await SkMidi.instance();
       this.midiSupported = this.midi.state === 'ready' || this.midi.state === 'nodevice';
     } catch (e) {
-      this.log(`Error on midi Init: ${e}`);
+      console.log(`Error on midi Init: ${e}`);
       this.midiSupported = false;
     }
     if (this.midiSupported) {
       this.midi.addNoteonListenter(this.indicateHeardNotes);
       this.inputs = this.midi.inputs
-        .filter(i => i.state === 'connected')
-        .map(i => {
+        .filter((i) => i.state === 'connected')
+        .map((i) => {
           return {
             text: `${i.manufacturer}: ${i.name}`,
             value: i.id,
           };
         });
       this.outputs = this.midi.outputs
-        .filter(i => i.state === 'connected')
-        .map(i => {
+        .filter((i) => i.state === 'connected')
+        .map((i) => {
           return {
             text: `${i.manufacturer}: ${i.name}`,
             value: i.id,
@@ -288,7 +291,7 @@ export default class MidiConfig extends SkldrVue {
 
   public async retrieveSettings() {
     //todo
-    this.$store.state._user!.getCourseSettings(this._id).then(s => {
+    this.user.getCourseSettings(this._id).then((s) => {
       if (s && s.midiinput) {
         this.selectedInput = s.midiinput.toString();
       }
@@ -300,7 +303,7 @@ export default class MidiConfig extends SkldrVue {
 
   public async saveSettings() {
     this.updatePending = true;
-    await this.$store.state._user!.updateCourseSettings(this._id, [
+    await this.user.updateCourseSettings(this._id, [
       {
         key: 'midiinput',
         value: this.selectedInput,

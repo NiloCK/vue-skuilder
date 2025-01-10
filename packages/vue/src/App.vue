@@ -77,33 +77,54 @@
 </template>
 
 <script lang="ts">
+import Vue from 'vue';
 import UserLoginAndRegistrationContainer from '@/components/UserLoginAndRegistrationContainer.vue';
 import SnackbarService from '@/components/SnackbarService.vue';
 import { getLatestVersion } from '@/db';
-import SkldrVue from './SkldrVue';
-import Component from 'vue-class-component';
+import SkldrVueMixin from './mixins/SkldrVueMixin';
+import { AppState } from './store';
+import { Store } from 'vuex';
 
-@Component({
+export default Vue.extend({
+  name: 'App',
+  mixins: [SkldrVueMixin],
+
   components: {
     UserLoginAndRegistrationContainer,
     SnackbarService,
   },
-})
-export default class App extends SkldrVue {
-  public build: string = '0.0.2';
-  public latestBuild: string = '';
-  public drawer: boolean = false;
 
-  public get dark() {
-    return this.$store.state.config.darkMode; // User.config.darkMode
-  }
+  data() {
+    return {
+      build: '0.0.2',
+      latestBuild: '',
+      drawer: false,
+    };
+  },
+
+  computed: {
+    dark(): boolean {
+      return (this.$store as Store<AppState>).state.config.darkMode;
+    },
+
+    storeIsReady(): boolean {
+      const ready = !!(this.$store && this.$store.state && this.$store.state.onLoadComplete);
+      console.log('storeIsReady check:', {
+        hasStore: !!this.$store,
+        hasState: !!(this.$store && this.$store.state),
+        onLoadComplete: !!(this.$store && this.$store.state && this.$store.state.onLoadComplete),
+        ready,
+      });
+      return ready;
+    },
+  },
 
   beforeCreate() {
     console.log('1. beforeCreate:', {
       hasStore: !!this.$store,
       hasVuex: !!(this.$store && this.$store.state),
     });
-  }
+  },
 
   async created() {
     console.log('2. created:', {
@@ -113,7 +134,7 @@ export default class App extends SkldrVue {
       user: this.$store?.state?._user,
     });
     this.latestBuild = await getLatestVersion();
-  }
+  },
 
   mounted() {
     console.log('4. mounted:', {
@@ -123,19 +144,8 @@ export default class App extends SkldrVue {
         loggedIn: this.$store?.state?.userLoginAndRegistrationContainer?.loggedIn,
       },
     });
-  }
-
-  get storeIsReady(): boolean {
-    const ready = !!(this.$store && this.$store.state && this.$store.state.onLoadComplete);
-    console.log('storeIsReady check:', {
-      hasStore: !!this.$store,
-      hasState: !!(this.$store && this.$store.state),
-      onLoadComplete: !!(this.$store && this.$store.state && this.$store.state.onLoadComplete),
-      ready,
-    });
-    return ready;
-  }
-}
+  },
+});
 </script>
 
 <style>
