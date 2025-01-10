@@ -1,0 +1,15 @@
+
+This project is a framework / platform for the authoring of interactive tutoring systems, with the eventual goal of mass-collaborative authoring.
+
+Think: khan academy + duolingo + anki + wikipedia, with an evolutionary mechanism that
+
+
+The following may useful for general situational awareness:
+
+/file package.json
+
+/file tsconfig.json
+
+/file vue.config.js
+
+/file src/router.ts
