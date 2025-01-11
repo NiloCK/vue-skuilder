@@ -162,7 +162,12 @@ export default class SessionController extends Loggable {
   }
 
   public async prepareSession() {
-    await Promise.all([this.getScheduledReviews(), this.getNewCards()]);
+    try {
+      await Promise.all([this.getScheduledReviews(), this.getNewCards()]);
+    } catch (e) {
+      console.error('Error preparing study session:', e);
+    }
+
     this._intervalHandle = setInterval(() => {
       this.tick();
     }, 1000);
