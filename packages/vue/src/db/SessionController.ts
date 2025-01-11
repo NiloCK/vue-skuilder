@@ -189,7 +189,14 @@ export default class SessionController extends Loggable {
   }
 
   private async getScheduledReviews() {
-    const reviews = await Promise.all(this.sources.map((c) => c.getPendingReviews()));
+    const reviews = await Promise.all(
+      this.sources.map((c) =>
+        c.getPendingReviews().catch((error) => {
+          console.error(`Failed to get reviews for source ${JSON.stringify(c)}:`, error);
+          return [];
+        })
+      )
+    );
 
     let dueCards: (StudySessionReviewItem & ScheduledCard)[] = [];
 
