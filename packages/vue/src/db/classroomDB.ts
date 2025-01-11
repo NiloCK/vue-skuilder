@@ -200,7 +200,7 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
       }
     }
 
-    console.log(`New Cards from classroom ${this._cfg.name}: ${ret}`);
+    console.log(`New Cards from classroom ${this._cfg.name}: ${ret.map((c) => c.qualifiedID)}`);
 
     return ret.filter((c) => {
       if (activeCards.some((ac) => c.qualifiedID.includes(ac))) {
