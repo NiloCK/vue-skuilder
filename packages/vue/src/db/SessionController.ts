@@ -77,6 +77,11 @@ export default class SessionController extends Loggable {
   private newQ: ItemQueue<StudySessionNewItem> = new ItemQueue<StudySessionNewItem>();
   private failedQ: ItemQueue<StudySessionFailedItem> = new ItemQueue<StudySessionFailedItem>();
   private _currentCard: StudySessionItem | null;
+  /**
+   * Indicates whether the session has been initialized - eg, the
+   * queues have been populated.
+   */
+  private _isInitialized: boolean = false;
 
   private startTime: Date;
   private endTime: Date;
@@ -168,6 +173,8 @@ export default class SessionController extends Loggable {
       console.error('Error preparing study session:', e);
     }
 
+    this._isInitialized = true;
+
     this._intervalHandle = setInterval(() => {
       this.tick();
     }, 1000);
@@ -248,7 +255,7 @@ export default class SessionController extends Loggable {
     const item = this.newQ.dequeue();
 
     // queue some more content if we are getting low
-    if (this.newQ.length < 5) {
+    if (this._isInitialized && this.newQ.length < 5) {
       this.getNewCards();
     }
 
