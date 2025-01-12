@@ -639,6 +639,11 @@ export default defineComponent({
     },
 
     async loadCard(item: StudySessionItem | null) {
+      if (this.loading) {
+        console.warn(`Attempted to load card while loading another...`);
+        return;
+      }
+
       console.log(`loading: ${JSON.stringify(item)}`);
       if (item === null) {
         this.sessionFinished = true;
