@@ -53,13 +53,10 @@ export default defineComponent({
     }
   },
   created() {
-    this.MouseTrap.bind('left', this.decrementSelection);
-    this.MouseTrap.bind('right', this.incrementSelection);
-    this.MouseTrap.bind('enter', this.forwardSelection);
-
-    for (let i = 0; i < this.choiceList.length; i++) {
-      this.bindNumberKey(i + 1);
-    }
+    this.bindKeys();
+  },
+  unmounted() {
+    this.unbindKeys();
   },
   methods: {
     forwardSelection(): void {
@@ -104,6 +101,25 @@ export default defineComponent({
         }
       });
       return ret;
+    },
+    bindKeys() {
+      this.MouseTrap.bind('left', this.decrementSelection);
+      this.MouseTrap.bind('right', this.incrementSelection);
+      this.MouseTrap.bind('enter', this.forwardSelection);
+
+      for (let i = 0; i < this.choiceList.length; i++) {
+        this.bindNumberKey(i + 1);
+      }
+    },
+
+    unbindKeys() {
+      this.MouseTrap.unbind('left');
+      this.MouseTrap.unbind('right');
+      this.MouseTrap.unbind('enter');
+
+      for (let i = 1; i <= this.choiceList.length; i++) {
+        this.MouseTrap.unbind(i.toString());
+      }
     },
     bindNumberKey(n: number): void {
       this.MouseTrap.bind(n.toString(), () => {

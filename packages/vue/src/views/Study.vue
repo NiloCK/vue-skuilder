@@ -262,7 +262,6 @@ export default defineComponent({
       loading: false,
       userCourseRegDoc: null as CourseRegistrationDoc | null,
       sessionContentSources: [] as StudyContentSource[],
-      sessionClassroomDBs: [] as StudentClassroomDB[],
       sessionTimeLimit: 5,
       timeRemaining: 300, // 5 minutes * 60 seconds
       _intervalHandler: null as NodeJS.Timeout | null,
@@ -426,15 +425,27 @@ export default defineComponent({
     async initStudySession(sources: ContentSourceID[], timeLimit: number) {
       console.log(`starting study session w/ sources: ${JSON.stringify(sources)}`);
 
-      this.sessionContentSources = await Promise.all(sources.map((s) => getStudySource(s)));
+      this.sessionContentSources = (
+        await Promise.all(
+          sources.map(async (s) => {
+            try {
+              return await getStudySource(s);
+            } catch (e) {
+              console.error(`Failed to load study source: ${s.type}/${s.id}`, e);
+              return null;
+            }
+          })
+        )
+      ).filter((s) => s !== null);
+
       this.sessionTimeLimit = timeLimit;
       this.timeRemaining = timeLimit * 60;
 
-      this.sessionClassroomDBs = await Promise.all(
+      const sessionClassroomDBs = await Promise.all(
         sources.filter((s) => s.type === 'classroom').map(async (c) => StudentClassroomDB.factory(c.id))
       );
 
-      this.sessionClassroomDBs.forEach((db) => {
+      sessionClassroomDBs.forEach((db) => {
         db.setChangeFcn(this.handleClassroomMessage());
       });
 
@@ -456,7 +467,7 @@ export default defineComponent({
           .filter((s) => s.type === 'course')
           .map((c) => c.id)
           .toString()}
-        User classrooms: ${this.sessionClassroomDBs.map((db) => db._id)}
+        User classrooms: ${sessionClassroomDBs.map((db) => db._id)}
       `);
 
       this.$store.state.views.study.inSession = true;
@@ -628,6 +639,11 @@ export default defineComponent({
     },
 
     async loadCard(item: StudySessionItem | null) {
+      if (this.loading) {
+        console.warn(`Attempted to load card while loading another...`);
+        return;
+      }
+
       console.log(`loading: ${JSON.stringify(item)}`);
       if (item === null) {
         this.sessionFinished = true;

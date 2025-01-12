@@ -49,6 +49,18 @@ const typeMap: {
   },
 })
 export default class FillInView extends QuestionView<BlanksCard> {
+  private shuffledOptions: string[] | undefined;
+  private created() {
+    if (this.question.options) {
+      const truncatedList = this.getTruncatedList();
+      this.shuffledOptions = _.shuffle(truncatedList);
+    }
+  }
+
+  get truncatedOptions(): string[] | undefined {
+    return this.shuffledOptions;
+  }
+
   public toString() {
     return this.data[0].Input as string;
   }
@@ -121,7 +133,7 @@ export default class FillInView extends QuestionView<BlanksCard> {
     }
   }
 
-  get truncatedOptions(): string[] | undefined {
+  private getTruncatedList(): string[] | undefined {
     if (this.question.options) {
       if (this.question.options.length <= 6) {
         return this.question.options;
@@ -132,7 +144,7 @@ export default class FillInView extends QuestionView<BlanksCard> {
 
         // construct a list of all non-answers
         let distractors: string[] = _.shuffle(
-          this.question.options.filter(o => this.question.answers?.indexOf(o) === -1)
+          this.question.options.filter((o) => this.question.answers?.indexOf(o) === -1)
         );
 
         console.log(`Modifying difficulty: ${this.modifyDifficulty}`);
@@ -153,9 +165,7 @@ export default class FillInView extends QuestionView<BlanksCard> {
         // push 5 of them to the returned list
         truncatedList.push(...distractors);
 
-        // and SHUFFLE before passing to the radioMC renderer.
-        // because it displays items in the order recieved (dumb UI component)
-        return _.shuffle(truncatedList);
+        return truncatedList;
       }
     }
   }
@@ -178,8 +188,6 @@ export default class FillInView extends QuestionView<BlanksCard> {
       return true;
     }
   }
-
-  private created() {}
 }
 </script>
 

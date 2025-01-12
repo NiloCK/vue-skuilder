@@ -81,13 +81,13 @@ export default defineComponent({
   props: {
     startFcn: {
       type: Function as PropType<(sources: ContentSourceID[], timeLimit: number) => void>,
-      required: true
+      required: true,
     },
     initialTimeLimit: {
       type: Number,
       required: true,
-      default: 5
-    }
+      default: 5,
+    },
   },
 
   data() {
@@ -97,8 +97,8 @@ export default defineComponent({
       activeClasses: [] as ({ classID: string } & SessionConfigMetaData)[],
       hasRegistrations: true,
       user: null as User | null,
-      timeLimit: this.initialTimeLimit
-    }
+      timeLimit: this.initialTimeLimit,
+    };
   },
 
   watch: {
@@ -108,8 +108,8 @@ export default defineComponent({
           this.timeLimit = 1;
         }
         this.$emit('update:timeLimit', this.timeLimit);
-      }
-    }
+      },
+    },
   },
 
   methods: {
@@ -145,16 +145,16 @@ export default defineComponent({
         .filter((c) => c.selected)
         .map((c) => ({
           type: 'course',
-          id: c.courseID
+          id: c.courseID,
         }));
       const selectedClassrooms: ContentSourceID[] = this.activeClasses
         .filter((cl) => cl.selected)
         .map((cl) => ({
           type: 'classroom',
-          id: cl.classID
+          id: cl.classID,
         }));
-
-      this.startFcn(selectedCourses.concat(selectedClassrooms), this.timeLimit);
+      const allSelectedSources = [...selectedCourses, ...selectedClassrooms];
+      this.startFcn(allSelectedSources, this.timeLimit);
     },
 
     async getActiveClassrooms() {
@@ -222,7 +222,7 @@ export default defineComponent({
           command: '',
         },
       ]);
-    }
+    },
   },
 
   async created() {
@@ -243,7 +243,7 @@ export default defineComponent({
 
   destroyed() {
     SkldrMouseTrap.reset();
-  }
+  },
 });
 </script>
 
