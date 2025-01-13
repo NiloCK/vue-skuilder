@@ -1,52 +1,83 @@
 <template>
-  <div>
-    <p class="headline">Type this letter!</p>
-    <div class="letter-display">{{ question.letter }}</div>
+  <div data-viewable="LetterQuestionView">
+    <template v-if="question">
+      <p class="headline">Type this letter!</p>
+      <div ref="letterDisplay" class="letter-display">{{ question.letter }}</div>
+    </template>
   </div>
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
-import { QuestionView } from '@/base-course/Viewable';
+import { defineComponent, ref, computed, onMounted, onUnmounted, PropType } from 'vue';
 import { TypeLetterQuestion } from './index';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 
-@Component({})
-export default class LetterQuestionView extends QuestionView<TypeLetterQuestion> {
-  get question() {
-    return new TypeLetterQuestion(this.data);
-  }
+export default defineComponent({
+  name: 'LetterQuestionView',
 
-  mounted() {
-    window.addEventListener('keypress', this.handleKeyPress);
-  }
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
 
-  destroyed() {
-    window.removeEventListener('keypress', this.handleKeyPress);
-  }
+  setup(props, { emit }) {
+    const viewableUtils = useViewable(props, emit, 'LetterQuestionView');
+    const questionUtils = useQuestionView<TypeLetterQuestion>(viewableUtils, props.modifyDifficulty);
+    const letterDisplay = ref<HTMLElement | null>(null);
 
-  handleKeyPress(event: KeyboardEvent) {
-    const pressedKey = event.key.toLowerCase();
-    const targetKey = this.question.letter.toLowerCase();
+    // Initialize question immediately
+    questionUtils.question.value = new TypeLetterQuestion(props.data);
 
-    if (pressedKey === targetKey) {
-      const letterDisplay = document.querySelector('.letter-display');
-      letterDisplay?.classList.add('pressed');
+    // Expose the question directly for template access
+    const question = computed(() => questionUtils.question.value);
 
-      // Remove pressed class and submit answer after key release
-      const handleKeyUp = (e: KeyboardEvent) => {
-        if (e.key.toLowerCase() === targetKey) {
-          letterDisplay?.classList.remove('pressed');
-          this.submitAnswer(pressedKey);
-          window.removeEventListener('keyup', handleKeyUp);
-        }
-      };
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (!question.value) return;
 
-      window.addEventListener('keyup', handleKeyUp);
-    } else {
-      this.submitAnswer(pressedKey);
-    }
-  }
-}
+      const pressedKey = event.key.toLowerCase();
+      const targetKey = question.value.letter.toLowerCase();
+
+      if (pressedKey === targetKey) {
+        letterDisplay.value?.classList.add('pressed');
+
+        // Remove pressed class and submit answer after key release
+        const handleKeyUp = (e: KeyboardEvent) => {
+          if (e.key.toLowerCase() === targetKey) {
+            letterDisplay.value?.classList.remove('pressed');
+            questionUtils.submitAnswer(pressedKey);
+            window.removeEventListener('keyup', handleKeyUp);
+          }
+        };
+
+        window.addEventListener('keyup', handleKeyUp);
+      } else {
+        questionUtils.submitAnswer(pressedKey);
+      }
+    };
+
+    onMounted(() => {
+      window.addEventListener('keypress', handleKeyPress);
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener('keypress', handleKeyPress);
+    });
+
+    return {
+      ...questionUtils,
+      ...viewableUtils,
+      letterDisplay,
+      question,
+    };
+  },
+});
 </script>
 
 <style scoped>
