@@ -9,6 +9,20 @@ export type ViewComponent =
   | DefineComponent<any, any, any, any, any, any, any>
   | ReturnType<typeof defineComponent>;
 
+export function isVueConstructor(v: ViewComponent): v is VueConstructor<Vue> {
+  return v.prototype instanceof Vue;
+}
+
+export function isDefineComponent(
+  v: ViewComponent
+): v is DefineComponent<any, any, any, any, any, any, any> {
+  return (v as DefineComponent<any, any, any, any, any, any, any>).__isFragment !== undefined;
+}
+
+// export function isComponentOptions(v: ViewComponent): v is ComponentOptions<any> {
+//   return (v as ComponentOptions<Vue>).name !== undefined;
+// }
+
 export interface Answer {}
 
 // tslint:disable-next-line:max-classes-per-file
