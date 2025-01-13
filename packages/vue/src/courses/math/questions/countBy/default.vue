@@ -1,13 +1,13 @@
 <template>
-  <div class="headline">
+  <div data-viewable="VerbalAddition" class="headline">
     <div class="headline">
-      Count by <strong>{{ question.n }}</strong
+      Count by <strong>{{ question?.n }}</strong
       >s:
     </div>
 
-    <input type="text" disabled class="correct" :value="question.answer[0] - question.n" />,
+    <input type="text" disabled class="correct" :value="question?.answer[0] - question?.n" />,
 
-    <span v-for="(a, i) in question.answer" :key="i">
+    <span v-for="(a, i) in question?.answer" :key="i">
       <input
         type="text"
         :id="`input${i}`"
@@ -16,72 +16,86 @@
         v-model="answer[i]"
         :autofocus="i === 0"
       />
-      <span v-if="i !== question.answer.length - 1">, </span>
+      <span v-if="i !== question?.answer.length - 1">, </span>
     </span>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { QuestionView } from '@/base-course/Viewable';
+import { defineComponent, ref, computed, PropType, onMounted } from 'vue';
 import { CountBy } from './index';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
 
-@Component({
+export default defineComponent({
+  name: 'VerbalAddition',
+
   components: {
     UserInputNumber,
   },
-})
-export default class VerbalAddition extends QuestionView<CountBy> {
-  public answer: string[] = ['', '', '', '', ''];
-  get question() {
-    return new CountBy(this.data);
-  }
 
-  public track(n: number): void {
-    console.log(`change in ${n}!
-    userAnswer: ${this.answer.toString()}\n
-    qAnswer:    ${this.question.answer.toString()}`);
-    if (this.question.answer[n].toString().length === this.answer[n].length) {
-      if (parseInt(this.answer[n]) === this.question.answer[n]) {
-        // this.$refs["" + (n + 1)].focus();
-        // this.$refs["" + n].classList.add('correct');
-        document.getElementById('input' + n)!.classList.add('correct');
-        document.getElementById('input' + n)!.classList.remove('incorrect');
-        document.getElementById('input' + n)!.setAttribute('disabled', 'true');
-        if (n + 1 < this.answer.length) {
-          // move to next box
-          document.getElementById('input' + (n + 1))!.focus();
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
+
+  setup(props, { emit }) {
+    const viewableUtils = useViewable(props, emit, 'VerbalAddition');
+    const questionUtils = useQuestionView<CountBy>(viewableUtils, props.modifyDifficulty);
+
+    const answer = ref<string[]>(['', '', '', '', '']);
+
+    // Initialize question immediately
+    questionUtils.question.value = new CountBy(props.data);
+
+    // Expose the question directly for template access
+    const question = computed(() => questionUtils.question.value);
+
+    const track = (n: number): void => {
+      console.log(`change in ${n}!
+      userAnswer: ${answer.value.toString()}\n
+      qAnswer:    ${question.value?.answer.toString()}`);
+
+      if (question.value && question.value.answer[n].toString().length === answer.value[n].length) {
+        if (parseInt(answer.value[n]) === question.value.answer[n]) {
+          document.getElementById('input' + n)?.classList.add('correct');
+          document.getElementById('input' + n)?.classList.remove('incorrect');
+          document.getElementById('input' + n)?.setAttribute('disabled', 'true');
+
+          if (n + 1 < answer.value.length) {
+            document.getElementById('input' + (n + 1))?.focus();
+          } else {
+            questionUtils.submitAnswer(answer.value);
+          }
         } else {
-          this.submitAnswer(this.answer);
+          document.getElementById('input' + n)?.classList.add('incorrect');
+          questionUtils.submitAnswer(answer.value);
+          console.log(`Wrong! ${answer.value[n]} !== ${question.value.answer[n]}`);
         }
-      } else {
-        document.getElementById('input' + n)!.classList.add('incorrect');
-        this.submitAnswer(this.answer);
-        console.log(`Wrong! ${this.answer[n]} !== ${this.question.answer[n]}`);
       }
-    }
-  }
+    };
 
-  public $refs: {
-    input0: HTMLInputElement[];
-    input1: HTMLInputElement[];
-    input2: HTMLInputElement[];
-    input3: HTMLInputElement[];
-    input4: HTMLInputElement[];
+    onMounted(() => {
+      console.log('focusing...');
+      document.getElementById('input0')?.focus();
+    });
 
-    // [index: string]: HTMLInputElement;
-  };
-
-  public mounted() {
-    console.log('focusingb...');
-    this.$refs.input0[0].focus();
-  }
-
-  public submit() {
-    // alert(this.question.isCorrect(parseInt(this.answer, 10)));'
-  }
-}
+    return {
+      ...viewableUtils,
+      ...questionUtils,
+      answer,
+      question,
+      track,
+    };
+  },
+});
 </script>
 
 <style scoped>
