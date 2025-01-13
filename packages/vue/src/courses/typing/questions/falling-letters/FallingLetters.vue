@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, onUnmounted, PropType } from 'vue';
+import { defineComponent, ref, onMounted, onUnmounted, PropType } from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import { FallingLettersQuestion, Score } from './index';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
@@ -66,13 +66,8 @@ interface TreePosition {
   scale: number;
 }
 
-// Game state interface
-interface GameState {
-  letters: Letter[];
-  gameOver: boolean;
-  gameOverMessage: string;
-  timeLeft: number;
-  score: number;
+// Internal game state type
+interface GameStateInternal {
   currentSpeed: number;
   letterId: number;
   gameLoop: number | null;
@@ -96,36 +91,30 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
-    // Initialize base utilities
+    // Base utilities
     const viewableUtils = useViewable(props, emit, 'FallingLettersView');
     const questionUtils = useQuestionView<FallingLettersQuestion>(viewableUtils, props.modifyDifficulty);
 
-    // Refs
+    // Template-accessible state
     const gameArea = ref<HTMLElement | null>(null);
+    const letters = ref<Letter[]>([]);
+    const gameOver = ref(false);
+    const gameOverMessage = ref('');
+    const timeLeft = ref(30);
+    const score = ref(0);
     const treePositions = ref<TreePosition[]>([]);
 
-    const gameState = ref<GameState>({
+    // Internal game state
+    const gameState = ref<GameStateInternal>({
       currentSpeed: 2,
-      letters: [],
       letterId: 0,
-      gameLoop: null as number | null,
-      spawnInterval: 1000,
-
-      gameOver: false,
-      gameOverMessage: '',
-      timeLeft: 30,
-      score: 0,
+      gameLoop: null,
       lastSpawn: 0,
       lastUpdate: 0,
+      spawnInterval: 1000,
     });
 
-    // Initialize question
-    questionUtils.question.value = new FallingLettersQuestion(props.data);
-    if (questionUtils.maxAttemptsPerView) {
-      questionUtils.maxAttemptsPerView.value = 1;
-    }
-
-    // Methods
+    // Game methods
     const generateTrees = () => {
       treePositions.value = Array.from({ length: 7 }, (_, i) => ({
         id: i,
@@ -145,42 +134,43 @@ export default defineComponent({
         y: -30,
       };
 
-      gameState.value.letters.push(letter);
+      letters.value.push(letter);
     };
 
     const win = () => {
-      gameState.value.gameOver = true;
-      gameState.value.gameOverMessage = 'You Win!';
+      gameOver.value = true;
+      gameOverMessage.value = 'You Win!';
       questionUtils.submitAnswer({
-        lettersTyped: gameState.value.score,
+        lettersTyped: score.value,
         win: true,
         percentage: 1,
       });
     };
 
     const lose = () => {
-      gameState.value.gameOver = true;
-      gameState.value.gameOverMessage = 'Game Over!';
+      gameOver.value = true;
+      gameOverMessage.value = 'Game Over!';
       questionUtils.submitAnswer({
-        lettersTyped: gameState.value.score,
-        percentage: gameState.value.timeLeft / questionUtils.question.value!.gameLength,
+        lettersTyped: score.value,
+        percentage: timeLeft.value / (questionUtils.question.value?.gameLength || 30),
         win: false,
       });
     };
 
     const update = (timestamp: number) => {
-      console.log(`update: ${timestamp}`);
-      if (gameState.value.gameOver) return;
+      if (gameOver.value) return;
 
       const deltaTime = (timestamp - gameState.value.lastUpdate) / 1000;
       gameState.value.lastUpdate = timestamp;
 
       // Update time and speed
-      gameState.value.timeLeft -= deltaTime;
-      gameState.value.currentSpeed += questionUtils.question.value!.acceleration * deltaTime;
+      timeLeft.value -= deltaTime;
+      if (questionUtils.question.value) {
+        gameState.value.currentSpeed += questionUtils.question.value.acceleration * deltaTime;
+      }
 
       // Check win condition
-      if (gameState.value.timeLeft <= 0) {
+      if (timeLeft.value <= 0) {
         win();
         return;
       }
@@ -194,7 +184,7 @@ export default defineComponent({
 
       // Update letters positions
       if (gameArea.value) {
-        gameState.value.letters = gameState.value.letters.filter((letter) => {
+        letters.value = letters.value.filter((letter) => {
           letter.y += gameState.value.currentSpeed;
           if (letter.y > gameArea.value!.clientHeight) {
             lose();
@@ -208,40 +198,64 @@ export default defineComponent({
     };
 
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (gameState.value.gameOver) return;
+      if (gameOver.value) return;
 
       const pressedKey = event.key.toUpperCase();
-      const letterIndex = gameState.value.letters.findIndex((l) => l.char === pressedKey);
+      const letterIndex = letters.value.findIndex((l) => l.char === pressedKey);
 
       if (letterIndex !== -1) {
-        gameState.value.letters.splice(letterIndex, 1);
-        gameState.value.score++;
+        letters.value.splice(letterIndex, 1);
+        score.value++;
       }
     };
 
     const startGame = () => {
-      if (!questionUtils.question.value) return;
+      if (!questionUtils.question.value) {
+        viewableUtils.logger.error('Question not initialized');
+        return;
+      }
 
+      // Reset game state
+      timeLeft.value = questionUtils.question.value.gameLength;
+      score.value = 0;
+      letters.value = [];
+      gameOver.value = false;
+      gameOverMessage.value = '';
+
+      // Reset internal state
       gameState.value = {
-        ...gameState.value,
-        timeLeft: questionUtils.question.value.gameLength,
         currentSpeed: questionUtils.question.value.initialSpeed,
-        spawnInterval: questionUtils.question.value.spawnInterval * 1000,
-        lastUpdate: performance.now(),
+        letterId: 0,
+        gameLoop: null,
         lastSpawn: performance.now(),
+        lastUpdate: performance.now(),
+        spawnInterval: questionUtils.question.value.spawnInterval * 1000,
       };
 
+      // Start game loop
       gameState.value.gameLoop = requestAnimationFrame(update);
     };
 
     // Lifecycle hooks
     onMounted(() => {
-      window.addEventListener('keypress', handleKeyPress);
-      generateTrees();
-      startGame();
+      try {
+        // Initialize question
+        questionUtils.question.value = new FallingLettersQuestion(props.data);
+        questionUtils.maxAttemptsPerView.value = 1;
+
+        // Set up event listeners
+        window.addEventListener('keypress', handleKeyPress);
+
+        // Initialize game
+        generateTrees();
+        startGame();
+      } catch (error) {
+        viewableUtils.logger.error('Error initializing game:', error);
+      }
     });
 
     onUnmounted(() => {
+      // Cleanup
       window.removeEventListener('keypress', handleKeyPress);
       if (gameState.value.gameLoop) {
         cancelAnimationFrame(gameState.value.gameLoop);
@@ -251,7 +265,11 @@ export default defineComponent({
     // Expose to template
     return {
       gameArea,
-      ...gameState.value,
+      letters,
+      gameOver,
+      gameOverMessage,
+      timeLeft,
+      score,
       treePositions,
     };
   },
