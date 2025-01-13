@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, PropType, onMounted } from 'vue';
+import { defineComponent, ref, computed, PropType, onMounted, onUnmounted } from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import AudioAutoPlayer from '@/base-course/Components/AudioAutoPlayer.vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
@@ -59,16 +59,36 @@ export default defineComponent({
     const viewableUtils = useViewable(props, emit, 'FillInView');
     const questionUtils = useQuestionView<BlanksCard>(viewableUtils, props.modifyDifficulty);
 
+    questionUtils.question.value = new BlanksCard(props.data);
+
     // State
     const shuffledOptions = ref<string[] | undefined>();
-    const question = computed(() => new BlanksCard(props.data));
+    const question = computed(() => {
+      if (!questionUtils.question.value) {
+        viewableUtils.logger.error('Question not initialized');
+        throw new Error('Question not initialized');
+      }
+      return questionUtils.question.value;
+    });
 
     // Initialize shuffled options
     onMounted(() => {
-      if (question.value.options) {
-        const truncatedList = getTruncatedList();
-        shuffledOptions.value = _.shuffle(truncatedList);
+      try {
+        if (!questionUtils.question.value) {
+          questionUtils.question.value = new BlanksCard(props.data);
+        }
+
+        if (questionUtils.question.value.options) {
+          const truncatedList = getTruncatedList();
+          shuffledOptions.value = _.shuffle(truncatedList);
+        }
+      } catch (error) {
+        viewableUtils.logger.error('Failed to initialize question:', error);
       }
+    });
+
+    onUnmounted(() => {
+      questionUtils.question.value = undefined;
     });
 
     // Computed properties
@@ -135,12 +155,12 @@ export default defineComponent({
     });
 
     const isQuestion = computed(() => {
-      return !!(question.value.answers && question.value.answers.length > 0);
+      return !!(question.value!.answers && question.value.answers.length > 0);
     });
 
     // Methods
     const getTruncatedList = (): string[] | undefined => {
-      if (!question.value.options) return;
+      if (!question.value?.options) return;
 
       if (question.value.options.length <= 6) {
         return question.value.options;
@@ -152,7 +172,7 @@ export default defineComponent({
 
       // construct a list of all non-answers
       let distractors: string[] = _.shuffle(
-        question.value.options.filter((o) => question.value.answers?.indexOf(o) === -1)
+        question.value.options.filter((o: any) => question.value.answers?.indexOf(o) === -1)
       );
 
       if (props.modifyDifficulty) {
@@ -172,7 +192,7 @@ export default defineComponent({
         }
       }
 
-      truncatedList.push(...distractors);
+      truncatedList.push(...distractors.slice(0, 5));
       return truncatedList;
     };
 
