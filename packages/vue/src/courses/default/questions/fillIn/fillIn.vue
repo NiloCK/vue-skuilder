@@ -1,194 +1,202 @@
 <template>
-  <div>
+  <div data-viewable="FillInView">
     <audio-auto-player v-if="hasAudio" v-bind:src="audioURL" />
     <img v-if="hasImage" v-bind:src="imageURL" />
-    <markdown-renderer v-bind:md="question.mdText" />
-    <radio-multiple-choice v-if="question.options" v-bind:choiceList="truncatedOptions" v-bind:MouseTrap="MouseTrap" />
-    <center v-else-if="priorAttempts == 1" class="title">
-      <span>
-        {{ obscuredAnswer }}
-      </span>
+    <!-- Add v-if to prevent undefined markdown -->
+    <markdown-renderer v-if="markdownText" v-bind:md="markdownText" />
+    <radio-multiple-choice v-if="question?.options" v-bind:choiceList="truncatedOptions" v-bind:MouseTrap="mouseTrap" />
+    <center v-else-if="priorAttempts.value == 1" class="title">
+      <span>{{ obscuredAnswer }}</span>
     </center>
-    <center v-else-if="priorAttempts == 2" class="title">
-      <span>
-        {{ someAnswer }}
-      </span>
+    <center v-else-if="priorAttempts.value == 2" class="title">
+      <span>{{ someAnswer }}</span>
     </center>
     <v-card-actions v-if="!isQuestion">
       <v-spacer></v-spacer>
-      <v-btn color="primary" v-on:click="submitAnswer('')" autofocus="autofocus"> Next </v-btn>
+      <v-btn color="primary" @click="handleNext" autofocus="autofocus"> Next </v-btn>
     </v-card-actions>
   </div>
 </template>
 
 <script lang="ts">
+import { defineComponent, ref, computed, PropType, onMounted } from 'vue';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import AudioAutoPlayer from '@/base-course/Components/AudioAutoPlayer.vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
-import { QuestionView } from '@/base-course/Viewable';
 import _ from 'lodash';
-import { Component } from 'vue-property-decorator';
-import FillInInput from './fillInInput.vue';
-import FillInText from './fillInText.vue';
 import { BlanksCard } from './index';
 import gradeSpellingAttempt from './blanksCorrection';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 
-const typeMap: {
-  [index: string]: string;
-} = {
+const typeMap: { [index: string]: string } = {
   text: 'textType',
   blank: 'blankType',
 };
 
-@Component({
+export default defineComponent({
+  name: 'FillInView',
+
   components: {
-    MarkdownRenderer: () => import('@/base-course/Components/MarkdownRenderer.vue'), // fix against "unknown custom element" bug (?).
+    MarkdownRenderer: () => import('@/base-course/Components/MarkdownRenderer.vue'),
     RadioMultipleChoice,
-    blankType: FillInInput,
-    textType: FillInText,
+    blankType: () => import('./fillInInput.vue'),
+    textType: () => import('./fillInText.vue'),
     AudioAutoPlayer,
   },
-})
-export default class FillInView extends QuestionView<BlanksCard> {
-  private shuffledOptions: string[] | undefined;
-  private created() {
-    if (this.question.options) {
-      const truncatedList = this.getTruncatedList();
-      this.shuffledOptions = _.shuffle(truncatedList);
-    }
-  }
 
-  get truncatedOptions(): string[] | undefined {
-    return this.shuffledOptions;
-  }
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
 
-  public toString() {
-    return this.data[0].Input as string;
-  }
-  get question() {
-    return new BlanksCard(this.data);
-  }
-  get hasImage() {
-    if (this.data[0]['image-1']) {
-      return true;
-    } else {
-      return false;
-    }
-  }
+  setup(props, { emit }) {
+    const viewableUtils = useViewable(props, emit, 'FillInView');
+    const questionUtils = useQuestionView<BlanksCard>(viewableUtils, props.modifyDifficulty);
 
-  get imageURL(): string[] {
-    if (this.hasImage) {
-      let urls: string[] = [];
+    // State
+    const shuffledOptions = ref<string[] | undefined>();
+    const question = computed(() => new BlanksCard(props.data));
+
+    // Initialize shuffled options
+    onMounted(() => {
+      if (question.value.options) {
+        const truncatedList = getTruncatedList();
+        shuffledOptions.value = _.shuffle(truncatedList);
+      }
+    });
+
+    // Computed properties
+    const truncatedOptions = computed(() => shuffledOptions.value);
+
+    const hasImage = computed(() => !!props.data[0]['image-1']);
+
+    const imageURL = computed(() => {
+      if (!hasImage.value) return [''];
+
+      const urls: string[] = [];
       let i = 1;
-      while (this.data[0][`image-${i}`]) {
-        urls.push(URL.createObjectURL(this.data[0][`image-${i}`] as Blob));
+      while (props.data[0][`image-${i}`]) {
+        urls.push(URL.createObjectURL(props.data[0][`image-${i}`] as Blob));
         i++;
       }
       return urls;
-    } else {
-      return [''];
-    }
-  }
+    });
 
-  get hasAudio() {
-    if (this.data[0]['audio-1']) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  get audioURL(): string[] {
-    if (this.hasAudio) {
-      // let url = URL.createObjectURL(this.data[0].autoplayAudio);
-      let urls: string[] = [];
+    const hasAudio = computed(() => !!props.data[0]['audio-1']);
+
+    const markdownText = computed(() => {
+      return question.value?.mdText || ''; // Provide empty string as fallback
+    });
+
+    const audioURL = computed(() => {
+      if (!hasAudio.value) return [''];
+
+      const urls: string[] = [];
       let i = 1;
-      while (this.data[0][`audio-${i}`]) {
-        urls.push(URL.createObjectURL(this.data[0][`audio-${i}`] as Blob));
+      while (props.data[0][`audio-${i}`]) {
+        urls.push(URL.createObjectURL(props.data[0][`audio-${i}`] as Blob));
         i++;
       }
       return urls;
-    } else {
-      return [''];
-    }
-  }
+    });
 
-  /**
-   * returns an 'obscured' string hinting at the answer:
-   * ie, if the answer is 'Canada', it returns '_ _ _ _ _ _'
-   */
-  get obscuredAnswer(): string | undefined {
-    const sa = this.someAnswer;
-
-    console.log(`Prior answers: ${this.priorAnswers}`);
-
-    if (sa && this.priorAnswers[0][0] && this.priorAnswers[0][1] === 'UserInputString') {
-      return gradeSpellingAttempt(this.priorAnswers[0][0] as string, sa);
-    }
-
-    if (this.someAnswer) {
-      let obscuredAnswer = '';
-      for (let i = 0; i < this.someAnswer.length; i++) {
-        obscuredAnswer += '_ ';
+    const someAnswer = computed(() => {
+      if (question.value.answers) {
+        return question.value.answers[Math.floor(question.value.answers.length * Math.random())];
       }
-      return obscuredAnswer;
-    }
-  }
+    });
 
-  private getTruncatedList(): string[] | undefined {
-    if (this.question.options) {
-      if (this.question.options.length <= 6) {
-        return this.question.options;
-      } else {
-        let truncatedList = [];
-        // include one answer
-        truncatedList.push(this.question.answers![Math.floor(Math.random() * this.question.answers!.length)]);
+    const obscuredAnswer = computed(() => {
+      const sa = someAnswer.value;
 
-        // construct a list of all non-answers
-        let distractors: string[] = _.shuffle(
-          this.question.options.filter((o) => this.question.answers?.indexOf(o) === -1)
-        );
+      console.log(`Prior answers: ${questionUtils.priorAnswers.value}`);
 
-        console.log(`Modifying difficulty: ${this.modifyDifficulty}`);
+      if (
+        sa &&
+        questionUtils.priorAnswers.value[0]?.[0] &&
+        questionUtils.priorAnswers.value[0][1] === 'UserInputString'
+      ) {
+        return gradeSpellingAttempt(questionUtils.priorAnswers.value[0][0] as string, sa);
+      }
 
-        // if the question is hard for the user, show fewer distractors
-        // [ ] todo: this should also affect the elo adjustments after the question is answered
-        if (this.modifyDifficulty < -200) {
+      if (someAnswer.value) {
+        let obscuredAnswer = '';
+        for (let i = 0; i < someAnswer.value.length; i++) {
+          obscuredAnswer += '_ ';
+        }
+        return obscuredAnswer;
+      }
+    });
+
+    const isQuestion = computed(() => {
+      return !!(question.value.answers && question.value.answers.length > 0);
+    });
+
+    // Methods
+    const getTruncatedList = (): string[] | undefined => {
+      if (!question.value.options) return;
+
+      if (question.value.options.length <= 6) {
+        return question.value.options;
+      }
+
+      const truncatedList = [];
+      // include one answer
+      truncatedList.push(question.value.answers![Math.floor(Math.random() * question.value.answers!.length)]);
+
+      // construct a list of all non-answers
+      let distractors: string[] = _.shuffle(
+        question.value.options.filter((o) => question.value.answers?.indexOf(o) === -1)
+      );
+
+      if (props.modifyDifficulty) {
+        console.log(`Modifying difficulty: ${props.modifyDifficulty}`);
+
+        // Adjust number of distractors based on difficulty
+        if (props.modifyDifficulty < -200) {
           distractors = distractors.slice(0, 1);
-        } else if (this.modifyDifficulty < -150) {
+        } else if (props.modifyDifficulty < -150) {
           distractors = distractors.slice(0, 2);
-        } else if (this.modifyDifficulty < -100) {
+        } else if (props.modifyDifficulty < -100) {
           distractors = distractors.slice(0, 3);
-        } else if (this.modifyDifficulty < -50) {
+        } else if (props.modifyDifficulty < -50) {
           distractors = distractors.slice(0, 4);
         } else {
           distractors = distractors.slice(0, 5);
         }
-        // push 5 of them to the returned list
-        truncatedList.push(...distractors);
-
-        return truncatedList;
       }
-    }
-  }
 
-  /**
-   * returns a random member of the 'answers' string[] if
-   * the question has 'answers' data. Used in the default case
-   * to dispaly
-   */
-  get someAnswer(): string | undefined {
-    if (this.question.answers) {
-      return this.question.answers[Math.floor(this.question.answers.length * Math.random())];
-    }
-  }
+      truncatedList.push(...distractors);
+      return truncatedList;
+    };
 
-  get isQuestion(): boolean {
-    if (!this.question.answers || this.question.answers.length === 0) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-}
+    const handleNext = () => {
+      questionUtils.submitAnswer('');
+    };
+
+    return {
+      ...viewableUtils,
+      ...questionUtils,
+      question,
+      truncatedOptions,
+      hasImage,
+      imageURL,
+      hasAudio,
+      audioURL,
+      obscuredAnswer,
+      someAnswer,
+      isQuestion,
+      handleNext,
+      markdownText,
+    };
+  },
+});
 </script>
 
 <style lang="css" scoped>
