@@ -1,59 +1,80 @@
 <template>
-  <div>
+  <div data-viewable="CalculateSupplementaryAngle">
     <h2>What is the measurement of the highlighted angle?</h2>
-    <canvas ref="canvas" width="300" height="300"> </canvas>
+    <canvas ref="canvasRef" width="300" height="300"> </canvas>
     <br />
-    <user-input-number />
+    <user-input-number v-model="answer" />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { QuestionView } from '@/base-course/Viewable';
+import { defineComponent, ref, computed, onMounted, onBeforeUnmount, PropType } from 'vue';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import { SupplementaryAngles } from './index';
 import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
 import { randomInt, cos, sin } from '../../utility';
-import paper, { PaperScope } from 'paper';
-import { log } from 'util';
+import paper from 'paper';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
+import { nextTick } from 'vue';
+import { console } from 'console';
 
-@Component({
+export default defineComponent({
+  name: 'CalculateSupplementaryAngle',
+
   components: {
     UserInputNumber,
   },
-})
-export default class CalculateSupplementaryAngle extends QuestionView<SupplementaryAngles> {
-  get question() {
-    return this._question;
-  }
-  public $refs: {
-    canvas: HTMLCanvasElement;
-  };
-  private angle: number;
-  private _question: SupplementaryAngles;
-  private _p?: paper.PaperScope;
 
-  public beforeDestroy() {
-    // destroy paperscope instance
-    // this._p.
-    delete this._p;
-  }
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
 
-  private created() {
-    this.angle = randomInt(10, 83);
-    this._question = new SupplementaryAngles(this.data);
-  }
+  setup(props, { emit }) {
+    const viewableUtils = useViewable(props, emit, 'CalculateSupplementaryAngle');
+    const questionUtils = useQuestionView<SupplementaryAngles>(viewableUtils, props.modifyDifficulty);
 
-  private mounted() {
-    this.$nextTick(function () {
-      this._p = new paper.PaperScope();
-      this._p.setup(this.$refs.canvas);
-      const p = this._p;
+    const answer = ref('');
+    const canvasRef = ref<HTMLCanvasElement | null>(null);
+    const angle = ref(randomInt(10, 83));
+    const paperScope = ref<paper.PaperScope>();
 
-      const width = this.$refs.canvas.width;
-      const height = this.$refs.canvas.height;
+    // Initialize question immediately
+    questionUtils.question.value = new SupplementaryAngles(props.data);
+
+    const getBisectingPoint = (
+      p: paper.PaperScope,
+      width: number,
+      baseAngle: number,
+      firstAngle: number,
+      secondAngle: number,
+      height: number,
+      scale: number = 30
+    ): paper.Point => {
+      return new p.Point(
+        width / 2 + scale * cos(baseAngle + (firstAngle + secondAngle) / 2),
+        height / 2 + scale * sin(baseAngle + (firstAngle + secondAngle) / 2)
+      );
+    };
+
+    onMounted(async () => {
+      await nextTick();
+      if (!canvasRef.value) return;
+
+      paperScope.value = new paper.PaperScope();
+      paperScope.value.setup(canvasRef.value);
+      const p = paperScope.value;
+
+      const width = canvasRef.value.width;
+      const height = canvasRef.value.height;
 
       const baseAngle = randomInt(0, 360);
-      const otherArm = baseAngle + this.angle;
 
       const xOffset = width * cos(baseAngle);
       const yOffset = width * sin(baseAngle);
@@ -67,19 +88,20 @@ export default class CalculateSupplementaryAngle extends QuestionView<Supplement
       let sum: number = 0;
       const armPaths: paper.Path[] = [];
 
-      // tslint:disable-next-line:prefer-for-of
-      for (let i = 0; i < this.question.angles.length; i++) {
-        const angle = this.question.angles[i];
-        sum += this.question.angles[i];
+      if (!questionUtils.question.value) return;
 
-        log(`drawing angle ${i}:
-          angle: ${angle}
+      for (let i = 0; i < questionUtils.question.value.angles.length; i++) {
+        const currentAngle = questionUtils.question.value.angles[i];
+        sum += currentAngle;
+
+        console.log(`drawing angle ${i}:
+          angle: ${currentAngle}
           angleSum: ${sum}
           `);
 
         let nextArm: number;
-        const thisArm: number = sum - angle;
-        if (i === this.question.angles.length - 1) {
+        const thisArm: number = sum - currentAngle;
+        if (i === questionUtils.question.value.angles.length - 1) {
           nextArm = 180;
         } else {
           nextArm = sum;
@@ -89,7 +111,7 @@ export default class CalculateSupplementaryAngle extends QuestionView<Supplement
           width / 2 + 30 * cos(baseAngle + thisArm),
           height / 2 + 30 * sin(baseAngle + thisArm)
         );
-        const middleArm: paper.Point = this.getBisectingPoint(p, width, baseAngle, thisArm, nextArm, height);
+        const middleArm: paper.Point = getBisectingPoint(p, width, baseAngle, thisArm, nextArm, height);
         const secondArm: paper.Point = new p.Point(
           width / 2 + 30 * cos(baseAngle + nextArm),
           height / 2 + 30 * sin(baseAngle + nextArm)
@@ -105,10 +127,10 @@ export default class CalculateSupplementaryAngle extends QuestionView<Supplement
         angleLine.strokeColor = new paper.Color(0, 0, 0);
         armPaths.push(angleLine);
 
-        if (this.question.targetAngleIndex === i) {
-          log(`drawing targetAngle at i = ${i}:
+        if (questionUtils.question.value.targetAngleIndex === i) {
+          console.log(`drawing targetAngle at i = ${i}:
             baseAngle: ${baseAngle}
-            targetAngle: ${angle}
+            targetAngle: ${currentAngle}
             sum: ${sum}
             nextAngle: ${nextArm}
             `);
@@ -131,18 +153,15 @@ export default class CalculateSupplementaryAngle extends QuestionView<Supplement
           triangle.add(secondArm);
           triangle.fillColor = fill;
         } else {
-          // draw the angle measure
           const measure = new paper.PointText(middleArm);
-          measure.content = angle.toString() + '°';
+          measure.content = currentAngle.toString() + '°';
 
           let intersection: boolean = true;
           let scale: number = 20;
 
           while (intersection) {
             intersection = false;
-
-            measure.bounds!.center = this.getBisectingPoint(p, width, baseAngle, thisArm, nextArm, height, scale);
-
+            measure.bounds!.center = getBisectingPoint(p, width, baseAngle, thisArm, nextArm, height, scale);
             armPaths.forEach((path) => {
               if (path.intersects(measure)) {
                 intersection = true;
@@ -153,23 +172,19 @@ export default class CalculateSupplementaryAngle extends QuestionView<Supplement
         }
       }
     });
-  }
 
-  private getBisectingPoint(
-    p: paper.PaperScope,
-    width: number,
-    baseAngle: number,
-    firstAngle: number,
-    secondAngle: number,
-    height: number,
-    scale: number = 30
-  ): paper.Point {
-    return new p.Point(
-      width / 2 + scale * cos(baseAngle + (firstAngle + secondAngle) / 2),
-      height / 2 + scale * sin(baseAngle + (firstAngle + secondAngle) / 2)
-    );
-  }
-}
+    onBeforeUnmount(() => {
+      paperScope.value = undefined;
+    });
+
+    return {
+      answer,
+      canvasRef,
+      ...viewableUtils,
+      ...questionUtils,
+    };
+  },
+});
 </script>
 
 <style lang="css" scoped>
