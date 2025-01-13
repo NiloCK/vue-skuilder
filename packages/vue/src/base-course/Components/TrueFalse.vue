@@ -1,14 +1,14 @@
 <template>
-  <div>
+  <div data-viewable="TrueFalse">
     <RadioSelect :choiceList="['True', 'False']" :MouseTrap="MouseTrap" :submit="submit" />
   </div>
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import RadioSelect from './RadioMultipleChoice.vue';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'TrueFalse',
   components: {
     RadioSelect,
