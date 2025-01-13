@@ -1,4 +1,4 @@
-import { Answer, Question } from '../../../../base-course/Displayable';
+import { Answer, Question, ViewComponent } from '../../../../base-course/Displayable';
 import { FieldDefinition } from '../../../../base-course/Interfaces/FieldDefinition';
 import { ViewData } from '../../../../base-course/Interfaces/ViewData';
 import { DataShapeName } from '../../../../enums/DataShapeNames';
@@ -39,7 +39,7 @@ export class SingleDigitAdditionQuestion extends Question {
     },
   ];
 
-  public static views: VueConstructor[] = [HorizontalAddition, VerbalAddition];
+  public static views: ViewComponent[] = [HorizontalAddition, VerbalAddition];
 
   public a: number;
   public b: number;
