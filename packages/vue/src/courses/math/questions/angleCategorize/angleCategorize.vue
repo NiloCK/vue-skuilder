@@ -1,34 +1,57 @@
 <template>
-  <div>
-    <h2>What kind of angle is this?</h2>
-    <canvas ref="canvas" width="300" height="300"> </canvas>
+  <div data-viewable="AngleCategorizeV">
+    <template v-if="question">
+      <h2>What kind of angle is this?</h2>
+      <canvas ref="canvasRef" width="300" height="300"> </canvas>
 
-    <radio-multiple-choice :choiceList="question.answers" :MouseTrap="MouseTrap" />
+      <radio-multiple-choice :choiceList="question.answers" :MouseTrap="mouseTrap" />
+    </template>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { QuestionView } from '@/base-course/Viewable';
+import { defineComponent, ref, computed, onMounted, PropType } from 'vue';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import { AngleCategorize, AngleCategories } from './index';
 import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { randomInt } from '../../utility';
 
-@Component({
+export default defineComponent({
+  name: 'AngleCategorizeV',
+
   components: {
     UserInputNumber,
     RadioMultipleChoice,
   },
-})
-export default class AngleCategorizeV extends QuestionView<AngleCategorize> {
-  public $refs: {
-    canvas: HTMLCanvasElement;
-  };
-  private angle: number;
 
-  private created() {
-    this.angle = ((category) => {
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
+
+  setup(props, { emit }) {
+    const viewableUtils = useViewable(props, emit, 'AngleCategorizeV');
+    const questionUtils = useQuestionView<AngleCategorize>(viewableUtils, props.modifyDifficulty);
+    const canvasRef = ref<HTMLCanvasElement | null>(null);
+
+    // Initialize question immediately
+    questionUtils.question.value = new AngleCategorize(props.data);
+
+    // Expose the question directly for template access
+    const question = computed(() => questionUtils.question.value);
+
+    const angle = computed(() => {
+      if (!question.value) return 0;
+
+      const category = question.value.angleCategory;
       if (category === AngleCategories.ACUTE) {
         return randomInt(10, 83);
       } else if (category === AngleCategories.RIGHT) {
@@ -42,27 +65,28 @@ export default class AngleCategorizeV extends QuestionView<AngleCategorize> {
       } else {
         throw new Error('Unknown Angle type on AngleCategorize question');
       }
-    })(this.question.angleCategory);
-  }
+    });
 
-  private mounted() {
-    this.$nextTick(function () {
-      const width = this.$refs.canvas.width;
-      const height = this.$refs.canvas.height;
-      const ctx: CanvasRenderingContext2D = this.$refs.canvas.getContext('2d')!;
+    onMounted(() => {
+      if (!canvasRef.value) return;
+
+      const width = canvasRef.value.width;
+      const height = canvasRef.value.height;
+      const ctx = canvasRef.value.getContext('2d');
+      if (!ctx) return;
 
       const baseArm = randomInt(0, 360);
-      const otherArm = baseArm + this.angle;
+      const otherArm = baseArm + angle.value;
 
       ctx.moveTo(width / 2, height / 2);
-      let x = width / 2 + width * Math.cos((baseArm / 360) * 2 * Math.PI);
-      let y = height / 2 + width * Math.sin((baseArm / 360) * 2 * Math.PI);
+      const x = width / 2 + width * Math.cos((baseArm / 360) * 2 * Math.PI);
+      const y = height / 2 + width * Math.sin((baseArm / 360) * 2 * Math.PI);
       ctx.lineTo(x, y);
       ctx.stroke();
 
       ctx.moveTo(width / 2, height / 2);
-      let x2 = width / 2 + width * Math.cos((otherArm / 360) * 2 * Math.PI);
-      let y2 = height / 2 + width * Math.sin((otherArm / 360) * 2 * Math.PI);
+      const x2 = width / 2 + width * Math.cos((otherArm / 360) * 2 * Math.PI);
+      const y2 = height / 2 + width * Math.sin((otherArm / 360) * 2 * Math.PI);
       ctx.lineTo(x2, y2);
       ctx.stroke();
 
@@ -71,12 +95,15 @@ export default class AngleCategorizeV extends QuestionView<AngleCategorize> {
       ctx.arc(width / 2, height / 2, 25, (baseArm / 360) * 2 * Math.PI, (otherArm / 360) * 2 * Math.PI);
       ctx.stroke();
     });
-  }
 
-  get question() {
-    return new AngleCategorize(this.data);
-  }
-}
+    return {
+      ...viewableUtils,
+      ...questionUtils,
+      canvasRef,
+      question,
+    };
+  },
+});
 </script>
 
 <style lang="css" scoped>
