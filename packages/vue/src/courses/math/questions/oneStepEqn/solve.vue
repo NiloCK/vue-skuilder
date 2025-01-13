@@ -1,55 +1,82 @@
 <template>
-  <div>
-    <h4>Solve the Equation</h4>
-    <br /><br />
-    <div v-if="question.operation.valueOf() === 'ADDITION'">
-      {{ variable || 'r' }} - {{ question.a }} = {{ question.b }}
-    </div>
-    <div v-else-if="question.operation.valueOf() === 'SUBTRACTION'">
-      {{ variable || 'r' }} + {{ question.a }} = {{ question.b }}
-    </div>
-    <div v-else-if="question.operation.valueOf() === 'MULTIPLICATION'">
-      {{ variable || 'r' }} &#247; {{ question.a }} = {{ question.b }}
-    </div>
-    <div v-else-if="question.operation.valueOf() === 'DIVISION'">
-      {{ variable || 'r' }} * {{ question.a }} = {{ question.b * question.a }}
-    </div>
-    <div v-else>No operation!? (This should never show)</div>
+  <div data-viewable="Solve">
+    <template v-if="question">
+      <h4>Solve the Equation</h4>
+      <br /><br />
+      <div v-if="question.operation.valueOf() === 'ADDITION'">{{ variable }} - {{ question.a }} = {{ question.b }}</div>
+      <div v-else-if="question.operation.valueOf() === 'SUBTRACTION'">
+        {{ variable }} + {{ question.a }} = {{ question.b }}
+      </div>
+      <div v-else-if="question.operation.valueOf() === 'MULTIPLICATION'">
+        {{ variable }} &#247; {{ question.a }} = {{ question.b }}
+      </div>
+      <div v-else-if="question.operation.valueOf() === 'DIVISION'">
+        {{ variable }} * {{ question.a }} = {{ question.b * question.a }}
+      </div>
+      <div v-else>No operation!? (This should never show)</div>
 
-    <br /><br />
+      <br /><br />
 
-    {{ variable || 'r' }} = <UserInputNumber />
+      {{ variable }} = <UserInputNumber v-model="answer" />
+    </template>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { QuestionView } from '@/base-course/Viewable';
+import { defineComponent, ref, computed, PropType } from 'vue';
 import { OneStepEquation } from './index';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
 import { randomInt } from '../../utility';
-import { log } from 'util';
 
-@Component({
+export default defineComponent({
+  name: 'Solve',
+
   components: {
     UserInputNumber,
   },
-})
-export default class Solve extends QuestionView<OneStepEquation> {
-  public answer: string = '';
-  public variable: string = 'r';
 
-  constructor() {
-    super();
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
+
+  setup(props, { emit }) {
+    const viewableUtils = useViewable(props, emit, 'Solve');
+    const questionUtils = useQuestionView<OneStepEquation>(viewableUtils, props.modifyDifficulty);
+
+    const answer = ref('');
     const vars = ['a', 'b', 'd', 'A', 'z', 'B', 'd', 'y'];
-    this.variable = vars[randomInt(0, vars.length)];
-  }
-  get question() {
-    return new OneStepEquation(this.data);
-  }
+    const variable = ref(vars[randomInt(0, vars.length)]);
 
-  public submit() {
-    alert(this.question.isCorrect(parseInt(this.answer, 10)));
-  }
-}
+    // Initialize question immediately
+    questionUtils.question.value = new OneStepEquation(props.data);
+
+    // Expose the question directly for template access
+    const question = computed(() => questionUtils.question.value);
+
+    const submit = () => {
+      if (question.value) {
+        const isCorrect = question.value.isCorrect(parseInt(answer.value, 10));
+        alert(isCorrect);
+      }
+    };
+
+    return {
+      ...viewableUtils,
+      ...questionUtils,
+      answer,
+      question,
+      variable,
+      submit,
+    };
+  },
+});
 </script>
