@@ -1,5 +1,5 @@
 <template>
-  <div class="keyboard-layout">
+  <div data-viewable="KeyboardQuestionView">
     <p class="headline">Type this letter!</p>
     <div class="keyboard">
       <!-- Row 1: Q to P -->
@@ -7,7 +7,7 @@
         <div
           v-for="key in 'QWERTYUIOP'.split('')"
           :key="key"
-          :class="['key', { highlight: key === question.letter.toUpperCase() }]"
+          :class="['key', { highlight: key === question?.letter?.toUpperCase() }]"
         >
           {{ key }}
         </div>
@@ -17,7 +17,7 @@
         <div
           v-for="key in 'ASDFGHJKL'.split('')"
           :key="key"
-          :class="['key', { highlight: key === question.letter.toUpperCase() }]"
+          :class="['key', { highlight: key === question?.letter?.toUpperCase() }]"
         >
           {{ key }}
         </div>
@@ -27,7 +27,7 @@
         <div
           v-for="key in 'ZXCVBNM'.split('')"
           :key="key"
-          :class="['key', { highlight: key === question.letter.toUpperCase() }]"
+          :class="['key', { highlight: key === question?.letter?.toUpperCase() }]"
         >
           {{ key }}
         </div>
@@ -37,46 +37,72 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
-import { QuestionView } from '@/base-course/Viewable';
+import { defineComponent, onMounted, onUnmounted, computed, PropType } from 'vue';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import { TypeLetterQuestion } from './index';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 
-@Component({})
-export default class KeyboardQuestionView extends QuestionView<TypeLetterQuestion> {
-  get question() {
-    return new TypeLetterQuestion(this.data);
-  }
+export default defineComponent({
+  name: 'KeyboardQuestionView',
 
-  mounted() {
-    window.addEventListener('keypress', this.handleKeyPress);
-  }
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
 
-  destroyed() {
-    window.removeEventListener('keypress', this.handleKeyPress);
-  }
+  setup(props, { emit }) {
+    const viewableUtils = useViewable(props, emit, 'KeyboardQuestionView');
+    const questionUtils = useQuestionView<TypeLetterQuestion>(viewableUtils, props.modifyDifficulty);
 
-  handleKeyPress(event: KeyboardEvent) {
-    const pressedKey = event.key.toLowerCase();
-    const targetKey = this.question.letter.toLowerCase();
+    // Initialize question immediately
+    questionUtils.question.value = new TypeLetterQuestion(props.data);
 
-    if (pressedKey === targetKey) {
-      const keyElement = document.querySelector('.key.highlight');
-      keyElement?.classList.add('pressed');
+    // Expose the question directly for template access
+    const question = computed(() => questionUtils.question.value);
 
-      const handleKeyUp = (e: KeyboardEvent) => {
-        if (e.key.toLowerCase() === targetKey) {
-          keyElement?.classList.remove('pressed');
-          this.submitAnswer(pressedKey);
-          window.removeEventListener('keyup', handleKeyUp);
-        }
-      };
+    const handleKeyPress = (event: KeyboardEvent) => {
+      const pressedKey = event.key.toLowerCase();
+      const targetKey = question.value?.letter.toLowerCase();
 
-      window.addEventListener('keyup', handleKeyUp);
-    } else {
-      this.submitAnswer(pressedKey);
-    }
-  }
-}
+      if (pressedKey === targetKey) {
+        const keyElement = document.querySelector('.key.highlight');
+        keyElement?.classList.add('pressed');
+
+        const handleKeyUp = (e: KeyboardEvent) => {
+          if (e.key.toLowerCase() === targetKey) {
+            keyElement?.classList.remove('pressed');
+            questionUtils.submitAnswer(pressedKey);
+            window.removeEventListener('keyup', handleKeyUp);
+          }
+        };
+
+        window.addEventListener('keyup', handleKeyUp);
+      } else {
+        questionUtils.submitAnswer(pressedKey);
+      }
+    };
+
+    onMounted(() => {
+      window.addEventListener('keypress', handleKeyPress);
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener('keypress', handleKeyPress);
+    });
+
+    return {
+      ...viewableUtils,
+      ...questionUtils,
+      question,
+    };
+  },
+});
 </script>
 
 <style scoped>
