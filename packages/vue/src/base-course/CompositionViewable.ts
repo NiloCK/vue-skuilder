@@ -132,7 +132,7 @@ export function useQuestionView<Q extends Question>(
 
     const evaluation = question.value.evaluate(answer, viewableUtils.timeSpent.value);
 
-    viewableUtils.logger.log('evaluation:', evaluation);
+    viewableUtils.logger.log(`evaluation of answer ${answer}:`, evaluation);
 
     const record: QuestionRecord = {
       ...evaluation,
