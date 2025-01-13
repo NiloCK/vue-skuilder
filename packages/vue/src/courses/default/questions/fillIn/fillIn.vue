@@ -143,6 +143,8 @@ export default defineComponent({
         questionUtils.priorAnswers.value[0][1] === 'UserInputString'
       ) {
         return gradeSpellingAttempt(questionUtils.priorAnswers.value[0][0] as string, sa);
+      } else {
+        console.log(`found no UserInputString`); // [ ] rework this - finding `VueComponent` instead, which prevents grading.
       }
 
       if (someAnswer.value) {
