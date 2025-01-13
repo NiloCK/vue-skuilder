@@ -163,7 +163,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { ViewComponent } from '@/base-course/Displayable';
+import { ViewComponent, isVueConstructor, isDefineComponent } from '@/base-course/Displayable';
 import { displayableDataToViewData, ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable, { isQuestionView } from '@/base-course/Viewable';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
@@ -689,8 +689,18 @@ export default defineComponent({
         this.courseID = _courseID;
         this.card_elo = tmpCardData.elo.global.score;
 
-        // @ts-ignore
-        this.constructedView = new this.view() as Viewable;
+        //
+        if (isVueConstructor(tmpView)) {
+          // @ts-ignore
+          this.constructedView = new tmpView() as Viewable;
+        } else if (isDefineComponent(tmpView)) {
+          // @ts-ignore
+          this.constructedView = tmpView;
+        } else {
+          console.warn(`[Study] Error constructing view for ${qualified_id}`);
+          // @ts-ignore
+          this.constructedView = tmpView;
+        }
 
         this.sessionRecord.push({
           card: {
