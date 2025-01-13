@@ -5,10 +5,10 @@
     <!-- Add v-if to prevent undefined markdown -->
     <markdown-renderer v-if="markdownText" v-bind:md="markdownText" />
     <radio-multiple-choice v-if="question?.options" v-bind:choiceList="truncatedOptions" v-bind:MouseTrap="mouseTrap" />
-    <center v-else-if="priorAttempts.value == 1" class="title">
+    <center v-else-if="priorAttempts == 1" class="title">
       <span>{{ obscuredAnswer }}</span>
     </center>
-    <center v-else-if="priorAttempts.value == 2" class="title">
+    <center v-else-if="priorAttempts == 2" class="title">
       <span>{{ someAnswer }}</span>
     </center>
     <v-card-actions v-if="!isQuestion">
