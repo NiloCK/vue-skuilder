@@ -1,16 +1,19 @@
 <template>
-  <div>
-    <MusicScoreRenderer v-bind:keySignature="`X:1\nK:${question.key}\n||`" />
-    This signature is for the major key: _____
-    <RadioSelect v-bind:choiceList="choices" />
+  <div data-viewable="IdentifyKeyView">
+    <template v-if="question">
+      <MusicScoreRenderer v-bind:keySignature="`X:1\nK:${question.key}\n||`" />
+      This signature is for the major key: _____
+      <RadioSelect v-bind:choiceList="choices" />
+    </template>
   </div>
 </template>
 
 <script lang="ts">
+import { defineComponent, ref, computed, PropType } from 'vue';
 import RadioSelect from '@/base-course/Components/RadioMultipleChoice.vue';
-import { QuestionView } from '@/base-course/Viewable';
 import MusicScoreRenderer from '@/courses/components/MusicScoreRender.vue';
-import Component from 'vue-class-component';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { IdentifyKeyQuestion, keys } from './index';
 
 function fiveRandomKeys() {
@@ -21,28 +24,57 @@ function fiveRandomKeys() {
   return randomKeys;
 }
 
-@Component({
+export default defineComponent({
+  name: 'IdentifyKeyView',
+
   components: {
     RadioSelect,
     MusicScoreRenderer,
   },
-})
-export default class IdentifyKeyView extends QuestionView<IdentifyKeyQuestion> {
-  public answer: string = '';
-  get question() {
-    return new IdentifyKeyQuestion(this.data);
-  }
 
-  get choices() {
-    const ch = fiveRandomKeys();
-    if (ch.includes(this.question.key)) {
-      return ch;
-    } else {
-      ch[Math.floor(Math.random() * ch.length)] = this.question.key;
-      return ch;
-    }
-  }
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
 
-  public submit() {}
-}
+  setup(props, { emit }) {
+    const viewableUtils = useViewable(props, emit, 'IdentifyKeyView');
+    const questionUtils = useQuestionView<IdentifyKeyQuestion>(viewableUtils, props.modifyDifficulty);
+
+    const answer = ref('');
+
+    // Initialize question immediately
+    questionUtils.question.value = new IdentifyKeyQuestion(props.data);
+
+    // Expose the question directly for template access
+    const question = computed(() => questionUtils.question.value);
+
+    const choices = computed(() => {
+      const ch = fiveRandomKeys();
+      if (ch.includes(question.value?.key || '')) {
+        return ch;
+      } else {
+        ch[Math.floor(Math.random() * ch.length)] = question.value?.key || '';
+        return ch;
+      }
+    });
+
+    const submit = () => {};
+
+    return {
+      ...viewableUtils,
+      ...questionUtils,
+      answer,
+      question,
+      choices,
+      submit,
+    };
+  },
+});
 </script>
