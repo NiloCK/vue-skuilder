@@ -46,10 +46,12 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
-import { QuestionView } from '@/base-course/Viewable';
+import { defineComponent, ref, computed, onMounted, onUnmounted, PropType } from 'vue';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import { FallingLettersQuestion, Score } from './index';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 
+// Types
 interface Letter {
   id: number;
   char: string;
@@ -64,151 +66,196 @@ interface TreePosition {
   scale: number;
 }
 
-@Component({})
-export default class FallingLettersView extends QuestionView<FallingLettersQuestion> {
-  letters: Letter[] = [];
-  gameOver = false;
-  gameOverMessage = '';
-  timeLeft = 30;
-  score = 0;
-  currentSpeed = 2;
-  letterId = 0;
-  gameLoop: number | null = null;
-  lastSpawn = 0;
-  lastUpdate = 0;
-  spawnInterval = 1000; // Spawn a new letter every second
+// Game state interface
+interface GameState {
+  letters: Letter[];
+  gameOver: boolean;
+  gameOverMessage: string;
+  timeLeft: number;
+  score: number;
+  currentSpeed: number;
+  letterId: number;
+  gameLoop: number | null;
+  lastSpawn: number;
+  lastUpdate: number;
+  spawnInterval: number;
+}
 
-  get question() {
-    return new FallingLettersQuestion(this.data);
-  }
+export default defineComponent({
+  name: 'FallingLettersView',
 
-  maxAttemptsPerView = 1; // move on to next card after game is done
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
 
-  treePositions: TreePosition[] = [];
+  setup(props, { emit }) {
+    // Initialize base utilities
+    const viewableUtils = useViewable(props, emit, 'FallingLettersView');
+    const questionUtils = useQuestionView<FallingLettersQuestion>(viewableUtils, props.modifyDifficulty);
 
-  mounted() {
-    window.addEventListener('keypress', this.handleKeyPress);
-    this.startGame();
-    this.generateTrees();
-  }
+    // Refs
+    const gameArea = ref<HTMLElement | null>(null);
+    const treePositions = ref<TreePosition[]>([]);
 
-  generateTrees() {
-    this.treePositions = Array.from({ length: 7 }, (_, i) => ({
-      id: i,
-      left: 20 + i * Math.random() * 30 - 10,
-      height: 100 + Math.random() * 120,
-      scale: 1 + Math.random() * 2,
-    }));
-  }
+    const gameState = ref<GameState>({
+      currentSpeed: 2,
+      letters: [],
+      letterId: 0,
+      gameLoop: null as number | null,
+      spawnInterval: 1000,
 
-  destroyed() {
-    window.removeEventListener('keypress', this.handleKeyPress);
-    if (this.gameLoop) cancelAnimationFrame(this.gameLoop);
-  }
+      gameOver: false,
+      gameOverMessage: '',
+      timeLeft: 30,
+      score: 0,
+      lastSpawn: 0,
+      lastUpdate: 0,
+    });
 
-  startGame() {
-    this.timeLeft = this.question.gameLength;
-    this.currentSpeed = this.question.initialSpeed;
-    this.spawnInterval = this.question.spawnInterval * 1000;
-    this.lastUpdate = performance.now();
-    this.lastSpawn = performance.now();
-    this.gameLoop = requestAnimationFrame(this.update);
-  }
+    // Initialize question
+    questionUtils.question.value = new FallingLettersQuestion(props.data);
+    if (questionUtils.maxAttemptsPerView) {
+      questionUtils.maxAttemptsPerView.value = 1;
+    }
 
-  spawnLetter() {
-    if (!this.$refs.gameArea) return;
-
-    const gameArea = this.$refs.gameArea as HTMLElement;
-    const letter: Letter = {
-      id: this.letterId++,
-      char: String.fromCharCode(65 + Math.floor(Math.random() * 26)),
-      x: Math.random() * (gameArea.clientWidth - 30),
-      y: -30, // Start slightly above the visible area
+    // Methods
+    const generateTrees = () => {
+      treePositions.value = Array.from({ length: 7 }, (_, i) => ({
+        id: i,
+        left: 20 + i * Math.random() * 30 - 10,
+        height: 100 + Math.random() * 120,
+        scale: 1 + Math.random() * 2,
+      }));
     };
 
-    // [ ] next: words instead of letters
-    //
-    // if (Math.random() > 0.8) {
-    //   letter.char = 'word';
-    // }
+    const spawnLetter = () => {
+      if (!gameArea.value) return;
 
-    this.letters.push(letter);
-  }
+      const letter: Letter = {
+        id: gameState.value.letterId++,
+        char: String.fromCharCode(65 + Math.floor(Math.random() * 26)),
+        x: Math.random() * (gameArea.value.clientWidth - 30),
+        y: -30,
+      };
 
-  update(timestamp: number) {
-    if (this.gameOver) return;
+      gameState.value.letters.push(letter);
+    };
 
-    const deltaTime = (timestamp - this.lastUpdate) / 1000;
-    this.lastUpdate = timestamp;
+    const win = () => {
+      gameState.value.gameOver = true;
+      gameState.value.gameOverMessage = 'You Win!';
+      questionUtils.submitAnswer({
+        lettersTyped: gameState.value.score,
+        win: true,
+        percentage: 1,
+      });
+    };
 
-    // Update time
-    this.timeLeft -= deltaTime;
-    this.currentSpeed += this.question.acceleration * deltaTime;
+    const lose = () => {
+      gameState.value.gameOver = true;
+      gameState.value.gameOverMessage = 'Game Over!';
+      questionUtils.submitAnswer({
+        lettersTyped: gameState.value.score,
+        percentage: gameState.value.timeLeft / questionUtils.question.value!.gameLength,
+        win: false,
+      });
+    };
 
-    // Check win condition
-    if (this.timeLeft <= 0) {
-      this.win();
-      return;
-    }
+    const update = (timestamp: number) => {
+      console.log(`update: ${timestamp}`);
+      if (gameState.value.gameOver) return;
 
-    // Spawn new letters
-    if (timestamp - this.lastSpawn >= this.spawnInterval) {
-      this.spawnLetter();
-      this.lastSpawn = timestamp;
-      // Gradually decrease spawn interval (make it harder)
-      this.spawnInterval = Math.max(500, this.spawnInterval - 10);
-    }
+      const deltaTime = (timestamp - gameState.value.lastUpdate) / 1000;
+      gameState.value.lastUpdate = timestamp;
 
-    // Update letters positions
-    const gameArea = this.$refs.gameArea as HTMLElement;
-    this.letters = this.letters.filter(letter => {
-      letter.y += this.currentSpeed;
-      if (letter.y > gameArea.clientHeight) {
-        this.lose();
-        return false;
+      // Update time and speed
+      gameState.value.timeLeft -= deltaTime;
+      gameState.value.currentSpeed += questionUtils.question.value!.acceleration * deltaTime;
+
+      // Check win condition
+      if (gameState.value.timeLeft <= 0) {
+        win();
+        return;
       }
-      return true;
+
+      // Spawn new letters
+      if (timestamp - gameState.value.lastSpawn >= gameState.value.spawnInterval) {
+        spawnLetter();
+        gameState.value.lastSpawn = timestamp;
+        gameState.value.spawnInterval = Math.max(500, gameState.value.spawnInterval - 10);
+      }
+
+      // Update letters positions
+      if (gameArea.value) {
+        gameState.value.letters = gameState.value.letters.filter((letter) => {
+          letter.y += gameState.value.currentSpeed;
+          if (letter.y > gameArea.value!.clientHeight) {
+            lose();
+            return false;
+          }
+          return true;
+        });
+      }
+
+      gameState.value.gameLoop = requestAnimationFrame(update);
+    };
+
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (gameState.value.gameOver) return;
+
+      const pressedKey = event.key.toUpperCase();
+      const letterIndex = gameState.value.letters.findIndex((l) => l.char === pressedKey);
+
+      if (letterIndex !== -1) {
+        gameState.value.letters.splice(letterIndex, 1);
+        gameState.value.score++;
+      }
+    };
+
+    const startGame = () => {
+      if (!questionUtils.question.value) return;
+
+      gameState.value = {
+        ...gameState.value,
+        timeLeft: questionUtils.question.value.gameLength,
+        currentSpeed: questionUtils.question.value.initialSpeed,
+        spawnInterval: questionUtils.question.value.spawnInterval * 1000,
+        lastUpdate: performance.now(),
+        lastSpawn: performance.now(),
+      };
+
+      gameState.value.gameLoop = requestAnimationFrame(update);
+    };
+
+    // Lifecycle hooks
+    onMounted(() => {
+      window.addEventListener('keypress', handleKeyPress);
+      generateTrees();
+      startGame();
     });
 
-    this.gameLoop = requestAnimationFrame(this.update);
-  }
-
-  handleKeyPress(event: KeyboardEvent) {
-    if (this.gameOver) return;
-
-    const pressedKey = event.key.toUpperCase();
-    const letterIndex = this.letters.findIndex(l => l.char === pressedKey);
-
-    if (letterIndex !== -1) {
-      this.letters.splice(letterIndex, 1);
-      this.score++;
-    }
-  }
-
-  win() {
-    this.gameOver = true;
-    this.gameOverMessage = 'You Win!';
-    this.submit({
-      lettersTyped: this.score,
-      win: true,
-      percentage: 1,
+    onUnmounted(() => {
+      window.removeEventListener('keypress', handleKeyPress);
+      if (gameState.value.gameLoop) {
+        cancelAnimationFrame(gameState.value.gameLoop);
+      }
     });
-  }
 
-  lose() {
-    this.gameOver = true;
-    this.gameOverMessage = 'Game Over!';
-    this.submit({
-      lettersTyped: this.score,
-      percentage: this.timeLeft / this.question.gameLength,
-      win: false,
-    });
-  }
-
-  submit(answer: Score) {
-    this.submitAnswer(answer);
-  }
-}
+    // Expose to template
+    return {
+      gameArea,
+      ...gameState.value,
+      treePositions,
+    };
+  },
+});
 </script>
 
 <style scoped>
