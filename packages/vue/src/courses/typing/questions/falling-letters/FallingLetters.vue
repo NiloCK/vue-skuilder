@@ -18,6 +18,19 @@
         <span class="letter-text">{{ letter.char }}</span>
       </div>
 
+      <!-- Explosion effects -->
+      <div
+        v-for="explosion in explosions"
+        :key="explosion.id"
+        class="explosion"
+        :style="{
+          left: explosion.x + 'px',
+          top: explosion.y + 'px',
+        }"
+      >
+        <div class="particle" v-for="n in 12" :key="n"></div>
+      </div>
+
       <!-- Grass effect -->
       <div class="grass-container">
         <div class="grass"></div>
@@ -103,6 +116,8 @@ export default defineComponent({
     const timeLeft = ref(30);
     const score = ref(0);
     const treePositions = ref<TreePosition[]>([]);
+
+    const explosions = ref<{ id: number; x: number; y: number }[]>([]);
 
     // Internal game state
     const gameState = ref<GameStateInternal>({
@@ -204,6 +219,18 @@ export default defineComponent({
       const letterIndex = letters.value.findIndex((l) => l.char === pressedKey);
 
       if (letterIndex !== -1) {
+        // Create explosion at letter's position
+        explosions.value.push({
+          id: Date.now(),
+          x: letters.value[letterIndex].x,
+          y: letters.value[letterIndex].y,
+        });
+
+        // Remove explosion after animation
+        setTimeout(() => {
+          explosions.value = explosions.value.filter((e) => e.id !== explosions.value[explosions.value.length - 1].id);
+        }, 300);
+
         letters.value.splice(letterIndex, 1);
         score.value++;
       }
@@ -271,6 +298,7 @@ export default defineComponent({
       timeLeft,
       score,
       treePositions,
+      explosions,
     };
   },
 });
@@ -477,5 +505,74 @@ export default defineComponent({
 .grass,
 .grass-overlay {
   z-index: 3;
+}
+
+.explosion {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.particle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: linear-gradient(to right, #ff8f8f, #ff6b6b);
+  box-shadow: 0 0 10px #ff6b6b, 0 0 20px #ff8f8f;
+  animation: explode 0.3s ease-out forwards;
+}
+
+@keyframes explode {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0) rotate(45deg);
+    opacity: 0;
+  }
+}
+
+/* Generate different angles for particles */
+.particle:nth-child(1) {
+  transform: rotate(0deg) translate(20px);
+}
+.particle:nth-child(2) {
+  transform: rotate(30deg) translate(20px);
+}
+.particle:nth-child(3) {
+  transform: rotate(60deg) translate(20px);
+}
+.particle:nth-child(4) {
+  transform: rotate(90deg) translate(20px);
+}
+.particle:nth-child(5) {
+  transform: rotate(120deg) translate(20px);
+}
+.particle:nth-child(6) {
+  transform: rotate(150deg) translate(20px);
+}
+.particle:nth-child(7) {
+  transform: rotate(180deg) translate(20px);
+}
+.particle:nth-child(8) {
+  transform: rotate(210deg) translate(20px);
+}
+.particle:nth-child(9) {
+  transform: rotate(240deg) translate(20px);
+}
+.particle:nth-child(10) {
+  transform: rotate(270deg) translate(20px);
+}
+.particle:nth-child(11) {
+  transform: rotate(300deg) translate(20px);
+}
+.particle:nth-child(12) {
+  transform: rotate(330deg) translate(20px);
 }
 </style>
