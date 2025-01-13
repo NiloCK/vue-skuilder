@@ -16,7 +16,6 @@ import { randomInt, cos, sin } from '../../utility';
 import paper from 'paper';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { nextTick } from 'vue';
-import { console } from 'console';
 
 export default defineComponent({
   name: 'CalculateSupplementaryAngle',
