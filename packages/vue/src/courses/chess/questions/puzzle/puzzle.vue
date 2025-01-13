@@ -1,6 +1,6 @@
-yarn
 <template>
-  <div>
+  <!-- Template remains largely the same -->
+  <div data-viewable="PuzzleView">
     <p class="headline">
       Make the best move for {{ playerColor === 'cg-white' ? 'White ♖♘♗♕♔♗♘♖' : 'Black ♜♞♝♚♛♝♞♜' }}:
     </p>
@@ -9,31 +9,34 @@ yarn
         <div v-for="rank in 8" :key="rank">{{ playerColor === 'cg-white' ? 9 - rank : rank }}</div>
       </div>
       <div class="board-and-files">
-        <div id="cg"></div>
+        <div id="cg" ref="boardElement"></div>
         <div class="files-labels">
           <div v-for="file in files" :key="file">{{ file }}</div>
         </div>
       </div>
     </div>
-    <div v-if="showPromotionDialog" class="promotion-dialog">
-      <button @click="handlePromotion('q')">{{ playerColor === 'cg-white' ? '♕' : '♛' }} Queen</button>
-      <button @click="handlePromotion('r')">{{ playerColor === 'cg-white' ? '♖' : '♜' }} Rook</button>
-      <button @click="handlePromotion('b')">{{ playerColor === 'cg-white' ? '♗' : '♝' }} Bishop</button>
-      <button @click="handlePromotion('n')">{{ playerColor === 'cg-white' ? '♘' : '♞' }} Knight</button>
+    <div v-if="showPromotionDialog.value" class="promotion-dialog">
+      <button v-for="piece in promotionPieces" :key="piece.value" @click="handlePromotion(piece.value)">
+        {{ playerColor === 'cg-white' ? piece.whiteSymbol : piece.blackSymbol }}
+        {{ piece.name }}
+      </button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
+import { defineComponent, ref, computed, onMounted, PropType } from 'vue';
 import { Chessground } from '../../chessground/chessground';
 import { Key } from '../../chessground/types';
 import { Api as cgAPI } from '../../chessground/api';
-import { QuestionView } from '@/base-course/Viewable';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import { ChessPuzzle } from './index';
 import { Chess, SQUARES } from 'chess.js';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 
+// Types and interfaces
 type PromotionPiece = 'q' | 'r' | 'b' | 'n';
+type Color = 'cg-white' | 'cg-black';
 
 interface UciMove {
   from: string;
@@ -41,7 +44,8 @@ interface UciMove {
   promotion?: PromotionPiece;
 }
 
-function parseUciMove(moveString: string): UciMove {
+// Helper functions (moved outside component)
+const parseUciMove = (moveString: string): UciMove => {
   if (moveString.length < 4 || moveString.length > 5) {
     throw new Error(`Invalid UCI move format: ${moveString}`);
   }
@@ -51,173 +55,9 @@ function parseUciMove(moveString: string): UciMove {
     to: moveString.substring(2, 4),
     promotion: moveString.length === 5 ? (moveString[4] as PromotionPiece) : undefined,
   };
-}
+};
 
-@Component({})
-export default class PuzzleView extends QuestionView<ChessPuzzle> {
-  public answer: string = '';
-  private chessEngine: Chess;
-  private chessBoard: cgAPI;
-  public playerColor: Color = 'cg-white';
-
-  private readonly animDelay: number = 300;
-
-  public showPromotionDialog = false;
-  private promotionMove: { from: string; to: string } | null = null;
-
-  get question() {
-    return new ChessPuzzle(this.data);
-  }
-
-  get files(): string[] {
-    const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-    return this.playerColor === 'cg-white' ? files : files.reverse();
-  }
-
-  public mounted() {
-    // console.log(`data: ${this.data}`);
-    this.chessEngine = new Chess(this.question.fen);
-    this.playerColor = swapColor(toColor(this.chessEngine));
-    console.log(`Player color: ${this.playerColor}`);
-
-    this.chessBoard = Chessground(document.getElementById('cg')!, {
-      movable: {
-        free: false,
-        showDests: true,
-        dests: toDests(this.chessEngine),
-      },
-      draggable: {
-        showGhost: true,
-      },
-      fen: this.chessEngine.fen(),
-      orientation: this.playerColor,
-      coordinates: false,
-      animation: {
-        duration: this.animDelay,
-        enabled: true,
-      },
-    });
-
-    this.chessBoard.set({
-      movable: {
-        events: {
-          // @ts-ignore
-          after: this.checkMove,
-        },
-      },
-    });
-
-    const firstMove = this.question.moves.shift()!;
-
-    this.chessBoard.move(firstMove.substring(0, 2) as Key, firstMove.substring(2) as Key);
-    this.chessEngine.move({ from: firstMove.substring(0, 2), to: firstMove.substring(2) });
-    this.updateChessground();
-  }
-
-  private isUnfinishedPromotion(from: string, to: string, promotionPiece?: PromotionPiece): boolean {
-    if (this.isPromotionPiece(promotionPiece)) {
-      // If promotion piece is provided, it's a finished promotion move
-      return false;
-    }
-
-    // @ts-ignore
-    const piece = this.chessEngine.get(from);
-    return piece?.type === 'p' && (to[1] === '8' || to[1] === '1');
-  }
-
-  public handlePromotion(promotionPiece: PromotionPiece) {
-    if (!this.promotionMove) return;
-
-    console.log(`promoting to ${promotionPiece}`);
-    this.showPromotionDialog = false;
-    this.checkMove(this.promotionMove.from, this.promotionMove.to, promotionPiece);
-  }
-
-  public isPromotionPiece(p: any): p is PromotionPiece {
-    return ['q', 'r', 'b', 'n'].includes(p);
-  }
-
-  /**
-   * Checks the user's move against the expected move.
-   *
-   * If correct, puzzle advances (or finishes). Else, the move is reverted.
-   *
-   * @param orig
-   * @param dest
-   */
-  checkMove(orig: any, dest: any, promotionPiece?: PromotionPiece) {
-    console.log('checkMove', orig, dest);
-    console.log('moves: ' + this.question.moves);
-    if (this.question.moves.length === 0) {
-      throw new Error('No moves');
-    }
-
-    if (this.isUnfinishedPromotion(orig, dest, promotionPiece)) {
-      this.promotionMove = { from: orig, to: dest };
-      this.showPromotionDialog = true;
-      return; // Wait for promotion piece selection
-    }
-
-    let expectedMove = this.question.moves[0];
-    console.log(`Expected move: ${expectedMove}`);
-
-    const moveMade = this.isPromotionPiece(promotionPiece) ? `${orig}${dest}${promotionPiece}` : `${orig}${dest}`;
-    console.log(`Move made: ${moveMade}`);
-
-    if (expectedMove === moveMade) {
-      console.log('move is correct');
-      this.chessEngine.move({
-        from: orig,
-        to: dest,
-        promotion: this.isPromotionPiece(promotionPiece) ? promotionPiece : undefined,
-      });
-      this.updateChessground();
-
-      this.question.moves.shift();
-      console.log(this.question.moves);
-
-      if (this.question.moves.length === 0) {
-        console.log('no more moves - puzzle completed');
-        this.submitAnswer('');
-      } else {
-        window.setTimeout(() => {
-          let nextMove = this.question.moves.shift()!;
-          console.log('computerMove', nextMove);
-          const move = parseUciMove(nextMove);
-          this.chessEngine.move(move);
-          this.updateChessground();
-        }, this.animDelay);
-      }
-    } else {
-      // check for a checkmate
-      this.chessEngine.move({ from: orig, to: dest, promotion: promotionPiece });
-      if (this.chessEngine.isCheckmate()) {
-        console.log('checkmate');
-        this.submitAnswer(ChessPuzzle.CHECKMATE);
-      } else {
-        // revert the move
-        this.chessEngine.undo();
-      }
-
-      console.log('incorrect - revert the move'); // [ ] visual feedback? emit 'wrongness' event?
-      this.submitAnswer(orig + dest + promotionPiece);
-      this.updateChessground();
-    }
-  }
-
-  updateChessground() {
-    this.chessBoard.set({
-      fen: this.chessEngine.fen(),
-      turnColor: toColor(this.chessEngine),
-      movable: {
-        color: toColor(this.chessEngine),
-        dests: toDests(this.chessEngine),
-      },
-    });
-  }
-}
-
-function toDests(chess: Chess) {
+const toDests = (chess: Chess) => {
   const dests = new Map();
   SQUARES.forEach((s) => {
     const ms = chess.moves({ square: s, verbose: true });
@@ -227,33 +67,189 @@ function toDests(chess: Chess) {
         ms.map((m) => m.to)
       );
   });
-  // console.log(dests);
   return dests;
-}
+};
 
-type Color = 'cg-white' | 'cg-black';
+const swapColor = (color: Color): Color => (color === 'cg-white' ? 'cg-black' : 'cg-white');
 
-function swapColor(color: Color): Color {
-  console.log('swapColor', color);
-  return color === 'cg-white' ? 'cg-black' : 'cg-white';
-}
+const toColor = (chess: Chess): Color => (chess.turn() === 'w' ? 'cg-white' : 'cg-black');
 
-function toColor(chess: Chess): Color {
-  return chess.turn() === 'w' ? 'cg-white' : 'cg-black';
-}
+// Chess puzzle component
+export default defineComponent({
+  name: 'PuzzleView',
 
-function playOtherSide(cg: cgAPI, chess: Chess) {
-  return (orig: any, dest: any) => {
-    chess.move({ from: orig, to: dest });
-    cg.set({
-      turnColor: toColor(chess),
-      movable: {
-        color: toColor(chess),
-        dests: toDests(chess),
-      },
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
+
+  setup(props, { emit }) {
+    // Initialize base utilities
+    const viewableUtils = useViewable(props, emit, 'PuzzleView');
+    const questionUtils = useQuestionView<ChessPuzzle>(viewableUtils, props.modifyDifficulty);
+
+    // State
+    const boardElement = ref<HTMLElement | null>(null);
+    const chessEngine = ref<Chess>();
+    const chessBoard = ref<cgAPI>();
+    const playerColor = ref<Color>('cg-white');
+    const showPromotionDialog = ref(false);
+    const promotionMove = ref<{ from: string; to: string } | null>(null);
+
+    const ANIM_DELAY = 300;
+
+    const promotionPieces = [
+      { value: 'q', name: 'Queen', whiteSymbol: '♕', blackSymbol: '♛' },
+      { value: 'r', name: 'Rook', whiteSymbol: '♖', blackSymbol: '♜' },
+      { value: 'b', name: 'Bishop', whiteSymbol: '♗', blackSymbol: '♝' },
+      { value: 'n', name: 'Knight', whiteSymbol: '♘', blackSymbol: '♞' },
+    ];
+
+    // Computed
+    const files = computed(() => {
+      const filesList = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+      return playerColor.value === 'cg-white' ? filesList : filesList.reverse();
     });
-  };
-}
+
+    // Methods
+    const isPromotionPiece = (p: any): p is PromotionPiece => ['q', 'r', 'b', 'n'].includes(p);
+
+    const isUnfinishedPromotion = (from: string, to: string, promotionPiece?: PromotionPiece) => {
+      if (isPromotionPiece(promotionPiece)) return false;
+      // @ts-ignore
+      const piece = chessEngine.value?.get(from);
+      return piece?.type === 'p' && (to[1] === '8' || to[1] === '1');
+    };
+
+    const updateChessground = () => {
+      if (!chessEngine.value || !chessBoard.value) return;
+
+      chessBoard.value.set({
+        fen: chessEngine.value.fen(),
+        turnColor: toColor(chessEngine.value),
+        movable: {
+          color: toColor(chessEngine.value),
+          dests: toDests(chessEngine.value),
+        },
+      });
+    };
+
+    const handlePromotion = (promotionPiece: PromotionPiece) => {
+      if (!promotionMove.value) return;
+
+      viewableUtils.logger.log(`promoting to ${promotionPiece}`);
+      showPromotionDialog.value = false;
+      checkMove(promotionMove.value.from, promotionMove.value.to, promotionPiece);
+    };
+
+    const checkMove = (orig: any, dest: any, promotionPiece?: PromotionPiece) => {
+      if (!questionUtils.question.value?.moves.length) {
+        throw new Error('No moves');
+      }
+
+      if (isUnfinishedPromotion(orig, dest, promotionPiece)) {
+        promotionMove.value = { from: orig, to: dest };
+        showPromotionDialog.value = true;
+        return;
+      }
+
+      const expectedMove = questionUtils.question.value.moves[0];
+      const moveMade = isPromotionPiece(promotionPiece) ? `${orig}${dest}${promotionPiece}` : `${orig}${dest}`;
+
+      if (expectedMove === moveMade) {
+        chessEngine.value?.move({
+          from: orig,
+          to: dest,
+          promotion: isPromotionPiece(promotionPiece) ? promotionPiece : undefined,
+        });
+        updateChessground();
+
+        questionUtils.question.value.moves.shift();
+
+        if (questionUtils.question.value.moves.length === 0) {
+          questionUtils.submitAnswer('');
+        } else {
+          window.setTimeout(() => {
+            if (!questionUtils.question.value) return;
+
+            const nextMove = questionUtils.question.value.moves.shift()!;
+            const move = parseUciMove(nextMove);
+            chessEngine.value?.move(move);
+            updateChessground();
+          }, ANIM_DELAY);
+        }
+      } else {
+        // Handle incorrect move
+        chessEngine.value?.move({ from: orig, to: dest, promotion: promotionPiece });
+        if (chessEngine.value?.isCheckmate()) {
+          questionUtils.submitAnswer(ChessPuzzle.CHECKMATE);
+        } else {
+          chessEngine.value?.undo();
+        }
+
+        questionUtils.submitAnswer(orig + dest + promotionPiece);
+        updateChessground();
+      }
+    };
+
+    // Initialization
+    onMounted(() => {
+      if (!boardElement.value) return;
+
+      questionUtils.question.value = new ChessPuzzle(props.data);
+      chessEngine.value = new Chess(questionUtils.question.value.fen);
+      playerColor.value = swapColor(toColor(chessEngine.value));
+
+      chessBoard.value = Chessground(boardElement.value, {
+        movable: {
+          free: false,
+          showDests: true,
+          dests: toDests(chessEngine.value),
+          events: {
+            // @ts-ignore
+            after: checkMove,
+          },
+        },
+        draggable: {
+          showGhost: true,
+        },
+        fen: chessEngine.value.fen(),
+        orientation: playerColor.value,
+        coordinates: false,
+        animation: {
+          duration: ANIM_DELAY,
+          enabled: true,
+        },
+      });
+
+      // Make first move
+      const firstMove = questionUtils.question.value.moves.shift()!;
+      chessBoard.value.move(firstMove.substring(0, 2) as Key, firstMove.substring(2) as Key);
+      chessEngine.value.move({
+        from: firstMove.substring(0, 2),
+        to: firstMove.substring(2),
+      });
+      updateChessground();
+    });
+
+    return {
+      boardElement,
+      playerColor,
+      files,
+      showPromotionDialog,
+      promotionPieces,
+      handlePromotion,
+      ...viewableUtils,
+      ...questionUtils,
+    };
+  },
+});
 </script>
 
 <style scoped>
