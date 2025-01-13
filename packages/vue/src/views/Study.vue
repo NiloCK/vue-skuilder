@@ -698,13 +698,13 @@ export default defineComponent({
         });
       } catch (e) {
         console.warn(`[Study] Error loading card: ${JSON.stringify(e)}, ${e}`);
+        this.loading = false;
 
         const err = e as Error;
         if (docIsDeleted(err) && isReview(item)) {
           console.warn(`Card was deleted: ${qualified_id}`);
           removeScheduledCardReview(this.user!.username, item.reviewID);
         }
-        this.loading = false;
 
         this.loadCard(this.sessionController!.nextCard('dismiss-error'));
       } finally {
