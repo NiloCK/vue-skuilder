@@ -99,38 +99,39 @@
       </div>
       <v-tooltip
         fixed
-        activator
         right
-        open-delay="0"
-        close-delay="200"
+        :open-delay="0"
+        :close-delay="200"
         color="secondary"
         content-class="subheading"
         transition="slide-x-transition"
         v-model="timerIsActive"
       >
-        <v-btn
-          slot="activator"
-          v-if="!sessionFinished"
-          fab
-          color="transparent"
-          bottom
-          left
-          fixed
-          :title="timeString"
-          @click="if (timerIsActive) incrementSessionClock();"
-        >
-          <v-progress-circular
-            alt="Time remaining in study session"
-            centered
-            size="64"
-            width="8"
-            rotate="-90"
-            :color="timerColor"
-            :value="percentageRemaining"
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            v-if="!sessionFinished"
+            v-bind="attrs"
+            v-on="on"
+            fab
+            color="transparent"
+            bottom
+            left
+            fixed
+            @click="if (timerIsActive) incrementSessionClock();"
           >
-            <v-icon v-if="timerIsActive" large dark>mdi-add</v-icon>
-          </v-progress-circular>
-        </v-btn>
+            <v-progress-circular
+              alt="Time remaining in study session"
+              centered
+              size="64"
+              width="8"
+              rotate="-90"
+              :color="timerColor"
+              :value="percentageRemaining"
+            >
+              <v-icon v-if="timerIsActive" large dark>mdi-add</v-icon>
+            </v-progress-circular>
+          </v-btn>
+        </template>
         {{ timeString }}
       </v-tooltip>
       <v-speed-dial v-if="!sessionFinished" v-model="fab" fixed bottom right transition="scale-transition">
