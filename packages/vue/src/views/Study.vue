@@ -704,6 +704,7 @@ export default defineComponent({
           console.warn(`Card was deleted: ${qualified_id}`);
           removeScheduledCardReview(this.user!.username, item.reviewID);
         }
+        this.loading = false;
 
         this.loadCard(this.sessionController!.nextCard('dismiss-error'));
       } finally {
