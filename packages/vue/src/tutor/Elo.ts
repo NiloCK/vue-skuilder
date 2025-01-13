@@ -97,8 +97,8 @@ export function toCourseElo(elo: Eloish | undefined): CourseElo {
   }
 }
 
-function isCourseElo(x: any): x is CourseElo {
-  return x !== undefined && x.global !== undefined;
+export function isCourseElo(x: any): x is CourseElo {
+  return x !== undefined && x.global !== undefined && x.tags !== undefined;
 }
 
 /**
@@ -130,7 +130,7 @@ export function adjustCourseScores(
 
   if (options == undefined || !options.globalOnly) {
     // grade on each tag present for the card
-    Object.keys(cardElo.tags).forEach(k => {
+    Object.keys(cardElo.tags).forEach((k) => {
       const userTagElo: EloRank = userElo.tags[k]
         ? userElo.tags[k]
         : {
