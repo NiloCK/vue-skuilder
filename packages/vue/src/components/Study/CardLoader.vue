@@ -90,7 +90,7 @@ export default defineComponent({
         this.cardID = _cardID;
         this.courseID = _courseID;
       } catch (e) {
-        throw new Error(`Error loading card: ${JSON.stringify(e)}, ${e}`);
+        throw new Error(`[CardLoader] Error loading card: ${JSON.stringify(e)}, ${e}`);
       } finally {
         this.loading = false;
         this.$emit('card-loaded');

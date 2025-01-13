@@ -696,7 +696,7 @@ export default defineComponent({
           records: [],
         });
       } catch (e) {
-        console.warn(`Error loading card: ${JSON.stringify(e)}, ${e}`);
+        console.warn(`[Study] Error loading card: ${JSON.stringify(e)}, ${e}`);
 
         const err = e as Error;
         if (docIsDeleted(err) && isReview(item)) {
