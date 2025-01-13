@@ -180,7 +180,7 @@ import { getCardDataShape } from '@/db/getCardDataShape';
 import SessionController, { StudySessionRecord } from '@/db/SessionController';
 import { newInterval } from '@/db/SpacedRepetition';
 import { CardData, CardHistory, CardRecord, DisplayableData, isQuestionRecord } from '@/db/types';
-import { adjustCourseScores, CourseElo, toCourseElo } from '@/tutor/Elo';
+import { adjustCourseScores, CourseElo, toCourseElo, isCourseElo } from '@/tutor/Elo';
 import confetti from 'canvas-confetti';
 import moment from 'moment';
 import SkldrControlsView from '../components/SkMouseTrap.vue';
@@ -662,6 +662,11 @@ export default defineComponent({
 
       try {
         const tmpCardData = await getCourseDoc<CardData>(_courseID, _cardID);
+
+        if (!isCourseElo(tmpCardData.elo)) {
+          tmpCardData.elo = toCourseElo(tmpCardData.elo);
+        }
+
         const tmpView = Courses.getView(tmpCardData.id_view);
         const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
           return getCourseDoc<DisplayableData>(_courseID, id, {
@@ -697,7 +702,7 @@ export default defineComponent({
           records: [],
         });
       } catch (e) {
-        console.warn(`[Study] Error loading card: ${JSON.stringify(e)}, ${e}`);
+        console.warn(`[Study] Error loading card ${JSON.stringify(item)}:\n\t${JSON.stringify(e)}, ${e}`);
         this.loading = false;
 
         const err = e as Error;
