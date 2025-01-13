@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, PropType } from 'vue';
+import { defineComponent, ref, computed, onMounted, onUnmounted, PropType } from 'vue';
 import { Chessground } from '../../chessground/chessground';
 import { Key } from '../../chessground/types';
 import { Api as cgAPI } from '../../chessground/api';
@@ -236,6 +236,11 @@ export default defineComponent({
         to: firstMove.substring(2),
       });
       updateChessground();
+    });
+
+    onUnmounted(() => {
+      chessBoard.value?.destroy();
+      chessEngine.value = undefined;
     });
 
     return {
