@@ -1,32 +1,63 @@
 <template>
-  <div>
-    {{ question.a }} + {{ question.b }} =
-    <UserInputNumber />
+  <div data-viewable="AdditionHorizontal">
+    <template v-if="question">
+      {{ question.a }} + {{ question.b }} =
+      <UserInputNumber v-model="answer" />
+    </template>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { defineComponent, ref, computed, PropType } from 'vue';
 import { SingleDigitAdditionQuestion } from './index';
-import { QuestionView } from '@/base-course/Viewable';
-import { randomInt } from '@/courses/math/utility';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
 
-@Component({
+export default defineComponent({
+  name: 'AdditionHorizontal',
+
   components: {
     UserInputNumber,
   },
-})
-export default class AdditionHorizontal extends QuestionView<SingleDigitAdditionQuestion> {
-  public answer: string = '';
 
-  public get question() {
-    return new SingleDigitAdditionQuestion(this.data);
-  }
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
 
-  public submit() {
-    // alert(this.answer);
-    alert(this.question.isCorrect(parseInt(this.answer, 10)));
-  }
-}
+  setup(props, { emit }) {
+    const viewableUtils = useViewable(props, emit, 'AdditionHorizontal');
+    const questionUtils = useQuestionView<SingleDigitAdditionQuestion>(viewableUtils, props.modifyDifficulty);
+
+    const answer = ref('');
+
+    // Initialize question immediately
+    questionUtils.question.value = new SingleDigitAdditionQuestion(props.data);
+
+    // Expose the question directly for template access
+    const question = computed(() => questionUtils.question.value);
+
+    const submit = () => {
+      if (question.value) {
+        const isCorrect = question.value.isCorrect(parseInt(answer.value, 10));
+        alert(isCorrect);
+      }
+    };
+
+    return {
+      ...viewableUtils,
+      ...questionUtils,
+      answer,
+      question, // expose the computed question directly
+      submit,
+    };
+  },
+});
 </script>

@@ -163,7 +163,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { ViewComponent } from '@/base-course/Displayable';
+import { ViewComponent, isVueConstructor, isDefineComponent } from '@/base-course/Displayable';
 import { displayableDataToViewData, ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable, { isQuestionView } from '@/base-course/Viewable';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
@@ -180,7 +180,7 @@ import { getCardDataShape } from '@/db/getCardDataShape';
 import SessionController, { StudySessionRecord } from '@/db/SessionController';
 import { newInterval } from '@/db/SpacedRepetition';
 import { CardData, CardHistory, CardRecord, DisplayableData, isQuestionRecord } from '@/db/types';
-import { adjustCourseScores, CourseElo, toCourseElo } from '@/tutor/Elo';
+import { adjustCourseScores, CourseElo, toCourseElo, isCourseElo } from '@/tutor/Elo';
 import confetti from 'canvas-confetti';
 import moment from 'moment';
 import SkldrControlsView from '../components/SkMouseTrap.vue';
@@ -298,14 +298,14 @@ export default defineComponent({
 
           for (const oldField in this.$store.state.dataInputForm.localStore) {
             if (oldField) {
-              console.log(`Removing old data: ${oldField}`);
+              console.log(`[Study] Removing old data: ${oldField}`);
               delete this.$store.state.dataInputForm.localStore[oldField];
             }
           }
 
           for (const field in this.data[0]) {
             if (field) {
-              console.log(`Writing ${field}: ${this.data[0][field]} to the dataInputForm state...`);
+              console.log(`[Study] Writing ${field}: ${this.data[0][field]} to the dataInputForm state...`);
               this.$store.state.dataInputForm.localStore[field] = this.data[0][field];
             }
           }
@@ -348,14 +348,14 @@ export default defineComponent({
         });
       });
 
-      console.log(`COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
+      console.log(`[Study] COURSE PREVIEW MODE FOR ${this.previewCourseID}`);
       await this.user!.registerForCourse(this.previewCourseID, true);
 
       singletonStudyCourseID = this.previewCourseID;
     }
 
     if (this.focusCourseID) {
-      console.log(`FOCUS study session: ${this.focusCourseID}`);
+      console.log(`[Study] FOCUS study session: ${this.focusCourseID}`);
       singletonStudyCourseID = this.focusCourseID;
     }
 
@@ -383,9 +383,9 @@ export default defineComponent({
           text: this.$store.state._user!.username,
           status: Status.ok,
         });
-        console.log(`There was a change in the classroom DB:`);
-        console.log(`change: ${v}`);
-        console.log(`Stringified change: ${JSON.stringify(v)}`);
+        console.log(`[Study] There was a change in the classroom DB:`);
+        console.log(`[Study] change: ${v}`);
+        console.log(`[Study] Stringified change: ${JSON.stringify(v)}`);
         return {};
       };
     },
@@ -424,7 +424,7 @@ export default defineComponent({
     },
 
     async initStudySession(sources: ContentSourceID[], timeLimit: number) {
-      console.log(`starting study session w/ sources: ${JSON.stringify(sources)}`);
+      console.log(`[Study] starting study session w/ sources: ${JSON.stringify(sources)}`);
 
       this.sessionContentSources = (
         await Promise.all(
@@ -462,7 +462,7 @@ export default defineComponent({
         .filter((s) => s.type === 'course')
         .forEach(async (c) => (this.courseNames[c.id] = await getCourseName(c.id)));
 
-      console.log(`Session created:
+      console.log(`[Study] Session created:
         ${this.sessionController.toString()}
         User courses: ${sources
           .filter((s) => s.type === 'course')
@@ -494,11 +494,11 @@ export default defineComponent({
       r.courseID = this.courseID;
       this.currentCard.records.push(r);
 
-      console.log(`Study.processResponse is running...`);
+      console.log(`[Study] Study.processResponse is running...`);
       const cardHistory = this.logCardRecord(r);
 
       if (isQuestionRecord(r)) {
-        console.log(`Question is ${r.isCorrect ? '' : 'in'}correct`);
+        console.log(`[Study] Question is ${r.isCorrect ? '' : 'in'}correct`);
         if (r.isCorrect) {
           try {
             if (this.$refs.shadowWrapper) {
@@ -594,7 +594,7 @@ export default defineComponent({
 
           if (user.ok && card && card.ok) {
             console.log(
-              `Updated ELOS:
+              `[Study] Updated ELOS:
               \tUser: ${JSON.stringify(eloUpdate.userElo)})
               \tCard: ${JSON.stringify(eloUpdate.cardElo)})
               `
@@ -625,7 +625,7 @@ export default defineComponent({
       const nextReviewTime = moment.utc().add(nextInterval, 'seconds');
 
       if (isReview(item)) {
-        console.log(`Removing previously scheduled review for: ${item.cardID}`);
+        console.log(`[Study] Removing previously scheduled review for: ${item.cardID}`);
         removeScheduledCardReview(this.user!.username, item.reviewID);
       }
 
@@ -645,7 +645,7 @@ export default defineComponent({
         return;
       }
 
-      console.log(`loading: ${JSON.stringify(item)}`);
+      console.log(`[Study] loading: ${JSON.stringify(item)}`);
       if (item === null) {
         this.sessionFinished = true;
         return;
@@ -658,10 +658,15 @@ export default defineComponent({
       const _cardID = qualified_id.split('-')[1];
       const _cardElo = qualified_id.split('-')[2];
 
-      console.log(`Now displaying: ${qualified_id}`);
+      console.log(`[Study] Now displaying: ${qualified_id}`);
 
       try {
         const tmpCardData = await getCourseDoc<CardData>(_courseID, _cardID);
+
+        if (!isCourseElo(tmpCardData.elo)) {
+          tmpCardData.elo = toCourseElo(tmpCardData.elo);
+        }
+
         const tmpView = Courses.getView(tmpCardData.id_view);
         const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
           return getCourseDoc<DisplayableData>(_courseID, id, {
@@ -684,8 +689,18 @@ export default defineComponent({
         this.courseID = _courseID;
         this.card_elo = tmpCardData.elo.global.score;
 
-        // @ts-ignore
-        this.constructedView = new this.view() as Viewable;
+        //
+        if (isVueConstructor(tmpView)) {
+          // @ts-ignore
+          this.constructedView = new tmpView() as Viewable;
+        } else if (isDefineComponent(tmpView)) {
+          // @ts-ignore
+          this.constructedView = tmpView;
+        } else {
+          console.warn(`[Study] Error constructing view for ${qualified_id}`);
+          // @ts-ignore
+          this.constructedView = tmpView;
+        }
 
         this.sessionRecord.push({
           card: {
@@ -697,7 +712,7 @@ export default defineComponent({
           records: [],
         });
       } catch (e) {
-        console.warn(`[Study] Error loading card: ${JSON.stringify(e)}, ${e}`);
+        console.warn(`[Study] Error loading card ${JSON.stringify(item)}:\n\t${JSON.stringify(e)}, ${e}`);
         this.loading = false;
 
         const err = e as Error;

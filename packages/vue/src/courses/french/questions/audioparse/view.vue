@@ -1,31 +1,64 @@
 <template>
-  <div>
-    <!-- <audio autoplay :src="getURL('audio')" /> -->
-    <AudioAutoPlayer :src="getURL('audio')" />
-    <br /><br />
-    {{ question.text }}
+  <div data-viewable="AudioParseView">
+    <template v-if="question">
+      <AudioAutoPlayer :src="getURL('audio')" />
+      <br /><br />
+      {{ question.text }}
+    </template>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { QuestionView } from '@/base-course/Viewable';
+import { defineComponent, ref, computed, PropType } from 'vue';
 import { AudioParsingQuestion } from './index';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 import AudioAutoPlayer from '@/base-course/Components/AudioAutoPlayer.vue';
 
-@Component({
+export default defineComponent({
+  name: 'AudioParseView',
+
   components: {
     AudioAutoPlayer,
   },
-})
-export default class AudioParseView extends QuestionView<AudioParsingQuestion> {
-  public answer: string = '';
-  get question() {
-    return new AudioParsingQuestion(this.data);
-  }
 
-  public submit() {
-    // alert(this.question.isCorrect(parseInt(this.answer, 10)));
-  }
-}
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
+
+  setup(props, { emit }) {
+    const viewableUtils = useViewable(props, emit, 'AudioParseView');
+    const questionUtils = useQuestionView<AudioParsingQuestion>(viewableUtils, props.modifyDifficulty);
+
+    const answer = ref('');
+
+    // Initialize question immediately
+    questionUtils.question.value = new AudioParsingQuestion(props.data);
+
+    // Expose the question directly for template access
+    const question = computed(() => questionUtils.question.value);
+
+    const submit = () => {
+      if (question.value) {
+        const isCorrect = question.value.isCorrect(parseInt(answer.value, 10));
+        // alert(isCorrect);
+      }
+    };
+
+    return {
+      ...viewableUtils,
+      ...questionUtils,
+      answer,
+      question,
+      submit,
+    };
+  },
+});
 </script>

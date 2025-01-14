@@ -18,6 +18,7 @@ import UserInput from '@/base-course/Components/UserInput/OptionsUserInput';
 import MultipleChoiceOption from './MultipleChoiceOption.vue';
 import { Answer } from '../Displayable';
 import { defineComponent, PropType } from 'vue';
+import SkldrMouseTrap from '@/SkldrMouseTrap';
 
 export interface RadioSelectAnswer extends Answer {
   choiceList: string[];
@@ -35,10 +36,6 @@ export default defineComponent({
       type: Array as PropType<string[]>,
       required: true,
     },
-    MouseTrap: {
-      type: Object,
-      required: true,
-    },
   },
   data() {
     return {
@@ -47,13 +44,20 @@ export default defineComponent({
       containerRef: null as null | HTMLElement,
     };
   },
+  watch: {
+    choiceList: {
+      immediate: true,
+      handler(newList) {
+        if (newList?.length) {
+          this.bindKeys();
+        }
+      },
+    },
+  },
   mounted() {
     if (this.containerRef) {
       this.containerRef.focus();
     }
-  },
-  created() {
-    this.bindKeys();
   },
   unmounted() {
     this.unbindKeys();
@@ -103,29 +107,47 @@ export default defineComponent({
       return ret;
     },
     bindKeys() {
-      this.MouseTrap.bind('left', this.decrementSelection);
-      this.MouseTrap.bind('right', this.incrementSelection);
-      this.MouseTrap.bind('enter', this.forwardSelection);
-
-      for (let i = 0; i < this.choiceList.length; i++) {
-        this.bindNumberKey(i + 1);
-      }
+      SkldrMouseTrap.bind([
+        {
+          hotkey: 'left',
+          callback: this.decrementSelection,
+          command: 'Move selection left',
+        },
+        {
+          hotkey: 'right',
+          callback: this.incrementSelection,
+          command: 'Move selection right',
+        },
+        {
+          hotkey: 'enter',
+          callback: this.forwardSelection,
+          command: 'Submit selection',
+        },
+        // Add number key bindings
+        ...Array.from({ length: this.choiceList.length }, (_, i) => ({
+          hotkey: (i + 1).toString(),
+          callback: () => this.setSelection(i),
+          command: `Select option ${i + 1}`,
+        })),
+      ]);
     },
 
     unbindKeys() {
-      this.MouseTrap.unbind('left');
-      this.MouseTrap.unbind('right');
-      this.MouseTrap.unbind('enter');
+      // this.MouseTrap.unbind('left');
+      // this.MouseTrap.unbind('right');
+      // this.MouseTrap.unbind('enter');
 
-      for (let i = 1; i <= this.choiceList.length; i++) {
-        this.MouseTrap.unbind(i.toString());
-      }
+      // for (let i = 1; i <= this.choiceList.length; i++) {
+      //   this.MouseTrap.unbind(i.toString());
+      // }
+
+      SkldrMouseTrap.reset();
     },
-    bindNumberKey(n: number): void {
-      this.MouseTrap.bind(n.toString(), () => {
-        this.currentSelection = n - 1;
-      });
-    },
+    // bindNumberKey(n: number): void {
+    //   this.MouseTrap.bind(n.toString(), () => {
+    //     this.currentSelection = n - 1;
+    //   });
+    // },
   },
 });
 </script>

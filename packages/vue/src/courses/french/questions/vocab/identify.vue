@@ -1,24 +1,51 @@
 <template>
-  <div>This is a vocabulary question.</div>
+  <div data-viewable="IdentifyVocab">
+    <template v-if="question"> This is a vocabulary question. </template>
+  </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component } from 'vue-property-decorator';
-import { QuestionView } from '@/base-course/Viewable';
+import { defineComponent, computed, PropType } from 'vue';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import { VocabQuestion } from '@/courses/french/questions/vocab';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 import AudioAutoPlayer from '@/base-course/Components/AudioAutoPlayer.vue';
 import UserInputString from '@/base-course/Components/UserInput/UserInputString.vue';
 
-@Component({
+export default defineComponent({
+  name: 'IdentifyVocab',
+
   components: {
     AudioAutoPlayer,
     UserInputString,
   },
-})
-export default class IdentifyVocab extends QuestionView<VocabQuestion> {
-  get question() {
-    return new VocabQuestion(this.data);
-  }
-}
+
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
+
+  setup(props, { emit }) {
+    const viewableUtils = useViewable(props, emit, 'IdentifyVocab');
+    const questionUtils = useQuestionView<VocabQuestion>(viewableUtils, props.modifyDifficulty);
+
+    // Initialize question immediately
+    questionUtils.question.value = new VocabQuestion(props.data);
+
+    // Expose the question directly for template access
+    const question = computed(() => questionUtils.question.value);
+
+    return {
+      ...viewableUtils,
+      ...questionUtils,
+      question,
+    };
+  },
+});
 </script>

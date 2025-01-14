@@ -1,29 +1,63 @@
 <template>
-  <div>
-    {{ question.a }} times {{ question.b }} is
-    <UserInputNumber />
+  <div data-viewable="VerbalMultiplication">
+    <template v-if="question">
+      {{ question.a }} times {{ question.b }} is
+      <UserInputNumber v-model="answer" />
+    </template>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { QuestionView } from '@/base-course/Viewable';
+import { defineComponent, ref, computed, PropType } from 'vue';
 import { SingleDigitMultiplicationQuestion } from './index';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
 
-@Component({
+export default defineComponent({
+  name: 'VerbalMultiplication',
+
   components: {
     UserInputNumber,
   },
-})
-export default class VerbalMultiplication extends QuestionView<SingleDigitMultiplicationQuestion> {
-  public answer: string = '';
-  get question() {
-    return new SingleDigitMultiplicationQuestion(this.data);
-  }
 
-  public submit() {
-    alert(this.question.isCorrect(parseInt(this.answer, 10)));
-  }
-}
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
+
+  setup(props, { emit }) {
+    const viewableUtils = useViewable(props, emit, 'VerbalMultiplication');
+    const questionUtils = useQuestionView<SingleDigitMultiplicationQuestion>(viewableUtils, props.modifyDifficulty);
+
+    const answer = ref('');
+
+    // Initialize question immediately
+    questionUtils.question.value = new SingleDigitMultiplicationQuestion(props.data);
+
+    // Expose the question directly for template access
+    const question = computed(() => questionUtils.question.value);
+
+    const submit = () => {
+      if (question.value) {
+        const isCorrect = question.value.isCorrect(parseInt(answer.value, 10));
+        alert(isCorrect);
+      }
+    };
+
+    return {
+      ...viewableUtils,
+      ...questionUtils,
+      answer,
+      question,
+      submit,
+    };
+  },
+});
 </script>

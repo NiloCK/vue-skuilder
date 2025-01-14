@@ -17,12 +17,6 @@ jobs:
       - run: npm install -g yarn@1.22.17 # version? 1.22.17 -> 1.22.19 current
       - run: npm install -g lerna@3.22.1 # version? 3.22.1 -> 6.6.2 current
 
-      # Install Cypress system dependencies
-      - name: Install Cypress dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-
       - run: lerna bootstrap
       - name: Build and Test
         run: |

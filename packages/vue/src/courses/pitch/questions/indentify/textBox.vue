@@ -1,93 +1,100 @@
 <template>
-  <div>
-    What note is being played?
-
-    <radio-multiple-choice :choiceList="question.choiceList" />
+  <div data-viewable="IdentifyChroma">
+    <template v-if="question">
+      What note is being played?
+      <radio-multiple-choice :choiceList="question.choiceList" />
+    </template>
   </div>
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
-import { QuestionView } from '@/base-course/Viewable';
+import { defineComponent, ref, computed, onMounted, PropType } from 'vue';
 import { ChromaQuestion } from './index';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
 
-@Component({
+export default defineComponent({
+  name: 'IdentifyChroma',
+
   components: {
     RadioMultipleChoice,
   },
-})
-export default class IdentifyChroma extends QuestionView<ChromaQuestion> {
-  public answer: string = '';
-  public ctx: AudioContext = new AudioContext();
-  get question() {
-    return new ChromaQuestion(this.data);
-  }
-  public octaves(freq: number): number[] {
-    let ret: number[] = [];
-    let lowerFreq: number = freq / 2;
-    while (lowerFreq > 100) {
-      ret.push(lowerFreq);
-      lowerFreq /= 2;
-    }
-    ret.push(freq);
-    let above: number = freq * 2;
-    while (above < 5000) {
-      ret.push(above);
-      above *= 2;
-    }
 
-    return ret;
-  }
-  public created() {
-    this.octaves(295).forEach((t) => this.tone(t));
-    // this.tone(3520) // audible
-    // this.tone(1760) // audible
-    // this.tone(880) // audible
-    // this.tone(440)
-    // this.tone(220) // low, audible
-    // this.tone(110) // inaudible on dell
-  }
-  public tone(freq: number) {
-    // const freq: number = 440; // Hz
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
 
-    let osc = this.ctx.createOscillator();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
+  setup(props, { emit }) {
+    const viewableUtils = useViewable(props, emit, 'IdentifyChroma');
+    const questionUtils = useQuestionView<ChromaQuestion>(viewableUtils, props.modifyDifficulty);
 
-    let g = this.ctx.createGain();
-    console.log('Max Gain: ' + g.gain.maxValue);
-    // g.gain.value = 0.01;
-    g.gain.setValueAtTime(0, 0);
-    // g.gain.setValueAtTime(0.025, 1);
-    // g.gain.setValueAtTime(0.05, 2);
-    // g.gain.setValueAtTime(0.075, 3);
-    // g.gain.setValueAtTime(0.1, 4);
-    // g.gain.setValueAtTime(0.2, 5);
-    // g.gain.setValueAtTime(0., 6);
-    // g.gain.setValueAtTime(0.4, 7);
-    // g.gain.setValueAtTime(0., 8);
-    // g.gain.setValueAtTime(0.6, 9);
-    // g.gain.setValueAtTime(0., 10);
-    // g.gain.setValueAtTime(0.8, 11);
-    // g.gain.setValueAtTime(0., 12);
-    // g.gain.setValueAtTime(1, 13);
-    g.gain.linearRampToValueAtTime(0.5, 15);
+    const answer = ref('');
+    const ctx = ref(new AudioContext());
 
-    // sound, but no volume effect
-    osc.connect(g);
-    g.connect(this.ctx.destination);
+    // Initialize question immediately
+    questionUtils.question.value = new ChromaQuestion(props.data);
 
-    // sound, but no volume effect
-    // osc.connect(this.ctx.destination);
-    // g.connect(this.ctx.destination);
+    // Expose the question directly for template access
+    const question = computed(() => questionUtils.question.value);
 
-    osc.start(0);
-    osc.stop(14);
-  }
+    const octaves = (freq: number): number[] => {
+      let ret: number[] = [];
+      let lowerFreq: number = freq / 2;
+      while (lowerFreq > 100) {
+        ret.push(lowerFreq);
+        lowerFreq /= 2;
+      }
+      ret.push(freq);
+      let above: number = freq * 2;
+      while (above < 5000) {
+        ret.push(above);
+        above *= 2;
+      }
+      return ret;
+    };
 
-  public submit() {
-    this.question.isCorrect(this.answer);
-  }
-}
+    const tone = (freq: number) => {
+      let osc = ctx.value.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+
+      let g = ctx.value.createGain();
+      console.log('Max Gain: ' + g.gain.maxValue);
+      g.gain.setValueAtTime(0, 0);
+      g.gain.linearRampToValueAtTime(0.5, 15);
+
+      osc.connect(g);
+      g.connect(ctx.value.destination);
+
+      osc.start(0);
+      osc.stop(14);
+    };
+
+    onMounted(() => {
+      octaves(295).forEach((t) => tone(t));
+    });
+
+    const submit = () => {
+      if (question.value) {
+        question.value.isCorrect(answer.value);
+      }
+    };
+
+    return {
+      ...viewableUtils,
+      ...questionUtils,
+      answer,
+      question,
+      submit,
+    };
+  },
+});
 </script>
