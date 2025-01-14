@@ -4,7 +4,7 @@
     <img v-if="hasImage" v-bind:src="imageURL" />
     <!-- Add v-if to prevent undefined markdown -->
     <markdown-renderer v-if="markdownText" v-bind:md="markdownText" />
-    <radio-multiple-choice v-if="question?.options" v-bind:choiceList="truncatedOptions" v-bind:MouseTrap="mouseTrap" />
+    <radio-multiple-choice v-if="question?.options" v-bind:choiceList="truncatedOptions" />
     <center v-else-if="priorAttempts == 1" class="title">
       <span>{{ obscuredAnswer }}</span>
     </center>
