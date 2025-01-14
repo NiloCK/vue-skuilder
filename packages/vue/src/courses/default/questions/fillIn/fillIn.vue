@@ -87,6 +87,21 @@ export default defineComponent({
       }
     });
 
+    onMounted(() => {
+      try {
+        if (!questionUtils.question.value) {
+          questionUtils.question.value = new BlanksCard(props.data);
+        }
+
+        if (questionUtils.question.value.options) {
+          const truncatedList = getTruncatedList();
+          shuffledOptions.value = _.shuffle(truncatedList);
+        }
+      } catch (error) {
+        viewableUtils.logger.error('Failed to initialize question:', error);
+      }
+    });
+
     onUnmounted(() => {
       questionUtils.question.value = undefined;
     });
