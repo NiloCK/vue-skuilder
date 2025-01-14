@@ -1,6 +1,6 @@
 import moment from 'moment';
 import MouseTrap from 'mousetrap';
-import { Prop, Vue } from 'vue-property-decorator';
+import Vue from 'vue';
 import { HotKey } from '../SkldrMouseTrap';
 import { Answer, Displayable, Question } from '../base-course/Displayable';
 import { ViewData } from '../base-course/Interfaces/ViewData';
@@ -10,7 +10,7 @@ import { CardRecord, QuestionRecord } from '../db/types';
  * Base class for card views in courses.
  */
 export default abstract class Viewable extends Vue {
-  @Prop() public data: ViewData[];
+  public data: ViewData[];
   public toString(): string {
     console.warn('toString() not implemented');
     return '!!! preview not implemented !!!';
@@ -95,7 +95,7 @@ export abstract class QuestionView<Q extends Question> extends Viewable {
    * Questions may be presented to the user in a way that is more or less
    * difficult than the question's default difficulty.
    */
-  @Prop() public modifyDifficulty: number;
+  public modifyDifficulty: number;
 
   protected priorSessionViews: number = 0;
   /**
