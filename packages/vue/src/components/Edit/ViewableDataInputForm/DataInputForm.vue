@@ -73,7 +73,7 @@
             />
           </div>
 
-          <tags-input hideSubmit="true" ref="tagsInput" v-bind:courseID="courseCfg.courseID" cardID="" />
+          <tags-input :hideSubmit="true" ref="tagsInput" v-bind:courseID="courseCfg.courseID" cardID="" />
           <v-btn
             class="float-right"
             type="submit"
@@ -100,7 +100,7 @@ import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
 import TagsInput, { TagsInputInstance } from '@/components/Edit/TagsInput.vue';
-import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
+import { FieldInputInstance, isFieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput.types';
 import { alertUser } from '@/components/SnackbarService.vue';
 import Courses from '@/courses';
 import FillInView from '@/courses/default/questions/fillIn/fillIn.vue';
@@ -207,24 +207,22 @@ export default defineComponent({
     chessPuzzle() {
       return FieldType.CHESS_PUZZLE;
     },
-    fieldInputs(): FieldInput[] {
-      const ret: FieldInput[] = [];
+    fieldInputs(): FieldInputInstance[] {
+      const ret: FieldInputInstance[] = [];
       if (!this.$refs.fieldInputWraps) return ret;
 
-      // Convert to array to ensure iterability
       const wraps = Array.isArray(this.$refs.fieldInputWraps)
         ? this.$refs.fieldInputWraps
         : [this.$refs.fieldInputWraps];
 
       for (const div of wraps) {
-        // Ensure div is HTMLElement
         if (div instanceof HTMLElement) {
           const firstChild = div.children[0];
           if (firstChild) {
             const child = (firstChild as any).__vue__;
-            if (this.isFieldInput(child)) {
+            if (isFieldInput(child)) {
               ret.push(child);
-            } else if (child.$parent && this.isFieldInput(child.$parent)) {
+            } else if (child.$parent && isFieldInput(child.$parent)) {
               ret.push(child.$parent);
             }
           }
@@ -635,8 +633,8 @@ export default defineComponent({
       }
     },
 
-    isFieldInput(component: any): component is FieldInput {
-      return (component as FieldInput).clearData !== undefined;
+    isFieldInput(component: any): component is FieldInputInstance {
+      return isFieldInput(component);
     },
   },
 });
