@@ -4,10 +4,9 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import FillInBase from './fillInBaseClass';
 
 @Component({})
-export default class FillInText extends FillInBase {
+export default class FillInText extends Vue {
   @Prop({
     required: true,
   })
