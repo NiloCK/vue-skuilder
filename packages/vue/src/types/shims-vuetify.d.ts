@@ -7,7 +7,7 @@ declare module 'vuetify/lib' {
 }
 
 declare module 'vuetify/types' {
-  import { Vue } from 'vue-property-decorator';
+  import Vue from 'vue';
   interface Vue {
     $vuetify: any;
     $store: Store<AppState>;
