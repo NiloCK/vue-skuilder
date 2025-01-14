@@ -3,14 +3,16 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import FillInBase from './fillInBaseClass';
+import { defineComponent } from 'vue';
 
-@Component({})
-export default class FillInText extends FillInBase {
-  @Prop({
-    required: true,
-  })
-  private text: string;
-}
+export default defineComponent({
+  name: 'FillInText',
+
+  props: {
+    text: {
+      type: String,
+      required: true,
+    },
+  },
+});
 </script>

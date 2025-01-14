@@ -33,8 +33,6 @@
         "roughjs": "^3.1.0",
         "simplemde": "^1.11.2",
         "vue": "^2.7.16",
-        "vue-class-component": "^7.2.6",
-        "vue-property-decorator": "^9.1.2",
         "vue-router": "^3.6.5",
         "vuetify": "^2.7.2",
         "vuex": "^3.6.1",

@@ -7,7 +7,7 @@
       <span v-else-if="containsComponent(token)">
         <md-token-renderer v-for="(subTok, j) in splitTextToken(token)" v-bind:key="j" v-bind:token="subTok" />
       </span>
-      <span v-else>{{ token.text }}</span>
+      <span v-else>{{ decodeBasicEntities(token.text) }}</span>
     </span>
     <span v-else-if="token.tokens && token.tokens.length !== 0">
       <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
@@ -184,6 +184,15 @@ export default defineComponent({
         is: 'fillIn',
         text: token.text,
       };
+    },
+
+    decodeBasicEntities(text: string): string {
+      return text
+        .replace(/&#39;/g, "'")
+        .replace(/&quot;/g, '"')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>');
     },
 
     isText(tok: marked.Token): tok is marked.Tokens.Text {

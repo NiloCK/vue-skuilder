@@ -5,7 +5,7 @@ import Vuex from 'vuex';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { CourseConfig } from '@/server/types';
-import { FieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput';
+import { FieldInputInstance } from '@/components/Edit/ViewableDataInputForm/FieldInput.types';
 import { User } from '@/db/userDB';
 
 Vue.use(Vuex);
@@ -17,7 +17,7 @@ interface DataInputForm {
   course: CourseConfig | null;
   existingData: ViewData[];
   shapeViews: any[];
-  fields: FieldInput[];
+  fields: FieldInputInstance[];
   localStore: any;
   uploading: boolean;
 }

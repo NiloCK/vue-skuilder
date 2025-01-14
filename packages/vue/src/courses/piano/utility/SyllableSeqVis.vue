@@ -20,78 +20,93 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
-import Vue from 'vue';
+import { defineComponent, ref, computed, PropType, onMounted } from 'vue';
 import { SyllableSequence, NoteEvent } from './midi';
 
-@Component({})
-export default class SyllableSeqVis extends Vue {
-  @Prop()
-  public seq: SyllableSequence;
-  @Prop({
-    required: false,
-    default: 0,
-  })
-  public lastTSsuggestion: number;
+export default defineComponent({
+  name: 'SyllableSeqVis',
 
-  public firstTS: number = 0; // in ms
-  public lastTS: number = 0; // in ms
-  public high: number = 0;
-  public low: number = 500;
+  props: {
+    seq: {
+      type: Object as PropType<SyllableSequence>,
+      required: true,
+    },
+    lastTSsuggestion: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
+  },
 
-  public sayNote(note: NoteEvent) {
-    console.log(`${JSON.stringify(note)}`);
-  }
+  setup(props) {
+    const firstTS = ref(0); // in ms
+    const lastTS = ref(0); // in ms
+    const high = ref(0);
+    const low = ref(500);
 
-  get getLastTS(): number {
-    let min = 1;
-    let ts = this.seq.syllables[this.seq.syllables.length - 1].timestamp;
-    return Math.max(min, ts, this.lastTSsuggestion);
-  }
+    const sayNote = (note: NoteEvent) => {
+      console.log(`${JSON.stringify(note)}`);
+    };
 
-  get getHeight(): number {
-    let high = 0;
-    let low = 500;
-    this.seq.syllables.forEach((s) => {
-      s.notes.forEach((n) => {
-        if (n.note.number > high) {
-          high = n.note.number;
-        }
-        if (n.note.number < low) {
-          low = n.note.number;
-        }
-      });
+    const getLastTS = computed(() => {
+      const min = 1;
+      const ts = props.seq.syllables[props.seq.syllables.length - 1].timestamp;
+      return Math.max(min, ts, props.lastTSsuggestion);
     });
-    return Math.max(3 * (high - low) + 10, 0);
-  }
 
-  public updateBounds() {
-    try {
-      this.firstTS = this.seq.syllables[0].timestamp;
-      const dataTS = this.seq.syllables[this.seq.syllables.length - 1].timestamp;
-      const suggestedTS = this.firstTS + this.lastTSsuggestion;
-
-      this.lastTS = Math.max(dataTS, suggestedTS);
-    } catch {}
-    this.seq.syllables.forEach((s) => {
-      s.notes.forEach((n) => {
-        if (n.note.number > this.high) {
-          this.high = n.note.number;
-        }
-        if (n.note.number < this.low) {
-          this.low = n.note.number;
-        }
+    const getHeight = computed(() => {
+      let highVal = 0;
+      let lowVal = 500;
+      props.seq.syllables.forEach((s) => {
+        s.notes.forEach((n) => {
+          if (n.note.number > highVal) {
+            highVal = n.note.number;
+          }
+          if (n.note.number < lowVal) {
+            lowVal = n.note.number;
+          }
+        });
       });
+      return Math.max(3 * (highVal - lowVal) + 10, 0);
     });
-  }
 
-  created() {
-    console.log(`SyllableSeqVis created w/ input: \n${this.seq}`);
+    const updateBounds = () => {
+      try {
+        firstTS.value = props.seq.syllables[0].timestamp;
+        const dataTS = props.seq.syllables[props.seq.syllables.length - 1].timestamp;
+        const suggestedTS = firstTS.value + props.lastTSsuggestion;
 
-    this.updateBounds();
-  }
-}
+        lastTS.value = Math.max(dataTS, suggestedTS);
+      } catch {}
+      props.seq.syllables.forEach((s) => {
+        s.notes.forEach((n) => {
+          if (n.note.number > high.value) {
+            high.value = n.note.number;
+          }
+          if (n.note.number < low.value) {
+            low.value = n.note.number;
+          }
+        });
+      });
+    };
+
+    onMounted(() => {
+      console.log(`SyllableSeqVis created w/ input: \n${props.seq}`);
+      updateBounds();
+    });
+
+    return {
+      firstTS,
+      lastTS,
+      high,
+      low,
+      sayNote,
+      getLastTS,
+      getHeight,
+      updateBounds,
+    };
+  },
+});
 </script>
 
 <style lang="css" scoped>

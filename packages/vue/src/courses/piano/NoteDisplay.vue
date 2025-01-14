@@ -120,40 +120,46 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
-import { QuestionView } from '@/base-course/Viewable';
-import moment from 'moment';
-import Vuetify from 'vuetify/lib';
+import { defineComponent } from 'vue';
 
-@Component({})
-export default class NoteDisplay extends Vue {
-  @Prop({
-    required: true,
-    type: Number,
-  })
-  public chroma: number;
+export default defineComponent({
+  name: 'NoteDisplay',
 
-  private readonly white: number = -1;
-  private readonly black: number = -2;
+  props: {
+    chroma: {
+      type: Number,
+      required: true,
+    },
+  },
 
-  private style(n: number) {
-    let color: string = '#ffffff';
-    if (n === this.chroma) {
-      color = '#1976D2';
-    } else if (n === 1 || n === 3 || n === 6 || n === 8 || n === 10 || n === this.black) {
-      color = '#000000';
-    }
+  setup(props) {
+    const white = -1;
+    const black = -2;
+
+    const style = (n: number) => {
+      let color: string = '#ffffff';
+      if (n === props.chroma) {
+        color = '#1976D2';
+      } else if (n === 1 || n === 3 || n === 6 || n === 8 || n === 10 || n === black) {
+        color = '#000000';
+      }
+
+      return {
+        fill: color,
+        'fill-opacity': 1,
+        stroke: '#000000',
+        'stroke-width': 0.79375,
+        'stroke-miterlimit': 4,
+        'stroke-dasharray': 'none',
+        'stroke-opacity': 1,
+      };
+    };
 
     return {
-      fill: color,
-      'fill-opacity': 1,
-      stroke: '#000000',
-      'stroke-width': 0.79375,
-      'stroke-miterlimit': 4,
-      'stroke-dasharray': 'none',
-      'stroke-opacity': 1,
+      style,
+      white,
+      black,
     };
-  }
-}
+  },
+});
 </script>

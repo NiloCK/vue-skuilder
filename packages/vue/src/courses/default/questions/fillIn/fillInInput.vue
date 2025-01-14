@@ -2,43 +2,59 @@
   <span v-if="radioType" class="headline underline"
     >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span
   >
-  <user-input-string v-else id="input" :icon="false" type="text" :value="text" />
+  <user-input-string v-else id="input" :icon="false" type="text" :value="processedText" />
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import FillInBase from './fillInBaseClass';
+import { defineComponent, ref, computed, PropType, onMounted } from 'vue';
 import UserInputString from '@/base-course/Components/UserInput/UserInputString.vue';
 
-@Component({
+export default defineComponent({
+  name: 'FillInInput',
+
   components: {
     UserInputString,
   },
-})
-export default class FillInInput extends FillInBase {
-  @Prop({
-    required: true,
-  })
-  public text: string;
 
-  public inputType: 'text' | 'radio';
+  props: {
+    text: {
+      type: String,
+      required: true,
+    },
+  },
 
-  private get radioType() {
-    return this.text.split('||').length > 1;
-  }
+  setup(props) {
+    // State
+    const inputType = ref<'text' | 'radio'>('text');
+    const processedText = ref('');
 
-  private created() {
-    console.log(`fillinCreated w/ text: ${this.text}`);
-    this.text = this.text.substring(2);
-    this.text = this.text.substring(0, this.text.length - 2);
-    console.log(`fillin text trimmed to: ${this.text}`);
+    // Computed
+    const radioType = computed(() => {
+      return props.text.split('||').length > 1;
+    });
 
-    const split = this.text.split('||');
-    if (split.length > 1) {
-      this.inputType = 'radio';
-    }
-  }
-}
+    // Process text on mount
+    onMounted(() => {
+      console.log(`fillinCreated w/ text: ${props.text}`);
+
+      // Remove mustache syntax
+      processedText.value = props.text.substring(2, props.text.length - 2);
+
+      console.log(`fillin text trimmed to: ${processedText.value}`);
+
+      const split = processedText.value.split('||');
+      if (split.length > 1) {
+        inputType.value = 'radio';
+      }
+    });
+
+    return {
+      inputType,
+      radioType,
+      processedText,
+    };
+  },
+});
 </script>
 
 <style scoped>
