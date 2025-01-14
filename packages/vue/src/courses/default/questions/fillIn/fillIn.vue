@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, PropType, onMounted, onUnmounted } from 'vue';
+import { defineComponent, ref, computed, PropType, onMounted, onUnmounted, watchEffect } from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import AudioAutoPlayer from '@/base-course/Components/AudioAutoPlayer.vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
@@ -71,19 +71,19 @@ export default defineComponent({
       return questionUtils.question.value;
     });
 
-    // Initialize shuffled options
-    onMounted(() => {
+    /**
+     * update the question whenever the data changes
+     */
+    watchEffect(() => {
       try {
-        if (!questionUtils.question.value) {
-          questionUtils.question.value = new BlanksCard(props.data);
-        }
-
-        if (questionUtils.question.value.options) {
+        questionUtils.question.value = new BlanksCard(props.data);
+        // Update shuffled options whenever question changes
+        if (questionUtils.question.value?.options) {
           const truncatedList = getTruncatedList();
           shuffledOptions.value = _.shuffle(truncatedList);
         }
       } catch (error) {
-        viewableUtils.logger.error('Failed to initialize question:', error);
+        viewableUtils.logger.error('Failed to initialize/update question:', error);
       }
     });
 
