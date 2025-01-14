@@ -8,8 +8,8 @@
     <h1 class="display-2">Account Settings</h1>
     <h2 class="display-1">General:</h2>
 
-    <v-checkbox label="I like confetti" v-model="confetti" @click.capture="updateConfetti" />
-    <v-checkbox label="I like the dark" v-model="darkMode" @click.capture="updateDark" />
+    <v-checkbox label="I like confetti" v-model="configStore.config.likesConfetti" @click.capture="updateConfetti" />
+    <v-checkbox label="I like the dark" v-model="configStore.config.darkMode" @change="updateDark" />
     <!-- <h2 class="display-1">Languages:</h2>
     I am near-fluent or better in the following languages:
     {{ selectedLanguages.toString() }}
@@ -28,6 +28,7 @@
 import confetti from 'canvas-confetti';
 import { defineComponent, PropType } from 'vue';
 import { User } from '@/db/userDB';
+import { useConfigStore } from '@/stores/useConfigStore';
 
 interface Language {
   name: string;
@@ -44,11 +45,18 @@ export default defineComponent({
     },
   },
 
+  setup() {
+    const configStore = useConfigStore();
+
+    let darkMode = configStore.config.darkMode;
+    let likesConfetti = configStore.config.likesConfetti;
+
+    return { configStore, darkMode, likesConfetti };
+  },
+
   data() {
     return {
       u: {} as User,
-      confetti: this.$store.state.config.likesConfetti as boolean,
-      darkMode: this.$store.state.config.darkMode as boolean,
       configLanguages: [
         {
           name: 'English',
@@ -71,20 +79,13 @@ export default defineComponent({
 
   methods: {
     updateDark(): void {
-      this.u.setConfig({
-        darkMode: this.darkMode,
-      });
-      this.$store.state.config.darkMode = this.darkMode;
+      this.configStore.updateDarkMode(this.configStore.config.darkMode);
     },
 
     updateConfetti(): void {
-      console.log(`Confetti updated...`);
-      this.u.setConfig({
-        likesConfetti: this.confetti,
-      });
-      this.$store.state.config.likesConfetti = this.confetti;
+      this.configStore.updateLikesConfetti(this.configStore.config.likesConfetti);
 
-      if (this.$store.state.config.likesConfetti) {
+      if (this.configStore.config.likesConfetti) {
         confetti({
           origin: {
             x: 0.5,

@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="storeIsReady" :dark="dark">
+  <v-app v-if="storeIsReady">
     <!-- class="blue darken-2 grey--text text--lighten-5" dark> -->
     <v-navigation-drawer clipped v-model="drawer" enable-resize-watcher fixed app>
       <v-list>
@@ -82,8 +82,7 @@ import UserLoginAndRegistrationContainer from '@/components/UserLoginAndRegistra
 import SnackbarService from '@/components/SnackbarService.vue';
 import { getLatestVersion } from '@/db';
 import SkldrVueMixin from './mixins/SkldrVueMixin';
-import { AppState } from './store';
-import { Store } from 'vuex';
+import { useConfigStore } from '@/stores/useConfigStore';
 
 export default Vue.extend({
   name: 'App',
@@ -103,8 +102,10 @@ export default Vue.extend({
   },
 
   computed: {
-    dark(): boolean {
-      return (this.$store as Store<AppState>).state.config.darkMode;
+    dark() {
+      const configStore = useConfigStore();
+      const dm = configStore.config.darkMode;
+      return configStore.config.darkMode;
     },
 
     storeIsReady(): boolean {
@@ -116,6 +117,16 @@ export default Vue.extend({
         ready,
       });
       return ready;
+    },
+  },
+
+  watch: {
+    dark: {
+      immediate: true,
+      handler(newVal) {
+        // This is how we properly toggle Vuetify's dark mode
+        this.$vuetify.theme.dark = newVal;
+      },
     },
   },
 

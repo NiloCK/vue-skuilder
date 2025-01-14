@@ -8,11 +8,13 @@ import './registerServiceWorker';
 import router from './router';
 import store from './store';
 import Vuex from 'vuex';
-import { createPinia } from 'pinia';
+import { createPinia, PiniaVuePlugin } from 'pinia';
 import 'vuetify/dist/vuetify.min.css';
 
 Vue.config.productionTip = false;
+
 const pinia = createPinia();
+Vue.use(PiniaVuePlugin);
 
 // Ensure Vue uses Vuex before creating the app instance
 Vue.use(Vuex);

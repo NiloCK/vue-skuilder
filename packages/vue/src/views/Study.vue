@@ -190,6 +190,7 @@ import { StudentClassroomDB } from '../db/classroomDB';
 import { CourseRegistrationDoc, updateUserElo, User } from '../db/userDB';
 import { Status } from '../enums/Status';
 import { CourseConfig } from '../server/types';
+import { useConfigStore } from '@/stores/useConfigStore';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
@@ -239,6 +240,7 @@ export default defineComponent({
   data() {
     return {
       user: null as User | null,
+      configStore: null as ReturnType<typeof useConfigStore> | null,
       previewCourseConfig: undefined as CourseConfig | undefined,
       previewMode: false,
       fab: false,
@@ -322,6 +324,7 @@ export default defineComponent({
 
     this.user = await User.instance();
     this.userCourseRegDoc = await this.user.getCourseRegistrationsDoc();
+    this.configStore = useConfigStore();
 
     let singletonStudyCourseID = '';
 
@@ -512,7 +515,7 @@ export default defineComponent({
             // swallow error
           }
 
-          if (this.$store.state.config.likesConfetti) {
+          if (this.configStore?.config.likesConfetti) {
             confetti({
               origin: {
                 y: 1,

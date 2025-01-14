@@ -48,7 +48,7 @@ export interface AppState {
       sessionTimeLimit: number;
     };
   };
-  config: UserConfig;
+  // config: UserConfig;
   onLoadComplete: boolean;
 }
 
@@ -77,10 +77,10 @@ export const defaultState: AppState = {
       sessionTimeLimit: 5,
     },
   },
-  config: {
-    darkMode: false,
-    likesConfetti: false,
-  },
+  // config: {
+  //   darkMode: false,
+  //   likesConfetti: false,
+  // },
   onLoadComplete: false,
 };
 
@@ -94,7 +94,7 @@ export default Store;
 
 export function setDefaultState() {
   // Store.state._user = defaultState._user;
-  Store.state.config = defaultState.config;
+  // Store.state.config = defaultState.config;
   // Store.replaceState(defaultState);
 }
 
@@ -116,7 +116,7 @@ function checkAuthCookie() {
 
     if (resp.userCtx.name !== undefined && resp.userCtx.name !== '' && resp.userCtx.name !== null) {
       Store.state._user = await User.instance(resp.userCtx.name);
-      Store.state.config = await Store.state._user!.getConfig();
+      // Store.state.config = await Store.state._user!.getConfig();
       Store.state.userLoginAndRegistrationContainer.loggedIn = true;
     } else {
       Store.state._user = (await User.instance(GuestUsername))!;
