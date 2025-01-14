@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div data-viewable="NotePlayback">
     <div class="display-1">
       Play the note: <span class="font-weight-bold">{{ note }}</span>
     </div>
@@ -354,6 +354,8 @@
   </div>
 </template>
 
+<!-- legacy class-based component
+
 <script lang="ts">
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
@@ -454,6 +456,127 @@ export default class NotePlayback extends QuestionView<PlayNote> {
     }
   }
 }
+</script> -->
+
+<script lang="ts">
+import { defineComponent, ref, computed, PropType, onMounted, onBeforeUnmount } from 'vue';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
+import SkMidi, { NoteEvent, eventsToSyllableSequence, SyllableSequence } from '../../utility/midi';
+import { PlayNote } from '.';
+import moment from 'moment';
+import SyllableSeqVis from '../../utility/SyllableSeqVis.vue';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
+
+export default defineComponent({
+  name: 'NotePlayback',
+
+  components: {
+    SyllableSeqVis,
+  },
+
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
+
+  setup(props, { emit }) {
+    const viewableUtils = useViewable(props, emit, 'NotePlayback');
+    const questionUtils = useQuestionView<PlayNote>(viewableUtils, props.modifyDifficulty);
+
+    // State
+    const midi = ref<SkMidi>();
+    const initialized = ref(false);
+    const recording = ref(false);
+    const playbackProgress = ref(0);
+    const playbackStartTime = ref(moment.utc());
+    const playbackDuration = ref(0);
+    const attempts = ref(0);
+    const gradedSeq = ref<SyllableSequence>(eventsToSyllableSequence([]));
+    const graded = ref(false);
+    const inputSeq = ref<SyllableSequence>(eventsToSyllableSequence([]));
+    const note = ref('');
+
+    // Initialize question
+    questionUtils.question.value = new PlayNote(props.data);
+
+    // Computed
+    const question = computed(() => new PlayNote(props.data));
+
+    // Methods
+    const record = () => {
+      midi.value?.record();
+      recording.value = true;
+
+      // attach listeners
+      midi.value?.addNoteonListenter((e) => {
+        inputSeq.value.append(e);
+      });
+
+      midi.value?.addNoteoffListenter((e) => {
+        if (midi.value?.recording?.length && midi.value?.recording?.length >= 2) {
+          submit();
+        }
+      });
+    };
+
+    const play = () => {
+      midi.value?.stopRecording();
+      midi.value?.eraseRecording();
+      playbackStartTime.value = moment.utc();
+      recording.value = false;
+      playbackProgress.value = 0;
+
+      record();
+    };
+
+    const submit = () => {
+      if (!midi.value?.recording) return false;
+
+      const aSylSeq = eventsToSyllableSequence(midi.value.recording);
+      inputSeq.value = eventsToSyllableSequence([]);
+
+      if (!questionUtils.submitAnswer(midi.value.recording).isCorrect) {
+        attempts.value++;
+        graded.value = true;
+        if (attempts.value < questionUtils.maxAttemptsPerView.value) {
+          play();
+        }
+        return false;
+      }
+      return true;
+    };
+
+    // Lifecycle
+    onMounted(async () => {
+      try {
+        midi.value = await SkMidi.instance();
+        note.value = question.value.note;
+        play();
+        initialized.value = true;
+      } catch (error) {
+        viewableUtils.logger.error('Failed to initialize MIDI:', error);
+      }
+    });
+
+    return {
+      ...viewableUtils,
+      ...questionUtils,
+      initialized,
+      recording,
+      inputSeq,
+      gradedSeq,
+      graded,
+      note,
+      attempts,
+    };
+  },
+});
 </script>
 
 <style lang="css">
