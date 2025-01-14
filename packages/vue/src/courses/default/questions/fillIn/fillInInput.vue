@@ -7,7 +7,6 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import FillInBase from './fillInBaseClass';
 import UserInputString from '@/base-course/Components/UserInput/UserInputString.vue';
 
 @Component({
@@ -15,7 +14,7 @@ import UserInputString from '@/base-course/Components/UserInput/UserInputString.
     UserInputString,
   },
 })
-export default class FillInInput extends FillInBase {
+export default class FillInInput extends Vue {
   @Prop({
     required: true,
   })
