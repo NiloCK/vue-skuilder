@@ -1,32 +1,53 @@
 <template>
-  <div>
+  <div data-viewable="TrueFalse">
     {{ question.a }} &equals; {{ question.b }}
 
-    <TFSelect v-bind:MouseTrap="MouseTrap" :submit="submit" />
+    <TFSelect :submit="submit" />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { QuestionView } from '@/base-course/Viewable';
+import { defineComponent, computed, PropType } from 'vue';
+import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import { EqualityTest } from './index';
 import TFSelect from '@/base-course/Components/TrueFalse.vue';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 
-@Component({
+export default defineComponent({
+  name: 'TrueFalse',
+
   components: {
     TFSelect,
   },
-})
-export default class TrueFalse extends QuestionView<EqualityTest> {
-  public answer: boolean;
 
-  public submit(selection: number) {
-    alert(this.question.isCorrect(selection === 0));
-  }
+  props: {
+    data: {
+      type: Array as PropType<ViewData[]>,
+      required: true,
+    },
+    modifyDifficulty: {
+      type: Number,
+      required: false,
+    },
+  },
 
-  get question() {
-    // alert(`this.Mousetrap == ${Object.keys(this.MouseTrap)}`);
-    return new EqualityTest(this.data);
-  }
-}
+  setup(props, { emit }) {
+    const viewableUtils = useViewable(props, emit, 'TrueFalse');
+    const questionUtils = useQuestionView<EqualityTest>(viewableUtils, props.modifyDifficulty);
+
+    // Initialize question
+    questionUtils.question.value = new EqualityTest(props.data);
+
+    const question = computed(() => new EqualityTest(props.data));
+
+    const submit = (selection: number) => {
+      alert(question.value.isCorrect(selection === 0));
+    };
+
+    return {
+      question,
+      submit,
+    };
+  },
+});
 </script>
