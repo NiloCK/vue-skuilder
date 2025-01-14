@@ -1,7 +1,6 @@
 // src/base-course/CompositionViewable.ts
 
 import moment from 'moment';
-import MouseTrap from 'mousetrap';
 import {
   defineComponent,
   PropType,
@@ -21,7 +20,6 @@ import { Viewable } from './OptionsViewable';
 // Core interfaces to ensure type safety
 export interface ViewableUtils {
   startTime: Ref<moment.Moment>;
-  mouseTrap: Ref<MouseTrap.MousetrapInstance | undefined>;
   hotKeys: Ref<HotKey[]>;
   timeSpent: ComputedRef<number>;
   logger: ViewableLogger;
@@ -52,25 +50,7 @@ export function useViewable(
   componentName: string
 ): ViewableUtils {
   const startTime = ref(moment.utc());
-  const mouseTrap = ref<MouseTrap.MousetrapInstance>();
   const hotKeys = ref<HotKey[]>([]);
-
-  // Initialize MouseTrap
-  onMounted(() => {
-    const el = document.querySelector(`[data-viewable="${componentName}"]`);
-    if (el) {
-      mouseTrap.value = new MouseTrap(el);
-    } else {
-      console.warn(`[${componentName}]: Could not find element for MouseTrap initialization`);
-    }
-  });
-
-  // Cleanup
-  onUnmounted(() => {
-    if (mouseTrap.value) {
-      mouseTrap.value.reset();
-    }
-  });
 
   const logger: ViewableLogger = {
     log: (message?: any, ...params: any[]) =>
@@ -100,7 +80,6 @@ export function useViewable(
 
   return {
     startTime,
-    mouseTrap,
     hotKeys,
     timeSpent,
     logger,
