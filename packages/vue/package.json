@@ -36,7 +36,6 @@
         "vue": "^2.7.16",
         "vue-router": "^3.6.5",
         "vuetify": "^2.7.2",
-        "vuex": "^3.6.1",
         "wavesurfer.js": "^5.1.0",
         "webmidi": "^2.5.1"
     },
