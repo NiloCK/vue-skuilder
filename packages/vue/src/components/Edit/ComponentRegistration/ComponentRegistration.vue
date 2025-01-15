@@ -37,6 +37,7 @@ import { addNote55, getCredentialledCourseConfig } from '@/db/courseAPI';
 import { updateCredentialledCourseConfig } from '@/db/courseDB';
 import { CourseConfig, DataShape55, QuestionType55 } from '@/server/types';
 import * as _ from 'lodash';
+import { User } from '@/db/userDB';
 
 interface DataShapeRegistrationStatus {
   name: string;
@@ -192,6 +193,7 @@ export default defineComponent({
       });
 
       const update = await updateCredentialledCourseConfig(this.course, this.courseConfig!);
+      const u = await User.instance();
 
       if (update.ok) {
         question.registered = true;
@@ -202,14 +204,7 @@ CourseID: ${this.course}
         if (question.question.seedData) {
           console.log(`[ComponentRegistration] Question has seed data!`);
           question.question.seedData.forEach((d) => {
-            addNote55(
-              this.course,
-              question.course,
-              question.question.dataShapes[0],
-              d,
-              this.$store.state._user!.username,
-              []
-            );
+            addNote55(this.course, question.course, question.question.dataShapes[0], d, u.username, []);
           });
         } else {
           console.log(`[ComponentRegistration] Question has NO seed data!`);

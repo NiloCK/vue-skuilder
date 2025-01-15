@@ -85,6 +85,7 @@ import { getCourseList, getCourseTagStubs } from '@/db/courseDB';
 import { Tag } from '@/db/types';
 import { ClassroomConfig, CourseConfig } from '@/server/types';
 import Vue from 'vue';
+import { User } from '@/db/userDB';
 
 export default Vue.extend({
   name: 'ClassroomCtrlPanel',
@@ -147,6 +148,7 @@ export default Vue.extend({
   methods: {
     async assignContent() {
       if (!this.classroomDB) return;
+      const u = await User.instance();
 
       if (this.selectedTags.length === 0) {
         await this.classroomDB.assignContent({
@@ -154,7 +156,7 @@ export default Vue.extend({
           activeOn: moment(),
           type: 'course',
           courseID: this.selectedCourse,
-          assignedBy: this.$store.state._user!.username,
+          assignedBy: u.username,
         });
       } else {
         await Promise.all(
@@ -165,7 +167,7 @@ export default Vue.extend({
               type: 'tag',
               courseID: this.selectedCourse,
               tagID: tag,
-              assignedBy: this.$store.state._user!.username,
+              assignedBy: u.username,
             })
           )
         );

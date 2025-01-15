@@ -1,7 +1,11 @@
 // stores/useConfigStore.ts
 import { defineStore } from 'pinia';
 import { User } from '@/db/userDB';
-import { UserConfig } from '@/store';
+
+export interface UserConfig {
+  darkMode: boolean;
+  likesConfetti: boolean;
+}
 
 export const useConfigStore = defineStore('config', {
   state: () => ({
@@ -18,12 +22,16 @@ export const useConfigStore = defineStore('config', {
     async updateDarkMode(darkMode: boolean) {
       this.config.darkMode = darkMode;
       const u = await User.instance();
-      await u.setConfig(this.config);
+      await u.setConfig({
+        darkMode,
+      });
     },
     async updateLikesConfetti(likesConfetti: boolean) {
       this.config.likesConfetti = likesConfetti;
       const u = await User.instance();
-      await u.setConfig(this.config);
+      await u.setConfig({
+        likesConfetti,
+      });
     },
     async hydrate() {
       const u = await User.instance();
@@ -33,6 +41,12 @@ export const useConfigStore = defineStore('config', {
     },
     async init() {
       await this.hydrate();
+    },
+    resetDefaults() {
+      this.config = {
+        darkMode: false,
+        likesConfetti: false,
+      };
     },
   },
 });

@@ -26,15 +26,16 @@ import { getCourseDB } from '@/db';
 import { getCourseConfig } from '@/db/courseDB';
 import { DocType } from '@/db/types';
 import { CourseConfig } from '@/server/types';
+import { User } from '@/db/userDB';
 
 export default defineComponent({
   name: 'CourseStubCard',
-  
+
   props: {
     _id: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data() {
@@ -43,7 +44,7 @@ export default defineComponent({
       questionCount: 0,
       isPrivate: false,
       updatePending: true,
-      addingCourse: false
+      addingCourse: false,
     };
   },
 
@@ -70,9 +71,9 @@ export default defineComponent({
     async registerForCourse() {
       this.addingCourse = true;
       log(`Attempting to register for ${this._id}.`);
-      await this.$store.state._user!.registerForCourse(this._id);
+      await (await User.instance()).registerForCourse(this._id);
       this.$emit('refresh');
-    }
-  }
+    },
+  },
 });
 </script>

@@ -114,8 +114,12 @@ export default defineComponent({
   computed: {
     availableCourses(): CourseConfig[] {
       const availableCourses = _.without(this.existingCourses, ...this.registeredCourses);
+      const user = this.user?.username;
+
       const viewableCourses = availableCourses.filter((course) => {
-        const user = this.$store.state._user!.username;
+        if (!user) {
+          return false;
+        }
         const viewable: boolean =
           course.public ||
           course.creator === user ||
@@ -203,13 +207,13 @@ export default defineComponent({
           description: 'All of these courses will be the same!',
           public: true,
           deleted: false,
-          creator: this.$store.state._user!.username,
-          admins: [this.$store.state._user!.username],
+          creator: this.user!.username,
+          admins: [this.user!.username],
           moderators: [],
           dataShapes: [],
           questionTypes: [],
         },
-        user: this.$store.state._user!.username,
+        user: this.user!.username,
         response: null,
       });
 
@@ -223,7 +227,7 @@ export default defineComponent({
     async addCourse(course: string): Promise<void> {
       this.$set(this.spinnerMap, course, true);
       log(`Attempting to register for ${course}.`);
-      await this.$store.state._user!.registerForCourse(course);
+      await this.user?.registerForCourse(course);
       this.$set(this.spinnerMap, course, undefined);
       this.refreshData();
     },
@@ -231,7 +235,7 @@ export default defineComponent({
     async dropCourse(course: string): Promise<void> {
       this.$set(this.spinnerMap, course, true);
       log(`Attempting to drop ${course}.`);
-      await this.$store.state._user!.dropCourse(course);
+      await this.user?.dropCourse(course);
       this.$set(this.spinnerMap, course, undefined);
       this.refreshData();
     },

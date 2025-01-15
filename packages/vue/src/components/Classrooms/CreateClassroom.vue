@@ -40,7 +40,7 @@ import moment from 'moment';
 import Mousetrap from 'mousetrap';
 import { log } from 'util';
 import Vue from 'vue';
-import { registerUserForClassroom } from '../../db/userDB';
+import { registerUserForClassroom, User } from '../../db/userDB';
 import { Status } from '../../enums/Status';
 import serverRequest from '../../server';
 import { ClassroomConfig, CreateClassroom, ServerRequestType } from '../../server/types';
@@ -101,10 +101,11 @@ export default Vue.extend({
   methods: {
     async submit() {
       this.updatePending = true;
+      const u = await User.instance();
 
       const config: ClassroomConfig = {
         name: this.name,
-        teachers: [this.$store.state._user!.username],
+        teachers: [u.username],
         students: [],
         birthYear: this.birthYear,
         classMeetingSchedule: '',
@@ -119,7 +120,7 @@ export default Vue.extend({
         data: config,
         type: ServerRequestType.CREATE_CLASSROOM,
         response: null,
-        user: this.$store.state._user!.username,
+        user: u.username,
       });
 
       if (result.response && result.response.ok) {
@@ -128,7 +129,7 @@ export default Vue.extend({
           status: Status.ok,
         });
 
-        registerUserForClassroom(this.$store.state._user!.username, result.response.uuid, 'teacher');
+        registerUserForClassroom(u.username, result.response.uuid, 'teacher');
       } else {
         alertUser({
           text: `Failed to create class. Please try again.`,

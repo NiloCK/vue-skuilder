@@ -63,7 +63,7 @@
     <v-main>
       <v-container>
         <v-slide-y-transition mode="out-in">
-          <router-view v-if="$store.state._user" />
+          <router-view />
         </v-slide-y-transition>
       </v-container>
     </v-main>
@@ -83,6 +83,8 @@ import SnackbarService from '@/components/SnackbarService.vue';
 import { getLatestVersion } from '@/db';
 import SkldrVueMixin from './mixins/SkldrVueMixin';
 import { useConfigStore } from '@/stores/useConfigStore';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { mapState } from 'pinia';
 
 export default Vue.extend({
   name: 'App',
@@ -98,6 +100,7 @@ export default Vue.extend({
       build: '0.0.2',
       latestBuild: '',
       drawer: false,
+      authStore: useAuthStore(),
     };
   },
 
@@ -108,16 +111,9 @@ export default Vue.extend({
       return configStore.config.darkMode;
     },
 
-    storeIsReady(): boolean {
-      const ready = !!(this.$store && this.$store.state && this.$store.state.onLoadComplete);
-      console.log('storeIsReady check:', {
-        hasStore: !!this.$store,
-        hasState: !!(this.$store && this.$store.state),
-        onLoadComplete: !!(this.$store && this.$store.state && this.$store.state.onLoadComplete),
-        ready,
-      });
-      return ready;
-    },
+    ...mapState(useAuthStore, {
+      storeIsReady: (state) => state.onLoadComplete,
+    }),
   },
 
   watch: {
@@ -133,7 +129,10 @@ export default Vue.extend({
   async beforeCreate() {
     // hydrate all (some?) pinia stores
     const configStore = useConfigStore();
-    await configStore.init();
+    let i = await configStore.init();
+
+    const authStore = useAuthStore();
+    await authStore.init();
 
     console.log('1. beforeCreate:', {
       hasStore: !!this.$store,
@@ -142,23 +141,7 @@ export default Vue.extend({
   },
 
   async created() {
-    console.log('2. created:', {
-      hasStore: !!this.$store,
-      stateExists: !!(this.$store && this.$store.state),
-      onLoadComplete: !!this.$store?.state?.onLoadComplete,
-      user: this.$store?.state?._user,
-    });
     this.latestBuild = await getLatestVersion();
-  },
-
-  mounted() {
-    console.log('4. mounted:', {
-      storeState: {
-        onLoadComplete: this.$store?.state?.onLoadComplete,
-        userInit: this.$store?.state?.userLoginAndRegistrationContainer?.init,
-        loggedIn: this.$store?.state?.userLoginAndRegistrationContainer?.loggedIn,
-      },
-    });
   },
 });
 </script>

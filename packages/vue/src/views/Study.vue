@@ -383,7 +383,7 @@ export default defineComponent({
     handleClassroomMessage() {
       return (v: any) => {
         alertUser({
-          text: this.$store.state._user!.username,
+          text: this.user?.username || '[Unknown user]',
           status: Status.ok,
         });
         console.log(`[Study] There was a change in the classroom DB:`);
@@ -589,7 +589,7 @@ export default defineComponent({
         this.userCourseRegDoc!.courses.find((c) => c.courseID === course_id)!.elo = eloUpdate.userElo;
 
         Promise.all([
-          updateUserElo(this.$store.state._user!.username, course_id, eloUpdate.userElo),
+          updateUserElo(this.user!.username, course_id, eloUpdate.userElo),
           updateCardElo(course_id, card_id, eloUpdate.cardElo),
         ]).then((results) => {
           const user = results[0];
@@ -620,7 +620,7 @@ export default defineComponent({
     },
 
     async logCardRecord(r: CardRecord): Promise<CardHistory<CardRecord>> {
-      return await putCardRecord(r, this.$store.state._user!.username);
+      return await putCardRecord(r, this.user!.username);
     },
 
     async scheduleReview(history: CardHistory<CardRecord>, item: StudySessionItem) {
@@ -633,7 +633,7 @@ export default defineComponent({
       }
 
       scheduleCardReview({
-        user: this.$store.state._user!.username,
+        user: this.user!.username,
         course_id: history.courseID,
         card_id: history.cardID,
         time: nextReviewTime,

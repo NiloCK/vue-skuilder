@@ -68,10 +68,6 @@ export default defineComponent({
   },
 
   async created() {
-    // const userCourses = await this.$store.state._user!.getCourseRegistrationsDoc();
-    // this.userIsRegistered = userCourses.courses.filter((c) => {
-    //   return c.courseID === this._id && (c.status === 'active' || c.status === undefined)
-    // }).length === 1;
     this.courseDB = new CourseDB(this._id);
 
     this._courseConfig = (await getCourseConfig(this._id))!;

@@ -122,6 +122,7 @@ import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
 import ChessPuzzleInput from './FieldInputs/ChessPuzzleInput.vue';
 import { CourseElo } from '@/tutor/Elo';
+import { User } from '@/db/userDB';
 
 type StringIndexable = { [x: string]: any };
 
@@ -524,7 +525,9 @@ export default defineComponent({
               this.datashapeDescriptor.course,
               this.dataShape,
               input,
-              this.$store.state._user!.username,
+              (
+                await User.instance()
+              ).username,
               this.getTags(),
               undefined,
               this.getElo()
