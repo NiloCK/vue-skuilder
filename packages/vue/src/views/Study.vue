@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!$store.state.views.study.inSession">
+  <div v-if="!inSession">
     <SessionConfiguration
       v-bind:startFcn="initStudySession"
       v-bind:initialTimeLimit="sessionTimeLimit"
@@ -269,6 +269,7 @@ export default defineComponent({
       timeRemaining: 300, // 5 minutes * 60 seconds
       _intervalHandler: null as NodeJS.Timeout | null,
       cardType: '',
+      inSession: false,
     };
   },
 
@@ -320,7 +321,6 @@ export default defineComponent({
 
   async created() {
     this.sessionPrepared = false;
-    this.$store.state.views.study.inSession = false;
 
     this.user = await User.instance();
     this.userCourseRegDoc = await this.user.getCourseRegistrationsDoc();
@@ -394,7 +394,7 @@ export default defineComponent({
     },
 
     incrementSessionClock() {
-      const max = 60 * this.$store.state.views.study.sessionTimeLimit - this.timeRemaining;
+      const max = 60 * this.sessionTimeLimit - this.timeRemaining;
       this.sessionController!.addTime(Math.min(max, 60));
       this.tick();
     },
@@ -474,7 +474,7 @@ export default defineComponent({
         User classrooms: ${sessionClassroomDBs.map((db) => db._id)}
       `);
 
-      this.$store.state.views.study.inSession = true;
+      this.inSession = true;
       this.loadCard(this.sessionController.nextCard());
     },
 

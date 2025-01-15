@@ -41,13 +41,13 @@ export interface AppState {
   };
   cardPreviewMode: boolean;
   dataInputForm: DataInputForm;
-  views: {
-    study: {
-      inSession: boolean;
-      courseList: string[];
-      sessionTimeLimit: number;
-    };
-  };
+  // views: {
+  //   study: {
+  //     inSession: boolean;
+  //     courseList: string[];
+  //     sessionTimeLimit: number;
+  //   };
+  // };
   // config: UserConfig;
   onLoadComplete: boolean;
 }
@@ -70,13 +70,13 @@ export const defaultState: AppState = {
     shapeViews: [],
     uploading: false,
   },
-  views: {
-    study: {
-      inSession: false,
-      courseList: [],
-      sessionTimeLimit: 5,
-    },
-  },
+  // views: {
+  //   study: {
+  //     inSession: false,
+  //     courseList: [],
+  //     sessionTimeLimit: 5,
+  //   },
+  // },
   // config: {
   //   darkMode: false,
   //   likesConfetti: false,
