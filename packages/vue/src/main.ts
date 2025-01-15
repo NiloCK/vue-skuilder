@@ -6,18 +6,20 @@ import App from './App.vue';
 import vuetify from './plugins/vuetify'; // Only import once
 import './registerServiceWorker';
 import router from './router';
-import store from './store';
-import Vuex from 'vuex';
+import { createPinia, PiniaVuePlugin } from 'pinia';
 import 'vuetify/dist/vuetify.min.css';
 
 Vue.config.productionTip = false;
 
+const pinia = createPinia();
+Vue.use(PiniaVuePlugin);
+
 // Ensure Vue uses Vuex before creating the app instance
-Vue.use(Vuex);
+// Vue.use(Vuex);
 
 new Vue({
   router,
-  store,
-  vuetify, // Add the vuetify instance here
+  pinia,
+  vuetify,
   render: (h) => h(App),
 }).$mount('#app');

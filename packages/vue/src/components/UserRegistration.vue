@@ -64,9 +64,9 @@
 import { defineComponent } from 'vue';
 import { doesUserExist, User } from '@/db/userDB';
 import { log } from 'util';
-import { AppState } from '@/store';
 import { alertUser } from './SnackbarService.vue';
 import { Status } from '../enums/Status';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 export default defineComponent({
   name: 'UserRegistration',
@@ -88,8 +88,9 @@ export default defineComponent({
       roles: ['Student', 'Teacher', 'Author'] as string[],
       student: true,
       teacher: false,
-      author: false
-    }
+      author: false,
+      authStore: useAuthStore(),
+    };
   },
 
   computed: {
@@ -101,7 +102,7 @@ export default defineComponent({
         color: this.badLoginAttempt ? 'error' : 'success',
         text: this.badLoginAttempt ? 'Try again' : 'Log In',
       };
-    }
+    },
   },
 
   async created() {
@@ -132,14 +133,14 @@ Author: ${this.author}
       if (true) {
         if (this.password === this.retypedPassword) {
           if (!this.user) return;
-          
+
           this.user
             .createAccount(this.username, this.password)
             .then(async (resp) => {
               if (resp.status === Status.ok) {
-                this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
-                this.$store.state.userLoginAndRegistrationContainer.init = false;
-                this.$store.state.userLoginAndRegistrationContainer.init = true;
+                this.authStore.loginAndRegistration.loggedIn = true;
+                this.authStore.loginAndRegistration.init = false;
+                this.authStore.loginAndRegistration.init = true;
 
                 this.$router.push(`/u/${(await User.instance()).username}/new`);
               } else {
@@ -180,7 +181,7 @@ Author: ${this.author}
         });
         this.awaitingResponse = false;
       }
-    }
-  }
+    },
+  },
 });
 </script>

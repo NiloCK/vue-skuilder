@@ -10,6 +10,5 @@ declare module 'vuetify/types' {
   import Vue from 'vue';
   interface Vue {
     $vuetify: any;
-    $store: Store<AppState>;
   }
 }

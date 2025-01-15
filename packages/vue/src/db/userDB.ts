@@ -1,6 +1,7 @@
 import { Status } from '../enums/Status';
 import ENV from '../ENVIRONMENT_VARS';
-import { GuestUsername, UserConfig } from '../store';
+import { GuestUsername } from '../stores/useAuthStore';
+import { UserConfig } from '../stores/useConfigStore';
 import { CourseElo } from '../tutor/Elo';
 import moment, { Moment } from 'moment';
 import pouch from 'pouchdb-browser';
@@ -373,7 +374,7 @@ Currently logged-in as ${this._username}.`
     return getCourseConfigs(courseIDs);
   }
 
-  public async getConfig(): Promise<UserConfig> {
+  public async getConfig(): Promise<UserConfig & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta> {
     const defaultConfig: PouchDB.Core.Document<UserConfig> = {
       _id: User.DOC_IDS.CONFIG,
       darkMode: false,
@@ -381,13 +382,17 @@ Currently logged-in as ${this._username}.`
     };
 
     try {
-      return await this.localDB.get<UserConfig>(User.DOC_IDS.CONFIG);
+      const cfg = await this.localDB.get<UserConfig>(User.DOC_IDS.CONFIG);
+      console.log(`found cfg: ${JSON.stringify(cfg)}`);
+
+      return cfg;
     } catch (e) {
       const err = e as PouchError;
       if (err.name && err.name === 'not_found') {
         await this.localDB.put<UserConfig>(defaultConfig);
-        return defaultConfig;
+        return this.getConfig();
       } else {
+        console.error(e);
         throw new Error(`Error returning the user's configuration: ${JSON.stringify(e)}`);
       }
     }
@@ -397,10 +402,16 @@ Currently logged-in as ${this._username}.`
     console.log(`Setting Config items ${JSON.stringify(items)}`);
 
     const c = await this.getConfig();
-    return this.localDB.put<UserConfig>({
+    const put = await this.localDB.put<UserConfig>({
       ...c,
       ...items,
     });
+
+    if (put.ok) {
+      console.log(`Config items set: ${JSON.stringify(items)}`);
+    } else {
+      console.error(`Error setting config items: ${JSON.stringify(put)}`);
+    }
   }
 
   /**
@@ -482,21 +493,53 @@ Currently logged-in as ${this._username}.`
   ];
 
   private async applyDesignDocs() {
-    User.designDocs.forEach((doc) => {
-      this.remoteDB
-        .get(doc._id)
-        .then((oldDoc) => {
-          this.remoteDB.put({
+    for (const doc of User.designDocs) {
+      try {
+        // Try to get existing doc
+        try {
+          const existingDoc = await this.remoteDB.get(doc._id);
+          // Update existing doc
+          await this.remoteDB.put({
             ...doc,
-            _rev: oldDoc._rev,
+            _rev: existingDoc._rev,
           });
-        })
-        .catch((e) => {
+        } catch (e: any) {
           if (e.name === 'not_found') {
-            this.remoteDB.put(doc);
+            // Create new doc
+            await this.remoteDB.put(doc);
+          } else {
+            throw e; // Re-throw unexpected errors
           }
-        });
-    });
+        }
+      } catch (e: any) {
+        if (e.name === 'conflict') {
+          console.warn(`Design doc ${doc._id} update conflict - will retry`);
+          // Wait a bit and try again
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          await this.applyDesignDoc(doc); // Recursive retry
+        } else {
+          console.error(`Failed to apply design doc ${doc._id}:`, e);
+          throw e;
+        }
+      }
+    }
+  }
+
+  // Helper method for single doc update with retry
+  private async applyDesignDoc(doc: any, retries = 3): Promise<void> {
+    try {
+      const existingDoc = await this.remoteDB.get(doc._id);
+      await this.remoteDB.put({
+        ...doc,
+        _rev: existingDoc._rev,
+      });
+    } catch (e: any) {
+      if (e.name === 'conflict' && retries > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        return this.applyDesignDoc(doc, retries - 1);
+      }
+      throw e;
+    }
   }
 
   private async deduplicateReviews() {

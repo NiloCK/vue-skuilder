@@ -57,6 +57,7 @@ import Mousetrap from 'mousetrap';
 import serverRequest from '../../server';
 import { CourseConfig, CreateCourse, DataShape55, QuestionType55, ServerRequestType } from '../../server/types';
 import { alertUser } from '../SnackbarService.vue';
+import { User } from '../../db/userDB';
 
 export default defineComponent({
   name: 'CourseEditor',
@@ -104,12 +105,14 @@ export default defineComponent({
     async submit() {
       this.updatePending = true;
 
+      const u = await User.instance();
+
       const config: CourseConfig = {
         name: this.name,
         description: this.description,
         public: this.publicCourse,
         deleted: this.deleted,
-        creator: this.$store.state._user!.username,
+        creator: u.username,
         admins: this.admins,
         moderators: this.moderators,
         dataShapes: this.dataShapes,
@@ -120,7 +123,7 @@ export default defineComponent({
         data: config,
         type: ServerRequestType.CREATE_COURSE,
         response: null,
-        user: this.$store.state._user!.username,
+        user: u.username,
       });
 
       if (result.response && result.response.ok) {

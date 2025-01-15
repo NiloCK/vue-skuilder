@@ -20,6 +20,7 @@ import Viewable from '@/base-course/Viewable';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import { defineComponent, PropType } from 'vue';
 import { VueConstructor } from 'vue';
+import { useCardPreviewModeStore } from '@/stores/useCardPreviewModeStore';
 
 export default defineComponent({
   name: 'CardBrowser',
@@ -42,6 +43,7 @@ export default defineComponent({
   data() {
     return {
       viewIndex: 0,
+      previewMode: useCardPreviewModeStore(),
     };
   },
 
@@ -53,12 +55,12 @@ export default defineComponent({
 
   created() {
     console.log(`[CardBrowser] Card browser created. Cards now in 'prewviewMode'`);
-    this.$store.state.cardPreviewMode = true;
+    this.previewMode.setPreviewMode(true);
   },
 
   destroyed() {
     console.log(`[CardBrowser] Card browser destroyed. Cards no longer in 'prewviewMode'`);
-    this.$store.state.cardPreviewMode = false;
+    this.previewMode.setPreviewMode(false);
   },
 
   methods: {

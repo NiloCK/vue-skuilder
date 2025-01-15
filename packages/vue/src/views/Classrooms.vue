@@ -101,6 +101,7 @@ import { log } from 'util';
 import ClassroomEditor from '@/components/Classrooms/CreateClassroom.vue';
 import { registerUserForClassroom, getUserClassrooms, dropUserFromClassroom } from '../db/userDB';
 import { getClassroomConfig } from '../db/classroomDB';
+import { User } from '../db/userDB';
 
 interface CourseReg {
   _id: string;
@@ -122,6 +123,7 @@ export default defineComponent({
       teacherClasses: [] as CourseReg[],
       spinnerMap: {} as { [index: string]: boolean },
       newClassDialog: false,
+      user: null as User | null,
     };
   },
 
@@ -140,7 +142,8 @@ export default defineComponent({
 
   methods: {
     async refreshData() {
-      const registrations = (await getUserClassrooms(this.$store.state._user!.username)).registrations;
+      this.$data.user = await User.instance();
+      const registrations = (await getUserClassrooms(this.$data.user.username)).registrations;
       const studentClasses: CourseReg[] = [];
       const teacherClasses: CourseReg[] = [];
 
@@ -166,7 +169,7 @@ export default defineComponent({
     async deleteClass(classId: string) {
       const result = await serverRequest({
         type: ServerRequestType.DELETE_CLASSROOM,
-        user: this.$store.state._user!.username,
+        user: this.user?.username || '',
         classID: classId,
         response: null,
       });
@@ -181,11 +184,13 @@ export default defineComponent({
         data: {
           classID: classID,
         },
-        user: this.$store.state._user!.username,
+        user: this.user?.username || '',
         response: null,
       });
       if (result.response && result.response.ok) {
-        await dropUserFromClassroom(this.$store.state._user!.username, classID);
+        if (this.user) {
+          await dropUserFromClassroom(this.user.username, classID);
+        }
       }
 
       this.$set(this.spinnerMap, classID, undefined);
@@ -198,19 +203,26 @@ export default defineComponent({
         data: {
           joinCode: this.joinCode,
           registerAs: 'student',
-          user: this.$store.state._user!.username,
+          user: this.user?.username || '',
         },
-        user: this.$store.state._user!.username,
+        user: this.user?.username || '',
         response: null,
       });
 
       if (result.response && result.response.ok) {
         log(`Adding registration to userDB...`);
-        await registerUserForClassroom(this.$store.state._user!.username, result.response!.id_course, 'student');
-        alertUser({
-          text: `Successfully joined class: ${result.response.course_name}.`,
-          status: Status.ok,
-        });
+        if (this.user) {
+          await registerUserForClassroom(this.user.username, result.response!.id_course, 'student');
+          alertUser({
+            text: `Successfully joined class: ${result.response.course_name}.`,
+            status: Status.ok,
+          });
+        } else {
+          alertUser({
+            text: `Failed to join class. [Unknown current user.]`,
+            status: Status.error,
+          });
+        }
       } else {
         if (result.response) {
           alertUser({

@@ -122,6 +122,8 @@ import NumberInput from './FieldInputs/NumberInput.vue';
 import StringInput from './FieldInputs/StringInput.vue';
 import ChessPuzzleInput from './FieldInputs/ChessPuzzleInput.vue';
 import { CourseElo } from '@/tutor/Elo';
+import { User } from '@/db/userDB';
+import { useDataInputFormStore } from '@/stores/useDataInputFormStore';
 
 type StringIndexable = { [x: string]: any };
 
@@ -131,6 +133,7 @@ interface ComponentData {
   autoCompleteSuggestions: any[];
   allowSubmit: boolean;
   timer?: NodeJS.Timeout;
+  dataInputFormStore: ReturnType<typeof useDataInputFormStore>;
 }
 
 interface ComponentRefs {
@@ -176,6 +179,7 @@ export default defineComponent({
       autoCompleteSuggestions: [],
       allowSubmit: false,
       timer: undefined,
+      dataInputFormStore: useDataInputFormStore(),
     };
   },
 
@@ -233,46 +237,46 @@ export default defineComponent({
 
     existingData: {
       get() {
-        return this.$store.state.dataInputForm.existingData;
+        return this.dataInputFormStore.dataInputForm.existingData;
       },
       set(data: any) {
-        this.$store.state.dataInputForm.existingData = data;
+        this.dataInputFormStore.dataInputForm.existingData = data;
       },
     },
 
     shapeViews: {
       get() {
-        return this.$store.state.dataInputForm.shapeViews;
+        return this.dataInputFormStore.dataInputForm.shapeViews;
       },
       set(views: any) {
-        this.$store.state.dataInputForm.shapeViews = views;
+        this.dataInputFormStore.dataInputForm.shapeViews = views;
       },
     },
 
     fields: {
       get() {
-        return this.$store.state.dataInputForm.fields;
+        return this.dataInputFormStore.dataInputForm.fields;
       },
       set(fields: any) {
-        this.$store.state.dataInputForm.fields = fields;
+        this.dataInputFormStore.dataInputForm.fields = fields;
       },
     },
 
     store: {
       get() {
-        return this.$store.state.dataInputForm.localStore;
+        return this.dataInputFormStore.dataInputForm.localStore;
       },
       set(store: any) {
-        this.$store.state.dataInputForm.localStore = store;
+        this.dataInputFormStore.dataInputForm.localStore = store;
       },
     },
 
     uploading: {
       get(): boolean {
-        return this.$store.state.dataInputForm.uploading;
+        return this.dataInputFormStore.dataInputForm.uploading;
       },
       set(uploading: boolean) {
-        this.$store.state.dataInputForm.uploading = uploading;
+        this.dataInputFormStore.dataInputForm.uploading = uploading;
       },
     },
 
@@ -524,7 +528,9 @@ export default defineComponent({
               this.datashapeDescriptor.course,
               this.dataShape,
               input,
-              this.$store.state._user!.username,
+              (
+                await User.instance()
+              ).username,
               this.getTags(),
               undefined,
               this.getElo()

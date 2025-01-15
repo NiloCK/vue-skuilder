@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="storeIsReady" :dark="dark">
+  <v-app v-if="storeIsReady">
     <!-- class="blue darken-2 grey--text text--lighten-5" dark> -->
     <v-navigation-drawer clipped v-model="drawer" enable-resize-watcher fixed app>
       <v-list>
@@ -63,7 +63,7 @@
     <v-main>
       <v-container>
         <v-slide-y-transition mode="out-in">
-          <router-view v-if="$store.state._user" />
+          <router-view />
         </v-slide-y-transition>
       </v-container>
     </v-main>
@@ -82,8 +82,9 @@ import UserLoginAndRegistrationContainer from '@/components/UserLoginAndRegistra
 import SnackbarService from '@/components/SnackbarService.vue';
 import { getLatestVersion } from '@/db';
 import SkldrVueMixin from './mixins/SkldrVueMixin';
-import { AppState } from './store';
-import { Store } from 'vuex';
+import { useConfigStore } from '@/stores/useConfigStore';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { mapState } from 'pinia';
 
 export default Vue.extend({
   name: 'App',
@@ -99,51 +100,43 @@ export default Vue.extend({
       build: '0.0.2',
       latestBuild: '',
       drawer: false,
+      authStore: useAuthStore(),
     };
   },
 
   computed: {
-    dark(): boolean {
-      return (this.$store as Store<AppState>).state.config.darkMode;
+    dark() {
+      const configStore = useConfigStore();
+      const dm = configStore.config.darkMode;
+      return configStore.config.darkMode;
     },
 
-    storeIsReady(): boolean {
-      const ready = !!(this.$store && this.$store.state && this.$store.state.onLoadComplete);
-      console.log('storeIsReady check:', {
-        hasStore: !!this.$store,
-        hasState: !!(this.$store && this.$store.state),
-        onLoadComplete: !!(this.$store && this.$store.state && this.$store.state.onLoadComplete),
-        ready,
-      });
-      return ready;
+    ...mapState(useAuthStore, {
+      storeIsReady: (state) => state.onLoadComplete,
+    }),
+  },
+
+  watch: {
+    dark: {
+      immediate: true,
+      handler(newVal) {
+        // This is how we properly toggle Vuetify's dark mode
+        this.$vuetify.theme.dark = newVal;
+      },
     },
   },
 
-  beforeCreate() {
-    console.log('1. beforeCreate:', {
-      hasStore: !!this.$store,
-      hasVuex: !!(this.$store && this.$store.state),
-    });
+  async beforeCreate() {
+    // hydrate all (some?) pinia stores
+    const configStore = useConfigStore();
+    let i = await configStore.init();
+
+    const authStore = useAuthStore();
+    await authStore.init();
   },
 
   async created() {
-    console.log('2. created:', {
-      hasStore: !!this.$store,
-      stateExists: !!(this.$store && this.$store.state),
-      onLoadComplete: !!this.$store?.state?.onLoadComplete,
-      user: this.$store?.state?._user,
-    });
     this.latestBuild = await getLatestVersion();
-  },
-
-  mounted() {
-    console.log('4. mounted:', {
-      storeState: {
-        onLoadComplete: this.$store?.state?.onLoadComplete,
-        userInit: this.$store?.state?.userLoginAndRegistrationContainer?.init,
-        loggedIn: this.$store?.state?.userLoginAndRegistrationContainer?.loggedIn,
-      },
-    });
   },
 });
 </script>

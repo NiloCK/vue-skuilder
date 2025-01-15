@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!$store.state.views.study.inSession">
+  <div v-if="!inSession">
     <SessionConfiguration
       v-bind:startFcn="initStudySession"
       v-bind:initialTimeLimit="sessionTimeLimit"
@@ -190,6 +190,8 @@ import { StudentClassroomDB } from '../db/classroomDB';
 import { CourseRegistrationDoc, updateUserElo, User } from '../db/userDB';
 import { Status } from '../enums/Status';
 import { CourseConfig } from '../server/types';
+import { useConfigStore } from '@/stores/useConfigStore';
+import { useDataInputFormStore } from '@/stores/useDataInputFormStore';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
@@ -239,6 +241,7 @@ export default defineComponent({
   data() {
     return {
       user: null as User | null,
+      configStore: null as ReturnType<typeof useConfigStore> | null,
       previewCourseConfig: undefined as CourseConfig | undefined,
       previewMode: false,
       fab: false,
@@ -267,6 +270,8 @@ export default defineComponent({
       timeRemaining: 300, // 5 minutes * 60 seconds
       _intervalHandler: null as NodeJS.Timeout | null,
       cardType: '',
+      inSession: false,
+      dataInputFormStore: useDataInputFormStore(),
     };
   },
 
@@ -289,24 +294,24 @@ export default defineComponent({
     editCard: {
       async handler(value: boolean) {
         if (value) {
-          this.$store.state.dataInputForm.dataShape = await getCardDataShape(this.courseID, this.cardID);
+          this.dataInputFormStore.dataInputForm.dataShape = await getCardDataShape(this.courseID, this.cardID);
 
           const cfg = await getCredentialledCourseConfig(this.courseID);
-          this.$store.state.dataInputForm.course = cfg!;
+          this.dataInputFormStore.dataInputForm.course = cfg!;
 
           this.editCardReady = true;
 
-          for (const oldField in this.$store.state.dataInputForm.localStore) {
+          for (const oldField in this.dataInputFormStore.dataInputForm.localStore) {
             if (oldField) {
               console.log(`[Study] Removing old data: ${oldField}`);
-              delete this.$store.state.dataInputForm.localStore[oldField];
+              delete this.dataInputFormStore.dataInputForm.localStore[oldField];
             }
           }
 
           for (const field in this.data[0]) {
             if (field) {
               console.log(`[Study] Writing ${field}: ${this.data[0][field]} to the dataInputForm state...`);
-              this.$store.state.dataInputForm.localStore[field] = this.data[0][field];
+              this.dataInputFormStore.dataInputForm.localStore[field] = this.data[0][field];
             }
           }
         } else {
@@ -318,10 +323,10 @@ export default defineComponent({
 
   async created() {
     this.sessionPrepared = false;
-    this.$store.state.views.study.inSession = false;
 
     this.user = await User.instance();
     this.userCourseRegDoc = await this.user.getCourseRegistrationsDoc();
+    this.configStore = useConfigStore();
 
     let singletonStudyCourseID = '';
 
@@ -380,7 +385,7 @@ export default defineComponent({
     handleClassroomMessage() {
       return (v: any) => {
         alertUser({
-          text: this.$store.state._user!.username,
+          text: this.user?.username || '[Unknown user]',
           status: Status.ok,
         });
         console.log(`[Study] There was a change in the classroom DB:`);
@@ -391,7 +396,7 @@ export default defineComponent({
     },
 
     incrementSessionClock() {
-      const max = 60 * this.$store.state.views.study.sessionTimeLimit - this.timeRemaining;
+      const max = 60 * this.sessionTimeLimit - this.timeRemaining;
       this.sessionController!.addTime(Math.min(max, 60));
       this.tick();
     },
@@ -471,7 +476,7 @@ export default defineComponent({
         User classrooms: ${sessionClassroomDBs.map((db) => db._id)}
       `);
 
-      this.$store.state.views.study.inSession = true;
+      this.inSession = true;
       this.loadCard(this.sessionController.nextCard());
     },
 
@@ -512,7 +517,7 @@ export default defineComponent({
             // swallow error
           }
 
-          if (this.$store.state.config.likesConfetti) {
+          if (this.configStore?.config.likesConfetti) {
             confetti({
               origin: {
                 y: 1,
@@ -586,7 +591,7 @@ export default defineComponent({
         this.userCourseRegDoc!.courses.find((c) => c.courseID === course_id)!.elo = eloUpdate.userElo;
 
         Promise.all([
-          updateUserElo(this.$store.state._user!.username, course_id, eloUpdate.userElo),
+          updateUserElo(this.user!.username, course_id, eloUpdate.userElo),
           updateCardElo(course_id, card_id, eloUpdate.cardElo),
         ]).then((results) => {
           const user = results[0];
@@ -617,7 +622,7 @@ export default defineComponent({
     },
 
     async logCardRecord(r: CardRecord): Promise<CardHistory<CardRecord>> {
-      return await putCardRecord(r, this.$store.state._user!.username);
+      return await putCardRecord(r, this.user!.username);
     },
 
     async scheduleReview(history: CardHistory<CardRecord>, item: StudySessionItem) {
@@ -630,7 +635,7 @@ export default defineComponent({
       }
 
       scheduleCardReview({
-        user: this.$store.state._user!.username,
+        user: this.user!.username,
         course_id: history.courseID,
         card_id: history.cardID,
         time: nextReviewTime,

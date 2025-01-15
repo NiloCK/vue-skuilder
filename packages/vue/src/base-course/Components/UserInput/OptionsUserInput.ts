@@ -3,17 +3,19 @@ import { Answer, Question } from '../../../base-course/Displayable';
 import { QuestionView } from '../../../base-course/Viewable';
 import { log } from 'util';
 import { QuestionRecord } from '../../../db/types';
+import { useCardPreviewModeStore } from '@/stores/useCardPreviewModeStore';
 
 export default defineComponent({
   name: 'UserInput',
   data() {
     return {
       answer: '' as Answer,
+      previewModeStore: useCardPreviewModeStore(),
     };
   },
   computed: {
     autofocus(): boolean {
-      return !this.$store.state.cardPreviewMode;
+      return !this.previewModeStore.previewMode;
     },
     autoFocus(): boolean {
       return this.autofocus;

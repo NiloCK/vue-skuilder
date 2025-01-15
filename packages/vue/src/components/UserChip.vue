@@ -47,6 +47,8 @@ import { defineComponent } from 'vue';
 import { log } from 'util';
 import { setTimeout } from 'timers';
 import { User } from '../db/userDB';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useConfigStore } from '@/stores/useConfigStore';
 
 export default defineComponent({
   name: 'UserChip',
@@ -55,14 +57,16 @@ export default defineComponent({
     return {
       username: '',
       items: [] as string[],
-      checked: false
+      checked: false,
+      authStore: useAuthStore(),
+      configStore: useConfigStore(),
     };
   },
 
   computed: {
     hasNewItems(): boolean {
       return this.items.length > 0;
-    }
+    },
   },
 
   created() {
@@ -86,21 +90,20 @@ export default defineComponent({
     },
 
     async logout() {
-      const res = await this.$store.state._user!.logout();
+      const res = await this.authStore._user!.logout();
       if (res.ok) {
-        this.$store.state.userLoginAndRegistrationContainer = {
+        this.authStore.loginAndRegistration = {
           init: true,
           loggedIn: false,
           regDialogOpen: false,
           loginDialogOpen: false,
         };
 
-        this.$store.state.config.darkMode = false;
-        this.$store.state.config.likesConfetti = false;
+        this.configStore.resetDefaults();
 
         this.$router.push('/home');
       }
-    }
-  }
+    },
+  },
 });
 </script>

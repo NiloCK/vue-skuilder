@@ -164,7 +164,7 @@ export default defineComponent({
   },
 
   created() {
-    this.$store.state.dataInputForm.shapeViews = [FillInView];
+    // this.$store.state.dataInputForm.shapeViews = [FillInView];
   },
 });
 </script>

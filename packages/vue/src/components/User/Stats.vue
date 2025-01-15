@@ -13,6 +13,7 @@
 import { defineComponent } from 'vue';
 import { log } from 'util';
 import confetti from 'canvas-confetti';
+import { User } from '@/db/userDB';
 
 export default defineComponent({
   name: 'Stats',
@@ -26,9 +27,7 @@ export default defineComponent({
 
   data() {
     return {
-      u: this.$store.state._user!,
-      confetti: this.$store.state.config.likesConfetti as boolean,
-      darkMode: this.$store.state.config.darkMode as boolean,
+      u: null as User | null,
       scheduledReviews: [] as number[],
     };
   },
@@ -39,35 +38,10 @@ export default defineComponent({
     },
   },
 
-  methods: {
-    updateDark(): void {
-      this.u.setConfig({
-        darkMode: this.darkMode,
-      });
-      this.$store.state.config.darkMode = this.darkMode;
-    },
-
-    updateConfetti(): void {
-      console.log(`Confetti updated...`);
-      this.u.setConfig({
-        likesConfetti: this.confetti,
-      });
-      this.$store.state.config.likesConfetti = this.confetti;
-
-      if (this.$store.state.config.likesConfetti) {
-        confetti({
-          origin: {
-            x: 0.5,
-            y: 1,
-          },
-        });
-      }
-    },
-  },
-
   async created() {
+    this.u = await User.instance();
     [1, 7, 30].forEach(async (d) => {
-      this.scheduledReviews.push((await this.u.getReviewsForcast(d)).length);
+      this.scheduledReviews.push((await this.u!.getReviewsForcast(d)).length);
     });
   },
 });

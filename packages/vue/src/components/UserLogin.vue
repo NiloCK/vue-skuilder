@@ -47,9 +47,10 @@
 import { defineComponent } from 'vue';
 import { alertUser } from '@/components/SnackbarService.vue';
 import { log } from 'util';
-import { AppState } from '@/store';
 import { Status } from '@/enums/Status';
 import { User } from '@/db/userDB';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useConfigStore } from '@/stores/useConfigStore';
 
 export default defineComponent({
   name: 'UserLogin',
@@ -64,6 +65,8 @@ export default defineComponent({
       badLoginAttempt: false,
       errorTimeout: 5000,
       user: undefined as User | undefined,
+      authStore: useAuthStore(),
+      configStore: useConfigStore(),
     };
   },
 
@@ -100,12 +103,12 @@ export default defineComponent({
         // #172 starting point - why is the pre-existing _user being referenced here?
         this.user = await User.instance();
         const res = await this.user.login(this.username, this.password);
-        this.user.getConfig().then((cfg) => {
-          // @ts-ignore v3 migrate
-          this.$store.state.config = cfg;
-        });
-        // @ts-ignore v3 migrate
-        this.$store.state.userLoginAndRegistrationContainer.loggedIn = true;
+
+        // load user config
+        this.configStore.init();
+
+        // set login state
+        this.authStore.loginAndRegistration.loggedIn = true;
         this.$router.push('/study');
       } catch (e) {
         // entry #186

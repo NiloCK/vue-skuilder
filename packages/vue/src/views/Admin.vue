@@ -32,7 +32,7 @@
 import { defineComponent } from 'vue';
 import { log } from 'util';
 import AdminDB from '../db/adminDB';
-import { GuestUsername } from '../store';
+import { GuestUsername } from '../stores/useAuthStore';
 
 export default defineComponent({
   name: 'Admin',
@@ -43,7 +43,7 @@ export default defineComponent({
       db: null as AdminDB | null,
       users: [] as any[],
       courses: [] as any[],
-      classrooms: [] as any[]
+      classrooms: [] as any[],
     };
   },
 
@@ -52,7 +52,7 @@ export default defineComponent({
       return this.users.filter((u) => {
         return !(u.name as string).startsWith(GuestUsername);
       });
-    }
+    },
   },
 
   async created() {
@@ -73,8 +73,8 @@ export default defineComponent({
       if (this.db) {
         this.db.removeCourse(id);
       }
-    }
-  }
+    },
+  },
 });
 </script>
 
