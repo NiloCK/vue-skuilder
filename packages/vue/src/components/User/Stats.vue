@@ -28,8 +28,6 @@ export default defineComponent({
   data() {
     return {
       u: null as User | null,
-      confetti: this.$store.state.config.likesConfetti as boolean,
-      darkMode: this.$store.state.config.darkMode as boolean,
       scheduledReviews: [] as number[],
     };
   },
@@ -40,34 +38,8 @@ export default defineComponent({
     },
   },
 
-  methods: {
-    updateDark(): void {
-      this.u?.setConfig({
-        darkMode: this.darkMode,
-      });
-      this.$store.state.config.darkMode = this.darkMode;
-    },
-
-    updateConfetti(): void {
-      console.log(`Confetti updated...`);
-      this.u?.setConfig({
-        likesConfetti: this.confetti,
-      });
-      this.$store.state.config.likesConfetti = this.confetti;
-
-      if (this.$store.state.config.likesConfetti) {
-        confetti({
-          origin: {
-            x: 0.5,
-            y: 1,
-          },
-        });
-      }
-    },
-  },
-
   async created() {
-    this.$data.u = await User.instance();
+    this.u = await User.instance();
     [1, 7, 30].forEach(async (d) => {
       this.scheduledReviews.push((await this.u!.getReviewsForcast(d)).length);
     });
