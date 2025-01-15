@@ -1,125 +1,122 @@
-// src/mock/store.ts
+// // src/mock/store.ts
 
-import Vue from 'vue';
-import Vuex from 'vuex';
-import { DataShape } from '@/base-course/Interfaces/DataShape';
-import { ViewData } from '@/base-course/Interfaces/ViewData';
-import { CourseConfig } from '@/server/types';
-import { FieldInputInstance } from '@/components/Edit/ViewableDataInputForm/FieldInput.types';
-import { User } from '@/db/userDB';
+// import Vue from 'vue';
+// import { DataShape } from '@/base-course/Interfaces/DataShape';
+// import { ViewData } from '@/base-course/Interfaces/ViewData';
+// import { CourseConfig } from '@/server/types';
+// import { FieldInputInstance } from '@/components/Edit/ViewableDataInputForm/FieldInput.types';
+// import { User } from '@/db/userDB';
 
-Vue.use(Vuex);
+// export const GuestUsername: string = 'Guest';
 
-export const GuestUsername: string = 'Guest';
+// interface DataInputForm {
+//   dataShape: DataShape | null;
+//   course: CourseConfig | null;
+//   existingData: ViewData[];
+//   shapeViews: any[];
+//   fields: FieldInputInstance[];
+//   localStore: any;
+//   uploading: boolean;
+// }
 
-interface DataInputForm {
-  dataShape: DataShape | null;
-  course: CourseConfig | null;
-  existingData: ViewData[];
-  shapeViews: any[];
-  fields: FieldInputInstance[];
-  localStore: any;
-  uploading: boolean;
-}
+// export interface UserConfig {
+//   darkMode: boolean;
+//   likesConfetti: boolean;
+// }
 
-export interface UserConfig {
-  darkMode: boolean;
-  likesConfetti: boolean;
-}
+// export interface AppState {
+//   _user?: User;
+//   userLoginAndRegistrationContainer: {
+//     init: boolean;
+//     loggedIn: boolean;
+//     regDialogOpen: boolean;
+//     loginDialogOpen: boolean;
+//   };
+//   cardPreviewMode: boolean;
+//   dataInputForm: DataInputForm;
+//   views: {
+//     study: {
+//       inSession: boolean;
+//       courseList: string[];
+//       sessionTimeLimit: number;
+//     };
+//   };
+//   config: UserConfig;
+//   onLoadComplete: boolean;
+// }
 
-export interface AppState {
-  _user?: User;
-  userLoginAndRegistrationContainer: {
-    init: boolean;
-    loggedIn: boolean;
-    regDialogOpen: boolean;
-    loginDialogOpen: boolean;
-  };
-  cardPreviewMode: boolean;
-  dataInputForm: DataInputForm;
-  views: {
-    study: {
-      inSession: boolean;
-      courseList: string[];
-      sessionTimeLimit: number;
-    };
-  };
-  config: UserConfig;
-  onLoadComplete: boolean;
-}
+// export const defaultState: AppState = {
+//   _user: undefined,
+//   userLoginAndRegistrationContainer: {
+//     init: false,
+//     loggedIn: false,
+//     regDialogOpen: false,
+//     loginDialogOpen: false,
+//   },
+//   cardPreviewMode: false,
+//   dataInputForm: {
+//     course: null,
+//     dataShape: null,
+//     existingData: [],
+//     fields: [],
+//     localStore: {},
+//     shapeViews: [],
+//     uploading: false,
+//   },
+//   views: {
+//     study: {
+//       inSession: false,
+//       courseList: [],
+//       sessionTimeLimit: 5,
+//     },
+//   },
+//   config: {
+//     darkMode: false,
+//     likesConfetti: false,
+//   },
+//   onLoadComplete: false,
+// };
 
-export const defaultState: AppState = {
-  _user: undefined,
-  userLoginAndRegistrationContainer: {
-    init: false,
-    loggedIn: false,
-    regDialogOpen: false,
-    loginDialogOpen: false,
-  },
-  cardPreviewMode: false,
-  dataInputForm: {
-    course: null,
-    dataShape: null,
-    existingData: [],
-    fields: [],
-    localStore: {},
-    shapeViews: [],
-    uploading: false,
-  },
-  views: {
-    study: {
-      inSession: false,
-      courseList: [],
-      sessionTimeLimit: 5,
-    },
-  },
-  config: {
-    darkMode: false,
-    likesConfetti: false,
-  },
-  onLoadComplete: false,
-};
+// const Store = new Vuex.Store<AppState>({
+//   state: defaultState,
+//   mutations: {
+//     setUser(state, user: User) {
+//       state._user = user;
+//     },
+//     setLoggedIn(state, loggedIn: boolean) {
+//       state.userLoginAndRegistrationContainer.loggedIn = loggedIn;
+//     },
+//     setConfig(state, config: UserConfig) {
+//       state.config = config;
+//     },
+//     setOnLoadComplete(state, complete: boolean) {
+//       state.onLoadComplete = complete;
+//     },
+//   },
+//   actions: {
+//     async checkAuth({ commit }) {
+//       // Simulate auth check
+//       const isLoggedIn = Math.random() > 0.5; // 50% chance of being logged in
+//       if (isLoggedIn) {
+//         const mockUser = { username: 'MockUser' } as User;
+//         commit('setUser', mockUser);
+//         commit('setLoggedIn', true);
+//         commit('setConfig', { darkMode: false, likesConfetti: true });
+//       } else {
+//         const guestUser = { username: GuestUsername } as User;
+//         commit('setUser', guestUser);
+//         commit('setLoggedIn', false);
+//       }
+//       commit('setOnLoadComplete', true);
+//     },
+//   },
+// });
 
-const Store = new Vuex.Store<AppState>({
-  state: defaultState,
-  mutations: {
-    setUser(state, user: User) {
-      state._user = user;
-    },
-    setLoggedIn(state, loggedIn: boolean) {
-      state.userLoginAndRegistrationContainer.loggedIn = loggedIn;
-    },
-    setConfig(state, config: UserConfig) {
-      state.config = config;
-    },
-    setOnLoadComplete(state, complete: boolean) {
-      state.onLoadComplete = complete;
-    },
-  },
-  actions: {
-    async checkAuth({ commit }) {
-      // Simulate auth check
-      const isLoggedIn = Math.random() > 0.5; // 50% chance of being logged in
-      if (isLoggedIn) {
-        const mockUser = { username: 'MockUser' } as User;
-        commit('setUser', mockUser);
-        commit('setLoggedIn', true);
-        commit('setConfig', { darkMode: false, likesConfetti: true });
-      } else {
-        const guestUser = { username: GuestUsername } as User;
-        commit('setUser', guestUser);
-        commit('setLoggedIn', false);
-      }
-      commit('setOnLoadComplete', true);
-    },
-  },
-});
+// export default Store;
 
-export default Store;
+// export function setDefaultState() {
+//   Store.state.config = defaultState.config;
+// }
 
-export function setDefaultState() {
-  Store.state.config = defaultState.config;
-}
-
-// Simulate checking auth on load
-Store.dispatch('checkAuth');
+// // Simulate checking auth on load
+// Store.dispatch('checkAuth');
