@@ -27,12 +27,10 @@ interface DataInputForm {
 }
 
 export interface AppState {
-  cardPreviewMode: boolean;
   dataInputForm: DataInputForm;
 }
 
 export const defaultState: AppState = {
-  cardPreviewMode: false,
   dataInputForm: {
     course: null,
     dataShape: null,
