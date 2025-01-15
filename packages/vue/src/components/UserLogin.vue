@@ -47,7 +47,6 @@
 import { defineComponent } from 'vue';
 import { alertUser } from '@/components/SnackbarService.vue';
 import { log } from 'util';
-import { AppState } from '@/store';
 import { Status } from '@/enums/Status';
 import { User } from '@/db/userDB';
 import { useAuthStore } from '@/stores/useAuthStore';
