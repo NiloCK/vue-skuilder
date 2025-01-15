@@ -6,7 +6,6 @@ import App from './App.vue';
 import vuetify from './plugins/vuetify'; // Only import once
 import './registerServiceWorker';
 import router from './router';
-import Vuex from 'vuex';
 import { createPinia, PiniaVuePlugin } from 'pinia';
 import 'vuetify/dist/vuetify.min.css';
 
