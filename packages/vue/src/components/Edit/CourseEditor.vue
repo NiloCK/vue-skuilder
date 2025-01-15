@@ -37,6 +37,7 @@ import { BlanksCard, BlanksCardDataShapes } from '@/courses/default/questions/fi
 import { CourseConfig } from '../../server/types';
 import DataInputForm from './ViewableDataInputForm/DataInputForm.vue';
 import { getCredentialledCourseConfig } from '@/db/courseAPI';
+import { useDataInputFormStore } from '@/stores/useDataInputFormStore';
 
 export default defineComponent({
   name: 'CourseEditor',
@@ -62,6 +63,7 @@ export default defineComponent({
       dataShape: BlanksCardDataShapes[0] as DataShape,
       loading: true,
       editingMode: true,
+      dataInputFormStore: useDataInputFormStore(),
     };
   },
 
@@ -70,15 +72,15 @@ export default defineComponent({
       handler(value?: string, old?: string) {
         if (value) {
           this.dataShape = this.getDataShape(value);
-          this.$store.state.dataInputForm.dataShape = this.dataShape;
+          this.dataInputFormStore.dataInputForm.dataShape = this.dataShape;
 
           const validations: { [x: string]: string } = {};
           for (const field of this.dataShape.fields) {
             validations[field.name] = '';
           }
-          this.$store.state.dataInputForm.localStore.validation = validations;
+          this.dataInputFormStore.dataInputForm.localStore.validation = validations;
 
-          this.$store.state.dataInputForm.course = this.courseConfig;
+          this.dataInputFormStore.dataInputForm.course = this.courseConfig;
         }
       },
     },

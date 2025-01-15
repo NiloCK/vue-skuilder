@@ -191,6 +191,7 @@ import { CourseRegistrationDoc, updateUserElo, User } from '../db/userDB';
 import { Status } from '../enums/Status';
 import { CourseConfig } from '../server/types';
 import { useConfigStore } from '@/stores/useConfigStore';
+import { useDataInputFormStore } from '@/stores/useDataInputFormStore';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
@@ -270,6 +271,7 @@ export default defineComponent({
       _intervalHandler: null as NodeJS.Timeout | null,
       cardType: '',
       inSession: false,
+      dataInputFormStore: useDataInputFormStore(),
     };
   },
 
@@ -292,24 +294,24 @@ export default defineComponent({
     editCard: {
       async handler(value: boolean) {
         if (value) {
-          this.$store.state.dataInputForm.dataShape = await getCardDataShape(this.courseID, this.cardID);
+          this.dataInputFormStore.dataInputForm.dataShape = await getCardDataShape(this.courseID, this.cardID);
 
           const cfg = await getCredentialledCourseConfig(this.courseID);
-          this.$store.state.dataInputForm.course = cfg!;
+          this.dataInputFormStore.dataInputForm.course = cfg!;
 
           this.editCardReady = true;
 
-          for (const oldField in this.$store.state.dataInputForm.localStore) {
+          for (const oldField in this.dataInputFormStore.dataInputForm.localStore) {
             if (oldField) {
               console.log(`[Study] Removing old data: ${oldField}`);
-              delete this.$store.state.dataInputForm.localStore[oldField];
+              delete this.dataInputFormStore.dataInputForm.localStore[oldField];
             }
           }
 
           for (const field in this.data[0]) {
             if (field) {
               console.log(`[Study] Writing ${field}: ${this.data[0][field]} to the dataInputForm state...`);
-              this.$store.state.dataInputForm.localStore[field] = this.data[0][field];
+              this.dataInputFormStore.dataInputForm.localStore[field] = this.data[0][field];
             }
           }
         } else {

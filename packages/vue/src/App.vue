@@ -133,11 +133,6 @@ export default Vue.extend({
 
     const authStore = useAuthStore();
     await authStore.init();
-
-    console.log('1. beforeCreate:', {
-      hasStore: !!this.$store,
-      hasVuex: !!(this.$store && this.$store.state),
-    });
   },
 
   async created() {
