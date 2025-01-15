@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import { Store } from 'vuex';
-import { AppState } from '../store';
 import { User } from '../db/userDB';
 
 export default Vue.extend({

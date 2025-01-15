@@ -64,7 +64,6 @@
 import { defineComponent } from 'vue';
 import { doesUserExist, User } from '@/db/userDB';
 import { log } from 'util';
-import { AppState } from '@/store';
 import { alertUser } from './SnackbarService.vue';
 import { Status } from '../enums/Status';
 import { useAuthStore } from '@/stores/useAuthStore';

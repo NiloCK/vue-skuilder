@@ -23,9 +23,8 @@ import { defineComponent } from 'vue';
 import UserLogin from './UserLogin.vue';
 import UserRegistration from './UserRegistration.vue';
 import UserChip from './UserChip.vue';
-import { GuestUsername } from '@/store';
 import { User } from '../db/userDB';
-import { useAuthStore } from '@/stores/useAuthStore';
+import { useAuthStore, GuestUsername } from '@/stores/useAuthStore';
 
 export default defineComponent({
   name: 'UserLoginAndRegistrationContainer',

@@ -6,7 +6,7 @@ import {
   SkuilderCourseData,
 } from '../db/types';
 import ENV from '../ENVIRONMENT_VARS';
-import { GuestUsername } from '../store';
+import { GuestUsername } from '../stores/useAuthStore';
 import moment, { Moment } from 'moment';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
@@ -111,7 +111,7 @@ export function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) 
 
   guestDB
     .get(expiryDocID)
-    .then(doc => {
+    .then((doc) => {
       guestDB.put({
         _id: expiryDocID,
         _rev: doc._rev,
@@ -156,7 +156,7 @@ export async function getRandomCards(courseIDs: string[]) {
     throw new Error(`getRandomCards:\n\tAttempted to get all cards from no courses!`);
   } else {
     const courseResults = await Promise.all(
-      courseIDs.map(course => {
+      courseIDs.map((course) => {
         return getCourseDB(course).find({
           selector: {
             docType: DocType.CARD,
@@ -168,7 +168,7 @@ export async function getRandomCards(courseIDs: string[]) {
 
     const ret: string[] = [];
     courseResults.forEach((courseCards, index) => {
-      courseCards.docs.forEach(doc => {
+      courseCards.docs.forEach((doc) => {
         ret.push(`${courseIDs[index]}-${doc._id}`);
       });
     });
@@ -195,7 +195,7 @@ export async function putCardRecord<T extends CardRecord>(
   try {
     const u = await User.instance();
 
-    const cardHistory = await u.update<CardHistory<T>>(cardHistoryID, function(h: CardHistory<T>) {
+    const cardHistory = await u.update<CardHistory<T>>(cardHistoryID, function (h: CardHistory<T>) {
       h.records.push(record);
       h.bestInterval = h.bestInterval || 0;
       h.lapses = h.lapses || 0;
@@ -230,7 +230,7 @@ message: ${reason.message}`);
 }
 
 function deMomentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>) {
-  cardHistory.records = cardHistory.records.map(r => {
+  cardHistory.records = cardHistory.records.map((r) => {
     return {
       ...r,
       timeStamp: r.timeStamp.toString(),
@@ -238,7 +238,7 @@ function deMomentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T
   });
 }
 function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>) {
-  cardHistory.records = cardHistory.records.map<T>(record => {
+  cardHistory.records = cardHistory.records.map<T>((record) => {
     const ret: T = {
       ...(record as object),
     } as T;
@@ -275,12 +275,12 @@ export async function removeScheduledCardReview(user: string, reviewDocID: strin
   const db = getUserDB(user);
   let reviewDoc = await db.get(reviewDocID);
   db.remove(reviewDoc)
-    .then(res => {
+    .then((res) => {
       if (res.ok) {
         log(`Removed Review Doc: ${reviewDocID}`);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       log(`Failed to remove Review Doc: ${reviewDocID},\n${JSON.stringify(err)}`);
     });
 }
