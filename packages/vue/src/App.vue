@@ -130,7 +130,11 @@ export default Vue.extend({
     },
   },
 
-  beforeCreate() {
+  async beforeCreate() {
+    // hydrate all (some?) pinia stores
+    const configStore = useConfigStore();
+    await configStore.init();
+
     console.log('1. beforeCreate:', {
       hasStore: !!this.$store,
       hasVuex: !!(this.$store && this.$store.state),
