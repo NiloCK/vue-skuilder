@@ -1,9 +1,7 @@
 <template>
-  <template>
-    <transition appear name="fade" mode="out-in">
-      <a @click="next()" :key="index">{{ text[index] }}</a>
-    </transition>
-  </template>
+  <transition appear name="fade" mode="out-in">
+    <a @click="next()" :key="index">{{ text[index] }}</a>
+  </transition>
 </template>
 
 <script lang="ts">
