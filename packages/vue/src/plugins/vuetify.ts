@@ -1,38 +1,41 @@
-import Vue from 'vue';
-import Vuetify from 'vuetify/lib';
+// src/plugins/vuetify.ts
 import '@mdi/font/css/materialdesignicons.css';
-import 'vuetify/dist/vuetify.min.css'; // Add this line
+import 'vuetify/styles';
+import { createVuetify } from 'vuetify';
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
 
-Vue.use(Vuetify);
-
-export default new Vuetify({
-  icons: {
-    iconfont: 'mdi',
-  },
+export default createVuetify({
+  components,
+  directives,
   theme: {
-    dark: false,
-    options: {
-      customProperties: true,
-    },
+    defaultTheme: 'light',
     themes: {
       light: {
-        primary: '#1976D2',
-        secondary: '#424242',
-        accent: '#82B1FF',
-        error: '#FF5252',
-        info: '#2196F3',
-        success: '#4CAF50',
-        warning: '#FFC107',
+        colors: {
+          primary: '#1976D2',
+          secondary: '#424242',
+          accent: '#82B1FF',
+          error: '#FF5252',
+          info: '#2196F3',
+          success: '#4CAF50',
+          warning: '#FFC107',
+        },
       },
       dark: {
-        primary: '#2196F3',
-        secondary: '#424242',
-        accent: '#FF4081',
-        error: '#FF5252',
-        info: '#2196F3',
-        success: '#4CAF50',
-        warning: '#FFC107',
+        colors: {
+          primary: '#2196F3',
+          secondary: '#424242',
+          accent: '#FF4081',
+          error: '#FF5252',
+          info: '#2196F3',
+          success: '#4CAF50',
+          warning: '#FFC107',
+        },
       },
     },
+  },
+  icons: {
+    defaultSet: 'mdi',
   },
 });
