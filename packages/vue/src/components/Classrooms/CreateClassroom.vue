@@ -24,7 +24,13 @@
             <v-checkbox label="Allow peer instruction" v-model="peerAssist"></v-checkbox>
           </v-col>
           <v-col cols="12" sm="6" md="4">
-            <v-select :items="birthYears" label="Approximate Birth Year of Students" v-model="birthYear"></v-select>
+            <v-select
+              :items="birthYears"
+              label="Approximate Birth Year of Students"
+              v-model="birthYear"
+              item-title="text"
+              item-value="value"
+            ></v-select>
           </v-col>
           <v-col cols="12" sm="6" md="4">
             <v-btn :loading="updatePending" color="primary" @click="submit">Create This Class</v-btn>
