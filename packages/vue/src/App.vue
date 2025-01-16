@@ -1,72 +1,51 @@
 <template>
   <v-app v-if="storeIsReady">
-    <!-- class="blue darken-2 grey--text text--lighten-5" dark> -->
-    <v-navigation-drawer clipped v-model="drawer" enable-resize-watcher fixed app>
+    <v-navigation-drawer v-model="drawer" :elevation="2" permanent expand-on-hover>
       <v-list>
-        <v-list-item value="true" :to="{ path: '/home' }">
-          <v-list-item-action>
-            <v-icon>home</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title> Home </v-list-item-title>
-          </v-list-item-content>
+        <v-list-item to="/home" value="home">
+          <template v-slot:prepend>
+            <v-icon icon="mdi-home"></v-icon>
+          </template>
+          <v-list-item-title>Home</v-list-item-title>
         </v-list-item>
-        <v-list-item v-if="true" value="true" :to="{ path: '/study' }">
-          <v-list-item-action>
-            <v-icon>school</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title> Study </v-list-item-title>
-          </v-list-item-content>
+
+        <v-list-item v-if="true" to="/study" value="study">
+          <template v-slot:prepend>
+            <v-icon icon="mdi-school"></v-icon>
+          </template>
+          <v-list-item-title>Study</v-list-item-title>
         </v-list-item>
-        <v-list-item v-if="true" value="true" :to="{ path: '/classrooms' }">
-          <v-list-item-action>
-            <v-icon>people</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title> Classrooms </v-list-item-title>
-          </v-list-item-content>
+
+        <v-list-item v-if="true" to="/classrooms" value="classrooms">
+          <template v-slot:prepend>
+            <v-icon icon="mdi-account-group"></v-icon>
+          </template>
+          <v-list-item-title>Classrooms</v-list-item-title>
         </v-list-item>
-        <v-list-item v-if="true" value="true" :to="{ path: '/quilts' }">
-          <v-list-item-action>
-            <v-icon>bookmarks</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title> Quilts </v-list-item-title>
-          </v-list-item-content>
+
+        <v-list-item v-if="true" to="/quilts" value="quilts">
+          <template v-slot:prepend>
+            <v-icon icon="mdi-bookmark-multiple"></v-icon>
+          </template>
+          <v-list-item-title>Quilts</v-list-item-title>
         </v-list-item>
-        <!-- <v-list-item
-          v-if='true'
-          value="true"
-          :to="{path: '/edit'}"
-        >
-          <v-list-item-action>
-            <v-icon>add_to_queue</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>
-              Edit
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item> -->
       </v-list>
     </v-navigation-drawer>
-    <v-app-bar app dense clipped-left>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <!-- <v-toolbar-title class="text-uppercase">
-        <span class="font-weight-thin grey--text text--darken-1">edu</span>
-        <span class="grey--text text--darken-2">Quilt</span>
-      </v-toolbar-title> -->
+
+    <v-app-bar density="compact">
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-spacer></v-spacer>
       <user-login-and-registration-container />
     </v-app-bar>
+
     <v-main>
       <v-container>
-        <v-slide-y-transition mode="out-in">
+        <v-fade-transition mode="out-in">
           <router-view />
-        </v-slide-y-transition>
+        </v-fade-transition>
       </v-container>
     </v-main>
+
     <!-- <v-footer fixed app>
       <span>
        v: <router-link to='/notes'>{{build}}</router-link>
@@ -105,7 +84,7 @@ const dark = computed(() => {
 
 watch(
   dark,
-  newVal => {
+  (newVal) => {
     theme.global.name.value = newVal ? 'dark' : 'light';
   },
   { immediate: true }
