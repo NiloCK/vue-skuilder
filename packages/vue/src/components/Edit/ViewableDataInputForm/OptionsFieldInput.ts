@@ -117,7 +117,9 @@ export default defineComponent({
       const validationResult = ret.status === Status.ok;
 
       if (this.field?.name) {
-        this.$set(this.store['validation'], this.field.name, validationResult);
+        // [ ] #vue3 - possible reactivity issues here
+        console.warn(`check validation reactivity assumptions - does this work?`);
+        this.store.validation[this.field.name] = validationResult;
 
         if (!validationResult) {
           delete this.store[this.field.name];
