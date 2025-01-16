@@ -36,7 +36,7 @@
         "simplemde": "^1.11.2",
         "vue": "^3.3.0",
         "vue-router": "^4.2.0",
-        "vuetify": "^3.4.0",
+        "vuetify": "^3.7.0",
         "wavesurfer.js": "^5.1.0",
         "webmidi": "^2.5.1"
     },
