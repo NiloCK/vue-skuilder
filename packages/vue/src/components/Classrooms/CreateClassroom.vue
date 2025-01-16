@@ -1,16 +1,16 @@
 <template>
   <v-card>
-    <v-toolbar card dark flat color="primary">
-      <v-card-title class="title font-weight-regular" primary-title>Start a New Class</v-card-title>
+    <v-toolbar color="primary">
+      <v-card-title class="text-h6 font-weight-regular">Start a New Class</v-card-title>
       <v-spacer></v-spacer>
       <v-btn icon @click="clearFormAndDismiss">
-        <v-icon>close</v-icon>
+        <v-icon>mdi-close</v-icon>
       </v-btn>
     </v-toolbar>
     <v-form>
-      <v-container grid-list-md>
-        <v-layout wrap column>
-          <v-flex xs12 sm6 md4>
+      <v-container>
+        <v-row>
+          <v-col cols="12" sm="6" md="4">
             <v-text-field
               v-model="name"
               counter="30"
@@ -19,17 +19,17 @@
               required
               hint="Eg: Smith, Chemistry, Period 3"
             ></v-text-field>
-          </v-flex>
-          <v-flex xs12 sm6 md4>
-            <v-checkbox label="Allow peer instruction" v-model="peerAssist" :value="true"></v-checkbox>
-          </v-flex>
-          <v-flex xs12 sm6 md4>
+          </v-col>
+          <v-col cols="12" sm="6" md="4">
+            <v-checkbox label="Allow peer instruction" v-model="peerAssist"></v-checkbox>
+          </v-col>
+          <v-col cols="12" sm="6" md="4">
             <v-select :items="birthYears" label="Approximate Birth Year of Students" v-model="birthYear"></v-select>
-          </v-flex>
-          <v-flex xs12 sm6 md4>
+          </v-col>
+          <v-col cols="12" sm="6" md="4">
             <v-btn :loading="updatePending" color="primary" @click="submit">Create This Class</v-btn>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-container>
     </v-form>
   </v-card>
