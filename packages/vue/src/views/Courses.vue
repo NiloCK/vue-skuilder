@@ -35,7 +35,7 @@
                       </div>
                       <v-btn
                         x-small
-                        text
+                        varient="text"
                         color="error"
                         @click="dropCourse(course._id)"
                         :loading="spinnerMap[course._id] !== undefined"
@@ -62,7 +62,7 @@
 
         <!-- Show More Button -->
         <v-row v-if="hasMoreCourses" justify="center" class="mt-2">
-          <v-btn text color="primary" @click="toggleShowMore">
+          <v-btn varient="text" color="primary" @click="toggleShowMore">
             {{ showAllCourses ? 'Show Less' : 'Show More' }}
           </v-btn>
         </v-row>
@@ -89,6 +89,8 @@ import { alertUser } from '../components/SnackbarService.vue';
 import { getCourseList } from '@/db/courseDB';
 import { User } from '../db/userDB';
 
+type DBCourseConfig = CourseConfig & PouchDB.Core.IdMeta;
+
 export default defineComponent({
   name: 'Courses',
 
@@ -99,8 +101,8 @@ export default defineComponent({
 
   data() {
     return {
-      existingCourses: [] as CourseConfig[],
-      registeredCourses: [] as CourseConfig[],
+      existingCourses: [] as DBCourseConfig[],
+      registeredCourses: [] as DBCourseConfig[],
       awaitingCreateCourse: false,
       spinnerMap: {} as { [key: string]: boolean },
       newCourseDialog: false,
@@ -112,7 +114,7 @@ export default defineComponent({
   },
 
   computed: {
-    availableCourses(): CourseConfig[] {
+    availableCourses(): DBCourseConfig[] {
       const availableCourses = _.without(this.existingCourses, ...this.registeredCourses);
       const user = this.user?.username;
 
@@ -131,7 +133,7 @@ export default defineComponent({
 
       return viewableCourses;
     },
-    displayedAvailableCourses(): CourseConfig[] {
+    displayedAvailableCourses(): DBCourseConfig[] {
       if (this.showAllCourses) {
         return this.availableCourses;
       }
@@ -225,18 +227,18 @@ export default defineComponent({
     },
 
     async addCourse(course: string): Promise<void> {
-      this.$set(this.spinnerMap, course, true);
+      this.spinnerMap[course] = true;
       log(`Attempting to register for ${course}.`);
       await this.user?.registerForCourse(course);
-      this.$set(this.spinnerMap, course, undefined);
+      delete this.spinnerMap[course];
       this.refreshData();
     },
 
     async dropCourse(course: string): Promise<void> {
-      this.$set(this.spinnerMap, course, true);
+      this.spinnerMap[course] = true;
       log(`Attempting to drop ${course}.`);
       await this.user?.dropCourse(course);
-      this.$set(this.spinnerMap, course, undefined);
+      delete this.spinnerMap[course];
       this.refreshData();
     },
   },
