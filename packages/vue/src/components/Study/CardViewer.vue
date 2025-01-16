@@ -16,12 +16,9 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
-import Viewable from '@/base-course/Viewable';
 import Courses from '@/courses';
 import { CardRecord } from '@/db/types';
 import { CourseElo } from '@/tutor/Elo';
-import { VueConstructor } from 'vue';
-import { DefineComponent } from 'vue';
 import { ViewComponent } from '@/base-course/Displayable';
 
 export default defineComponent({
