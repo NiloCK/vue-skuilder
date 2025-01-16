@@ -5,14 +5,12 @@
     <h3>
       Join code: {{ _classroomCfg.joinCode }}
       <router-link :to="`/classrooms/${_id}/code`">
-        <v-btn x-small icon color="accent" alt="Make Fullscreen">
-          <v-icon>mdi-fullscreen</v-icon>
-        </v-btn>
+        <v-btn size="x-small" icon="mdi-fullscreen" color="accent" alt="Make Fullscreen"> </v-btn>
       </router-link>
     </h3>
     <v-row>
       <v-col cols="12" sm="6" md="4">
-        <v-checkbox label="Allow peer instruction" v-model="_classroomCfg.peerAssist" :value="true"></v-checkbox>
+        <v-checkbox label="Allow peer instruction" v-model="_classroomCfg.peerAssist" :model-value="true"></v-checkbox>
       </v-col>
       <v-col v-if="classroomDB.ready" cols="12">
         <h2>Assigned Content:</h2>
@@ -32,23 +30,21 @@
         <v-fade-transition>
           <v-btn v-if="!addingContent" color="primary" @click="addingContent = true">
             Assign New Content
-            <v-icon right>mdi-plus</v-icon>
+            <v-icon end>mdi-plus</v-icon>
           </v-btn>
         </v-fade-transition>
         <v-card v-if="addingContent">
-          <v-app-bar>
+          <v-toolbar>
             <v-toolbar-title>Add Content</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn icon color="error" @click="addingContent = false">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
-          </v-app-bar>
+            <v-btn icon="mdi-close" color="error" @click="addingContent = false"> </v-btn>
+          </v-toolbar>
           <v-card-text>
             <v-select
               label="Select Quilt"
               :items="availableCourses"
               v-model="selectedCourse"
-              item-text="name"
+              item-title="name"
               item-value="_id"
               title="Select Quilt"
             ></v-select>
@@ -56,7 +52,7 @@
             <v-select
               label="Select Tags"
               :items="availableTags"
-              item-text="name"
+              item-title="name"
               item-value="name"
               v-model="selectedTags"
               multiple
@@ -69,7 +65,7 @@
           <v-card-actions>
             <v-btn v-if="selectedCourse !== ''" color="primary" @click="assignContent">
               {{ selectedTags.length == 0 ? 'Add Entire Quilt' : 'Add Tags' }}
-              <v-icon right>mdi-plus</v-icon>
+              <v-icon end>mdi-plus</v-icon>
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -120,16 +116,16 @@ export default defineComponent({
 
   computed: {
     _assignedCourses(): AssignedContent[] {
-      return this._assignedContent.filter(c => c.type === 'course');
+      return this._assignedContent.filter((c) => c.type === 'course');
     },
     _assignedTags(): AssignedTag[] {
-      return this._assignedContent.filter(c => c.type === 'tag') as AssignedTag[];
+      return this._assignedContent.filter((c) => c.type === 'tag') as AssignedTag[];
     },
   },
 
   watch: {
     async selectedCourse() {
-      const tags = (await getCourseTagStubs(this.selectedCourse)).rows.map(row => row.doc!);
+      const tags = (await getCourseTagStubs(this.selectedCourse)).rows.map((row) => row.doc!);
       this.availableTags = tags;
     },
   },
@@ -142,7 +138,7 @@ export default defineComponent({
     console.log(`[ClassroomCtrlPanel] Route loaded w/ (prop) _id: ${this._id}`);
     console.log(`[ClassroomCtrlPanel] Config: ${JSON.stringify(this._classroomCfg)}`);
 
-    this.availableCourses = (await getCourseList()).rows.map(r => r.doc!);
+    this.availableCourses = (await getCourseList()).rows.map((r) => r.doc!);
     this.updatePending = false;
   },
 
@@ -161,7 +157,7 @@ export default defineComponent({
         });
       } else {
         await Promise.all(
-          this.selectedTags.map(tag =>
+          this.selectedTags.map((tag) =>
             this.classroomDB!.assignContent({
               assignedOn: moment(),
               activeOn: moment(),
