@@ -117,13 +117,13 @@ import {
   TokenOrComponent,
 } from '@/courses/default/questions/fillIn';
 import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
-import hljs from 'highlight.js';
 import { marked } from 'marked';
 import { defineComponent } from 'vue';
-import Vue from 'vue';
 import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 
-Vue.use(hljs.vuePlugin);
+import hljs from 'highlight.js';
+import 'highlight.js/styles/atelier-seaside-light.css'; // Move CSS import here
+import hljsVuePlugin from '@highlightjs/vue-plugin';
 
 export default defineComponent({
   name: 'MdTokenRenderer',
@@ -131,13 +131,14 @@ export default defineComponent({
   components: {
     fillIn: FillInInput,
     RadioMultipleChoice,
+    highlightjs: hljsVuePlugin.component,
   },
 
   mixins: [SkldrVueMixin],
 
   props: {
     token: {
-      type: Object as () => marked.Token,
+      type: Object as () => marked.Token | TokenOrComponent,
       required: true,
     },
     last: {
@@ -195,7 +196,7 @@ export default defineComponent({
         .replace(/&gt;/g, '>');
     },
 
-    isText(tok: marked.Token): tok is marked.Tokens.Text {
+    isText(tok: TokenOrComponent): tok is marked.Tokens.Text {
       return (tok as marked.Tokens.Tag).inLink === undefined && tok.type === 'text';
     },
   },

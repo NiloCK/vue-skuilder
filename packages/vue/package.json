@@ -11,6 +11,7 @@
     },
     "dependencies": {
         "@babel/polyfill": "^7.4.4",
+        "@highlightjs/vue-plugin": "^2.1.0",
         "@johmun/vue-tags-input": "^2.1.0",
         "@mdi/font": "^7.3.67",
         "@tonaljs/tonal": "^3.6.0",
