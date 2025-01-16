@@ -1,17 +1,13 @@
-import Vue, { VueConstructor, DefineComponent, defineComponent, ComponentOptions } from 'vue';
+import Vue, { DefineComponent, defineComponent, ComponentOptions } from 'vue';
 import { DataShape } from '../base-course/Interfaces/DataShape';
 import { ViewData } from '../base-course/Interfaces/ViewData';
 import { Viewable } from './OptionsViewable';
 import { FieldType } from '../enums/FieldType';
 
+// [ ] #vue3 - post migration, specify this more precisely (no longer a hodge-podge)
 export type ViewComponent =
-  | VueConstructor<Vue>
   | DefineComponent<any, any, any, any, any, any, any>
   | ReturnType<typeof defineComponent>;
-
-export function isVueConstructor(v: ViewComponent): v is VueConstructor<Vue> {
-  return v.prototype instanceof Vue;
-}
 
 export function isDefineComponent(
   v: ViewComponent
