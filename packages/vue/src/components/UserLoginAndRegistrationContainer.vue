@@ -2,14 +2,14 @@
   <transition v-if="userReady && display" name="component-fade" mode="out-in">
     <div v-if="guestMode">
       <v-dialog v-model="regDialog" width="500px">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn class="mr-2" small color="success" v-bind="attrs" v-on="on">Sign Up</v-btn>
+        <template v-slot:activator="{ isActive, props }">
+          <v-btn class="mr-2" small color="success" v-bind="props">Sign Up</v-btn>
         </template>
         <UserRegistration @toggle="toggle" />
       </v-dialog>
       <v-dialog v-model="loginDialog" width="500px">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn small color="success" v-bind="attrs" v-on="on">Log In</v-btn>
+        <template v-slot:activator="{ isActive, props }">
+          <v-btn small color="success" v-bind="props">Log In</v-btn>
         </template>
         <UserLogin @toggle="toggle" />
       </v-dialog>
@@ -18,90 +18,58 @@
   </transition>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script lang="ts" setup>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 import UserLogin from './UserLogin.vue';
 import UserRegistration from './UserRegistration.vue';
 import UserChip from './UserChip.vue';
-import { User } from '../db/userDB';
 import { useAuthStore, GuestUsername } from '@/stores/useAuthStore';
 
-export default defineComponent({
-  name: 'UserLoginAndRegistrationContainer',
+const route = useRoute();
+const authStore = useAuthStore();
 
-  components: {
-    UserLogin,
-    UserRegistration,
-    UserChip,
-  },
+const display = computed(() => {
+  if (!route.name || typeof route.name !== 'string') {
+    return true;
+  }
+  const routeName = route.name.toLowerCase();
+  return !(routeName === 'login' || routeName === 'signup');
+});
 
-  data() {
-    return {
-      GuestUsername,
-      authStore: useAuthStore(),
-    };
-  },
+const userReady = computed(() => authStore.onLoadComplete);
 
-  computed: {
-    display(): boolean {
-      if (
-        (this.$route.name && this.$route.name.toLowerCase() === 'login') ||
-        (this.$route.name && this.$route.name.toLowerCase() === 'signup')
-      ) {
-        return false;
-      } else {
-        return true;
-      }
-    },
+const guestMode = computed(() => {
+  if (authStore._user) {
+    return authStore._user.username.startsWith(GuestUsername);
+  }
+  return !authStore.loginAndRegistration.loggedIn;
+});
 
-    userReady(): boolean {
-      return this.authStore.onLoadComplete;
-    },
-
-    guestMode(): boolean {
-      if (this.authStore._user) {
-        return this.authStore._user.username.startsWith(this.GuestUsername);
-      } else {
-        return !this.authStore.loginAndRegistration.loggedIn;
-      }
-    },
-
-    regDialog: {
-      get(): boolean {
-        return this.authStore.loginAndRegistration.regDialogOpen;
-      },
-      set(value: boolean) {
-        this.authStore.loginAndRegistration.regDialogOpen = value;
-      },
-    },
-
-    loginDialog: {
-      get(): boolean {
-        return this.authStore.loginAndRegistration.loginDialogOpen;
-      },
-      set(value: boolean) {
-        this.authStore.loginAndRegistration.loginDialogOpen = value;
-      },
-    },
-  },
-
-  methods: {
-    toggle(): void {
-      if (this.regDialog && this.loginDialog) {
-        throw new Error(`
-Registration / Login dialogs both activated.
-`);
-      } else if (this.regDialog === this.loginDialog) {
-        throw new Error(`
-Registration / Login dialogs toggled while both were dormant.
-`);
-      } else {
-        this.regDialog = !this.regDialog;
-        this.loginDialog = !this.loginDialog;
-      }
-    },
+const regDialog = computed({
+  get: () => authStore.loginAndRegistration.regDialogOpen,
+  set: (value: boolean) => {
+    authStore.loginAndRegistration.regDialogOpen = value;
   },
 });
+
+const loginDialog = computed({
+  get: () => authStore.loginAndRegistration.loginDialogOpen,
+  set: (value: boolean) => {
+    authStore.loginAndRegistration.loginDialogOpen = value;
+  },
+});
+
+const toggle = () => {
+  if (regDialog.value && loginDialog.value) {
+    throw new Error('Registration / Login dialogs both activated.');
+  } else if (regDialog.value === loginDialog.value) {
+    throw new Error('Registration / Login dialogs toggled while both were dormant.');
+  } else {
+    regDialog.value = !regDialog.value;
+    loginDialog.value = !loginDialog.value;
+  }
+};
 </script>
 
 <style scoped>
@@ -109,8 +77,8 @@ Registration / Login dialogs toggled while both were dormant.
 .component-fade-leave-active {
   transition: opacity 0.5s ease;
 }
-.component-fade-enter, .component-fade-leave-to
-/* .component-fade-leave-active below version 2.1.8 */ {
+.component-fade-enter,
+.component-fade-leave-to {
   opacity: 0;
 }
 </style>
