@@ -1,41 +1,38 @@
 <template>
   <v-container fluid>
-    <!-- Fixed Action Button -->
+    <!-- Fixed Action Button - Updated position classes -->
     <v-btn
       color="primary"
-      dark
       fixed
-      bottom
-      right
-      fab
+      location="bottom right"
+      icon="mdi-plus"
+      size="large"
       class="mb-4 mr-4"
       v-bind="newCourseAttrs"
       v-on="newCourseAttrs.on"
-    >
-      <v-icon>mdi-plus</v-icon>
-    </v-btn>
+    />
 
     <!-- Main Content Area -->
     <v-row>
       <!-- My Quilts Panel -->
       <v-col cols="12">
-        <v-expansion-panels v-model="myQuiltsPanel" :mandatory="false">
+        <v-expansion-panels v-model="myQuiltsPanel">
           <v-expansion-panel>
-            <v-expansion-panel-header> My Registered Quilts </v-expansion-panel-header>
-            <v-expansion-panel-content>
+            <v-expansion-panel-title>My Registered Quilts</v-expansion-panel-title>
+            <v-expansion-panel-text>
               <v-row>
                 <v-col v-for="course in registeredCourses" :key="course._id" cols="12" sm="6" md="4" lg="3">
-                  <v-card outlined dense class="pa-2">
+                  <v-card variant="outlined" density="compact" class="pa-2">
                     <div class="d-flex align-center justify-space-between">
                       <div class="d-flex align-center">
                         <router-link :to="`/q/${course.name.replace(' ', '_')}`" class="text-subtitle-2">
                           {{ course.name }}
                         </router-link>
-                        <v-icon v-if="!course.public" x-small class="ml-1">mdi-eye-off</v-icon>
+                        <v-icon v-if="!course.public" size="x-small" class="ml-1">mdi-eye-off</v-icon>
                       </div>
                       <v-btn
-                        x-small
-                        varient="text"
+                        size="x-small"
+                        variant="text"
                         color="error"
                         @click="dropCourse(course._id)"
                         :loading="spinnerMap[course._id] !== undefined"
@@ -46,23 +43,23 @@
                   </v-card>
                 </v-col>
               </v-row>
-            </v-expansion-panel-content>
+            </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
       </v-col>
 
       <!-- Available Quilts Section -->
       <v-col cols="12" class="mt-4">
-        <h2 class="headline mb-3">Available Quilts</h2>
+        <h2 class="text-h5 mb-3">Available Quilts</h2>
         <v-row>
           <v-col v-for="(course, index) in displayedAvailableCourses" :key="course._id" cols="12" sm="6" md="4" lg="3">
-            <course-stub-card v-on:refresh="refreshData" :_id="course._id" />
+            <course-stub-card @refresh="refreshData" :_id="course._id" />
           </v-col>
         </v-row>
 
         <!-- Show More Button -->
         <v-row v-if="hasMoreCourses" justify="center" class="mt-2">
-          <v-btn varient="text" color="primary" @click="toggleShowMore">
+          <v-btn variant="text" color="primary" @click="toggleShowMore">
             {{ showAllCourses ? 'Show Less' : 'Show More' }}
           </v-btn>
         </v-row>
@@ -70,8 +67,8 @@
     </v-row>
 
     <!-- New Course Dialog -->
-    <v-dialog v-model="newCourseDialog" fullscreen transition="dialog-bottom-transition" :overlay="false">
-      <course-editor v-on:CourseEditingComplete="processResponse($event)" />
+    <v-dialog v-model="newCourseDialog" fullscreen transition="dialog-bottom-transition" :scrim="false">
+      <course-editor @CourseEditingComplete="processResponse($event)" />
     </v-dialog>
   </v-container>
 </template>
