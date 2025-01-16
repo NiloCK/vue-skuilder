@@ -1,11 +1,17 @@
 <template>
-  <div class="about">
-    <h1>Todo.</h1>
+  <v-container class="about">
+    <v-row>
+      <v-col>
+        <h1 class="text-h2 mb-6">Todo.</h1>
 
-    <p>This is a placeholder for the about page. It will be filled in with more information later.</p>
+        <p class="text-body-1 mb-4">
+          This is a placeholder for the about page. It will be filled in with more information later.
+        </p>
 
-    <router-link to="./notes">Release Notes</router-link>
-  </div>
+        <v-btn :to="'./notes'" variant="text" color="primary"> Release Notes </v-btn>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">
