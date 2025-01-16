@@ -76,68 +76,48 @@
   </v-app>
 </template>
 
-<script lang="ts">
-import Vue from 'vue';
+<script lang="ts" setup>
+import { ref, computed, onBeforeMount, onMounted, watch } from 'vue';
+import { useTheme } from 'vuetify';
 import UserLoginAndRegistrationContainer from '@/components/UserLoginAndRegistrationContainer.vue';
 import SnackbarService from '@/components/SnackbarService.vue';
 import { getLatestVersion } from '@/db';
-import SkldrVueMixin from './mixins/SkldrVueMixin';
 import { useConfigStore } from '@/stores/useConfigStore';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { mapState } from 'pinia';
+import { storeToRefs } from 'pinia';
 
-export default Vue.extend({
+defineOptions({
   name: 'App',
-  mixins: [SkldrVueMixin],
+});
 
-  components: {
-    UserLoginAndRegistrationContainer,
-    SnackbarService,
+const build = ref('0.0.2');
+const latestBuild = ref('');
+const drawer = ref(false);
+const authStore = useAuthStore();
+const configStore = useConfigStore();
+const theme = useTheme();
+
+const { onLoadComplete: storeIsReady } = storeToRefs(authStore);
+
+const dark = computed(() => {
+  return configStore.config.darkMode;
+});
+
+watch(
+  dark,
+  newVal => {
+    theme.global.name.value = newVal ? 'dark' : 'light';
   },
+  { immediate: true }
+);
 
-  data() {
-    return {
-      build: '0.0.2',
-      latestBuild: '',
-      drawer: false,
-      authStore: useAuthStore(),
-    };
-  },
+onBeforeMount(async () => {
+  await configStore.init();
+  await authStore.init();
+});
 
-  computed: {
-    dark() {
-      const configStore = useConfigStore();
-      const dm = configStore.config.darkMode;
-      return configStore.config.darkMode;
-    },
-
-    ...mapState(useAuthStore, {
-      storeIsReady: (state) => state.onLoadComplete,
-    }),
-  },
-
-  watch: {
-    dark: {
-      immediate: true,
-      handler(newVal) {
-        // This is how we properly toggle Vuetify's dark mode
-        this.$vuetify.theme.dark = newVal;
-      },
-    },
-  },
-
-  async beforeCreate() {
-    // hydrate all (some?) pinia stores
-    const configStore = useConfigStore();
-    let i = await configStore.init();
-
-    const authStore = useAuthStore();
-    await authStore.init();
-  },
-
-  async created() {
-    this.latestBuild = await getLatestVersion();
-  },
+onMounted(async () => {
+  latestBuild.value = await getLatestVersion();
 });
 </script>
 
