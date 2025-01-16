@@ -2,93 +2,74 @@
   <v-card v-if="!updatePending">
     <paginating-toolbar
       title="Exercises"
-      v-bind:page="page"
-      v-bind:pages="pages"
-      v-bind:subtitle="`(${questionCount})`"
-      v-on:first="first"
-      v-on:prev="prev"
-      v-on:next="next"
-      v-on:last="last"
-      v-on:set-page="(n) => setPage(n)"
+      :page="page"
+      :pages="pages"
+      :subtitle="`(${questionCount})`"
+      @first="first"
+      @prev="prev"
+      @next="next"
+      @last="last"
+      @set-page="(n) => setPage(n)"
     />
-    <v-list v-for="c in cards" v-bind:key="c.id" v-bind:class="c.isOpen ? 'blue-grey lighten-5' : ''" two-line dense>
-      <v-list-item v-bind:class="c.isOpen ? 'elevation-4 font-weight-black blue-grey lighten-4' : ''">
+    <v-list v-for="c in cards" :key="c.id">
+      <v-list-item :class="[c.isOpen ? 'blue-grey-lighten-5 elevation-4 font-weight-black' : '', 'two-line dense']">
         <v-list-item-content>
-          <template>
-            <v-list-item-title v-bind:class="c.isOpen ? 'blue-grey--text text--lighten-4' : ''">
-              {{ cardPreview[c.id] }}
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              {{ c.id.split('-').length === 3 ? c.id.split('-')[2] : '' }}
-            </v-list-item-subtitle>
-          </template>
+          <v-list-item-title :class="c.isOpen ? 'text-blue-grey-lighten-4' : ''">
+            {{ cardPreview[c.id] }}
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ c.id.split('-').length === 3 ? c.id.split('-')[2] : '' }}
+          </v-list-item-subtitle>
         </v-list-item-content>
-        <v-speed-dial v-model="c.isOpen" direction="left" transition="slide-x-reverse-transition">
+
+        <v-speed-dial v-model="c.isOpen" direction="left" transition="slide-x-reverse">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              @click="clearSelections(c.id)"
+              :icon="c.isOpen ? 'mdi-close' : 'mdi-open-in-full'"
+              size="small"
+              variant="flat"
+            />
+          </template>
+
           <v-btn
-            v-if="c.isOpen"
-            v-on:click="clearSelections(c.id)"
-            slot="activator"
-            color="disabled"
-            icon
-            fab
-            small
-            v-model="c.isOpen"
-          >
-            <v-icon>close</v-icon>
-          </v-btn>
-          <v-btn
-            v-else
-            v-on:click="clearSelections(c.id)"
-            slot="activator"
-            color="disabled"
-            icon
-            fab
-            small
-            v-model="c.isOpen"
-          >
-            <v-icon>open_in_full</v-icon>
-          </v-btn>
-          <v-btn
-            fab
-            small
-            :outlined="editMode != 'tags'"
-            :dark="editMode == 'tags'"
-            :color="editMode === 'tags' ? 'teal' : 'teal darken-3'"
+            size="small"
+            :variant="editMode != 'tags' ? 'outlined' : 'flat'"
+            :color="editMode === 'tags' ? 'teal' : 'teal-darken-3'"
             @click.stop="editMode = 'tags'"
           >
             <v-icon>mdi-bookmark</v-icon>
           </v-btn>
+
           <v-btn
-            fab
-            small
-            :outlined="editMode != 'flag'"
-            :dark="editMode == 'flag'"
-            :color="editMode === 'flag' ? 'error' : 'error darken-3'"
+            size="small"
+            :variant="editMode != 'flag' ? 'outlined' : 'flat'"
+            :color="editMode === 'flag' ? 'error' : 'error-darken-3'"
             @click.stop="editMode = 'flag'"
           >
             <v-icon>mdi-flag</v-icon>
           </v-btn>
         </v-speed-dial>
       </v-list-item>
-      <card-loader class="blue-grey lighten-5 elevation-1" v-if="c.isOpen" v-bind:qualified_id="c.id" />
-      <tags-input
-        class="ma-3"
-        v-show="c.isOpen && editMode === 'tags'"
-        v-bind:courseID="_id"
-        v-bind:cardID="c.id.split('-')[1]"
-      />
-      <div class="ma-3" v-show="c.isOpen && editMode === 'flag'">
-        <v-btn outlined color="error" v-on:click="delBtn = true">Delete this card</v-btn>
+
+      <card-loader v-if="c.isOpen" :qualified_id="c.id" class="blue-grey-lighten-5 elevation-1" />
+
+      <tags-input v-show="c.isOpen && editMode === 'tags'" :courseID="_id" :cardID="c.id.split('-')[1]" class="ma-3" />
+
+      <div v-show="c.isOpen && editMode === 'flag'" class="ma-3">
+        <v-btn color="error" variant="outlined" @click="delBtn = true">Delete this card</v-btn>
         <span v-if="delBtn">
           <span>Are you sure?</span>
-          <v-btn color="error" v-on:click="deleteCard(c.id)">Confirm</v-btn>
+          <v-btn color="error" @click="deleteCard(c.id)">Confirm</v-btn>
         </span>
       </div>
     </v-list>
+
     <paginating-toolbar
       class="elevation-0"
-      v-bind:page="page"
-      v-bind:pages="pages"
+      :page="page"
+      :pages="pages"
       @first="first"
       @prev="prev"
       @next="next"
