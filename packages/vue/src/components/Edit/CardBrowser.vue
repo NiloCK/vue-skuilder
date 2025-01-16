@@ -58,8 +58,8 @@ export default defineComponent({
     this.previewMode.setPreviewMode(true);
   },
 
-  destroyed() {
-    console.log(`[CardBrowser] Card browser destroyed. Cards no longer in 'prewviewMode'`);
+  unmounted() {
+    console.log(`[CardBrowser] Card browser unmounted. Cards no longer in 'prewviewMode'`);
     this.previewMode.setPreviewMode(false);
   },
 

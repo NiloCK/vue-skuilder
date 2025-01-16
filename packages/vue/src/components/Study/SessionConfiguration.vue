@@ -241,7 +241,7 @@ export default defineComponent({
     document.getElementById('SelectAll')!.focus();
   },
 
-  destroyed() {
+  unmounted() {
     SkldrMouseTrap.reset();
   },
 });
