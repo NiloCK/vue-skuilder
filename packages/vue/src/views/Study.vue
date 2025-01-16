@@ -1,46 +1,42 @@
 <template>
   <div v-if="!inSession">
     <SessionConfiguration
-      v-bind:startFcn="initStudySession"
-      v-bind:initialTimeLimit="sessionTimeLimit"
-      v-on:update:timeLimit="(val) => (sessionTimeLimit = val)"
+      :startFcn="initStudySession"
+      :initialTimeLimit="sessionTimeLimit"
+      @update:timeLimit="(val) => (sessionTimeLimit = val)"
     />
   </div>
   <div v-else>
     <div v-if="sessionPrepared" class="Study">
-      <v-layout v-if="previewMode && previewCourseConfig">
-        <span class="headline"
-          >Quilt preview for <em>{{ previewCourseConfig.name }}</em></span
-        >
-        <v-btn small @click="registerUserForPreviewCourse" color="primary">Join</v-btn>
-        <router-link :to="`/quilts/${previewCourseConfig.courseID}`"
-          ><v-btn small color="secondary">More info</v-btn></router-link
-        >
-        <v-spacer></v-spacer>
-        <SkldrControlsView />
-      </v-layout>
-      <v-layout v-else-if="previewMode">
-        <span class="headline">... No course was specified for the preview.</span>
-        <div>(this shouldn't happen)...</div>
-      </v-layout>
-      <v-layout v-else>
-        <h1 class="display-1">
-          {{ courseNames[courseID] }}:
-          <v-progress-circular
-            v-if="loading"
-            absolute
-            top
-            color="primary"
-            indeterminate
-            rotate="0"
-            size="32"
-            value="0"
-            width="4"
-          />
-        </h1>
-        <v-spacer></v-spacer>
-        <SkldrControlsView />
-      </v-layout>
+      <v-row v-if="previewMode && previewCourseConfig" align="center">
+        <v-col>
+          <span class="text-h5">
+            Quilt preview for <em>{{ previewCourseConfig.name }}</em>
+          </span>
+          <v-btn size="small" @click="registerUserForPreviewCourse" color="primary">Join</v-btn>
+          <router-link :to="`/quilts/${previewCourseConfig.courseID}`">
+            <v-btn size="small" color="secondary">More info</v-btn>
+          </router-link>
+          <v-spacer></v-spacer>
+          <SkldrControlsView />
+        </v-col>
+      </v-row>
+      <v-row v-else-if="previewMode">
+        <v-col>
+          <span class="text-h5">... No course was specified for the preview.</span>
+          <div>(this shouldn't happen)...</div>
+        </v-col>
+      </v-row>
+      <v-row v-else align="center">
+        <v-col>
+          <h1 class="text-h3">
+            {{ courseNames[courseID] }}:
+            <v-progress-circular v-if="loading" color="primary" indeterminate size="32" width="4" />
+          </h1>
+          <v-spacer></v-spacer>
+          <SkldrControlsView />
+        </v-col>
+      </v-row>
 
       <br />
 
@@ -68,87 +64,67 @@
           :session-order="cardCount"
           :user_elo="user_elo(courseID)"
           :card_elo="card_elo"
-          v-on:emitResponse="processResponse($event)"
+          @emitResponse="processResponse($event)"
         />
-        <!-- <pre>
-        {{ sessionController.detailedReport }}
-        </pre> -->
-        <!-- <card-loader
-          :class="loading ? 'muted' : ''"
-          :qualified_id="`${courseID}-${cardID}`"
-          :sessionOrder="cardCount"
-          v-on:emitResponse="processResponse($event)"
-        /> -->
       </div>
 
       <br />
       <div v-if="sessionController">
-        <span class="headline" v-for="i in sessionController.failedCount" :key="i">•</span>
-        <!-- {{ cardType }} -->
-        <!--
-        <br><br><br>
-        Session Report: {{ sessionController.reportString()}}
-        <br><br><br>
-        Current Queues: {{ sessionController.toString() }}
-         -->
+        <span class="text-h5" v-for="i in sessionController.failedCount" :key="i">•</span>
       </div>
 
       <div v-if="!sessionFinished && editTags">
         <p>Add tags to this card:</p>
         <sk-tags-input :courseID="courseID" :cardID="cardID" />
       </div>
+
       <v-tooltip
-        fixed
-        right
+        location="right"
         :open-delay="0"
         :close-delay="200"
         color="secondary"
-        content-class="subheading"
-        transition="slide-x-transition"
+        class="text-subtitle-1"
         v-model="timerIsActive"
       >
-        <template #activator="{ isActive, props }">
+        <template #activator="{ props }">
           <v-btn
             v-if="!sessionFinished"
             v-bind="props"
-            fab
+            icon
             color="transparent"
-            bottom
-            left
-            fixed
+            location="bottom left"
             @click="if (timerIsActive) incrementSessionClock();"
           >
             <v-progress-circular
               alt="Time remaining in study session"
-              centered
               size="64"
               width="8"
               rotate="-90"
               :color="timerColor"
-              :value="percentageRemaining"
+              :model-value="percentageRemaining"
             >
-              <v-icon v-if="timerIsActive" large dark>mdi-add</v-icon>
+              <v-icon v-if="timerIsActive" size="large">mdi-plus</v-icon>
             </v-progress-circular>
           </v-btn>
         </template>
         {{ timeString }}
       </v-tooltip>
-      <v-speed-dial v-if="!sessionFinished" v-model="fab" fixed bottom right transition="scale-transition">
-        <template v-slot:activator>
-          <v-btn v-model="fab" color="blue darken-2" dark fab>
+
+      <v-speed-dial v-if="!sessionFinished" v-model="fab" location="bottom right" transition="scale-transition">
+        <template #activator="{ props }">
+          <v-btn v-bind="props" color="blue-darken-2" icon>
             <v-icon>{{ fab ? 'mdi-close' : 'mdi-pencil' }}</v-icon>
           </v-btn>
         </template>
         <router-link :to="`/edit/${courseID}`">
-          <v-btn fab small dark color="indigo" title="Add content to this course">
+          <v-btn icon size="small" color="indigo" title="Add content to this course">
             <v-icon>mdi-plus</v-icon>
           </v-btn>
         </router-link>
         <v-btn
-          fab
-          dark
-          small
-          color="orange darken-2"
+          icon
+          size="small"
+          color="orange-darken-2"
           title="Edit tags on this card"
           @click="editTags = !editTags"
           :loading="editCard"
