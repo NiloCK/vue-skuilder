@@ -7,7 +7,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 
-export interface ITextSwap extends Vue {
+export interface ITextSwap {
   next: () => void;
   text: string[];
   index: number;
