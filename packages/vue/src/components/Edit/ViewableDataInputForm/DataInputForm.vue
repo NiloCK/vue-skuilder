@@ -572,9 +572,9 @@ export default defineComponent({
       for (let i = 1; i <= max_media_inputs; i++) {
         const audioKey = `audio-${i}`;
         if (this.store.hasOwnProperty(audioKey)) {
-          this.$delete(this.store, audioKey);
-          this.$delete(this.store.convertedInput, audioKey);
-          this.$delete(this.store.previewInput, audioKey);
+          delete this.store[audioKey];
+          delete this.store.convertedInput[audioKey];
+          delete this.store.previewInput[audioKey];
         } else {
           break;
         }
@@ -583,9 +583,9 @@ export default defineComponent({
       for (let i = 1; i <= max_media_inputs; i++) {
         const imageKey = `image-${i}`;
         if (this.store.hasOwnProperty(imageKey)) {
-          this.$delete(this.store, imageKey);
-          this.$delete(this.store.convertedInput, imageKey);
-          this.$delete(this.store.previewInput, imageKey);
+          delete this.store[imageKey];
+          delete this.store.convertedInput[imageKey];
+          delete this.store.previewInput[imageKey];
         } else {
           break;
         }

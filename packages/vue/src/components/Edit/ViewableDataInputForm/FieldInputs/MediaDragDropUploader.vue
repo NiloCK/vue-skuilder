@@ -168,8 +168,8 @@ export default defineComponent({
 
     updateStore() {
       for (let i = 1; i <= 10; i++) {
-        this.$delete(this.store, `image-${i}`);
-        this.$delete(this.store, `audio-${i}`);
+        delete this.store[`image-${i}`];
+        delete this.store[`audio-${i}`];
       }
 
       let imageCount = 0;
