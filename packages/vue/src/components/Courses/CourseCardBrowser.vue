@@ -9,7 +9,7 @@
       v-on:prev="prev"
       v-on:next="next"
       v-on:last="last"
-      v-on:set-page="(n) => setPage(n)"
+      v-on:set-page="n => setPage(n)"
     />
     <v-list v-for="c in cards" v-bind:key="c.id" v-bind:class="c.isOpen ? 'blue-grey lighten-5' : ''" two-line dense>
       <v-list-item v-bind:class="c.isOpen ? 'elevation-4 font-weight-black blue-grey lighten-4' : ''">
@@ -93,7 +93,7 @@
       @prev="prev"
       @next="next"
       @last="last"
-      @set-page="(n) => setPage(n)"
+      @set-page="n => setPage(n)"
     />
   </v-card>
 </template>
@@ -108,7 +108,7 @@ import { getCourseDB, getCourseDoc, getCourseDocs } from '@/db';
 import { CourseDB, getTag } from '@/db/courseDB';
 import { removeTagFromCard } from '@/db/courseDB';
 import { CardData, DisplayableData, DocType, Tag } from '@/db/types';
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
 function isConstructor(obj: any) {
   try {
@@ -119,7 +119,7 @@ function isConstructor(obj: any) {
   }
 }
 
-export default Vue.extend({
+export default defineComponent({
   name: 'CourseCardBrowser',
 
   components: {
@@ -201,7 +201,7 @@ export default Vue.extend({
       this.populateTableData();
     },
     clearSelections(exception: string = '') {
-      this.cards.forEach((card) => {
+      this.cards.forEach(card => {
         if (card.id !== exception) {
           card.isOpen = false;
         }
@@ -212,14 +212,14 @@ export default Vue.extend({
     async deleteCard(c: string) {
       const res = await this.courseDB!.removeCard(c.split('-')[1]);
       if (res.ok) {
-        this.cards = this.cards.filter((card) => card.id != c);
+        this.cards = this.cards.filter(card => card.id != c);
         this.clearSelections();
       }
     },
     async populateTableData() {
       if (this._tag) {
         const tag = await getTag(this._id, this._tag);
-        this.cards = tag.taggedCards.map((c) => {
+        this.cards = tag.taggedCards.map(c => {
           return { id: `${this._id}-${c}`, isOpen: false };
         });
       } else {
@@ -230,7 +230,7 @@ export default Vue.extend({
             limit: 25,
             page: this.page - 1,
           })
-        ).map((c) => {
+        ).map(c => {
           return {
             id: c,
             isOpen: false,
@@ -242,13 +242,13 @@ export default Vue.extend({
       const hydratedCardData = (
         await getCourseDocs<CardData>(
           this._id,
-          this.cards.map((c) => c.id.split('-')[1]),
+          this.cards.map(c => c.id.split('-')[1]),
           {
             include_docs: true,
           }
         )
       ).rows
-        .filter((r) => {
+        .filter(r => {
           if (r.doc) {
             return true;
           } else {
@@ -258,28 +258,28 @@ export default Vue.extend({
             return false;
           }
         })
-        .map((r) => r.doc!);
+        .map(r => r.doc!);
 
-      this.cards = this.cards.filter((c) => !toRemove.includes(c.id.split('-')[1]));
+      this.cards = this.cards.filter(c => !toRemove.includes(c.id.split('-')[1]));
 
-      hydratedCardData.forEach((c) => {
+      hydratedCardData.forEach(c => {
         if (c && c.id_displayable_data) {
           this.cardData[c._id] = c.id_displayable_data;
         }
       });
 
-      this.cards.forEach(async (c) => {
+      this.cards.forEach(async c => {
         const _courseID: string = c.id.split('-')[0];
         const _cardID: string = c.id.split('-')[1];
 
-        const tmpCardData = hydratedCardData.find((c) => c._id == _cardID);
+        const tmpCardData = hydratedCardData.find(c => c._id == _cardID);
         if (!tmpCardData || !tmpCardData.id_displayable_data) {
           console.error(`No valid data found for card ${_cardID}`);
           return;
         }
         const tmpView = Courses.getView(tmpCardData.id_view || 'default.question.BlanksCard.FillInView');
 
-        const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
+        const tmpDataDocs = tmpCardData.id_displayable_data.map(id => {
           return getCourseDoc<DisplayableData>(_courseID, id, {
             attachments: false,
             binary: true,
@@ -288,7 +288,7 @@ export default Vue.extend({
 
         const allDocs = await Promise.all(tmpDataDocs);
         await Promise.all(
-          allDocs.map((doc) => {
+          allDocs.map(doc => {
             const tmpData = [];
             tmpData.unshift(displayableDataToViewData(doc));
 

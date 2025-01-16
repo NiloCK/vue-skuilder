@@ -45,8 +45,9 @@ import { Status } from '../../enums/Status';
 import serverRequest from '../../server';
 import { ClassroomConfig, CreateClassroom, ServerRequestType } from '../../server/types';
 import { alertUser } from '../SnackbarService.vue';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       mousetrap: new Mousetrap(this.$el),

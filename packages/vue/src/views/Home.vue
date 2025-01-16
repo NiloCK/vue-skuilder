@@ -37,7 +37,7 @@
 import UserLogin from '../components/UserLogin.vue';
 import TextSwap from '@/components/TextSwap.vue';
 import { Status } from '@/enums/Status';
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import { ITextSwap } from '@/components/TextSwap.vue';
 
 interface Data {
@@ -48,7 +48,7 @@ interface Data {
   verb: string[];
 }
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Home',
 
   components: {
@@ -90,7 +90,7 @@ export default Vue.extend({
 
   methods: {
     randomSwap(): void {
-      this.swaps.forEach((s) => {
+      this.swaps.forEach(s => {
         if (Math.random() < 0.33) s.next();
       });
     },

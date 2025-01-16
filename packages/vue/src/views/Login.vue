@@ -5,11 +5,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import UserLogin from '@/components/UserLogin.vue';
 import SkldrMixin from '@/mixins/SkldrVueMixin';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'LoginRoute',
 
   components: {

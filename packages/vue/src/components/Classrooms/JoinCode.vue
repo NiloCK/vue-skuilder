@@ -22,8 +22,9 @@ import { log } from 'util';
 import Vue from 'vue';
 import TeacherClassroomDB from '../../db/classroomDB';
 import { ClassroomConfig } from '../../server/types';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'JoinCode',
 
   props: {

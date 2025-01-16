@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { VueConstructor } from 'vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { CourseConfig } from '@/server/types';

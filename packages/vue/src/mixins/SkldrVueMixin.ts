@@ -1,7 +1,8 @@
 import Vue from 'vue';
 import { User } from '../db/userDB';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
   methods: {
     log(message?: any, ...optionalParams: any[]): void {
       console.log(`[SK.${this.$options.name}]: `, message, ...optionalParams);

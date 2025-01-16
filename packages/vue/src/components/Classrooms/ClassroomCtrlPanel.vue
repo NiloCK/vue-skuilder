@@ -86,8 +86,9 @@ import { Tag } from '@/db/types';
 import { ClassroomConfig, CourseConfig } from '@/server/types';
 import Vue from 'vue';
 import { User } from '@/db/userDB';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'ClassroomCtrlPanel',
 
   props: {
@@ -119,16 +120,16 @@ export default Vue.extend({
 
   computed: {
     _assignedCourses(): AssignedContent[] {
-      return this._assignedContent.filter((c) => c.type === 'course');
+      return this._assignedContent.filter(c => c.type === 'course');
     },
     _assignedTags(): AssignedTag[] {
-      return this._assignedContent.filter((c) => c.type === 'tag') as AssignedTag[];
+      return this._assignedContent.filter(c => c.type === 'tag') as AssignedTag[];
     },
   },
 
   watch: {
     async selectedCourse() {
-      const tags = (await getCourseTagStubs(this.selectedCourse)).rows.map((row) => row.doc!);
+      const tags = (await getCourseTagStubs(this.selectedCourse)).rows.map(row => row.doc!);
       this.availableTags = tags;
     },
   },
@@ -141,7 +142,7 @@ export default Vue.extend({
     console.log(`[ClassroomCtrlPanel] Route loaded w/ (prop) _id: ${this._id}`);
     console.log(`[ClassroomCtrlPanel] Config: ${JSON.stringify(this._classroomCfg)}`);
 
-    this.availableCourses = (await getCourseList()).rows.map((r) => r.doc!);
+    this.availableCourses = (await getCourseList()).rows.map(r => r.doc!);
     this.updatePending = false;
   },
 
@@ -160,7 +161,7 @@ export default Vue.extend({
         });
       } else {
         await Promise.all(
-          this.selectedTags.map((tag) =>
+          this.selectedTags.map(tag =>
             this.classroomDB!.assignContent({
               assignedOn: moment(),
               activeOn: moment(),
