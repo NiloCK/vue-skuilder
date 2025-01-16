@@ -9,18 +9,16 @@ module.exports = {
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    // Add CSS module mapping
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
-  snapshotSerializers: ['jest-serializer-vue'],
   testMatch: ['**/tests/unit/**/*.spec.(js|jsx|ts|tsx)|**/__tests__/*.(js|jsx|ts|tsx)'],
-  testURL: 'http://localhost/',
   testEnvironment: 'jsdom',
   testEnvironmentOptions: {
     customExportConditions: ['node', 'node-addons'],
+    url: 'http://localhost/', // replaces deprecated testURL
   },
-  transformIgnorePatterns: ['/node_modules/(?!@babel)'],
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.json',
-    },
-  },
+  transformIgnorePatterns: ['/node_modules/(?!(@babel|@vue|vuetify))'],
+  setupFiles: ['<rootDir>/jest.setup.js'],
+  snapshotSerializers: ['jest-serializer-vue'],
 };
