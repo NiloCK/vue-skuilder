@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h1 class="display-1">Release Notes</h1>
+    <h1 class="text-h2 mb-6">Release Notes</h1>
 
-    <h3 class="headline">0.0.1 - April 21</h3>
+    <h3 class="text-h4 mb-4">0.0.1 - April 21</h3>
     <ul>
       <li>Hello world, these are release notes.</li>
     </ul>
@@ -14,7 +14,7 @@ import { defineComponent } from 'vue';
 import { log } from 'util';
 
 export default defineComponent({
-  name: 'ReleaseNotes'
+  name: 'ReleaseNotes',
 });
 </script>
 
