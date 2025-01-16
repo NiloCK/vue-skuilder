@@ -1,5 +1,5 @@
 <template>
-  <v-container grid-list-xs align-center class="maxWidth">
+  <v-container class="d-flex align-center maxWidth">
     <user-registration />
   </v-container>
 </template>
