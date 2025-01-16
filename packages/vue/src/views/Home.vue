@@ -1,34 +1,19 @@
 <template>
-  <v-container fluid fill-height>
+  <v-container fluid class="fill-height">
     <v-row align="center">
-      <v-col>
+      <v-col cols="12" class="text-left">
         <h1 :class="{ 'text-h3': display.xs, 'text-h2': display.smAndUp }">
           <span class="font-weight-thin">edu</span>
           <span class="font-weight-bold">Quilt</span>
         </h1>
-        <!-- {interactive|adaptive|personalized} courseware that {everyone|anyone|you|grandma|grandpa} can {edit|improve|write} -->
         <p class="text-h5">
           <em>quilt</em>: (n) a <text-swap ref="swap1" :text="label" /> of
           <text-swap ref="swap2" :text="adjective" /> courseware that <text-swap ref="swap3" :text="subject" /> can
           <text-swap ref="swap4" :text="verb" />
         </p>
-        <br /><br /><br />
+        <v-spacer class="my-12"></v-spacer>
         <div class="text-subtitle-1">(get cozy)</div>
       </v-col>
-      <!-- <div class="section"></div> -->
-      <!-- <div class="section step1">
-
-          <ul class="headline">
-            <li>Somebody starts a new Quilt</li>
-            <li>Anybody can add content or make connections between content</li>
-            <li>Suggested content and connections are tested with students.
-              Effective, engaging content shines through. The rest falls out of use.</li>
-          </ul>
-        </div>
-        <div class="section step2">
-          Hi
-        </div>
-         -->
     </v-row>
   </v-container>
 </template>
