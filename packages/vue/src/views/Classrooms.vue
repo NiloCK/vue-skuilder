@@ -9,8 +9,8 @@
 
           <v-list>
             <transition-group name="component-fade" mode="out-in" key="registered">
-              <template v-for="classroom in studentClasses">
-                <v-list-item :key="classroom._id" avatar>
+              <template v-for="classroom in studentClasses" :key="classroom._id">
+                <v-list-item avatar>
                   <v-list-item-content>
                     <v-list-item-title>
                       {{ classroom.name }}
@@ -41,8 +41,8 @@
 
           <v-list>
             <transition-group name="component-fade" mode="out-in" key="registered">
-              <template v-for="classroom in teacherClasses">
-                <v-list-item :key="classroom._id" avatar>
+              <template v-for="classroom in teacherClasses" :key="classroom._id">
+                <v-list-item avatar>
                   <v-list-item-content>
                     <v-list-item-title>
                       {{ classroom.name }}
@@ -83,10 +83,10 @@
       </v-col>
     </v-row>
     <v-dialog v-model="newClassDialog" fullscreen transition="dialog-bottom-transition" :overlay="false">
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn color="primary" dark v-bind="attrs" v-on="on">Start a new Class</v-btn>
+      <template v-slot:activator="{ isActive, props }">
+        <v-btn color="primary" dark v-bind="props">Start a new Class</v-btn>
       </template>
-      <classroom-editor v-on:ClassroomEditingComplete="processResponse($event)" />
+      <classroom-editor @ClassroomEditingComplete="processResponse" />
     </v-dialog>
   </v-container>
 </template>
@@ -176,7 +176,7 @@ export default defineComponent({
     },
 
     async leaveClass(classID: string) {
-      this.$set(this.spinnerMap, classID, true);
+      this.spinnerMap[classID] = true;
       log(`Attempting to drop class: ${classID}`);
 
       const result = await serverRequest<LeaveClassroom>({
@@ -193,7 +193,7 @@ export default defineComponent({
         }
       }
 
-      this.$set(this.spinnerMap, classID, undefined);
+      delete this.spinnerMap[classID];
       this.refreshData();
     },
 
