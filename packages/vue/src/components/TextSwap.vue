@@ -1,7 +1,9 @@
 <template>
-  <transition appear name="fade" mode="out-in">
-    <a @click="next()" v-for="(t, i) in text" v-if="i === index" :key="i">{{ text[index] }}</a>
-  </transition>
+  <template>
+    <transition appear name="fade" mode="out-in">
+      <a @click="next()" :key="index">{{ text[index] }}</a>
+    </transition>
+  </template>
 </template>
 
 <script lang="ts">

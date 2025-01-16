@@ -2,10 +2,9 @@
   <div>
     <svg :width="510" :height="Math.max(3 * (high - low) + 10, 0)">
       <template v-for="syl in seq.syllables">
-        <template v-for="note in syl.notes">
+        <template v-for="note in syl.notes" :key="syl.timestamp + '-' + note.note.number">
           <circle
             @mouseenter="sayNote(note)"
-            :key="syl.timestamp + '-' + note.note.number"
             :cx="((syl.timestamp - firstTS) * 500) / (lastTS - firstTS) + 4"
             :cy="3 * (high - note.note.number) + 4"
             :alt="note.note.name"

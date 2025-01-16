@@ -16,7 +16,6 @@
 
 <script lang="ts">
 import { ViewData } from '@/base-course/Interfaces/ViewData';
-import Viewable from '@/base-course/Viewable';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import { defineComponent, PropType } from 'vue';
 import { useCardPreviewModeStore } from '@/stores/useCardPreviewModeStore';
