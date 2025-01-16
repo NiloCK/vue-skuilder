@@ -27,7 +27,7 @@
 
         <v-snackbar v-model="badLoginAttempt" bottom right :timeout="errorTimeout">
           Username or password was incorrect.
-          <v-btn color="pink" text @click="badLoginAttempt = false">Close</v-btn>
+          <v-btn color="pink" variant="text" @click="badLoginAttempt = false">Close</v-btn>
         </v-snackbar>
 
         <v-btn class="mr-2" type="submit" :loading="awaitingResponse" @click="login" :color="buttonStatus.color">
@@ -35,16 +35,17 @@
           Log In
         </v-btn>
         <router-link v-if="loginRoute" to="signup">
-          <v-btn text>Create New Account</v-btn>
+          <v-btn variant="text">Create New Account</v-btn>
         </router-link>
-        <v-btn v-else text @click="toggle">Create New Account</v-btn>
+        <v-btn v-else variant="text" @click="toggle">Create New Account</v-btn>
       </v-form>
     </v-card-text>
   </v-card>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script lang="ts" setup>
+import { ref, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { alertUser } from '@/components/SnackbarService.vue';
 import { log } from 'util';
 import { Status } from '@/enums/Status';
@@ -52,81 +53,70 @@ import { User } from '@/db/userDB';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useConfigStore } from '@/stores/useConfigStore';
 
-export default defineComponent({
-  name: 'UserLogin',
+const router = useRouter();
+const route = useRoute();
+const authStore = useAuthStore();
+const configStore = useConfigStore();
 
-  data() {
-    return {
-      username: '',
-      password: '',
-      retypedPassword: '',
-      passwordVisible: false,
-      awaitingResponse: false,
-      badLoginAttempt: false,
-      errorTimeout: 5000,
-      user: undefined as User | undefined,
-      authStore: useAuthStore(),
-      configStore: useConfigStore(),
-    };
-  },
+const username = ref('');
+const password = ref('');
+const retypedPassword = ref('');
+const passwordVisible = ref(false);
+const awaitingResponse = ref(false);
+const badLoginAttempt = ref(false);
+const errorTimeout = ref(5000);
+const user = ref<User | undefined>(undefined);
 
-  computed: {
-    loginRoute(): boolean {
-      return this.$router.currentRoute.name! === 'login';
-    },
+const loginRoute = computed(() => route.name === 'login');
 
-    buttonStatus() {
-      return {
-        color: this.badLoginAttempt ? 'error' : 'success',
-        text: this.badLoginAttempt ? 'Try again' : 'Log In',
-      };
-    },
-  },
+const buttonStatus = computed(() => ({
+  color: badLoginAttempt.value ? 'error' : 'success',
+  text: badLoginAttempt.value ? 'Try again' : 'Log In',
+}));
 
-  methods: {
-    initBadLogin() {
-      this.badLoginAttempt = true;
-      alertUser({
-        text: 'Username or password was incorrect.',
-        status: Status.error,
-        timeout: this.errorTimeout,
-      });
-      setTimeout(() => {
-        this.badLoginAttempt = false;
-      }, this.errorTimeout);
-    },
+const initBadLogin = () => {
+  badLoginAttempt.value = true;
+  alertUser({
+    text: 'Username or password was incorrect.',
+    status: Status.error,
+    timeout: errorTimeout.value,
+  });
+  setTimeout(() => {
+    badLoginAttempt.value = false;
+  }, errorTimeout.value);
+};
 
-    async login() {
-      this.awaitingResponse = true;
+const login = async () => {
+  awaitingResponse.value = true;
 
-      try {
-        // #172 starting point - why is the pre-existing _user being referenced here?
-        this.user = await User.instance();
-        const res = await this.user.login(this.username, this.password);
+  try {
+    // #172 starting point - why is the pre-existing _user being referenced here?
+    user.value = await User.instance();
+    const res = await user.value.login(username.value, password.value);
 
-        // load user config
-        this.configStore.init();
+    // load user config
+    configStore.init();
 
-        // set login state
-        this.authStore.loginAndRegistration.loggedIn = true;
-        this.$router.push('/study');
-      } catch (e) {
-        // entry #186
-        console.log(`login error: ${e}`);
-        // - differentiate response
-        // - return better message to UI
-        this.initBadLogin();
-      }
+    // set login state
+    authStore.loginAndRegistration.loggedIn = true;
+    router.push('/study');
+  } catch (e) {
+    // entry #186
+    console.log(`login error: ${e}`);
+    // - differentiate response
+    // - return better message to UI
+    initBadLogin();
+  }
 
-      this.awaitingResponse = false;
-    },
+  awaitingResponse.value = false;
+};
 
-    toggle() {
-      log('Toggling registration / login forms.');
-      this.$emit('toggle');
-    },
-  },
-});
+const emit = defineEmits(['toggle']);
+
+const toggle = () => {
+  log('Toggling registration / login forms.');
+  emit('toggle');
+};
 </script>
 
 <style lang="css" scoped>
