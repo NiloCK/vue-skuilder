@@ -1,16 +1,19 @@
 <template>
-  <div class="subheading">
-    <div v-if="isNewUser" class="v-alert success subheading">
-      <v-icon left dark>check</v-icon>
+  <div class="text-subtitle-1">
+    <v-alert v-if="isNewUser" type="success" class="text-subtitle-1" variant="tonal" :prepend-icon="'mdi-check'">
       Welcome, {{ _id }}! Please take a moment to look through these settings:
-    </div>
+    </v-alert>
 
-    <h1 class="display-2">Account Settings</h1>
-    <h2 class="display-1">General:</h2>
+    <h1 class="text-h3">Account Settings</h1>
+    <h2 class="text-h4">General:</h2>
 
-    <v-checkbox label="I like confetti" v-model="configStore.config.likesConfetti" @click.capture="updateConfetti" />
-    <v-checkbox label="I like the dark" v-model="configStore.config.darkMode" @change="updateDark" />
-    <!-- <h2 class="display-1">Languages:</h2>
+    <v-checkbox
+      label="I like confetti"
+      v-model="configStore.config.likesConfetti"
+      @update:model-value="updateConfetti"
+    />
+    <v-checkbox label="I like the dark" v-model="configStore.config.darkMode" @update:model-value="updateDark" />
+    <!-- <h2 class="text-h4">Languages:</h2>
     I am near-fluent or better in the following languages:
     {{ selectedLanguages.toString() }}
     <v-checkbox
@@ -19,7 +22,7 @@
       :label="language.name"
       :value="language.code"
       v-model="selectedLanguages"
-      @click.capture="updateLanguage"
+      @update:model-value="updateLanguage"
     /> -->
   </div>
 </template>
@@ -73,7 +76,10 @@ export default defineComponent({
 
   computed: {
     isNewUser(): boolean {
-      return this.$route.path.endsWith('new');
+      console.error(`Not implemented: User.isNewUser`);
+      return false;
+      // [ ] #vue3 - $route not available.
+      // return this.$route.path.endsWith('new');
     },
   },
 
