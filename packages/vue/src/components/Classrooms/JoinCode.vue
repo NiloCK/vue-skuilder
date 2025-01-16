@@ -1,7 +1,7 @@
 <template>
   <v-container fluid class="fill-height pa-0">
     <!-- Close button in top-right corner -->
-    <v-btn icon="mdi-close" color="red" variant="fab" class="close-btn" @click="close"> </v-btn>
+    <v-btn icon="mdi-close" color="red" variant="elevated" class="close-btn" @click="close"> </v-btn>
 
     <!-- Main content -->
     <v-row align="center" justify="center" class="fill-height">
