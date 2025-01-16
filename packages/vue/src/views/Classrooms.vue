@@ -1,92 +1,95 @@
 <template>
   <v-container fluid>
     <v-row class="pa-4" justify="space-around">
+      <!-- Student Classes -->
       <v-col v-if="studentClasses.length > 0" cols="12" sm="12" md="4">
         <v-card>
-          <v-toolbar>
+          <v-toolbar color="primary">
             <v-toolbar-title>My Classes</v-toolbar-title>
           </v-toolbar>
 
           <v-list>
-            <transition-group name="component-fade" mode="out-in" key="registered">
-              <template v-for="classroom in studentClasses" :key="classroom._id">
-                <v-list-item avatar>
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      {{ classroom.name }}
-                    </v-list-item-title>
-                  </v-list-item-content>
-                  <v-list-item-action>
-                    <v-btn
-                      small
-                      color="secondary"
-                      @click="leaveClass(classroom._id)"
-                      :loading="spinnerMap[classroom._id] !== undefined"
-                    >
-                      Leave this class
-                    </v-btn>
-                  </v-list-item-action>
-                </v-list-item>
-              </template>
+            <transition-group name="component-fade" mode="out-in">
+              <v-list-item v-for="classroom in studentClasses" :key="classroom._id" :value="classroom">
+                <v-list-item-title>
+                  {{ classroom.name }}
+                </v-list-item-title>
+
+                <template v-slot:append>
+                  <v-btn
+                    size="small"
+                    color="secondary"
+                    @click="leaveClass(classroom._id)"
+                    :loading="spinnerMap[classroom._id] !== undefined"
+                  >
+                    Leave this class
+                  </v-btn>
+                </template>
+              </v-list-item>
             </transition-group>
           </v-list>
         </v-card>
       </v-col>
 
+      <!-- Teacher Classes -->
       <v-col v-if="teacherClasses.length > 0" cols="12" sm="12" md="4">
         <v-card>
-          <v-toolbar>
+          <v-toolbar color="primary">
             <v-toolbar-title>Classes I Manage</v-toolbar-title>
           </v-toolbar>
 
           <v-list>
-            <transition-group name="component-fade" mode="out-in" key="registered">
-              <template v-for="classroom in teacherClasses" :key="classroom._id">
-                <v-list-item avatar>
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      {{ classroom.name }}
-                    </v-list-item-title>
-                  </v-list-item-content>
-                  <v-list-item-action>
-                    <router-link :to="`/classrooms/${classroom._id}`">
-                      <v-btn small color="secondary" :loading="spinnerMap[classroom._id] !== undefined"> Open </v-btn>
-                    </router-link>
-                  </v-list-item-action>
-                </v-list-item>
-              </template>
+            <transition-group name="component-fade" mode="out-in">
+              <v-list-item v-for="classroom in teacherClasses" :key="classroom._id" :value="classroom">
+                <v-list-item-title>
+                  {{ classroom.name }}
+                </v-list-item-title>
+
+                <template v-slot:append>
+                  <v-btn
+                    size="small"
+                    color="secondary"
+                    :loading="spinnerMap[classroom._id] !== undefined"
+                    :to="`/classrooms/${classroom._id}`"
+                  >
+                    Open
+                  </v-btn>
+                </template>
+              </v-list-item>
             </transition-group>
           </v-list>
         </v-card>
       </v-col>
 
-      <v-col v-if="studentClasses.length === 0 && teacherClasses.length === 0" class="headline">
+      <!-- Empty State Message -->
+      <v-col v-if="studentClasses.length === 0 && teacherClasses.length === 0" class="text-h5 text-center">
         You are not in any classes! Join your class below if someone has given you a joincode. Or else, start your own!
       </v-col>
     </v-row>
 
-    <v-divider></v-divider>
+    <v-divider class="my-4"></v-divider>
 
+    <!-- Join Class Form -->
     <v-row class="pa-4">
       <v-col cols="12" sm="12" md="8" lg="6" xl="6">
         <v-card>
-          <!-- <v-form> -->
-          <v-toolbar>
+          <v-toolbar color="primary">
             <v-toolbar-title>Join a class</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-text-field name="joinCode" label="Class Code" id="joinCode" v-model="joinCode"></v-text-field>
+            <v-text-field v-model="joinCode" label="Class Code" variant="outlined"></v-text-field>
             <v-btn color="primary" @click="joinClass">Join</v-btn>
           </v-card-text>
-          <!-- </v-form> -->
         </v-card>
       </v-col>
     </v-row>
-    <v-dialog v-model="newClassDialog" fullscreen transition="dialog-bottom-transition" :overlay="false">
-      <template v-slot:activator="{ isActive, props }">
-        <v-btn color="primary" dark v-bind="props">Start a new Class</v-btn>
+
+    <!-- New Class Dialog -->
+    <v-dialog v-model="newClassDialog" fullscreen transition="dialog-bottom-transition" :scrim="false">
+      <template v-slot:activator="{ props }">
+        <v-btn color="primary" v-bind="props">Start a new Class</v-btn>
       </template>
-      <classroom-editor @ClassroomEditingComplete="processResponse" />
+      <classroom-editor @classroom-editing-complete="processResponse" />
     </v-dialog>
   </v-container>
 </template>
