@@ -107,11 +107,10 @@
         transition="slide-x-transition"
         v-model="timerIsActive"
       >
-        <template v-slot:activator="{ on, attrs }">
+        <template #activator="{ isActive, props }">
           <v-btn
             v-if="!sessionFinished"
-            v-bind="attrs"
-            v-on="on"
+            v-bind="props"
             fab
             color="transparent"
             bottom
@@ -165,7 +164,7 @@
 import { defineComponent } from 'vue';
 import { ViewComponent, isDefineComponent } from '@/base-course/Displayable';
 import { displayableDataToViewData, ViewData } from '@/base-course/Interfaces/ViewData';
-import Viewable, { isQuestionView } from '@/base-course/Viewable';
+import { isQuestionView } from '@/base-course/CompositionViewable';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
 import HeatMap from '@/components/HeatMap.vue';
 import CardLoader from '@/components/Study/CardLoader.vue';
@@ -192,6 +191,7 @@ import { Status } from '../enums/Status';
 import { CourseConfig } from '../server/types';
 import { useConfigStore } from '@/stores/useConfigStore';
 import { useDataInputFormStore } from '@/stores/useDataInputFormStore';
+import { Router } from 'vue-router';
 
 function randInt(n: number) {
   return Math.floor(Math.random() * n);
@@ -209,6 +209,12 @@ export default defineComponent({
   name: 'Study',
 
   ref: {} as StudyRefs,
+
+  inject: {
+    router: {
+      from: 'router',
+    },
+  },
 
   emits: {
     emitResponse: (response: CardRecord) => true,
@@ -250,7 +256,7 @@ export default defineComponent({
       editCardReady: false,
       cardID: '',
       view: null as ViewComponent | null,
-      constructedView: null as Viewable | null,
+      constructedView: null as any | null, // [ ] #vue3 - type this properly
       data: [] as ViewData[],
       courseID: '',
       card_elo: 1000,
@@ -379,7 +385,7 @@ export default defineComponent({
     },
 
     refreshRoute() {
-      this.$router.go(0);
+      (this.router as Router).go(0);
     },
 
     handleClassroomMessage() {
@@ -482,7 +488,7 @@ export default defineComponent({
 
     registerUserForPreviewCourse() {
       this.user!.registerForCourse(this.previewCourseConfig!.courseID!).then(() =>
-        this.$router.push(`/quilts/${this.previewCourseConfig!.courseID!}`)
+        (this.router as Router).push(`/quilts/${this.previewCourseConfig!.courseID!}`)
       );
     },
 
