@@ -19,8 +19,8 @@ import { ViewData } from '@/base-course/Interfaces/ViewData';
 import Viewable from '@/base-course/Viewable';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import { defineComponent, PropType } from 'vue';
-import { VueConstructor } from 'vue';
 import { useCardPreviewModeStore } from '@/stores/useCardPreviewModeStore';
+import { ViewComponent } from '@/base-course/Displayable';
 
 export default defineComponent({
   name: 'CardBrowser',
@@ -31,7 +31,7 @@ export default defineComponent({
 
   props: {
     views: {
-      type: Array as PropType<Array<VueConstructor<Viewable>>>,
+      type: Array as PropType<Array<ViewComponent>>,
       required: true,
     },
     data: {
