@@ -5,8 +5,8 @@
     "scripts": {
         "serve": "vue-cli-service serve --host localhost",
         "build": "vue-cli-service build",
-        "lint": "eslint . --ext .vue,.js,.jsx,.ts,.tsx --fix",
-        "lint:check": "eslint . --ext .vue,.js,.jsx,.ts,.tsx",
+        "lint": "eslint . --fix",
+        "lint:check": "eslint .",
         "test:unit": "vue-cli-service test:unit",
         "test:ui": "vue-cli-service serve --host localhost --mode mock"
     },
@@ -75,6 +75,7 @@
         "eslint": "^9.18.0",
         "eslint-plugin-vue": "^9.32.0",
         "eslint-plugin-vuetify": "^2.5.1",
+        "globals": "^15.14.0",
         "identity-obj-proxy": "^3.0.0",
         "jest": "^29",
         "process": "^0.11.10",
