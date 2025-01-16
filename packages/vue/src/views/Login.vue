@@ -1,5 +1,5 @@
 <template>
-  <v-container grid-list-xs align-center class="login">
+  <v-container class="d-flex align-center login">
     <user-login />
   </v-container>
 </template>
