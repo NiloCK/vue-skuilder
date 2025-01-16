@@ -1,4 +1,4 @@
-import { defineComponent, PropType } from 'vue';
+import { defineComponent, PropType, reactive } from 'vue';
 import { FieldDefinition } from '../../../base-course/Interfaces/FieldDefinition';
 import {
   ValidatingFunction,
@@ -48,6 +48,12 @@ export default defineComponent({
       }
       return ret;
     },
+  },
+
+  created() {
+    if (!this.store.validation) {
+      this.store.validation = reactive({});
+    }
   },
 
   methods: {
