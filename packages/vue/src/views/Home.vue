@@ -1,20 +1,20 @@
 <template>
   <v-container fluid fill-height>
-    <v-layout row align-center>
-      <v-flex>
-        <h1 :class="{ 'display-3': $vuetify.breakpoint.xs, 'display-4': $vuetify.breakpoint.smAndUp }">
+    <v-row align="center">
+      <v-col>
+        <h1 :class="{ 'text-h3': display.xs, 'text-h2': display.smAndUp }">
           <span class="font-weight-thin">edu</span>
           <span class="font-weight-bold">Quilt</span>
         </h1>
         <!-- {interactive|adaptive|personalized} courseware that {everyone|anyone|you|grandma|grandpa} can {edit|improve|write} -->
-        <p class="headline">
+        <p class="text-h5">
           <em>quilt</em>: (n) a <text-swap ref="swap1" :text="label" /> of
           <text-swap ref="swap2" :text="adjective" /> courseware that <text-swap ref="swap3" :text="subject" /> can
           <text-swap ref="swap4" :text="verb" />
         </p>
         <br /><br /><br />
-        <div class="subheading">(get cozy)</div>
-      </v-flex>
+        <div class="text-subtitle-1">(get cozy)</div>
+      </v-col>
       <!-- <div class="section"></div> -->
       <!-- <div class="section step1">
 
@@ -29,7 +29,7 @@
           Hi
         </div>
          -->
-    </v-layout>
+    </v-row>
   </v-container>
 </template>
 
@@ -38,6 +38,7 @@ import UserLogin from '../components/UserLogin.vue';
 import TextSwap from '@/components/TextSwap.vue';
 import { Status } from '@/enums/Status';
 import { defineComponent } from 'vue';
+import { useDisplay } from 'vuetify';
 import { ITextSwap } from '@/components/TextSwap.vue';
 
 interface Data {
@@ -46,6 +47,7 @@ interface Data {
   adjective: string[];
   subject: string[];
   verb: string[];
+  swapsReady: boolean;
 }
 
 export default defineComponent({
@@ -56,6 +58,11 @@ export default defineComponent({
     TextSwap,
   },
 
+  setup() {
+    const display = useDisplay();
+    return { display };
+  },
+
   data(): Data {
     return {
       swapIntervalID: null,
@@ -63,6 +70,7 @@ export default defineComponent({
       adjective: ['interactive', 'adaptive', 'interlinked', 'intelligent'],
       subject: ['anyone', 'everyone', 'you'],
       verb: ['edit', 'start', 'study', 'improve'],
+      swapsReady: false,
     };
   },
 
@@ -77,11 +85,14 @@ export default defineComponent({
     },
   },
 
-  created() {
-    this.swapIntervalID = window.setInterval(this.randomSwap, 7000);
+  mounted() {
+    this.$nextTick(() => {
+      this.swapsReady = true;
+      this.swapIntervalID = window.setInterval(this.randomSwap, 7000);
+    });
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     if (this.swapIntervalID !== null) {
       clearInterval(this.swapIntervalID);
       this.swapIntervalID = null;
@@ -90,7 +101,9 @@ export default defineComponent({
 
   methods: {
     randomSwap(): void {
-      this.swaps.forEach(s => {
+      if (!this.swapsReady) return;
+
+      this.swaps.forEach((s) => {
         if (Math.random() < 0.33) s.next();
       });
     },
