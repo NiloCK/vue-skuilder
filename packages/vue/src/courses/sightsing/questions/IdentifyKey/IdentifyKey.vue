@@ -1,9 +1,9 @@
 <template>
   <div data-viewable="IdentifyKeyView">
     <template v-if="question">
-      <MusicScoreRenderer v-bind:keySignature="`X:1\nK:${question.key}\n||`" />
+      <MusicScoreRenderer :key-signature="`X:1\nK:${question.key}\n||`" />
       This signature is for the major key: _____
-      <RadioSelect v-bind:choiceList="choices" />
+      <RadioSelect :choice-list="choices" />
     </template>
   </div>
 </template>

@@ -13,23 +13,23 @@
     />
     <v-list v-for="c in cards" :key="c.id">
       <v-list-item :class="[c.isOpen ? 'blue-grey-lighten-5 elevation-4 font-weight-black' : '', 'two-line dense']">
-        <v-list-item-content>
+        
           <v-list-item-title :class="c.isOpen ? 'text-blue-grey-lighten-4' : ''">
             {{ cardPreview[c.id] }}
           </v-list-item-title>
           <v-list-item-subtitle>
             {{ c.id.split('-').length === 3 ? c.id.split('-')[2] : '' }}
           </v-list-item-subtitle>
-        </v-list-item-content>
+        
 
         <v-speed-dial v-model="c.isOpen" direction="left" transition="slide-x-reverse">
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <v-btn
               v-bind="props"
-              @click="clearSelections(c.id)"
               :icon="c.isOpen ? 'mdi-close' : 'mdi-open-in-full'"
               size="small"
               variant="flat"
+              @click="clearSelections(c.id)"
             />
           </template>
 
@@ -55,7 +55,7 @@
 
       <card-loader v-if="c.isOpen" :qualified_id="c.id" class="blue-grey-lighten-5 elevation-1" />
 
-      <tags-input v-show="c.isOpen && editMode === 'tags'" :courseID="_id" :cardID="c.id.split('-')[1]" class="ma-3" />
+      <tags-input v-show="c.isOpen && editMode === 'tags'" :course-i-d="_id" :card-i-d="c.id.split('-')[1]" class="ma-3" />
 
       <div v-show="c.isOpen && editMode === 'flag'" class="ma-3">
         <v-btn color="error" variant="outlined" @click="delBtn = true">Delete this card</v-btn>

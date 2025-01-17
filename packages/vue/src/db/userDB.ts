@@ -97,7 +97,7 @@ export class User {
   private updateQueue: UpdateQueue;
 
   public async createAccount(username: string, password: string) {
-    let ret = {
+    const ret = {
       status: Status.ok,
       error: '',
     };
@@ -156,7 +156,7 @@ Currently logged-in as ${this._username}.`
       Log out of account ${this.username} before logging in as ${username}.`);
     }
 
-    let loginResult = await remoteCouchRootDB.logIn(username, password);
+    const loginResult = await remoteCouchRootDB.logIn(username, password);
     if (loginResult.ok) {
       log(`Logged in as ${username}`);
       this._username = username;
@@ -554,7 +554,7 @@ Currently logged-in as ${this._username}.`
     const reviewsMap: { [index: string]: string } = {};
 
     const scheduledReviews = await this.remoteDB.query<{
-      id: String;
+      id: string;
       value: string;
     }>('reviewCards');
 
@@ -610,7 +610,7 @@ Currently logged-in as ${this._username}.`
    * @returns A promise of the cards that the user has seen in the past.
    */
   async getHistory() {
-    let cards = await filterAllDocsByPrefix<CardHistory<CardRecord>>(
+    const cards = await filterAllDocsByPrefix<CardHistory<CardRecord>>(
       this.remoteDB,
       cardHistoryPrefix,
       {
@@ -629,7 +629,7 @@ Currently logged-in as ${this._username}.`
     }[]
   ) {
     this.getCourseRegistrationsDoc().then((doc) => {
-      let crs = doc.courses.find((c) => c.courseID === course_id);
+      const crs = doc.courses.find((c) => c.courseID === course_id);
       if (crs) {
         if (crs.settings === null || crs.settings === undefined) {
           crs.settings = {};
@@ -706,7 +706,7 @@ async function clearLocalGuestDB() {
 }
 
 export function getUserDB(username: string): PouchDB.Database {
-  let guestAccount: boolean = false;
+  const guestAccount: boolean = false;
   // console.log(`Getting user db: ${username}`);
 
   const hexName = hexEncode(username);
@@ -855,7 +855,7 @@ async function getOrCreateCourseRegistrationsDoc(
 }
 
 export async function updateUserElo(user: string, course_id: string, elo: CourseElo) {
-  let regDoc = await getOrCreateCourseRegistrationsDoc(user);
+  const regDoc = await getOrCreateCourseRegistrationsDoc(user);
   const course = regDoc.courses.find((c) => c.courseID === course_id)!;
   course.elo = elo;
   return getUserDB(user).put(regDoc);

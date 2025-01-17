@@ -2,10 +2,10 @@
   <span v-if="isText(token)">
     <span v-if="!token.tokens || token.tokens.length === 0">
       <span v-if="isComponent(token)">
-        <component v-if="!last" v-bind:is="parsedComponent(token).is" v-bind:text="parsedComponent(token).text" />
+        <component :is="parsedComponent(token).is" v-if="!last" :text="parsedComponent(token).text" />
       </span>
       <span v-else-if="containsComponent(token)">
-        <md-token-renderer v-for="(subTok, j) in splitTextToken(token)" v-bind:key="j" v-bind:token="subTok" />
+        <md-token-renderer v-for="(subTok, j) in splitTextToken(token)" :key="j" :token="subTok" />
       </span>
       <span v-else>{{ decodeBasicEntities(token.text) }}</span>
     </span>
@@ -15,13 +15,13 @@
   </span>
 
   <span v-else-if="token.type === 'heading'">
-    <h1 class="display-3" v-if="token.depth === 1">
+    <h1 v-if="token.depth === 1" class="text-h2">
       <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
     </h1>
-    <h2 class="display-2" v-else-if="token.depth === 2">
+    <h2 v-else-if="token.depth === 2" class="text-h3">
       <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
     </h2>
-    <h3 class="display-1" v-else-if="token.depth === 3">
+    <h3 v-else-if="token.depth === 3" class="text-h4">
       <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
     </h3>
     <h4 v-else-if="token.depth === 4">
@@ -39,21 +39,21 @@
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
   </strong>
 
-  <p class="headline" v-else-if="token.type === 'paragraph'">
+  <p v-else-if="token.type === 'paragraph'" class="text-h5">
     <span v-if="containsComponent(token)">
       <md-token-renderer
         v-for="(splitTok, j) in splitParagraphToken(token)"
-        v-bind:key="j"
-        v-bind:token="splitTok"
-        v-bind:last="last && token.tokens.length === 1 && j === splitParagraphToken(token).length - 1"
+        :key="j"
+        :token="splitTok"
+        :last="last && token.tokens.length === 1 && j === splitParagraphToken(token).length - 1"
       />
     </span>
     <template v-else>
       <md-token-renderer
         v-for="(subTok, j) in token.tokens"
-        v-bind:key="j"
-        v-bind:token="subTok"
-        v-bind:last="last && token.tokens.length === 1"
+        :key="j"
+        :token="subTok"
+        :last="last && token.tokens.length === 1"
       />
     </template>
   </p>
@@ -94,7 +94,7 @@
 
   <highlightjs v-else-if="token.type === 'code'" class="hljs_render pa-2" :language="token.lang" :code="token.text" />
 
-  <code class="codespan" v-else-if="token.type === 'codespan'" v-html="token.text"></code>
+  <code v-else-if="token.type === 'codespan'" class="codespan" v-html="token.text"></code>
 
   <blockquote v-else-if="token.type === 'blockquote'">
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />

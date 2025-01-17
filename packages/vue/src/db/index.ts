@@ -273,7 +273,7 @@ export function scheduleCardReview(review: {
 
 export async function removeScheduledCardReview(user: string, reviewDocID: string) {
   const db = getUserDB(user);
-  let reviewDoc = await db.get(reviewDocID);
+  const reviewDoc = await db.get(reviewDocID);
   db.remove(reviewDoc)
     .then((res) => {
       if (res.ok) {
@@ -292,7 +292,7 @@ export function filterAllDocsByPrefix<T>(
 ) {
   // see couchdb docs 6.2.2:
   //   Guide to Views -> Views Collation -> String Ranges
-  let options: PouchDB.Core.AllDocsWithinRangeOptions = {
+  const options: PouchDB.Core.AllDocsWithinRangeOptions = {
     startkey: prefix,
     endkey: prefix + '\ufff0',
     include_docs: true,

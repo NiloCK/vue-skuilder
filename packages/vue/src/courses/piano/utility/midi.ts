@@ -21,7 +21,7 @@ export interface NoteEvent {
 }
 
 function transpose(note: NoteEvent, semitones: number): NoteEvent {
-  let ret: NoteEvent = { ...note };
+  const ret: NoteEvent = { ...note };
   const transposedNote = Note.transpose(
     note.note.name + note.note.octave,
     Interval.fromSemitones(semitones)
@@ -113,7 +113,7 @@ export class SyllableSequence {
   }
 
   public grade(answer: SyllableSequence): SyllableSequence {
-    let ret: Syllable[] = [];
+    const ret: Syllable[] = [];
 
     for (let i = 0; i < this.syllables.length; i++) {
       ret.push(this.syllables[i].grade(answer.syllables[i]));

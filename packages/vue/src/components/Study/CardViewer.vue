@@ -2,12 +2,12 @@
   <v-card elevation="12">
     <transition name="component-fade" mode="out-in">
       <component
+        :is="view"
+        :key="course_id + '-' + card_id + '-' + sessionOrder"
         class="cardView ma-2 pa-2"
-        v-bind:is="view"
-        v-bind:data="data"
-        v-bind:key="course_id + '-' + card_id + '-' + sessionOrder"
-        v-bind:modifyDifficulty="user_elo.global.score - card_elo"
-        v-on:emitResponse="processResponse($event)"
+        :data="data"
+        :modify-difficulty="user_elo.global.score - card_elo"
+        @emit-response="processResponse($event)"
       />
     </transition>
   </v-card>

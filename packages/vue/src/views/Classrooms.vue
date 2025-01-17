@@ -15,12 +15,12 @@
                   {{ classroom.name }}
                 </v-list-item-title>
 
-                <template v-slot:append>
+                <template #append>
                   <v-btn
                     size="small"
                     color="secondary"
-                    @click="leaveClass(classroom._id)"
                     :loading="spinnerMap[classroom._id] !== undefined"
+                    @click="leaveClass(classroom._id)"
                   >
                     Leave this class
                   </v-btn>
@@ -45,7 +45,7 @@
                   {{ classroom.name }}
                 </v-list-item-title>
 
-                <template v-slot:append>
+                <template #append>
                   <v-btn
                     size="small"
                     color="secondary"
@@ -86,7 +86,7 @@
 
     <!-- New Class Dialog -->
     <v-dialog v-model="newClassDialog" fullscreen transition="dialog-bottom-transition" :scrim="false">
-      <template v-slot:activator="{ props }">
+      <template #activator="{ props }">
         <v-btn color="primary" v-bind="props">Start a new Class</v-btn>
       </template>
       <classroom-editor @classroom-editing-complete="processResponse" />
@@ -118,6 +118,15 @@ export default defineComponent({
     ClassroomEditor,
   },
 
+  beforeRouteEnter(to: any, from: any, next: () => void) {
+    // todo ?
+    // See https://router.vuejs.org/guide/advanced/data-fetching.html#fetching-before-navigation
+    // this.refreshData().then(() => {
+    //   next();
+    // });
+    next();
+  },
+
   data() {
     return {
       classes: [] as string[],
@@ -132,15 +141,6 @@ export default defineComponent({
 
   created() {
     this.refreshData();
-  },
-
-  beforeRouteEnter(to: any, from: any, next: () => void) {
-    // todo ?
-    // See https://router.vuejs.org/guide/advanced/data-fetching.html#fetching-before-navigation
-    // this.refreshData().then(() => {
-    //   next();
-    // });
-    next();
   },
 
   methods: {

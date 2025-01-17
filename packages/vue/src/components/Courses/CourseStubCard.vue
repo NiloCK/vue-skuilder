@@ -13,8 +13,8 @@
       <p>{{ _courseConfig.description }}</p>
     </v-card-text>
     <v-card-actions>
-      <v-btn @click="routeToCourse" color="primary">More Info</v-btn>
-      <v-btn :loading="addingCourse" @click="registerForCourse" color="primary">Register</v-btn>
+      <v-btn color="primary" @click="routeToCourse">More Info</v-btn>
+      <v-btn :loading="addingCourse" color="primary" @click="registerForCourse">Register</v-btn>
     </v-card-actions>
   </v-card>
 </template>

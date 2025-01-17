@@ -54,7 +54,7 @@ if (process.env.VUE_APP_MOCK !== undefined) {
 
 if (ENV.DEBUG) {
   console.log(`ENV init:`);
-  for (let s in ENV) {
+  for (const s in ENV) {
     console.log(`${s}:\n  ${(ENV as any)[s]}`);
   }
 }

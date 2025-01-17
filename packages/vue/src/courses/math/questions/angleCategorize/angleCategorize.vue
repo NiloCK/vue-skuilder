@@ -4,7 +4,7 @@
       <h2>What kind of angle is this?</h2>
       <canvas ref="canvasRef" width="300" height="300"> </canvas>
 
-      <radio-multiple-choice :choiceList="question.answers" :MouseTrap="mouseTrap" />
+      <radio-multiple-choice :choice-list="question.answers" :MouseTrap="mouseTrap" />
     </template>
   </div>
 </template>

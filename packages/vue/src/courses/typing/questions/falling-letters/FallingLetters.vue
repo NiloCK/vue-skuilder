@@ -28,7 +28,7 @@
           top: explosion.y + 'px',
         }"
       >
-        <div class="particle" v-for="n in 12" :key="n"></div>
+        <div v-for="n in 12" :key="n" class="particle"></div>
       </div>
 
       <!-- Grass effect -->
@@ -38,9 +38,9 @@
       </div>
       <div class="trees">
         <div
-          class="tree"
           v-for="tree in treePositions"
           :key="tree.id"
+          class="tree"
           :style="{
             left: `${tree.left}%`,
             height: `${tree.height}px`,

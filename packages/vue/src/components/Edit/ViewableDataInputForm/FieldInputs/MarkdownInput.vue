@@ -1,12 +1,12 @@
 <template>
   <v-textarea
-    filled
     ref="inputField"
     v-model="store[field.name]"
-    v-bind:name="field.name"
-    v-bind:label="field.name"
-    v-bind:autofocus="autofocus"
-    v-on:input="() => validate()"
+    variant="filled"
+    :name="field.name"
+    :label="field.name"
+    :autofocus="autofocus"
+    @update:model-value="() => validate()"
   />
 </template>
 

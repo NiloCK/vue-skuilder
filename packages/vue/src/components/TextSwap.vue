@@ -1,6 +1,6 @@
 <template>
   <transition appear name="fade" mode="out-in">
-    <a @click="next()" :key="index">{{ text[index] }}</a>
+    <a :key="index" @click="next()">{{ text[index] }}</a>
   </transition>
 </template>
 

@@ -3,6 +3,6 @@ import { Course } from '../../base-course/Course';
 import { TypeLetterQuestion } from './questions/single-letter';
 import { FallingLettersQuestion } from './questions/falling-letters';
 
-let typing: Course = new Course('typing', [TypeLetterQuestion, FallingLettersQuestion]);
+const typing: Course = new Course('typing', [TypeLetterQuestion, FallingLettersQuestion]);
 
 export default typing;

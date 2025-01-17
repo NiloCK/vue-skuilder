@@ -2,14 +2,14 @@
   <transition v-if="userReady && display" name="component-fade" mode="out-in">
     <div v-if="guestMode">
       <v-dialog v-model="regDialog" width="500px">
-        <template v-slot:activator="{ isActive, props }">
-          <v-btn class="mr-2" small color="success" v-bind="props">Sign Up</v-btn>
+        <template #activator="{ isActive, props }">
+          <v-btn class="mr-2" size="small" color="success" v-bind="props">Sign Up</v-btn>
         </template>
         <UserRegistration @toggle="toggle" />
       </v-dialog>
       <v-dialog v-model="loginDialog" width="500px">
-        <template v-slot:activator="{ isActive, props }">
-          <v-btn small color="success" v-bind="props">Log In</v-btn>
+        <template #activator="{ isActive, props }">
+          <v-btn size="small" color="success" v-bind="props">Log In</v-btn>
         </template>
         <UserLogin @toggle="toggle" />
       </v-dialog>

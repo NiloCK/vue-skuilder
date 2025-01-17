@@ -10,7 +10,7 @@
     </h3>
     <v-row>
       <v-col cols="12" sm="6" md="4">
-        <v-checkbox label="Allow peer instruction" v-model="_classroomCfg.peerAssist" :model-value="true"></v-checkbox>
+        <v-checkbox v-model="_classroomCfg.peerAssist" label="Allow peer instruction" :model-value="true"></v-checkbox>
       </v-col>
       <v-col v-if="classroomDB.ready" cols="12">
         <h2>Assigned Content:</h2>
@@ -41,20 +41,20 @@
           </v-toolbar>
           <v-card-text>
             <v-select
+              v-model="selectedCourse"
               label="Select Quilt"
               :items="availableCourses"
-              v-model="selectedCourse"
               item-title="name"
               item-value="_id"
               title="Select Quilt"
             ></v-select>
 
             <v-select
+              v-model="selectedTags"
               label="Select Tags"
               :items="availableTags"
               item-title="name"
               item-value="name"
-              v-model="selectedTags"
               multiple
               chips
               hint=""

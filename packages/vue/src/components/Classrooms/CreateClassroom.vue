@@ -21,13 +21,13 @@
             ></v-text-field>
           </v-col>
           <v-col cols="12" sm="6" md="4">
-            <v-checkbox label="Allow peer instruction" v-model="peerAssist"></v-checkbox>
+            <v-checkbox v-model="peerAssist" label="Allow peer instruction"></v-checkbox>
           </v-col>
           <v-col cols="12" sm="6" md="4">
             <v-select
+              v-model="birthYear"
               :items="birthYears"
               label="Approximate Birth Year of Students"
-              v-model="birthYear"
               item-title="text"
               item-value="value"
             ></v-select>

@@ -34,8 +34,8 @@
                         size="x-small"
                         variant="text"
                         color="error"
-                        @click="dropCourse(course._id)"
                         :loading="spinnerMap[course._id] !== undefined"
+                        @click="dropCourse(course._id)"
                       >
                         Drop
                       </v-btn>
@@ -53,7 +53,7 @@
         <h2 class="text-h5 mb-3">Available Quilts</h2>
         <v-row>
           <v-col v-for="(course, index) in displayedAvailableCourses" :key="course._id" cols="12" sm="6" md="4" lg="3">
-            <course-stub-card @refresh="refreshData" :_id="course._id" />
+            <course-stub-card :_id="course._id" @refresh="refreshData" />
           </v-col>
         </v-row>
 
@@ -68,7 +68,7 @@
 
     <!-- New Course Dialog -->
     <v-dialog v-model="newCourseDialog" fullscreen transition="dialog-bottom-transition" :scrim="false">
-      <course-editor @CourseEditingComplete="processResponse($event)" />
+      <course-editor @course-editing-complete="processResponse($event)" />
     </v-dialog>
   </v-container>
 </template>
@@ -151,6 +151,11 @@ export default defineComponent({
         },
       };
     },
+  },
+
+  async created() {
+    this.user = await User.instance();
+    this.refreshData();
   },
 
   methods: {
@@ -238,11 +243,6 @@ export default defineComponent({
       delete this.spinnerMap[course];
       this.refreshData();
     },
-  },
-
-  async created() {
-    this.user = await User.instance();
-    this.refreshData();
   },
 });
 </script>

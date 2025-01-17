@@ -1,5 +1,5 @@
 <template>
-  <span v-if="radioType" class="headline underline"
+  <span v-if="radioType" class="text-h5 underline"
     >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span
   >
   <user-input-string v-else id="input" :icon="false" type="text" :value="processedText" />

@@ -8,11 +8,11 @@
     <h2 class="text-h4">General:</h2>
 
     <v-checkbox
-      label="I like confetti"
       v-model="configStore.config.likesConfetti"
+      label="I like confetti"
       @update:model-value="updateConfetti"
     />
-    <v-checkbox label="I like the dark" v-model="configStore.config.darkMode" @update:model-value="updateDark" />
+    <v-checkbox v-model="configStore.config.darkMode" label="I like the dark" @update:model-value="updateDark" />
     <!-- <h2 class="text-h4">Languages:</h2>
     I am near-fluent or better in the following languages:
     {{ selectedLanguages.toString() }}
@@ -51,8 +51,8 @@ export default defineComponent({
   setup() {
     const configStore = useConfigStore();
 
-    let darkMode = configStore.config.darkMode;
-    let likesConfetti = configStore.config.likesConfetti;
+    const darkMode = configStore.config.darkMode;
+    const likesConfetti = configStore.config.likesConfetti;
 
     return { configStore, darkMode, likesConfetti };
   },
@@ -83,6 +83,13 @@ export default defineComponent({
     },
   },
 
+  async created() {
+    this.u = await User.instance();
+    this.configLanguages.forEach((l) => {
+      console.log(`afweatifvwzeatfvwzeta` + l.name);
+    });
+  },
+
   methods: {
     updateDark(): void {
       this.configStore.updateDarkMode(this.configStore.config.darkMode);
@@ -100,13 +107,6 @@ export default defineComponent({
         });
       }
     },
-  },
-
-  async created() {
-    this.u = await User.instance();
-    this.configLanguages.forEach((l) => {
-      console.log(`afweatifvwzeatfvwzeta` + l.name);
-    });
   },
 });
 </script>

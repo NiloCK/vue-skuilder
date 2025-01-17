@@ -1,6 +1,6 @@
 <template>
-  <v-card v-bind:class="`${className}`" v-on:mouseover="select" v-on:click="submitThisOption">
-    <markdown-renderer v-bind:md="content" />
+  <v-card :class="`${className}`" @mouseover="select" @click="submitThisOption">
+    <markdown-renderer :md="content" />
   </v-card>
 </template>
 
@@ -38,21 +38,6 @@ export default defineComponent({
     markedWrong: {
       type: Boolean,
       required: true,
-    },
-  },
-
-  methods: {
-    select(): void {
-      this.setSelection(this.number);
-    },
-
-    submitThisOption(): void {
-      if (this.markedWrong) {
-        return;
-      } else {
-        this.select();
-        this.submit();
-      }
     },
   },
 
@@ -96,6 +81,21 @@ export default defineComponent({
         throw new Error(
           `'selected' and 'markedWrong' props in MultipleChoiceOption are in an impossible configuration.`
         );
+      }
+    },
+  },
+
+  methods: {
+    select(): void {
+      this.setSelection(this.number);
+    },
+
+    submitThisOption(): void {
+      if (this.markedWrong) {
+        return;
+      } else {
+        this.select();
+        this.submit();
       }
     },
   },

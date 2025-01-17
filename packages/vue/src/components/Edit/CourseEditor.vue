@@ -1,5 +1,5 @@
 <template>
-  <div class="courseEditor" v-if="course">
+  <div v-if="course" class="courseEditor">
     <div v-if="loading">
       <v-progress-circular indeterminate color="secondary"></v-progress-circular>
     </div>
@@ -8,18 +8,18 @@
         <router-link to="/q">Quilts</router-link> /
         <router-link :to="`/q/${courseConfig ? courseConfig.name : course}`">{{ courseConfig?.name }}</router-link>
       </h1>
-      <v-btn v-on:click="toggleComponent" color="success">Content Editing / Component Registration</v-btn>
+      <v-btn color="success" @click="toggleComponent">Content Editing / Component Registration</v-btn>
       <div v-if="editingMode">
         <v-select
           v-model="selectedShape"
           label="What kind of content are you adding?"
-          v-bind:items="registeredDataShapes.map((shape) => shape.name)"
+          :items="registeredDataShapes.map((shape) => shape.name)"
         />
 
         <data-input-form
           v-if="!loading && selectedShape !== '' && courseConfig && dataShape"
-          v-bind:data-shape="dataShape"
-          v-bind:course-cfg="courseConfig"
+          :data-shape="dataShape"
+          :course-cfg="courseConfig"
         />
       </div>
       <component-registration v-else :course="course" />

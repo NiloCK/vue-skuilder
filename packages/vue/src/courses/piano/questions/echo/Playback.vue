@@ -1,16 +1,16 @@
 <template>
-  <div data-viewable="Playback" v-if="initialized">
+  <div v-if="initialized" data-viewable="Playback">
     <div v-if="state === 'ready'">
-      <div class="display-1">{{ promptText }} <note-display :chroma="firstNoteChroma" /></div>
-      <div class="headline">Listen...<span v-if="recording"> and Repeat</span></div>
+      <div class="text-h4">{{ promptText }} <note-display :chroma="firstNoteChroma" /></div>
+      <div class="text-h5">Listen...<span v-if="recording"> and Repeat</span></div>
 
       <div class="progressContainer">
         <div id="progress" ref="progressBar"></div>
       </div>
 
-      <v-btn color="primary" @click="clearAttempt" autofocus> Play again <v-icon right>volume_up</v-icon> </v-btn>
+      <v-btn color="primary" autofocus @click="clearAttempt"> Play again <v-icon end>volume_up</v-icon> </v-btn>
 
-      <syllable-seq-vis ref="inputVisRef" v-if="true" :seq="inputSeq" :lastTSsuggestion="lastTSsuggestion" />
+      <syllable-seq-vis v-if="true" ref="inputVisRef" :seq="inputSeq" :last-t-ssuggestion="lastTSsuggestion" />
       <syllable-seq-vis v-if="graded" :seq="gradedSeq" />
     </div>
     <div v-else-if="state === 'nodevice'">No midi device detected. Please attach one!</div>

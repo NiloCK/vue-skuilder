@@ -21,6 +21,7 @@ import { randomInt } from '@/courses/math/utility';
 
 export default defineComponent({
   name: 'About',
+  components: {},
   data() {
     return {
       type: 'Viewable',
@@ -32,6 +33,5 @@ export default defineComponent({
       ]),
     };
   },
-  components: {},
 });
 </script>

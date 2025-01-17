@@ -19,7 +19,7 @@ export default class AdminDB {
   }
 
   public static async factory(): Promise<AdminDB> {
-    let ret = new AdminDB();
+    const ret = new AdminDB();
     await ret.init();
     return ret;
   }

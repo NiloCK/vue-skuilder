@@ -72,13 +72,13 @@ abstract class ClassroomDBBase {
     console.log(`Getting assigned content...`);
     // see couchdb docs 6.2.2:
     //   Guide to Views -> Views Collation -> String Ranges
-    let docRows = await this._db.allDocs<AssignedContent>({
+    const docRows = await this._db.allDocs<AssignedContent>({
       startkey: this._content_prefix,
       endkey: this._content_prefix + `\ufff0`,
       include_docs: true,
     });
 
-    let ret = docRows.rows.map((row) => {
+    const ret = docRows.rows.map((row) => {
       return row.doc!;
     });
     // console.log(`Assigned content: ${JSON.stringify(ret)}`);
@@ -134,7 +134,7 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
   }
 
   public static async factory(classID: string): Promise<StudentClassroomDB> {
-    let ret = new StudentClassroomDB(classID);
+    const ret = new StudentClassroomDB(classID);
     await ret.init();
     return ret;
   }
@@ -250,7 +250,7 @@ export default class TeacherClassroomDB extends ClassroomDBBase {
   }
 
   public static async factory(classID: string): Promise<TeacherClassroomDB> {
-    let ret = new TeacherClassroomDB(classID);
+    const ret = new TeacherClassroomDB(classID);
     await ret.init();
     return ret;
   }
@@ -272,7 +272,7 @@ export default class TeacherClassroomDB extends ClassroomDBBase {
 
   public async assignContent(content: AssignedContent) {
     let put: PouchDB.Core.Response;
-    let id: string = this.getContentId(content);
+    const id: string = this.getContentId(content);
 
     if (content.type === 'tag') {
       put = await this._db.put<AssignedTag>({

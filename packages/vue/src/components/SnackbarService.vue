@@ -5,12 +5,12 @@
       :key="snacks.indexOf(snack)"
       v-model="show[snacks.indexOf(snack)]"
       :timeout="snack.timeout"
-      bottom
-      right
+      location="bottom right"
+      
       :color="getColor(snack)"
     >
       {{ snack.text }}
-      <v-btn icon text @click="close()">
+      <v-btn icon variant="text" @click="close()">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </v-snackbar>

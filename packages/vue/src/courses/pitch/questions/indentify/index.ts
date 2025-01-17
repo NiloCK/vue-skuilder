@@ -25,10 +25,10 @@ const fields: FieldDefinition[] = [
     type: FieldType.STRING,
     validator: {
       test: (value) => {
-        let e = new Enumerator(Chroma);
+        const e = new Enumerator(Chroma);
         e.moveFirst();
         while (!e.atEnd()) {
-          let c = e.item();
+          const c = e.item();
 
           if (c === value) {
             return {

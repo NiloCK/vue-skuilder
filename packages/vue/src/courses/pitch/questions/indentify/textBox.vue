@@ -2,7 +2,7 @@
   <div data-viewable="IdentifyChroma">
     <template v-if="question">
       What note is being played?
-      <radio-multiple-choice :choiceList="question.choiceList" />
+      <radio-multiple-choice :choice-list="question.choiceList" />
     </template>
   </div>
 </template>
@@ -46,7 +46,7 @@ export default defineComponent({
     const question = computed(() => questionUtils.question.value);
 
     const octaves = (freq: number): number[] => {
-      let ret: number[] = [];
+      const ret: number[] = [];
       let lowerFreq: number = freq / 2;
       while (lowerFreq > 100) {
         ret.push(lowerFreq);
@@ -62,11 +62,11 @@ export default defineComponent({
     };
 
     const tone = (freq: number) => {
-      let osc = ctx.value.createOscillator();
+      const osc = ctx.value.createOscillator();
       osc.type = 'sine';
       osc.frequency.value = freq;
 
-      let g = ctx.value.createGain();
+      const g = ctx.value.createGain();
       console.log('Max Gain: ' + g.gain.maxValue);
       g.gain.setValueAtTime(0, 0);
       g.gain.linearRampToValueAtTime(0.5, 15);

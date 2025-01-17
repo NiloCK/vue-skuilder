@@ -4,91 +4,91 @@
       <v-col cols="12" xl="6">
         <v-form ma-2 autocomplete="off">
           <div
-            ref="fieldInputWraps"
             v-for="(field, i) in dataShape.fields"
-            v-bind:key="dataShape.fields.indexOf(field)"
+            ref="fieldInputWraps"
+            :key="dataShape.fields.indexOf(field)"
           >
             <string-input
               v-if="field.type === ftString"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :store="store"
+              :field="field"
+              :ui-validation-function="checkInput"
+              :autofocus="i == 0"
             />
             <chess-puzzle-input
               v-else-if="field.type === chessPuzzle"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :store="store"
+              :field="field"
+              :ui-validation-function="checkInput"
+              :autofocus="i == 0"
             />
             <number-input
               v-else-if="field.type === num"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :store="store"
+              :field="field"
+              :ui-validation-function="checkInput"
+              :autofocus="i == 0"
             />
             <integer-input
               v-else-if="field.type === int"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :store="store"
+              :field="field"
+              :ui-validation-function="checkInput"
+              :autofocus="i == 0"
             />
             <image-input
               v-else-if="field.type === img"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :store="store"
+              :field="field"
+              :ui-validation-function="checkInput"
+              :autofocus="i == 0"
             />
             <markdown-input
               v-else-if="field.type === mkd"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :store="store"
+              :field="field"
+              :ui-validation-function="checkInput"
+              :autofocus="i == 0"
             />
             <audio-input
               v-else-if="field.type === audio"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :store="store"
+              :field="field"
+              :ui-validation-function="checkInput"
+              :autofocus="i == 0"
             />
             <midi-input
               v-else-if="field.type === midi"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :store="store"
+              :field="field"
+              :ui-validation-function="checkInput"
+              :autofocus="i == 0"
             />
             <media-drag-drop-uploader
               v-else-if="field.type === uploader"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :store="store"
+              :field="field"
+              :ui-validation-function="checkInput"
+              :autofocus="i == 0"
             />
           </div>
 
-          <tags-input :hideSubmit="true" ref="tagsInput" v-bind:courseID="courseCfg.courseID" cardID="" />
+          <tags-input ref="tagsInput" :hide-submit="true" :course-i-d="courseCfg.courseID" card-i-d="" />
           <v-btn
             class="float-right"
             type="submit"
             color="primary"
-            v-bind:loading="uploading"
-            v-bind:disabled="!allowSubmit"
-            v-on:click.prevent="submit"
+            :loading="uploading"
+            :disabled="!allowSubmit"
+            @click.prevent="submit"
           >
             Add card
-            <v-icon right>mdi-plus-circle</v-icon>
+            <v-icon end>mdi-plus-circle</v-icon>
           </v-btn>
         </v-form>
       </v-col>
       <v-col cols="12" xl="6">
-        <card-browser class="ml-4" v-if="inputIsValidated" v-bind:views="shapeViews" v-bind:data="[previewInput]" />
+        <card-browser v-if="inputIsValidated" class="ml-4" :views="shapeViews" :data="[previewInput]" />
       </v-col>
     </v-row>
   </v-container>

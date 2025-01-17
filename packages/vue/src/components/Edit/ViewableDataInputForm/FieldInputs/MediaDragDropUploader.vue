@@ -3,19 +3,19 @@
     <v-label class="text-h5">Add media:</v-label>
     <div
       class="drop-zone"
-      v-bind:class="{ 'drop-zone--over': isDragging }"
-      v-on:drop="dropHandler"
-      v-on:dragover.prevent="dragOverHandler"
-      v-on:dragenter.prevent="dragEnterHandler"
-      v-on:dragleave.prevent="dragLeaveHandler"
+      :class="{ 'drop-zone--over': isDragging }"
+      @drop="dropHandler"
+      @dragover.prevent="dragOverHandler"
+      @dragenter.prevent="dragEnterHandler"
+      @dragleave.prevent="dragLeaveHandler"
     >
       <input
         ref="fileInput"
         type="file"
-        @change="handleFileInput"
         accept="image/*,audio/*"
         multiple
         style="display: none"
+        @change="handleFileInput"
       />
       <template>
         <div v-for="(item, index) in mediaItems" :key="index" class="media-item">
@@ -25,7 +25,7 @@
           <template v-else-if="item.type === 'audio'">
             <audio controls :src="item.url"></audio>
           </template>
-          <v-btn small @click="removeMedia(index)">Remove</v-btn>
+          <v-btn size="small" @click="removeMedia(index)">Remove</v-btn>
         </div>
         <template>
           Drop image or audio files here...

@@ -4,13 +4,13 @@
       <template v-for="syl in seq.syllables">
         <template v-for="note in syl.notes" :key="syl.timestamp + '-' + note.note.number">
           <circle
-            @mouseenter="sayNote(note)"
             :cx="((syl.timestamp - firstTS) * 500) / (lastTS - firstTS) + 4"
             :cy="3 * (high - note.note.number) + 4"
             :alt="note.note.name"
             r="3"
             :fill="note.isCorrect ? 'black' : note.isMissing ? 'none' : 'red'"
             :stroke="note.isMissing ? 'red' : 'none'"
+            @mouseenter="sayNote(note)"
           />
         </template>
       </template>

@@ -41,7 +41,7 @@ const fields: FieldDefinition[] = [
 ];
 
 const data = function () {
-  let ret: { n: number; hand: Hands }[] = [];
+  const ret: { n: number; hand: Hands }[] = [];
   for (let i = 2; i <= 10; i++) {
     ret.push({ n: i, hand: Hands.LEFT });
     ret.push({ n: i, hand: Hands.RIGHT });
