@@ -1,7 +1,10 @@
 import { areQuestionRecords, CardHistory, CardRecord, QuestionRecord } from '../db/types';
-import moment, { duration, Moment } from 'moment';
+import moment from 'moment';
 import { log } from 'util';
 import { User } from './userDB';
+
+type Moment = moment.Moment;
+const duration = moment.duration;
 
 /**
  * Returns the minimum number of seconds that should pass before a
