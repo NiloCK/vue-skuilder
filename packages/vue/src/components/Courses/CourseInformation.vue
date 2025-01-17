@@ -38,7 +38,7 @@
       <v-toolbar density="compact">
         <v-toolbar-title>Tags</v-toolbar-title>
         <v-toolbar-items>
-          <v-btn variant="text">{{ tags.length }}</v-btn>
+          <v-btn variant="text">({{ tags.length }})</v-btn>
         </v-toolbar-items>
       </v-toolbar>
       <v-card-text>
