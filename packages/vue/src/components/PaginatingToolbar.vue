@@ -3,22 +3,32 @@
     <v-toolbar-title>{{ title }}</v-toolbar-title>
     &nbsp;&nbsp; {{ subtitle }}
     <v-spacer></v-spacer>
-    <v-btn variant="text" icon color="secondary" :disabled="page == 1" @click="() => $emit('first')">
+    <v-btn variant="text" icon color="secondary" :disabled="page == 1" @click="$emit('first')">
       <v-icon>mdi-page-first</v-icon>
     </v-btn>
-    <v-btn variant="text" icon color="secondary" :disabled="page == 1" @click="() => $emit('prev')">
+    <v-btn variant="text" icon color="secondary" :disabled="page == 1" @click="$emit('prev')">
       <v-icon>mdi-chevron-left</v-icon>
     </v-btn>
+
     <v-select
-      v-model="page"
+      :model-value="page"
       :items="pages"
       class="pageSelect"
-      @update:model-value="() => $emit('set-page', page)"
-    ></v-select>
-    <v-btn variant="text" icon color="secondary" :disabled="page == pages.length" @click="() => $emit('next')">
+      density="compact"
+      hide-details
+      :return-object="false"
+      variant="outlined"
+      @update:model-value="(val) => $emit('set-page', val)"
+    >
+      <template #selection="{ item }">
+        {{ item.value }}
+      </template>
+    </v-select>
+
+    <v-btn variant="text" icon color="secondary" :disabled="page == pages.length" @click="$emit('next')">
       <v-icon>mdi-chevron-right</v-icon>
     </v-btn>
-    <v-btn variant="text" icon color="secondary" :disabled="page == pages.length" @click="() => $emit('last')">
+    <v-btn variant="text" icon color="secondary" :disabled="page == pages.length" @click="$emit('last')">
       <v-icon>mdi-page-last</v-icon>
     </v-btn>
   </v-toolbar>
@@ -42,10 +52,12 @@ export default defineComponent({
     title: {
       type: String,
       required: false,
+      default: '',
     },
     subtitle: {
       type: String,
       required: false,
+      default: '',
     },
   },
 
