@@ -1,7 +1,9 @@
 <template>
   <v-toolbar dense>
-    <v-toolbar-title>{{ title }}</v-toolbar-title>
-    &nbsp;&nbsp; {{ subtitle }}
+    <v-toolbar-title>
+      <span>{{ title }}</span>
+      <span class="ms-2 text-subtitle-2">{{ subtitle }}</span>
+    </v-toolbar-title>
     <v-spacer></v-spacer>
     <v-btn variant="text" icon color="secondary" :disabled="page == 1" @click="$emit('first')">
       <v-icon>mdi-page-first</v-icon>
