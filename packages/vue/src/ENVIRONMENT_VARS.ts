@@ -38,18 +38,18 @@ const ENV: Environment = {
   MOCK: false,
 };
 
-ENV.COUCHDB_SERVER_URL = process.env.VUE_APP_COUCHDB_SERVER!;
-ENV.COUCHDB_SERVER_PROTOCOL = process.env.VUE_APP_COUCHDB_PROTOCOL! as ProtocolString;
+ENV.COUCHDB_SERVER_URL = import.meta.env.VITE_COUCHDB_SERVER!;
+ENV.COUCHDB_SERVER_PROTOCOL = import.meta.env.VITE_COUCHDB_PROTOCOL! as ProtocolString;
 
-ENV.EXPRESS_SERVER_URL = process.env.VUE_APP_EXPRESS_SERVER!;
-ENV.EXPRESS_SERVER_PROTOCOL = process.env.VUE_APP_EXPRESS_PROTOCOL! as ProtocolString;
+ENV.EXPRESS_SERVER_URL = import.meta.env.VITE_EXPRESS_SERVER!;
+ENV.EXPRESS_SERVER_PROTOCOL = import.meta.env.VITE_EXPRESS_PROTOCOL! as ProtocolString;
 
-if (process.env.VUE_APP_DEBUG !== undefined) {
-  ENV.DEBUG = process.env.VUE_APP_DEBUG === 'true';
+if (import.meta.env.VITE_DEBUG !== undefined) {
+  ENV.DEBUG = import.meta.env.VITE_DEBUG === 'true';
 }
 
-if (process.env.VUE_APP_MOCK !== undefined) {
-  ENV.MOCK = process.env.VUE_APP_MOCK === 'true';
+if (import.meta.env.VITE_MOCK !== undefined) {
+  ENV.MOCK = import.meta.env.VITE_MOCK === 'true';
 }
 
 if (ENV.DEBUG) {

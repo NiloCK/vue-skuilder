@@ -44,7 +44,7 @@
 <script lang="ts">
 import moment from 'moment';
 import Mousetrap from 'mousetrap';
-import { log } from 'util';
+import { log } from '@/logshim';
 import Vue from 'vue';
 import { registerUserForClassroom, User } from '../../db/userDB';
 import { Status } from '../../enums/Status';

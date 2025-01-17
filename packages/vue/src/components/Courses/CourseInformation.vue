@@ -58,7 +58,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
-import { log } from 'util';
+import { log } from '@/logshim';
 import { getCourseDB } from '@/db';
 import { CourseDB, getCourseConfig, getCourseTagStubs } from '@/db/courseDB';
 import { Tag } from '@/db/types';

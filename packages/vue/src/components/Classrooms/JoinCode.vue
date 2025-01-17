@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { log } from 'util';
+import { log } from '@/logshim';
 import Vue from 'vue';
 import TeacherClassroomDB from '../../db/classroomDB';
 import { ClassroomConfig } from '../../server/types';

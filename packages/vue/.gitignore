@@ -1,0 +1,4 @@
+# Test coverage
+coverage
+coverage/**/*
+.nyc_output

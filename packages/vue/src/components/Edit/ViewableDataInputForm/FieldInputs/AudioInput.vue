@@ -38,7 +38,7 @@ import { defineComponent, PropType } from 'vue';
 import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
 import WaveSurfer from 'wavesurfer.js';
 import FieldInput from '../OptionsFieldInput';
-const MediaStreamRecorder = require('msr');
+import MediaStreamRecorder from 'msr';
 import { FieldDefinition } from '../../../../base-course/Interfaces/FieldDefinition';
 
 export default defineComponent({

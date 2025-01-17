@@ -4,8 +4,8 @@ import { GuestUsername } from '../stores/useAuthStore';
 import { UserConfig } from '../stores/useConfigStore';
 import { CourseElo } from '../tutor/Elo';
 import moment, { Moment } from 'moment';
-import pouch from 'pouchdb-browser';
-import { log } from 'util';
+import pouch from './pouchdb-setup';
+import { log } from '@/logshim';
 import { getCourseConfigs } from './courseDB';
 import {
   filterAllDocsByPrefix,
@@ -689,7 +689,9 @@ Currently logged-in as ${this._username}.`
 }
 
 export function getLocalUserDB(username: string): PouchDB.Database {
-  return new pouch(`userdb-${username}`);
+  return new pouch(`userdb-${username}`, {
+    adapter: 'idb',
+  });
 }
 
 async function clearLocalGuestDB() {

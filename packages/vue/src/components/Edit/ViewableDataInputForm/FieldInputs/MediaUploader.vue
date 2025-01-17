@@ -42,7 +42,6 @@ import WaveSurfer from 'wavesurfer.js';
 import FieldInput from '../OptionsFieldInput';
 import AudioInput from './AudioInput.vue';
 import ImageInput from './ImageInput.vue';
-const MediaStreamRecorder = require('msr');
 
 type MediaData = {
   data: Blob;

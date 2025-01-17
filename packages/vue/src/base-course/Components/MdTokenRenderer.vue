@@ -204,6 +204,15 @@ export default defineComponent({
 </script>
 
 <style lang="css" scoped>
+@import './../../../node_modules/highlight.js/styles/atelier-seaside-light.css';
+/* @import './../../../node_modules/highlight.js/styles/stackoverflow-light.css'; */
+/* @import './../../../node_modules/highlight.js/styles/xt256.css'; */
+/* @import './../../../node_modules/highlight.js/styles/zenburn.css'; */
+/* @import './../../../node_modules/highlight.js/styles/tomorrow.css'; */
+/* @import './../../../node_modules/highlight.js/styles/lioshi.css'; */
+/* @import './../../../node_modules/highlight.js/styles/rainbow.css'; */
+/* @import './../../../node_modules/highlight.js/styles/monokai-sublime.css'; */
+
 blockquote {
   border-left: 3px teal solid;
   padding-left: 8px;
@@ -220,13 +229,4 @@ p {
   margin-bottom: 15px;
   margin-top: 15px;
 }
-
-/* @import './../../../node_modules/highlight.js/styles/stackoverflow-light.css'; */
-/* @import './../../../node_modules/highlight.js/styles/xt256.css'; */
-/* @import './../../../node_modules/highlight.js/styles/zenburn.css'; */
-/* @import './../../../node_modules/highlight.js/styles/tomorrow.css'; */
-/* @import './../../../node_modules/highlight.js/styles/lioshi.css'; */
-/* @import './../../../node_modules/highlight.js/styles/rainbow.css'; */
-/* @import './../../../node_modules/highlight.js/styles/monokai-sublime.css'; */
-@import './../../../node_modules/highlight.js/styles/atelier-seaside-light.css';
 </style>

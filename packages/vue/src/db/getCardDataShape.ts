@@ -2,7 +2,7 @@ import { DataShape } from '../base-course/Interfaces/DataShape';
 import Courses from '../courses';
 import { NameSpacer } from '../courses/NameSpacer';
 import { CourseConfig } from '../server/types';
-import { log } from 'util';
+import { log } from '@/logshim';
 import { CardData, DisplayableData } from './types';
 import { getCourseDB } from './courseAPI';
 
