@@ -25,6 +25,7 @@ export default defineConfig({
       workbox: {
         cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2}'],
+        maximumFileSizeToCacheInBytes: 2.5 * 1024 * 1024,
       },
       manifest: {
         name: 'eduQuilt',
