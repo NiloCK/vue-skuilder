@@ -59,6 +59,7 @@
         "@typescript-eslint/eslint-plugin": "^8.20.0",
         "@typescript-eslint/parser": "^8.20.0",
         "@vue/cli-plugin-babel": "^5.0.8",
+        "@vue/cli-plugin-eslint": "^5.0.8",
         "@vue/cli-plugin-pwa": "^5.0.8",
         "@vue/cli-plugin-router": "^5.0.8",
         "@vue/cli-plugin-typescript": "^5.0.8",
@@ -73,6 +74,7 @@
         "babel-jest": "^29",
         "buffer": "^6.0.3",
         "eslint": "^9.18.0",
+        "eslint-config-prettier": "^10.0.1",
         "eslint-plugin-vue": "^9.32.0",
         "eslint-plugin-vuetify": "^2.5.1",
         "globals": "^15.14.0",
@@ -86,6 +88,7 @@
         "timers-browserify": "^2.0.12",
         "ts-jest": "^29",
         "typescript": "~5.7.2",
+        "typescript-eslint": "^8.20.0",
         "util": "^0.12.5",
         "webpack-plugin-vuetify": "^3.0.3"
     },
