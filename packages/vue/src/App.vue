@@ -3,28 +3,28 @@
     <v-navigation-drawer v-model="drawer" :elevation="2" permanent expand-on-hover>
       <v-list>
         <v-list-item to="/home" value="home">
-          <template v-slot:prepend>
+          <template #prepend>
             <v-icon icon="mdi-home"></v-icon>
           </template>
           <v-list-item-title>Home</v-list-item-title>
         </v-list-item>
 
         <v-list-item v-if="true" to="/study" value="study">
-          <template v-slot:prepend>
+          <template #prepend>
             <v-icon icon="mdi-school"></v-icon>
           </template>
           <v-list-item-title>Study</v-list-item-title>
         </v-list-item>
 
         <v-list-item v-if="true" to="/classrooms" value="classrooms">
-          <template v-slot:prepend>
+          <template #prepend>
             <v-icon icon="mdi-account-group"></v-icon>
           </template>
           <v-list-item-title>Classrooms</v-list-item-title>
         </v-list-item>
 
         <v-list-item v-if="true" to="/quilts" value="quilts">
-          <template v-slot:prepend>
+          <template #prepend>
             <v-icon icon="mdi-bookmark-multiple"></v-icon>
           </template>
           <v-list-item-title>Quilts</v-list-item-title>

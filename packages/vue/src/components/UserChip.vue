@@ -1,9 +1,9 @@
 <template>
-  <v-badge :content="items.length" :value="hasNewItems" color="accent" overlap>
+  <v-badge :content="items.length" :model-value="hasNewItems" color="accent" overlap>
     <v-menu offset-y transition="scale-transition">
-      <template v-slot:activator="{ on, attrs }">
-        <v-chip v-bind="attrs" v-on="on" class="ma-2">
-          <v-avatar left class="primary">
+      <template #activator="{ props }">
+        <v-chip v-bind="props" class="ma-2">
+          <v-avatar start class="bg-primary">
             <v-icon dark>mdi-school</v-icon>
           </v-avatar>
           {{ username }}

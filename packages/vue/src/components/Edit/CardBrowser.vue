@@ -3,11 +3,11 @@
     <CardViewer :view="views[viewIndex]" :data="data" :course_id="'[browsing]'" :card_id="'[browsing]'" />
     <br /><br />
     <div class="text-subtitle-1 pa-2">
-      <v-btn v-if="spinner" @click="decrementView" icon color="accent">
+      <v-btn v-if="spinner" icon color="accent" @click="decrementView">
         <v-icon>chevron_left</v-icon>
       </v-btn>
       {{ views[viewIndex].name }}
-      <v-btn v-if="spinner" @click="incrementView" icon color="accent">
+      <v-btn v-if="spinner" icon color="accent" @click="incrementView">
         <v-icon alt="Hello">chevron_right</v-icon>
       </v-btn>
     </div>

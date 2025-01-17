@@ -18,7 +18,7 @@ const fields: FieldDefinition[] = [
 ];
 
 const data = function() {
-  let ret: { a: number; b: number }[] = [];
+  const ret: { a: number; b: number }[] = [];
   for (let i = 0; i < 10; i++) {
     for (let j = 0; j < 10; j++) {
       ret.push({

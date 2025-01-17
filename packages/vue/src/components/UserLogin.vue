@@ -1,18 +1,19 @@
 <template>
   <v-card>
-    <v-card-title v-if="!loginRoute" class="text-h5 grey lighten-2">Log In</v-card-title>
+    <v-card-title v-if="!loginRoute" class="text-h5 bg-grey-lighten-2">Log In</v-card-title>
 
     <v-card-text>
       <v-form onsubmit="return false;">
         <v-text-field
+          id=""
+          v-model="username"
           autofocus
           name="name"
           label="Username"
-          id=""
-          v-model="username"
           prepend-icon="mdi-account-circle"
         ></v-text-field>
         <v-text-field
+          v-model="password"
           prepend-icon="mdi-lock"
           name="name"
           hover="Show password input"
@@ -20,18 +21,17 @@
           hint=""
           min="0"
           :append-icon="passwordVisible ? 'mdi-eye-off' : 'mdi-eye'"
-          @click:append="() => (passwordVisible = !passwordVisible)"
           :type="passwordVisible ? 'text' : 'password'"
-          v-model="password"
+          @click:append="() => (passwordVisible = !passwordVisible)"
         ></v-text-field>
 
-        <v-snackbar v-model="badLoginAttempt" bottom right :timeout="errorTimeout">
+        <v-snackbar v-model="badLoginAttempt" location="bottom right"  :timeout="errorTimeout">
           Username or password was incorrect.
           <v-btn color="pink" variant="text" @click="badLoginAttempt = false">Close</v-btn>
         </v-snackbar>
 
-        <v-btn class="mr-2" type="submit" :loading="awaitingResponse" @click="login" :color="buttonStatus.color">
-          <v-icon left>mdi-lock-open</v-icon>
+        <v-btn class="mr-2" type="submit" :loading="awaitingResponse" :color="buttonStatus.color" @click="login">
+          <v-icon start>mdi-lock-open</v-icon>
           Log In
         </v-btn>
         <router-link v-if="loginRoute" to="signup">

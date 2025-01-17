@@ -5,6 +5,7 @@ const { defineConfig } = require('@vue/cli-service');
 const { VuetifyPlugin } = require('webpack-plugin-vuetify');
 
 module.exports = defineConfig({
+  lintOnSave: false,
   // [ ] #vue3: remove this commented line after migration done
   // transpileDependencies: ['vuetify'], // Add this line for Vuetify 2.x... and remove for vuetify 3
   transpileDependencies: true,
@@ -14,7 +15,7 @@ module.exports = defineConfig({
       autoImport: true,
     },
   },
-  configureWebpack: config => {
+  configureWebpack: (config) => {
     console.log('[config] NODE_ENV:', process.env.NODE_ENV);
     console.log('[config] VUE_APP_MOCK:', process.env.VUE_APP_MOCK);
 

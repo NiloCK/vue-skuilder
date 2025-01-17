@@ -9,21 +9,21 @@
 
     <v-text-field
       ref="snippetEditor"
-      outlined
-      v-bind:readonly="!editingSnippet"
-      v-bind:counter="editingSnippet"
-      label="Brief tag description:"
       v-model="snippetModel"
+      variant="outlined"
+      :readonly="!editingSnippet"
+      :counter="editingSnippet"
+      label="Brief tag description:"
       placeholder="No snippet yet - add one!"
       type="text"
     >
-      <template v-slot:prepend>
+      <template #prepend>
         <span v-if="editingSnippet">
           <v-icon color="primary" @click="saveSnippet">mdi-content-save</v-icon>
         </span>
         <v-icon v-else color="primary" @click="editSnippet">mdi-pencil</v-icon>
       </template>
-      <template v-slot:append>
+      <template #append>
         <v-icon v-if="editingSnippet" @click="cancelEditSnippet">mdi-cancel</v-icon>
         <v-fade-transition leave-absolute>
           <!-- spinner while awaiting async write of edits -->
@@ -34,21 +34,21 @@
 
     <v-text-field
       ref="wikiEditor"
-      outlined
-      v-bind:readonly="!editingWiki"
-      v-bind:counter="editingWiki"
-      label="Extended tag description:"
       v-model="wikiModel"
+      variant="outlined"
+      :readonly="!editingWiki"
+      :counter="editingWiki"
+      label="Extended tag description:"
       placeholder="No wiki yet - consider adding one!"
       textarea
     >
-      <template v-slot:prepend>
+      <template #prepend>
         <span v-if="editingWiki">
           <v-icon color="primary" @click="saveWiki">mdi-content-save</v-icon>
         </span>
         <v-icon v-else color="primary" @click="editWiki">mdi-pencil</v-icon>
       </template>
-      <template v-slot:append>
+      <template #append>
         <v-icon v-if="editingWiki" @click="cancelEditWiki">mdi-cancel</v-icon>
         <v-fade-transition leave-absolute>
           <!-- spinner while awaiting async write of edits -->
@@ -57,7 +57,7 @@
       </template>
     </v-text-field>
 
-    <course-card-browser v-bind:_id="_courseId" v-bind:_tag="_id" />
+    <course-card-browser :_id="_courseId" :_tag="_id" />
   </div>
 </template>
 
@@ -121,6 +121,13 @@ export default defineComponent({
         moderators: [],
       } as CourseConfig,
     };
+  },
+
+  async created() {
+    this.tag = await getTag(this._courseId, this._id);
+    this.snippetModel = this.tag.snippet;
+    this.wikiModel = this.tag.wiki;
+    this.course = await getCredentialledCourseConfig(this._courseId);
   },
 
   methods: {
@@ -197,13 +204,6 @@ export default defineComponent({
       this.editingWiki = false;
       this.wikiModel = this.tag.wiki;
     },
-  },
-
-  async created() {
-    this.tag = await getTag(this._courseId, this._id);
-    this.snippetModel = this.tag.snippet;
-    this.wikiModel = this.tag.wiki;
-    this.course = await getCredentialledCourseConfig(this._courseId);
   },
 });
 </script>

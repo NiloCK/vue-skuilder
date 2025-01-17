@@ -18,7 +18,7 @@
       </template>
     </vue-tags-input> -->
 
-    <v-btn v-if="!hideSubmit" color="success" @click="submit" :loading="loading">Save Changes</v-btn>
+    <v-btn v-if="!hideSubmit" color="success" :loading="loading" @click="submit">Save Changes</v-btn>
   </div>
 </template>
 

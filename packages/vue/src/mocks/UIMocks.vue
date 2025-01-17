@@ -6,8 +6,8 @@
         course-id="preview"
         card-id="preview"
         session-order="1"
-        v-bind:view="flvCtr"
-        v-bind:data="[
+        :view="flvCtr"
+        :data="[
           {
             gameLength: 30,
             initialSpeed: 0.5,
@@ -36,10 +36,10 @@
     <div class="component">
       <h2>Letter Question</h2>
       <LetterQuestionView
-        v-bind:course-id="mockCourseId"
-        v-bind:card-id="mockCardId"
-        v-bind:modifyDifficulty="0"
-        v-bind:data="[{ letter: 'A' }]"
+        :course-id="mockCourseId"
+        :card-id="mockCardId"
+        :modify-difficulty="0"
+        :data="[{ letter: 'A' }]"
       />
     </div>
 
@@ -50,10 +50,10 @@
     <div class="component">
       <h2>Chess PuzzleView</h2>
       <PuzzleView
-        v-bind:course-id="mockCourseId"
-        v-bind:card-id="mockCardId"
-        v-bind:modifyDifficulty="0"
-        v-bind:data="[{ puzzleData: Math.random() > 0.5 ? puzzleBlack : puzzleWhite }]"
+        :course-id="mockCourseId"
+        :card-id="mockCardId"
+        :modify-difficulty="0"
+        :data="[{ puzzleData: Math.random() > 0.5 ? puzzleBlack : puzzleWhite }]"
       />
     </div>
 
@@ -76,7 +76,7 @@
       <h2>MediaUploader</h2>
       <media-uploader
         :autofocus="false"
-        :uiValidationFunction="() => true"
+        :ui-validation-function="() => true"
         :store="{}"
         :field="{
           name: 'MediaUploader',
@@ -93,7 +93,7 @@
       <h2>ImageInput</h2>
       <image-input
         :autofocus="false"
-        :uiValidationFunction="() => true"
+        :ui-validation-function="() => true"
         :field="{
           name: 'Image',
           type: 'image',
@@ -108,7 +108,7 @@
 
     <div class="component">
       <h2>SkTagsInput</h2>
-      <sk-tags-input :courseID="mockCourseId" :cardID="mockCardId" :hide-submit="false" />
+      <sk-tags-input :course-i-d="mockCourseId" :card-i-d="mockCardId" :hide-submit="false" />
     </div>
   </div>
 </template>

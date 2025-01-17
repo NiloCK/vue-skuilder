@@ -130,8 +130,8 @@ export function paragraphContainsComponent(t: marked.Token) {
 
 export function containsComponent(token: marked.Token) {
   if (token.type === 'text' || token.type === 'paragraph') {
-    let opening = token.raw.indexOf('{{');
-    let closing = token.raw.indexOf('}}');
+    const opening = token.raw.indexOf('{{');
+    const closing = token.raw.indexOf('}}');
 
     if (opening !== -1 && closing !== -1 && closing > opening) {
       return true;
@@ -208,7 +208,7 @@ export class BlanksCard extends Question {
       const text = splitText(token.text, '{{', '}}');
       const raw = splitText(token.raw, '{{', '}}');
 
-      let ret: marked.Tokens.Text[] = [];
+      const ret: marked.Tokens.Text[] = [];
 
       if (raw.left.length > 0) {
         ret.push({

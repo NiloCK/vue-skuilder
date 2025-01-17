@@ -1,5 +1,5 @@
 <template>
-  <v-btn @click="play" large icon v-bind:color="playing ? 'primary lighten-3' : 'primary'" :class="{ playing }">
+  <v-btn size="large" icon :color="playing ? 'primary lighten-3' : 'primary'" :class="{ playing }" @click="play">
     <v-icon>mdi-volume-high</v-icon>
   </v-btn>
 </template>

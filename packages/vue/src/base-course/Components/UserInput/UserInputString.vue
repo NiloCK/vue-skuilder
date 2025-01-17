@@ -2,16 +2,16 @@
   <v-text-field
     v-model="answer"
     :prepend-icon="prependIcon"
-    @keyup.enter="submitAnswer(answer)"
     :autofocus="autofocus"
     toggle-keys="[13,32]"
     type="text"
-    class="headline"
+    class="text-h5"
     single-line
     hide-details
     hide-headers
-    hide-overlay
     ref="input"
+    hide-overlay
+    @keyup.enter="submitAnswer(answer)"
   ></v-text-field>
 </template>
 

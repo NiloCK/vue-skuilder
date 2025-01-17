@@ -1,33 +1,33 @@
 <template>
   <div>
-    <label class="headline">Add media:</label>
+    <label class="text-h5">Add media:</label>
     <v-spacer></v-spacer>
 
-    <v-btn round color="primary" v-on:click="newImage">
-      <v-icon left>image</v-icon>
+    <v-btn rounded color="primary" @click="newImage">
+      <v-icon start>image</v-icon>
       Image
     </v-btn>
-    <v-btn round color="primary" v-on:click="newAudio">
-      <v-icon left>mic</v-icon>
+    <v-btn rounded color="primary" @click="newAudio">
+      <v-icon start>mic</v-icon>
       Audio
     </v-btn>
 
     <audio-input
-      v-bind:uiValidationFunction="uiValidationFunction"
       v-for="(a, i) in audio"
+      :key="'audio' + i"
+      :ui-validation-function="uiValidationFunction"
       :autofocus="false"
-      v-bind:key="'audio' + i"
-      v-bind:field="a.fieldDef"
-      v-bind:store="store"
+      :field="a.fieldDef"
+      :store="store"
     ></audio-input>
 
     <image-input
-      v-bind:uiValidationFunction="uiValidationFunction"
       v-for="(img, i) in image"
+      :key="'image' + i"
+      :ui-validation-function="uiValidationFunction"
       :autofocus="false"
-      v-bind:key="'image' + i"
-      v-bind:field="img.fieldDef"
-      v-bind:store="store"
+      :field="img.fieldDef"
+      :store="store"
     ></image-input>
   </div>
 </template>
@@ -42,7 +42,7 @@ import WaveSurfer from 'wavesurfer.js';
 import FieldInput from '../OptionsFieldInput';
 import AudioInput from './AudioInput.vue';
 import ImageInput from './ImageInput.vue';
-var MediaStreamRecorder = require('msr');
+const MediaStreamRecorder = require('msr');
 
 type MediaData = {
   data: Blob;

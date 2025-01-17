@@ -148,7 +148,7 @@ export class CourseDB implements StudyContentSource {
       keys: id,
       include_docs: true,
     });
-    let ret: CourseElo[] = [];
+    const ret: CourseElo[] = [];
     docs.rows.forEach((r) => {
       // [ ] remove these ts-ignore directives.
       // @ts-ignore
@@ -206,7 +206,7 @@ export class CourseDB implements StudyContentSource {
       keys: id,
       include_docs: true,
     });
-    let ret: { [card: string]: string[] } = {};
+    const ret: { [card: string]: string[] } = {};
     cards.rows.forEach((r) => {
       // @ts-ignore
       ret[r.id] = r.doc!.id_displayable_data;
@@ -339,9 +339,9 @@ export class CourseDB implements StudyContentSource {
     let cards = below.rows;
     cards = cards.concat(above.rows);
 
-    let ret = cards
+    const ret = cards
       .sort((a, b) => {
-        let s = Math.abs(a.key - elo) - Math.abs(b.key - elo);
+        const s = Math.abs(a.key - elo) - Math.abs(b.key - elo);
         if (s === 0) {
           return Math.random() - 0.5;
         } else {
@@ -367,7 +367,7 @@ above:\n${above.rows.map((r) => `\t${r.id}-${r.key}\n`)}`;
 // }
 
 export async function getCourseName(courseID: string): Promise<string> {
-  let ret = ((await courseLookupDB.get(courseID)) as any)['name'];
+  const ret = ((await courseLookupDB.get(courseID)) as any)['name'];
   // console.log(ret);
   return ret;
 }
@@ -394,7 +394,7 @@ export async function disambiguateCourse(course: string, disambiguator: string) 
   });
 }
 
-var courseListCache: CourseConfig[] = [];
+let courseListCache: CourseConfig[] = [];
 export async function getCachedCourseList(): Promise<CourseConfig[]> {
   if (courseListCache.length) {
     return courseListCache;

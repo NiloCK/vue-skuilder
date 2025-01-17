@@ -31,7 +31,7 @@ class ProperFraction {
   }
 
   reduce(): ProperFraction {
-    for (var i = 2; i <= this.num && i <= this.den; i++) {
+    for (let i = 2; i <= this.num && i <= this.den; i++) {
       if (this.num % i === 0 && this.den % i === 0) {
         const num = this.num / i;
         const den = this.den / i;
@@ -65,14 +65,14 @@ class ProperFraction {
       size = 100;
     }
 
-    var canvas = document.createElement('canvas');
+    const canvas = document.createElement('canvas');
     canvas.height = size;
     canvas.width = size;
-    var con = canvas.getContext('2d')!;
+    const con = canvas.getContext('2d')!;
 
-    var mid = size / 2;
-    var radius = mid * 0.9;
-    var angle = (2 * Math.PI) / this.den;
+    const mid = size / 2;
+    const radius = mid * 0.9;
+    const angle = (2 * Math.PI) / this.den;
 
     con.fillStyle = 'orange';
 
@@ -126,10 +126,10 @@ class ProperFraction {
       size = 100;
     }
 
-    var canvas = document.createElement('canvas');
+    const canvas = document.createElement('canvas');
     canvas.height = size;
     canvas.width = size;
-    var con = canvas.getContext('2d')!;
+    const con = canvas.getContext('2d')!;
 
     con.translate(size / 20, size / 20);
     size = 0.9 * size;

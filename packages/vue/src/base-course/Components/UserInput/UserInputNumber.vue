@@ -7,14 +7,14 @@
     /> -->
   <v-text-field
     v-model="answer"
+    ref="input"
     prepend-icon="edit"
-    @keyup.enter="submitAnswer(makeNumeric(answer))"
     :autofocus="autofocus"
     row-height="24"
     toggle-keys="[13,32]"
-    class="headline"
-    ref="input"
+    class="text-h5"
     :rules="[isNumeric]"
+    @keyup.enter="submitAnswer(makeNumeric(answer))"
   ></v-text-field>
 </template>
 

@@ -1,19 +1,19 @@
 <template>
   <div data-viewable="FillInView">
-    <audio-auto-player v-if="hasAudio" v-bind:src="audioURL" />
-    <img v-if="hasImage" v-bind:src="imageURL" />
+    <audio-auto-player v-if="hasAudio" :src="audioURL" />
+    <img v-if="hasImage" :src="imageURL" />
     <!-- Add v-if to prevent undefined markdown -->
-    <markdown-renderer v-if="markdownText" v-bind:md="markdownText" />
-    <radio-multiple-choice v-if="question?.options" v-bind:choiceList="truncatedOptions" />
-    <center v-else-if="priorAttempts == 1" class="title">
+    <markdown-renderer v-if="markdownText" :md="markdownText" />
+    <radio-multiple-choice v-if="question?.options" :choice-list="truncatedOptions" />
+    <center v-else-if="priorAttempts == 1" class="text-h6">
       <span>{{ obscuredAnswer }}</span>
     </center>
-    <center v-else-if="priorAttempts == 2" class="title">
+    <center v-else-if="priorAttempts == 2" class="text-h6">
       <span>{{ someAnswer }}</span>
     </center>
     <v-card-actions v-if="!isQuestion">
       <v-spacer></v-spacer>
-      <v-btn color="primary" @click="handleNext" autofocus="autofocus"> Next </v-btn>
+      <v-btn color="primary" autofocus="autofocus" @click="handleNext"> Next </v-btn>
     </v-card-actions>
   </div>
 </template>

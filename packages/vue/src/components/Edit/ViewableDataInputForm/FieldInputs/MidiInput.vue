@@ -1,21 +1,21 @@
 <template>
   <div>
     <div v-if="recording">
-      <span class="headline">
+      <span class="text-h5">
         Now Recording from device:
         <span class="font-weight-black">{{ midi.configuredInput }}</span>
       </span>
     </div>
-    <syllable-seq-vis ref="inputVis" v-if="true" :seq="SylSeq" lastTSsuggestion="5000" />
-    <v-btn color="primary" @click="play" :disabled="hasRecording()">
+    <syllable-seq-vis v-if="true" ref="inputVis" :seq="SylSeq" last-t-ssuggestion="5000" />
+    <v-btn color="primary" :disabled="hasRecording()" @click="play">
       Preview
-      <v-icon right>volume_up</v-icon>
+      <v-icon end>volume_up</v-icon>
     </v-btn>
-    <v-btn color="error" @click="reset" :disabled="hasRecording()">
+    <v-btn color="error" :disabled="hasRecording()" @click="reset">
       Clear and try again
-      <v-icon right>close</v-icon>
+      <v-icon end>close</v-icon>
     </v-btn>
-    <v-checkbox @click.capture="reset" label="Include Transpositions" v-model="transpositions"></v-checkbox>
+    <v-checkbox v-model="transpositions" label="Include Transpositions" @click.capture="reset"></v-checkbox>
   </div>
 </template>
 
@@ -31,10 +31,10 @@ import SyllableSeqVis from '../../../../courses/piano/utility/SyllableSeqVis.vue
 
 export default defineComponent({
   name: 'MidiInput',
-  extends: FieldInput,
   components: {
     SyllableSeqVis,
   },
+  extends: FieldInput,
 
   data() {
     return {

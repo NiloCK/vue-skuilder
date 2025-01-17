@@ -9,9 +9,9 @@
     </v-toolbar>
     <v-form>
       <v-container>
-        <v-row cols="12" sm="6" md="4">
+        <v-row class="cols sm md">
           <v-text-field
-            v-model="name"
+            v-model="courseName"
             counter="30"
             :rules="nameRules"
             label="Quilt Name"
@@ -19,10 +19,10 @@
             hint="Short and descriptive"
           ></v-text-field>
         </v-row>
-        <v-row cols="12" sm="6" md="4">
+        <v-row class="cols sm md">
           <v-textarea
             v-model="description"
-            outlined
+            variant="outlined"
             counter="300"
             auto-grow
             label="Quilt Description"
@@ -30,20 +30,20 @@
           >
           </v-textarea>
         </v-row>
-        <v-row cols="12" sm="6" md="4">
+        <v-row class="cols sm md">
           <label>Public or private quilt?</label>
           <v-radio-group
+            v-model="publicCourse"
             required
             hint="Private quilts can be shared and collaborated on with other individual users, but will not be accessable without an invitation. A private quilt can be made public later."
             persistent-hint
-            row
-            v-model="publicCourse"
+            inline
           >
             <v-radio label="Public" :value="true"></v-radio>
             <v-radio label="Private" :value="false"></v-radio>
           </v-radio-group>
         </v-row>
-        <v-row cols="12" sm="6" md="4">
+        <v-row class="cols sm md">
           <v-btn :loading="updatePending" color="primary" @click="submit"> Save Course Changes </v-btn>
         </v-row>
       </v-container>
@@ -74,6 +74,7 @@ export default defineComponent({
     return {
       mousetrap: new Mousetrap(this.$el),
       id: '',
+      courseName: '',
       description: '',
       publicCourse: false,
       deleted: false,
@@ -108,7 +109,7 @@ export default defineComponent({
       const u = await User.instance();
 
       const config: CourseConfig = {
-        name: this.name,
+        name: this.courseName,
         description: this.description,
         public: this.publicCourse,
         deleted: this.deleted,
@@ -128,13 +129,13 @@ export default defineComponent({
 
       if (result.response && result.response.ok) {
         alertUser({
-          text: `Course ${this.name} created.`,
+          text: `Course ${this.courseName} created.`,
           status: result.response!.status,
         });
         this.clearFormAndDismiss();
       } else {
         alertUser({
-          text: `Failed to create course ${this.name}.`,
+          text: `Failed to create course ${this.courseName}.`,
           status: result.response!.status,
         });
         console.warn(`Resp: ${JSON.stringify(result.response)}`);

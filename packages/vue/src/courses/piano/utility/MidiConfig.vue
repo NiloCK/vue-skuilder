@@ -1,17 +1,17 @@
 <template>
   <v-card>
-    <v-card-title class="headline grey lighten-2" primary-title> Configure Midi Device </v-card-title>
+    <v-card-title class="text-h5 bg-grey-lighten-2" primary-title> Configure Midi Device </v-card-title>
 
     <v-card-text>
       <v-form v-if="midiSupported" onsubmit="return false;">
         <v-select
-          :items="inputs"
           v-model="selectedInput"
+          :items="inputs"
           label="Select Input"
           hint="Play some notes on your input device to test the connection"
         ></v-select>
-        <v-select :items="outputs" v-model="selectedOutput" label="Select Output"></v-select>
-        <v-btn @click="saveSettings" :loading="updatePending"> Save these settings </v-btn>
+        <v-select v-model="selectedOutput" :items="outputs" label="Select Output"></v-select>
+        <v-btn :loading="updatePending" @click="saveSettings"> Save these settings </v-btn>
         <v-btn color="primary" @click="playSound">Test midi output</v-btn>
       </v-form>
       <div v-else>

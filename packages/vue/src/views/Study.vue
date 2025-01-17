@@ -1,9 +1,9 @@
 <template>
   <div v-if="!inSession">
     <SessionConfiguration
-      :startFcn="initStudySession"
-      :initialTimeLimit="sessionTimeLimit"
-      @update:timeLimit="(val) => (sessionTimeLimit = val)"
+      :start-fcn="initStudySession"
+      :initial-time-limit="sessionTimeLimit"
+      @update:time-limit="(val) => (sessionTimeLimit = val)"
     />
   </div>
   <div v-else>
@@ -13,7 +13,7 @@
           <span class="text-h5">
             Quilt preview for <em>{{ previewCourseConfig.name }}</em>
           </span>
-          <v-btn size="small" @click="registerUserForPreviewCourse" color="primary">Join</v-btn>
+          <v-btn size="small" color="primary" @click="registerUserForPreviewCourse">Join</v-btn>
           <router-link :to="`/quilts/${previewCourseConfig.courseID}`">
             <v-btn size="small" color="secondary">More info</v-btn>
           </router-link>
@@ -64,27 +64,27 @@
           :session-order="cardCount"
           :user_elo="user_elo(courseID)"
           :card_elo="card_elo"
-          @emitResponse="processResponse($event)"
+          @emit-response="processResponse($event)"
         />
       </div>
 
       <br />
       <div v-if="sessionController">
-        <span class="text-h5" v-for="i in sessionController.failedCount" :key="i">•</span>
+        <span v-for="i in sessionController.failedCount" :key="i" class="text-h5">•</span>
       </div>
 
       <div v-if="!sessionFinished && editTags">
         <p>Add tags to this card:</p>
-        <sk-tags-input :courseID="courseID" :cardID="cardID" />
+        <sk-tags-input :course-i-d="courseID" :card-i-d="cardID" />
       </div>
 
       <v-tooltip
+        v-model="timerIsActive"
         location="right"
         :open-delay="0"
         :close-delay="200"
         color="secondary"
         class="text-subtitle-1"
-        v-model="timerIsActive"
       >
         <template #activator="{ props }">
           <v-btn
@@ -126,8 +126,8 @@
           size="small"
           color="orange-darken-2"
           title="Edit tags on this card"
-          @click="editTags = !editTags"
           :loading="editCard"
+          @click="editTags = !editTags"
         >
           <v-icon>mdi-bookmark</v-icon>
         </v-btn>
@@ -186,16 +186,6 @@ export default defineComponent({
 
   ref: {} as StudyRefs,
 
-  inject: {
-    router: {
-      from: 'router',
-    },
-  },
-
-  emits: {
-    emitResponse: (response: CardRecord) => true,
-  },
-
   components: {
     CardViewer,
     CardLoader,
@@ -203,6 +193,12 @@ export default defineComponent({
     SkTagsInput,
     SessionConfiguration,
     HeatMap,
+  },
+
+  inject: {
+    router: {
+      from: 'router',
+    },
   },
 
   props: {
@@ -218,6 +214,10 @@ export default defineComponent({
       type: String,
       required: false,
     },
+  },
+
+  emits: {
+    emitResponse: (response: CardRecord) => true,
   },
 
   data() {

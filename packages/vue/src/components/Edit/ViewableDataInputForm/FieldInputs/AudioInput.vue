@@ -1,34 +1,34 @@
 <template>
   <div>
-    <label class="headline" v-bind:for="field.name">{{ title }}: </label>
+    <label class="text-h5" :for="field.name">{{ title }}: </label>
 
     <div>
       <v-btn-toggle mandatory multiple elevation-5>
-        <v-btn flat>
-          <v-icon v-bind:color="recording ? 'red' : null" v-on:click="record">mic</v-icon>
+        <v-btn variant="flat">
+          <v-icon :color="recording ? 'red' : null" @click="record">mic</v-icon>
         </v-btn>
-        <v-btn flat>
-          <v-icon v-on:click="stop">stop</v-icon>
+        <v-btn variant="flat">
+          <v-icon @click="stop">stop</v-icon>
         </v-btn>
-        <v-btn flat>
-          <v-icon v-on:click="play">play_arrow</v-icon>
+        <v-btn variant="flat">
+          <v-icon @click="play">play_arrow</v-icon>
         </v-btn>
 
-        <v-btn flat
+        <v-btn variant="flat"
           ><label>
             <input
+              :id="blobInputID"
               ref="inputField"
-              v-bind:id="blobInputID"
-              v-bind:name="field.name"
-              v-on:change="processInput"
+              :name="field.name"
               type="file"
-              v-bind:class="validationStatus.status"
+              :class="validationStatus.status"
+              @change="processInput"
             />
             <span>Upload</span><v-icon>folder</v-icon>
           </label>
         </v-btn>
       </v-btn-toggle>
-      <div v-bind:id="waveSurferId"></div>
+      <div :id="waveSurferId"></div>
     </div>
   </div>
 </template>

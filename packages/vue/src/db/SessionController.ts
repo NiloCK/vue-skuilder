@@ -205,7 +205,7 @@ export default class SessionController extends Loggable {
       )
     );
 
-    let dueCards: (StudySessionReviewItem & ScheduledCard)[] = [];
+    const dueCards: (StudySessionReviewItem & ScheduledCard)[] = [];
 
     while (reviews.length != 0 && reviews.some((r) => r.length > 0)) {
       // pick a random review source

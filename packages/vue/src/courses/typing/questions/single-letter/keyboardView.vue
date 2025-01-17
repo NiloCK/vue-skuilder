@@ -1,6 +1,6 @@
 <template>
   <div data-viewable="KeyboardQuestionView">
-    <p class="headline">Type this letter!</p>
+    <p class="text-h5">Type this letter!</p>
     <div class="keyboard">
       <!-- Row 1: Q to P -->
       <div class="keyboard-row">

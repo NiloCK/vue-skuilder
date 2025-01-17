@@ -3,7 +3,7 @@ import 'mousetrap/plugins/global-bind/mousetrap-global-bind.js';
 import { ExtendedKeyboardEvent, MousetrapInstance } from 'mousetrap';
 
 export interface HotKey extends HotKeyMetaData {
-  callback: (e: ExtendedKeyboardEvent, combo: String) => any;
+  callback: (e: ExtendedKeyboardEvent, combo: string) => any;
 }
 export interface HotKeyMetaData {
   command: string;

@@ -1,7 +1,7 @@
 <template>
   <div data-viewable="LetterQuestionView">
     <template v-if="question">
-      <p class="headline">Type this letter!</p>
+      <p class="text-h5">Type this letter!</p>
       <div ref="letterDisplay" class="letter-display">{{ question.letter }}</div>
     </template>
   </div>

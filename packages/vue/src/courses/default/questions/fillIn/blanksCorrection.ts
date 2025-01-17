@@ -3,7 +3,7 @@
 function gradeSpellingAttempt(attempt: string, answer: string): string {
   // attempt = attempt.trim();
   const result: string[] = new Array(answer.length).fill('_');
-  let attemptChars = attempt.split('');
+  const attemptChars = attempt.split('');
 
   console.log(attempt, answer);
 

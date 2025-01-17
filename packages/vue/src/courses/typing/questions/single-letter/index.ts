@@ -8,7 +8,7 @@ import { Status } from '@/enums/Status';
 import LetterQuestionView from './typeSingleLetter.vue';
 
 const data = function() {
-  let ret: { letter: string }[] = [];
+  const ret: { letter: string }[] = [];
   for (let i = 0; i < 26; i++) {
     ret.push({
       letter: String.fromCharCode(65 + i),
@@ -76,7 +76,7 @@ export class TypeLetterQuestion extends Question {
   }
 
   isCorrect(a: Answer) {
-    let isCorrect = (a as string).toLowerCase() === this.letter.toLowerCase();
+    const isCorrect = (a as string).toLowerCase() === this.letter.toLowerCase();
     console.log(`singleLetter Q isCorrect: ${isCorrect}`);
     return isCorrect;
   }

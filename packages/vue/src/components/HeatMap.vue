@@ -72,7 +72,7 @@ export default defineComponent({
     console.log('Heatmap created');
     const history = await (await User.instance()).getHistory();
 
-    let allHist: CardHistory<CardRecord>[] = [];
+    const allHist: CardHistory<CardRecord>[] = [];
     for (let i = 0; i < history.length; i++) {
       if (history[i]) {
         allHist.push(history[i]!);
@@ -106,7 +106,7 @@ export default defineComponent({
     createWeeksData() {
       const end = moment();
       const start = end.clone().subtract(52, 'weeks');
-      let day = start.clone().startOf('week');
+      const day = start.clone().startOf('week');
 
       while (day.isSameOrBefore(end)) {
         const weekData: DayData[] = [];

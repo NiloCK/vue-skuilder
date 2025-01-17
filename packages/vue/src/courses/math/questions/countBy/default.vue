@@ -1,6 +1,6 @@
 <template>
-  <div data-viewable="VerbalAddition" class="headline">
-    <div class="headline">
+  <div data-viewable="VerbalAddition" class="text-h5">
+    <div class="text-h5">
       Count by <strong>{{ question?.n }}</strong
       >s:
     </div>
@@ -9,12 +9,12 @@
 
     <span v-for="(a, i) in question?.answer" :key="i">
       <input
-        type="text"
         :id="`input${i}`"
         :ref="`input${i}`"
-        @keyup="track(i)"
         v-model="answer[i]"
+        type="text"
         :autofocus="i === 0"
+        @keyup="track(i)"
       />
       <span v-if="i !== question?.answer.length - 1">, </span>
     </span>

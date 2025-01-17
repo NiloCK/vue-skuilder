@@ -1,14 +1,14 @@
 <template>
   <v-text-field
     ref="inputField"
-    box
-    type="number"
     v-model="store[field.name]"
-    v-bind:name="field.name"
-    v-bind:label="field.name"
-    v-bind:rules="vuetifyRules()"
-    v-bind:autofocus="autofocus"
-    v-on:input="() => validate()"
+    variant="filled"
+    type="number"
+    :name="field.name"
+    :label="field.name"
+    :rules="vuetifyRules()"
+    :autofocus="autofocus"
+    @update:model-value="() => validate()"
   />
 </template>
 
