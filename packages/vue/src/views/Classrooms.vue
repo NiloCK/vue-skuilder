@@ -97,7 +97,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import serverRequest from '@/server/index';
-import { ServerRequestType, JoinClassroom, CreateClassroom, LeaveClassroom } from '@/server/types';
+import { ServerRequestType, JoinClassroom, CreateClassroom, LeaveClassroom, DeleteClassroom } from '@/server/types';
 import { alertUser } from '@/components/SnackbarService.vue';
 import { Status } from '@/enums/Status';
 import { log } from 'util';
@@ -112,13 +112,13 @@ interface CourseReg {
 }
 
 export default defineComponent({
-  name: 'Classroom',
+  name: 'ClassroomsView',
 
   components: {
     ClassroomEditor,
   },
 
-  beforeRouteEnter(to: any, from: any, next: () => void) {
+  beforeRouteEnter(to, from, next) {
     // todo ?
     // See https://router.vuejs.org/guide/advanced/data-fetching.html#fetching-before-navigation
     // this.refreshData().then(() => {
@@ -170,17 +170,28 @@ export default defineComponent({
     },
 
     async deleteClass(classId: string) {
-      const result = await serverRequest({
+      const result = await serverRequest<DeleteClassroom>({
         type: ServerRequestType.DELETE_CLASSROOM,
         user: this.user?.username || '',
         classID: classId,
         response: null,
       });
+      if (result.response && result.response.ok) {
+        alertUser({
+          text: `Class deleted successfully.`,
+          status: Status.ok,
+        });
+      } else {
+        alertUser({
+          text: `Failed to delete class. Please try again.`,
+          status: Status.error,
+        });
+      }
     },
 
     async leaveClass(classID: string) {
       this.spinnerMap[classID] = true;
-      log(`Attempting to drop class: ${classID}`);
+      console.log(`Attempting to drop class: ${classID}`);
 
       const result = await serverRequest<LeaveClassroom>({
         type: ServerRequestType.LEAVE_CLASSROOM,

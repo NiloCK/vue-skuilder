@@ -1,5 +1,5 @@
-import { adjustCourseScores, CourseElo, toCourseElo } from '@/tutor/Elo';
 import gradeSpellingAttempt from '@/courses/default/questions/fillIn/blanksCorrection';
+import { adjustCourseScores } from '@/tutor/Elo';
 
 const testScore = 800;
 
@@ -21,8 +21,8 @@ describe('adjustScores', () => {
       },
     ];
 
-    elos.forEach(a => {
-      elos.forEach(b => {
+    elos.forEach((a) => {
+      elos.forEach((b) => {
         const adjusted = adjustCourseScores(a, b, 0.5);
 
         expect(adjusted.cardElo.global.score).not.toBeNull();
@@ -62,7 +62,7 @@ describe('gradeSpellingEvent', () => {
     // chuck
     { attempt: 'chuk', answer: 'chuck', expected: 'c h u _ k' },
   ];
-  cases.forEach(c => {
+  cases.forEach((c) => {
     it(`grades attempt [${c.attempt}] for answer [${c.answer}]`, () => {
       const result = gradeSpellingAttempt(c.attempt, c.answer);
       const joined = result.split(' ').join('');

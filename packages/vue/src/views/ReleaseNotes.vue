@@ -11,7 +11,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { log } from 'util';
 
 export default defineComponent({
   name: 'ReleaseNotes',

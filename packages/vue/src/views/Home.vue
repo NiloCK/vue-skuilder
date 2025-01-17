@@ -19,9 +19,7 @@
 </template>
 
 <script lang="ts">
-import UserLogin from '../components/UserLogin.vue';
 import TextSwap from '@/components/TextSwap.vue';
-import { Status } from '@/enums/Status';
 import { defineComponent } from 'vue';
 import { useDisplay } from 'vuetify';
 import { ITextSwap } from '@/components/TextSwap.vue';
@@ -36,10 +34,9 @@ interface Data {
 }
 
 export default defineComponent({
-  name: 'Home',
+  name: 'HomeView',
 
   components: {
-    UserLogin,
     TextSwap,
   },
 

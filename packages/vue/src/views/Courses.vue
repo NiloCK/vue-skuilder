@@ -77,9 +77,7 @@
 import { defineComponent } from 'vue';
 import CourseEditor from '@/components/Courses/CourseEditor.vue';
 import CourseStubCard from '@/components/Courses/CourseStubCard.vue';
-import CourseList from '../courses';
 import _ from 'lodash';
-import { log } from 'util';
 import serverRequest from '../server';
 import { ServerRequestType, CourseConfig } from '../server/types';
 import { alertUser } from '../components/SnackbarService.vue';
@@ -89,7 +87,7 @@ import { User } from '../db/userDB';
 type DBCourseConfig = CourseConfig & PouchDB.Core.IdMeta;
 
 export default defineComponent({
-  name: 'Courses',
+  name: 'CoursesView',
 
   components: {
     CourseEditor,
@@ -169,7 +167,7 @@ export default defineComponent({
     },
 
     async refreshData(): Promise<void> {
-      log(`Pulling user course data...`);
+      console.log(`Pulling user course data...`);
       const userCourseIDs = (await this.user!.getRegisteredCourses())
         .filter((c) => {
           return c.status === 'active' || c.status === 'maintenance-mode' || c.status === undefined;
@@ -230,7 +228,7 @@ export default defineComponent({
 
     async addCourse(course: string): Promise<void> {
       this.spinnerMap[course] = true;
-      log(`Attempting to register for ${course}.`);
+      console.log(`Attempting to register for ${course}.`);
       await this.user?.registerForCourse(course);
       delete this.spinnerMap[course];
       this.refreshData();
@@ -238,7 +236,7 @@ export default defineComponent({
 
     async dropCourse(course: string): Promise<void> {
       this.spinnerMap[course] = true;
-      log(`Attempting to drop ${course}.`);
+      console.log(`Attempting to drop ${course}.`);
       await this.user?.dropCourse(course);
       delete this.spinnerMap[course];
       this.refreshData();

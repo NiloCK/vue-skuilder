@@ -39,7 +39,7 @@ interface Language {
 }
 
 export default defineComponent({
-  name: 'User',
+  name: 'UserSettings',
 
   props: {
     _id: {
