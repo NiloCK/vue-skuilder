@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { VitePWA } from 'vite-plugin-pwa';
+import eslint from 'vite-plugin-eslint';
 import { fileURLToPath, URL } from 'node:url';
 
 // https://vitejs.dev/config/
@@ -33,6 +34,13 @@ export default defineConfig({
           // Add your icons here
         ],
       },
+    }),
+    eslint({
+      failOnError: false,
+      failOnWarning: false,
+      cache: false,
+      include: ['src/**/*.js', 'src/**/*.vue', 'src/**/*.ts'], // Files to include
+      exclude: ['node_modules'], // Files to exclude
     }),
   ],
   resolve: {

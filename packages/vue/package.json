@@ -87,6 +87,7 @@
         "typescript-eslint": "^8.20.0",
         "util": "^0.12.5",
         "vite": "^6.0.7",
+        "vite-plugin-eslint": "^1.8.1",
         "vite-plugin-pwa": "^0.21.1",
         "webpack-plugin-vuetify": "^3.0.3"
     },
