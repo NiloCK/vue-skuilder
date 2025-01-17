@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { log } from 'util';
+import { log } from '@/logshim';
 import confetti from 'canvas-confetti';
 import { User } from '@/db/userDB';
 

@@ -5,7 +5,7 @@ import { UserConfig } from '../stores/useConfigStore';
 import { CourseElo } from '../tutor/Elo';
 import moment, { Moment } from 'moment';
 import pouch from 'pouchdb-browser';
-import { log } from 'util';
+import { log } from '@/logshim';
 import { getCourseConfigs } from './courseDB';
 import {
   filterAllDocsByPrefix,

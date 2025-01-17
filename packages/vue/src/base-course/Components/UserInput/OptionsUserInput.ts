@@ -1,5 +1,5 @@
 import { useCardPreviewModeStore } from '@/stores/useCardPreviewModeStore';
-import { log } from 'util';
+import { log } from '@/logshim';
 import { defineComponent } from 'vue';
 import { Answer, Question, ViewComponent } from '../../../base-course/Displayable';
 // import { QuestionView } from '../../../base-course/CompositionViewable';

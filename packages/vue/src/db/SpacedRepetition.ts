@@ -1,6 +1,5 @@
 import { areQuestionRecords, CardHistory, CardRecord, QuestionRecord } from '../db/types';
 import moment from 'moment';
-import { log } from 'util';
 import { User } from './userDB';
 
 type Moment = moment.Moment;
@@ -38,7 +37,7 @@ function newQuestionInterval(cardHistory: CardHistory<QuestionRecord>) {
 
   if (currentAttempt.isCorrect) {
     const skill = currentAttempt.performance as number;
-    log(`Demontrated skill: \t${skill}`);
+    console.log(`Demontrated skill: \t${skill}`);
     const interval: number = lastInterval * (0.75 + skill);
     cardHistory.lapses = getLapses(cardHistory.records);
     cardHistory.streak = getStreak(cardHistory.records);
@@ -77,7 +76,7 @@ function lastSuccessfulInterval(cardHistory: QuestionRecord[]): number {
     if (cardHistory[i].priorAttemps === 0 && cardHistory[i].isCorrect) {
       const lastInterval = secondsBetween(cardHistory[i - 1].timeStamp, cardHistory[i].timeStamp);
       const ret = Math.max(lastInterval, 20 * 60 * 60);
-      log(`Last interval w/ this card was: ${lastInterval}s, returning ${ret}s`);
+      console.log(`Last interval w/ this card was: ${lastInterval}s, returning ${ret}s`);
       return ret;
     }
   }
@@ -135,6 +134,6 @@ function secondsBetween(start: Moment, end: Moment): number {
   start = moment(start);
   end = moment(end);
   const ret = duration(end.diff(start)).asSeconds();
-  // log(`From start: ${start} to finish: ${end} is ${ret} seconds`);
+  // console.log(`From start: ${start} to finish: ${end} is ${ret} seconds`);
   return ret;
 }

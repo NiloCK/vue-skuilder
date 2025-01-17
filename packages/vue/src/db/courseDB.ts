@@ -1,7 +1,7 @@
 import _ from 'lodash';
 // @ts-ignore
 import pouch from 'pouchdb-browser';
-import { log } from 'util';
+import { log } from '@/logshim';
 import { filterAllDocsByPrefix, getCourseDB } from '.';
 import ENV from '../ENVIRONMENT_VARS';
 import { CourseConfig } from '../server/types';

@@ -12,7 +12,7 @@ import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
-import { log } from 'util';
+import { log } from '@/logshim';
 import { getUserDB, ScheduledCard, User } from './userDB';
 
 (window as any).process = process; // required as a fix for pouchdb - see #18

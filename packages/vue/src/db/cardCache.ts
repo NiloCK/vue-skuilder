@@ -1,5 +1,5 @@
 // import { remote } from './';
-import { log } from 'util';
+import { log } from '@/logshim';
 import pouch from 'pouchdb-browser';
 
 class LocalCache {
@@ -34,14 +34,14 @@ class LocalCache {
       live: true,
     });
 
-    rep.on('complete', async info => {
+    rep.on('complete', async (info) => {
       const doc = await this.getDoc<
         PouchDB.Core.Document<{
           [index: string]: any;
         }>
       >(_id);
 
-      Object.keys(doc).forEach(key => {
+      Object.keys(doc).forEach((key) => {
         if (key.indexOf('id_') === 0) {
           const k: any = doc[key];
         }
@@ -50,7 +50,7 @@ class LocalCache {
       for (const field in doc) {
         if (field.indexOf('id_') === 0) {
           if ((doc as object).hasOwnProperty(field)) {
-            const id: string = (doc[field] as any) as string;
+            const id: string = doc[field] as any as string;
 
             this.cacheDoc(id);
           }
@@ -64,7 +64,7 @@ class LocalCache {
       await this.local.allDocs({
         include_docs: false,
       })
-    ).rows.map(row => {
+    ).rows.map((row) => {
       return row.id;
     });
   }

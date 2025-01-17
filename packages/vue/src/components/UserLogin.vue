@@ -25,7 +25,7 @@
           @click:append="() => (passwordVisible = !passwordVisible)"
         ></v-text-field>
 
-        <v-snackbar v-model="badLoginAttempt" location="bottom right"  :timeout="errorTimeout">
+        <v-snackbar v-model="badLoginAttempt" location="bottom right" :timeout="errorTimeout">
           Username or password was incorrect.
           <v-btn color="pink" variant="text" @click="badLoginAttempt = false">Close</v-btn>
         </v-snackbar>
@@ -47,7 +47,7 @@
 import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { alertUser } from '@/components/SnackbarService.vue';
-import { log } from 'util';
+import { log } from '@/logshim';
 import { Status } from '@/enums/Status';
 import { User } from '@/db/userDB';
 import { useAuthStore } from '@/stores/useAuthStore';

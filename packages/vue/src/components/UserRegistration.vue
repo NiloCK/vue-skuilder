@@ -43,7 +43,7 @@
             <v-checkbox label="Teacher" v-model="teacher" ></v-checkbox>
             <v-checkbox label="Author" v-model="author" ></v-checkbox> -->
 
-        <v-snackbar v-model="badLoginAttempt" location="bottom right"  :timeout="5000">
+        <v-snackbar v-model="badLoginAttempt" location="bottom right" :timeout="5000">
           Username or password was incorrect.
           <v-btn color="pink" variant="text" @click="badLoginAttempt = false"> Close </v-btn>
         </v-snackbar>
@@ -63,7 +63,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { doesUserExist, User } from '@/db/userDB';
-import { log } from 'util';
+import { log } from '@/logshim';
 import { alertUser } from './SnackbarService.vue';
 import { Status } from '../enums/Status';
 import { useAuthStore } from '@/stores/useAuthStore';

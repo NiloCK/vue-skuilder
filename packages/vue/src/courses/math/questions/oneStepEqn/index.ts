@@ -6,7 +6,7 @@ import { FieldType } from '../../../../enums/FieldType';
 import { Status } from '../../../../enums/Status';
 import { Validator } from '../../../../base-course/Interfaces/Validator';
 import Solve from './solve.vue';
-import { log } from 'util';
+import { log } from '@/logshim';
 
 const validator = {
   instructions: 'An integer between 0 and 10, inclusive.',

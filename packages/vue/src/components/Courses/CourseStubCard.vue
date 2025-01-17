@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { log } from 'util';
+import { log } from '@/logshim';
 import { getCourseDB } from '@/db';
 import { getCourseConfig } from '@/db/courseDB';
 import { DocType } from '@/db/types';
