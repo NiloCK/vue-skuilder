@@ -15,11 +15,13 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       // events: 'events-browserify',
-      events: 'node-events',
+      events: 'events',
+      'pouchdb-browser': 'pouchdb-browser/lib/index.js',
+      'pouchdb-find': 'pouchdb-find/lib/index.js',
     },
     extensions: ['.js', '.ts', '.json', '.vue'],
   },
   optimizeDeps: {
-    include: ['events-browserify'],
+    include: ['events', 'pouchdb-browser', 'pouchdb-find', 'pouchdb-authentication'],
   },
 });
