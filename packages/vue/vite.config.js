@@ -14,7 +14,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      events: 'events-browserify',
+      // events: 'events-browserify',
+      events: 'node-events',
     },
     extensions: ['.js', '.ts', '.json', '.vue'],
   },

@@ -4898,6 +4898,11 @@ node-addon-api@^7.0.0:
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-7.1.1.tgz#1aba6693b0f255258a049d621329329322aad558"
   integrity sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==
 
+node-events@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/node-events/-/node-events-0.0.2.tgz#6171dd01124839ce4d2b50ab3d9db6c9ae953410"
+  integrity sha512-wk5g7b1cj3ty1o6RqY79S1yX7zlKIwuMkCeJ9V/tphpgV2xZ7av39CInwBMioPDWwU1gSByLwMTILnqwOx2wtg==
+
 node-fetch@2.6.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.0.tgz#e633456386d4aa55863f676a7ab0daa8fdecb0fd"
