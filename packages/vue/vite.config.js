@@ -6,6 +6,9 @@ import { fileURLToPath, URL } from 'node:url';
 export default defineConfig({
   define: {
     global: 'window',
+    'process.env': process.env,
+    'process.browser': true,
+    'process.version': JSON.stringify(process.version),
   },
   plugins: [vue()],
   resolve: {
