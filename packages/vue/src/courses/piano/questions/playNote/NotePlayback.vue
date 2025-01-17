@@ -6,8 +6,8 @@
 
     <svg
       v-if="graded"
-      width="300px"
       id="svg8"
+      width="300px"
       height="auto"
       xmlns:dc="http://purl.org/dc/elements/1.1/"
       xmlns:cc="http://creativecommons.org/ns#"
@@ -23,6 +23,7 @@
     >
       <defs id="defs2" />
       <sodipodi:namedview
+        id="base"
         inkscape:window-maximized="1"
         inkscape:window-y="726"
         inkscape:window-x="1491"
@@ -31,7 +32,6 @@
         showborder="false"
         showgrid="false"
         inkscape:document-rotation="0"
-        id="base"
         inkscape:current-layer="layer1"
         inkscape:document-units="mm"
         inkscape:cy="255.88343"

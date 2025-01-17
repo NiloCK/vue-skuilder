@@ -1,5 +1,6 @@
 <template>
   <v-text-field
+    ref="input"
     v-model="answer"
     :prepend-icon="prependIcon"
     :autofocus="autofocus"
@@ -9,7 +10,6 @@
     single-line
     hide-details
     hide-headers
-    ref="input"
     hide-overlay
     @keyup.enter="submitAnswer(answer)"
   ></v-text-field>

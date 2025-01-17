@@ -6,8 +6,8 @@
         @keyup.enter="submitAnswer(strToNumber(answer))"
     /> -->
   <v-text-field
-    v-model="answer"
     ref="input"
+    v-model="answer"
     prepend-icon="edit"
     :autofocus="autofocus"
     row-height="24"
