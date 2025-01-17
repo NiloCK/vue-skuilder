@@ -4,6 +4,9 @@ import { fileURLToPath, URL } from 'node:url';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  define: {
+    global: 'window',
+  },
   plugins: [vue()],
   resolve: {
     alias: {
@@ -15,8 +18,4 @@ export default defineConfig({
   optimizeDeps: {
     include: ['events-browserify'],
   },
-
-  // define: {
-  //   'process.env': process.env,
-  // },
 });
