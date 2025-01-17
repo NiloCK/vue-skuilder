@@ -37,8 +37,9 @@
     <v-card class="my-2">
       <v-toolbar density="compact">
         <v-toolbar-title>Tags</v-toolbar-title>
-        <v-spacer></v-spacer>
-        {{ tags.length }}
+        <v-toolbar-items>
+          <v-btn variant="text">{{ tags.length }}</v-btn>
+        </v-toolbar-items>
       </v-toolbar>
       <v-card-text>
         <span v-for="(tag, i) in tags" :key="i">
