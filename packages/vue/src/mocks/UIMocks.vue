@@ -5,7 +5,7 @@
       <CardViewer
         course-id="preview"
         card-id="preview"
-        session-order="1"
+        :session-order="1"
         :view="flvCtr"
         :data="[
           {
@@ -120,7 +120,7 @@ import ImageInput from '@/components/Edit/ViewableDataInputForm/FieldInputs/Imag
 import MediaUploader from '@/components/Edit/ViewableDataInputForm/FieldInputs/MediaUploader.vue';
 import HeatMap from '@/components/HeatMap.vue';
 import PuzzleView from '@/courses/chess/questions/puzzle/puzzle.vue';
-import ChessPieceMove from '@/courses/chess/questions/piecemove/piece-move.vue';
+// import ChessPieceMove from '@/courses/chess/questions/piecemove/piece-move.vue';
 import FillInView from '@/courses/default/questions/fillIn/fillIn.vue';
 import { BlanksCardDataShapes } from '@/courses/default/questions/fillIn/index';
 import { ChessPuzzle } from '@/courses/chess/questions/puzzle/index';

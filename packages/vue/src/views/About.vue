@@ -20,7 +20,7 @@ import { SingleDigitMultiplicationQuestion } from '@/courses/math/questions/mult
 import { randomInt } from '@/courses/math/utility';
 
 export default defineComponent({
-  name: 'About',
+  name: 'AboutView',
   components: {},
   data() {
     return {

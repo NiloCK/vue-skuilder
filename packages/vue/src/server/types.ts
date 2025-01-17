@@ -116,7 +116,7 @@ export interface AddCourseDataPayload {
   courseID: string;
   codeCourse: string;
   shape: DataShape;
-  data: any;
+  data: unknown;
   author: string;
   tags: string[];
   uploads?: { [x: string]: PouchDB.Core.FullAttachment };

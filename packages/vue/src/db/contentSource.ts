@@ -20,7 +20,7 @@ export interface StudySessionReviewItem extends StudySessionItem {
   status: 'review' | 'failed-review';
 }
 export function isReview(item: StudySessionItem): item is StudySessionReviewItem {
-  const ret = item.status === 'review' || item.status === 'failed-review' || (item as any).reviewID;
+  const ret = item.status === 'review' || item.status === 'failed-review' || 'reviewID' in item;
 
   // console.log(`itemIsReview: ${ret}
   // \t${JSON.stringify(item)}`);

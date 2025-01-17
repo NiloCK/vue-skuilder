@@ -52,7 +52,7 @@
       <v-col cols="12" class="mt-4">
         <h2 class="text-h5 mb-3">Available Quilts</h2>
         <v-row>
-          <v-col v-for="(course, index) in displayedAvailableCourses" :key="course._id" cols="12" sm="6" md="4" lg="3">
+          <v-col v-for="course in displayedAvailableCourses" :key="course._id" cols="12" sm="6" md="4" lg="3">
             <course-stub-card :_id="course._id" @refresh="refreshData" />
           </v-col>
         </v-row>
@@ -68,7 +68,7 @@
 
     <!-- New Course Dialog -->
     <v-dialog v-model="newCourseDialog" fullscreen transition="dialog-bottom-transition" :scrim="false">
-      <course-editor @course-editing-complete="processResponse($event)" />
+      <course-editor @course-editing-complete="processResponse()" />
     </v-dialog>
   </v-container>
 </template>
@@ -157,7 +157,7 @@ export default defineComponent({
   },
 
   methods: {
-    processResponse(event: string): void {
+    processResponse(): void {
       this.newCourseDialog = false;
       this.refreshData();
     },

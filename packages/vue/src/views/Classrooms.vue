@@ -97,10 +97,9 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import serverRequest from '@/server/index';
-import { ServerRequestType, JoinClassroom, CreateClassroom, LeaveClassroom, DeleteClassroom } from '@/server/types';
+import { ServerRequestType, JoinClassroom, LeaveClassroom, DeleteClassroom } from '@/server/types';
 import { alertUser } from '@/components/SnackbarService.vue';
 import { Status } from '@/enums/Status';
-import { log } from 'util';
 import ClassroomEditor from '@/components/Classrooms/CreateClassroom.vue';
 import { registerUserForClassroom, getUserClassrooms, dropUserFromClassroom } from '../db/userDB';
 import { getClassroomConfig } from '../db/classroomDB';
@@ -152,7 +151,7 @@ export default defineComponent({
 
       registrations.forEach(async (reg) => {
         const cfg = await getClassroomConfig(reg.classID);
-        log(`Registered class: ${JSON.stringify(cfg)}`);
+        console.log(`Registered class: ${JSON.stringify(cfg)}`);
         const regItem = {
           _id: reg.classID,
           name: cfg.name,
@@ -224,7 +223,7 @@ export default defineComponent({
       });
 
       if (result.response && result.response.ok) {
-        log(`Adding registration to userDB...`);
+        console.log(`Adding registration to userDB...`);
         if (this.user) {
           await registerUserForClassroom(this.user.username, result.response!.id_course, 'student');
           alertUser({

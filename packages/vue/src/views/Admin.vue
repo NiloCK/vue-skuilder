@@ -62,12 +62,11 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { log } from 'util';
 import AdminDB from '../db/adminDB';
 import { GuestUsername } from '../stores/useAuthStore';
 
 export default defineComponent({
-  name: 'Admin',
+  name: 'AdminView',
 
   data() {
     return {

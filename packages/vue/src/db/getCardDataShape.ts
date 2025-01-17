@@ -9,15 +9,15 @@ import { getCourseDB } from './courseAPI';
 export async function getCardDataShape(courseID: string, cardID: string) {
   const dataShapes: DataShape[] = [];
   Courses.courses.forEach((course) => {
-    course.questions.forEach((question: any) => {
-      question.dataShapes.forEach((ds: any) => {
+    course.questions.forEach((question) => {
+      question.dataShapes.forEach((ds) => {
         dataShapes.push(ds);
       });
     });
   });
 
   // log(`Datashapes: ${JSON.stringify(dataShapes)}`);
-  const db = await getCourseDB(courseID);
+  const db = getCourseDB(courseID);
   const card = await db.get<CardData>(cardID);
   const disp = await db.get<DisplayableData>(card.id_displayable_data[0]);
   const cfg = await db.get<CourseConfig>('CourseConfig');

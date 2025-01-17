@@ -10,7 +10,6 @@ import {
 import { Loggable } from './Loggable';
 import { CardRecord } from './types';
 import { ScheduledCard, User } from './userDB';
-import { CourseDB } from './courseDB';
 
 export interface StudySessionRecord {
   card: {

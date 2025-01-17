@@ -1,6 +1,3 @@
-import { Store } from 'vuex';
-import { AppState } from '../store';
-
 declare module 'vuetify/lib' {
   import Vuetify from 'vuetify';
   export default Vuetify;
