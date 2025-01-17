@@ -2,34 +2,39 @@
   <div v-if="hasRegistrations">
     <div class="text-h4">Select your quilts</div>
     <table width="100%">
-      <th>
-        <v-checkbox
-          id="SelectAll"
-          ref="selectAll"
-          v-model="allSelected"
-          autofocus
-          label="Select All"
-          @update:model-value="toggleAll"
-        ></v-checkbox>
-      </th>
+      <thead>
+        <tr>
+          <th>
+            <v-checkbox
+              id="SelectAll"
+              ref="selectAll"
+              v-model="allSelected"
+              autofocus
+              label="Select All"
+              @update:model-value="toggleAll"
+            ></v-checkbox>
+          </th>
 
-      <th>
-        Reviews
-        <!-- <v-icon>info</v-icon> -->
-      </th>
-
-      <tr v-for="classroom in activeClasses" :key="classroom.classID">
-        <td>
-          <v-checkbox v-model="classroom.selected" :label="`Class: ${classroom.name}`" @click.capture="update" />
-        </td>
-        <td>-</td>
-      </tr>
-      <tr v-for="course in activeCourses" :key="course.courseID">
-        <td>
-          <v-checkbox v-model="course.selected" :label="`q/${course.name}`" @click.capture="update" />
-        </td>
-        <td>{{ course.reviews }}</td>
-      </tr>
+          <th>
+            Reviews
+            <!-- <v-icon>info</v-icon> -->
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="classroom in activeClasses" :key="classroom.classID">
+          <td>
+            <v-checkbox v-model="classroom.selected" :label="`Class: ${classroom.name}`" @click.capture="update" />
+          </td>
+          <td>-</td>
+        </tr>
+        <tr v-for="course in activeCourses" :key="course.courseID">
+          <td>
+            <v-checkbox v-model="course.selected" :label="`q/${course.name}`" @click.capture="update" />
+          </td>
+          <td>{{ course.reviews }}</td>
+        </tr>
+      </tbody>
     </table>
     <!-- <v-text-field
       label="Card Limit for this Session"
