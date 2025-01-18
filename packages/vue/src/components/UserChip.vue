@@ -1,6 +1,6 @@
 <template>
-  <v-badge :content="items.length" :model-value="hasNewItems" color="accent" overlap>
-    <v-menu offset-y transition="scale-transition">
+  <v-badge :content="items.length" :model-value="hasNewItems" color="accent" location="end top">
+    <v-menu location="bottom end" transition="scale-transition">
       <template #activator="{ props }">
         <v-chip v-bind="props" class="ma-2">
           <v-avatar start class="bg-primary">
@@ -18,23 +18,23 @@
         <v-divider v-if="items.length" />
 
         <v-list-item @click="gotoStats">
-          <v-list-item-icon>
+          <template #prepend>
             <v-icon>mdi-trending-up</v-icon>
-          </v-list-item-icon>
+          </template>
           <v-list-item-title>Stats</v-list-item-title>
         </v-list-item>
 
         <v-list-item @click="gotoSettings">
-          <v-list-item-icon>
+          <template #prepend>
             <v-icon>mdi-cog</v-icon>
-          </v-list-item-icon>
+          </template>
           <v-list-item-title>Settings</v-list-item-title>
         </v-list-item>
 
         <v-list-item @click="logout">
-          <v-list-item-icon>
+          <template #prepend>
             <v-icon>mdi-logout</v-icon>
-          </v-list-item-icon>
+          </template>
           <v-list-item-title>Log out</v-list-item-title>
         </v-list-item>
       </v-list>
