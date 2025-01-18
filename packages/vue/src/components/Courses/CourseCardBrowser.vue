@@ -19,7 +19,6 @@
             'bg-blue-grey-lighten-5': c.isOpen,
             'elevation-4': c.isOpen,
           }"
-          :density="dense"
         >
           <template #prepend>
             <div>
