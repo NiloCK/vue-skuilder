@@ -24,7 +24,7 @@ import { ViewComponent } from '@/base-course/Displayable';
 export default defineComponent({
   name: 'CardViewer',
 
-  components: Courses.allViews(),
+  components: Courses.allViewsRaw(),
 
   props: {
     sessionOrder: {

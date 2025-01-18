@@ -11,6 +11,7 @@ import pitch from './pitch';
 import sightSing from './sightsing';
 import typing from './typing';
 import wordWork from './word-work';
+import { markRaw } from 'vue';
 
 export class CourseList {
   private readonly courseList: Course[];
@@ -27,6 +28,16 @@ export class CourseList {
     return this.courseList.find((course) => {
       return course.name === name;
     });
+  }
+
+  private cachedRawViews: { [index: string]: ViewComponent } | null = null;
+
+  public allViewsRaw(): { [index: string]: ViewComponent } {
+    if (!this.cachedRawViews) {
+      const av = this.allViews();
+      this.cachedRawViews = Object.fromEntries(Object.entries(av).map(([k, v]) => [k, markRaw(v)]));
+    }
+    return this.cachedRawViews;
   }
 
   /**
