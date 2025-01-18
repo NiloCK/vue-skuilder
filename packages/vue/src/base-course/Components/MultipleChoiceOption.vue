@@ -5,14 +5,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
 import { defineComponent, defineAsyncComponent, PropType } from 'vue';
 
 export default defineComponent({
   name: 'MultipleChoiceOption',
 
   components: {
-    MarkdownRenderer: () => import('@/base-course/Components/MarkdownRenderer.vue'),
     MarkdownRenderer: defineAsyncComponent(() => import('@/base-course/Components/MarkdownRenderer.vue')),
   },
 
@@ -49,25 +47,25 @@ export default defineComponent({
 
       switch (this.number) {
         case 0:
-          color = 'red';
+          color = 'bg-red';
           break;
         case 1:
-          color = 'purple';
+          color = 'bg-purple';
           break;
         case 2:
-          color = 'indigo';
+          color = 'bg-indigo';
           break;
         case 3:
-          color = 'light-blue';
+          color = 'bg-light-blue';
           break;
         case 4:
-          color = 'teal';
+          color = 'bg-teal';
           break;
         case 5:
-          color = 'deep-orange';
+          color = 'bg-deep-orange';
           break;
         default:
-          color = 'grey';
+          color = 'bg-grey';
           break;
       }
 
