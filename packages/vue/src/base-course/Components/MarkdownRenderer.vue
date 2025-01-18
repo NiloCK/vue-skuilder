@@ -12,6 +12,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import MdTokenRenderer from './MdTokenRenderer.vue';
+import AudioAutoPlayer from './AudioAutoPlayer.vue';
 import { marked } from 'marked';
 
 type SkldrToken =
@@ -26,6 +27,7 @@ export default defineComponent({
   name: 'MarkdownRenderer',
   components: {
     MdTokenRenderer,
+    AudioAutoPlayer,
   },
   // mixins: [SkldrVueMixin],
   props: {
