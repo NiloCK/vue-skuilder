@@ -13,7 +13,6 @@
 import { defineComponent, PropType } from 'vue';
 import MdTokenRenderer from './MdTokenRenderer.vue';
 import { marked } from 'marked';
-import SkldrVueMixin, { ISkldrMixin } from '@/mixins/SkldrVueMixin';
 
 type SkldrToken =
   | marked.Token
@@ -28,7 +27,7 @@ export default defineComponent({
   components: {
     MdTokenRenderer,
   },
-  mixins: [SkldrVueMixin],
+  // mixins: [SkldrVueMixin],
   props: {
     md: {
       type: String as PropType<string>,
