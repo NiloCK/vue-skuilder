@@ -72,22 +72,6 @@ export default defineComponent({
       return questionUtils.question.value;
     });
 
-    /**
-     * update the question whenever the data changes
-     */
-    watchEffect(() => {
-      try {
-        questionUtils.question.value = new BlanksCard(props.data);
-        // Update shuffled options whenever question changes
-        if (questionUtils.question.value?.options) {
-          const truncatedList = getTruncatedList();
-          shuffledOptions.value = _.shuffle(truncatedList);
-        }
-      } catch (error) {
-        viewableUtils.logger.error('Failed to initialize/update question:', error);
-      }
-    });
-
     onMounted(() => {
       try {
         if (!questionUtils.question.value) {
@@ -221,6 +205,22 @@ export default defineComponent({
     const handleNext = () => {
       questionUtils.submitAnswer('');
     };
+
+    /**
+     * update the question whenever the data changes
+     */
+    watchEffect(() => {
+      try {
+        questionUtils.question.value = new BlanksCard(props.data);
+        // Update shuffled options whenever question changes
+        if (questionUtils.question.value?.options) {
+          const truncatedList = getTruncatedList();
+          shuffledOptions.value = _.shuffle(truncatedList);
+        }
+      } catch (error) {
+        viewableUtils.logger.error('Failed to initialize/update question:', error);
+      }
+    });
 
     return {
       ...viewableUtils,
