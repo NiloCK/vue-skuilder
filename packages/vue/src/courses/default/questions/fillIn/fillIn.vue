@@ -19,7 +19,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, PropType, onMounted, onUnmounted, watchEffect } from 'vue';
+import {
+  defineComponent,
+  defineAsyncComponent,
+  ref,
+  computed,
+  PropType,
+  onMounted,
+  onUnmounted,
+  watchEffect,
+} from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import AudioAutoPlayer from '@/base-course/Components/AudioAutoPlayer.vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
@@ -37,7 +46,7 @@ export default defineComponent({
   name: 'FillInView',
 
   components: {
-    MarkdownRenderer: () => import('@/base-course/Components/MarkdownRenderer.vue'),
+    MarkdownRenderer: defineAsyncComponent(() => import('@/base-course/Components/MarkdownRenderer.vue')),
     RadioMultipleChoice,
     blankType: () => import('./fillInInput.vue'),
     textType: () => import('./fillInText.vue'),

@@ -6,12 +6,14 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
+import { defineComponent, defineAsyncComponent, PropType } from 'vue';
 
 export default defineComponent({
   name: 'MultipleChoiceOption',
 
   components: {
     MarkdownRenderer: () => import('@/base-course/Components/MarkdownRenderer.vue'),
+    MarkdownRenderer: defineAsyncComponent(() => import('@/base-course/Components/MarkdownRenderer.vue')),
   },
 
   props: {
