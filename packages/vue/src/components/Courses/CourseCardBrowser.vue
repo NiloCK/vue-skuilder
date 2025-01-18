@@ -33,7 +33,12 @@
           </template>
 
           <template #append>
-            <v-speed-dial v-model="c.isOpen" direction="left" transition="slide-x-reverse">
+            <v-speed-dial
+              v-model="c.isOpen"
+              location="left center"
+              transition="slide-x-transition"
+              style="display: flex; flex-direction: row-reverse"
+            >
               <template #activator="{ props }">
                 <v-btn
                   v-bind="props"
@@ -45,6 +50,8 @@
               </template>
 
               <v-btn
+                key="tags"
+                icon
                 size="small"
                 :variant="editMode !== 'tags' ? 'outlined' : 'elevated'"
                 :color="editMode === 'tags' ? 'teal' : 'teal-darken-3'"
@@ -54,6 +61,8 @@
               </v-btn>
 
               <v-btn
+                key="flag"
+                icon
                 size="small"
                 :variant="editMode !== 'flag' ? 'outlined' : 'elevated'"
                 :color="editMode === 'flag' ? 'error' : 'error-darken-3'"
