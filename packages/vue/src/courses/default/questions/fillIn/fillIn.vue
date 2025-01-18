@@ -5,12 +5,12 @@
     <!-- Add v-if to prevent undefined markdown -->
     <markdown-renderer v-if="markdownText" :md="markdownText" />
     <radio-multiple-choice v-if="question?.options" :choice-list="truncatedOptions" />
-    <center v-else-if="priorAttempts == 1" class="text-h6">
+    <div v-else-if="priorAttempts == 1" class="text-center text-h6">
       <span>{{ obscuredAnswer }}</span>
-    </center>
-    <center v-else-if="priorAttempts == 2" class="text-h6">
-      <span>{{ someAnswer }}</span>
-    </center>
+    </div>
+    <div v-else-if="priorAttempts == 2" class="text-center text-h6">
+      <span>{{ obscuredAnswer }}</span>
+    </div>
     <v-card-actions v-if="!isQuestion">
       <v-spacer></v-spacer>
       <v-btn color="primary" autofocus="autofocus" @click="handleNext"> Next </v-btn>
