@@ -30,14 +30,14 @@ export default defineComponent({
     //   return (a as QuestionView<Question>).submitAnswer !== undefined;
     // },
     submit(answer: Answer) {
-      const thisClassname = this.constructor.name;
-      return this.getQuestionViewAncestor().submitAnswer(answer, thisClassname);
+      // const thisClassname = this.constructor.name;
+      return this.getQuestionViewAncestor().submitAnswer(answer);
     },
     getQuestionViewAncestor(): ViewComponent {
       let ancestor = this.$parent;
       let count = 0;
 
-      while (ancestor && isQuestionView(ancestor)) {
+      while (ancestor && !isQuestionView(ancestor)) {
         const nextAncestor = ancestor.$parent;
         if (!nextAncestor) {
           const err = `
