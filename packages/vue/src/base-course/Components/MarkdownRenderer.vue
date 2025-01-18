@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-textarea v-if="testRoute" v-model="md" variant="outlined" label="Type Here" name="name" />
+    <!-- <v-textarea v-if="testRoute" v-model="md" variant="outlined" label="Type Here" name="name" /> -->
     <span v-for="(token, i) in tokens" :key="i">
       <md-token-renderer v-if="token.type" :token="token" :last="i === tokens.length - 1" />
       <audio-auto-player v-else-if="token.audio" :src="token.audio" />
