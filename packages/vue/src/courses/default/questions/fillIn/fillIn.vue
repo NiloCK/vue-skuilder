@@ -172,6 +172,8 @@ export default defineComponent({
         }
         return obscuredAnswer;
       }
+
+      return '';
     });
 
     const isQuestion = computed(() => {
