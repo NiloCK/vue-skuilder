@@ -145,6 +145,8 @@ export default defineComponent({
     const someAnswer = computed(() => {
       if (question.value.answers) {
         return question.value.answers[Math.floor(question.value.answers.length * Math.random())];
+      } else {
+        throw new Error('No answers provided');
       }
     });
 
