@@ -4,7 +4,7 @@
       <template #activator="{ props }">
         <v-chip v-bind="props" class="ma-2">
           <v-avatar start class="bg-primary">
-            <v-icon dark>mdi-school</v-icon>
+            <v-icon>mdi-school</v-icon>
           </v-avatar>
           {{ username }}
         </v-chip>
