@@ -123,11 +123,6 @@ export function splitParagraphToken(token: marked.Tokens.Paragraph): TokenOrComp
   return ret;
 }
 
-export function paragraphContainsComponent(t: marked.Token) {
-  if ((t as any).tokens) {
-  }
-}
-
 export function containsComponent(token: marked.Token) {
   if (token.type === 'text' || token.type === 'paragraph') {
     const opening = token.raw.indexOf('{{');
