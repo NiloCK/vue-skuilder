@@ -44,8 +44,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { log } from '@/logshim';
-import { setTimeout } from 'timers';
 import { User } from '../db/userDB';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useConfigStore } from '@/stores/useConfigStore';
