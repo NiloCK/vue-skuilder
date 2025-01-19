@@ -26,6 +26,15 @@ const remoteCouchRootDB: PouchDB.Database = new pouch(remoteStr, {
   skip_setup: true,
 });
 
+interface DesignDoc {
+  _id: string;
+  views: {
+    [viewName: string]: {
+      map: string; // String representation of the map function
+    };
+  };
+}
+
 export async function doesUserExist(name: string) {
   try {
     const user = await remoteCouchRootDB.getUser(name);
@@ -177,7 +186,7 @@ Currently logged-in as ${this._username}.`
     return ret;
   }
 
-  public update<T extends PouchDB.Core.Document<{}>>(id: string, update: Update<T>) {
+  public update<T extends PouchDB.Core.Document<object>>(id: string, update: Update<T>) {
     return this.updateQueue.update(id, update);
   }
 
@@ -221,10 +230,8 @@ Currently logged-in as ${this._username}.`
    * Returns a promise of the card IDs that the user has
    * a scheduled review for.
    *
-   * @param course_id
-   * @returns
    */
-  public async getActiveCards(course_id?: string) {
+  public async getActiveCards() {
     const keys = getStartAndEndKeys(REVIEW_PREFIX);
 
     const reviews = await this.remoteDB.allDocs<ScheduledCard>({
@@ -428,7 +435,7 @@ Currently logged-in as ${this._username}.`
       // log(`USER.instance() returning user ${User._instance._username}`);
       return User._instance;
     } else if (User._instance) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         (function waitForUser() {
           if (User._initialized) {
             return resolve(User._instance);
@@ -476,14 +483,20 @@ Currently logged-in as ${this._username}.`
     User._initialized = true;
   }
 
-  private static designDocs = [
+  private static designDocs: DesignDoc[] = [
     {
       _id: '_design/reviewCards',
       views: {
         reviewCards: {
-          map: function (doc: PouchDB.Core.Document<{}>) {
+          map: function (doc: PouchDB.Core.Document<object>) {
             if (doc._id.indexOf('card_review') === 0) {
-              const copy: any = doc;
+              type ReviewCard = {
+                _id: string;
+                courseId: string;
+                cardId: string;
+              };
+
+              const copy: ReviewCard = doc as ReviewCard;
               emit(copy._id, copy.courseId + '-' + copy.cardId);
             }
           }.toString(),
@@ -503,38 +516,38 @@ Currently logged-in as ${this._username}.`
             ...doc,
             _rev: existingDoc._rev,
           });
-        } catch (e: any) {
-          if (e.name === 'not_found') {
+        } catch (e: unknown) {
+          if (e instanceof Error && e.name === 'not_found') {
             // Create new doc
             await this.remoteDB.put(doc);
           } else {
             throw e; // Re-throw unexpected errors
           }
         }
-      } catch (e: any) {
-        if (e.name === 'conflict') {
+      } catch (error: unknown) {
+        if (error instanceof Error && error.name === 'conflict') {
           console.warn(`Design doc ${doc._id} update conflict - will retry`);
           // Wait a bit and try again
           await new Promise((resolve) => setTimeout(resolve, 1000));
           await this.applyDesignDoc(doc); // Recursive retry
         } else {
-          console.error(`Failed to apply design doc ${doc._id}:`, e);
-          throw e;
+          console.error(`Failed to apply design doc ${doc._id}:`, error);
+          throw error;
         }
       }
     }
   }
 
   // Helper method for single doc update with retry
-  private async applyDesignDoc(doc: any, retries = 3): Promise<void> {
+  private async applyDesignDoc(doc: DesignDoc, retries = 3): Promise<void> {
     try {
       const existingDoc = await this.remoteDB.get(doc._id);
       await this.remoteDB.put({
         ...doc,
         _rev: existingDoc._rev,
       });
-    } catch (e: any) {
-      if (e.name === 'conflict' && retries > 0) {
+    } catch (e: unknown) {
+      if (e instanceof Error && e.name === 'conflict' && retries > 0) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         return this.applyDesignDoc(doc, retries - 1);
       }
@@ -729,43 +742,43 @@ export function getUserDB(username: string): PouchDB.Database {
   return ret;
 }
 
-function accomodateGuest(): {
-  username: string;
-  firstVisit: boolean;
-} {
-  const dbUUID = 'dbUUID';
-  let firstVisit: boolean;
+// function accomodateGuest(): {
+//   username: string;
+//   firstVisit: boolean;
+// } {
+//   const dbUUID = 'dbUUID';
+//   let firstVisit: boolean;
 
-  if (localStorage.getItem(dbUUID) !== null) {
-    firstVisit = false;
-    console.log(`Returning guest ${localStorage.getItem(dbUUID)} "logging in".`);
-  } else {
-    firstVisit = true;
-    const uuid = generateUUID();
-    localStorage.setItem(dbUUID, uuid);
-    console.log(`Accommodating a new guest with account: ${uuid}`);
-  }
+//   if (localStorage.getItem(dbUUID) !== null) {
+//     firstVisit = false;
+//     console.log(`Returning guest ${localStorage.getItem(dbUUID)} "logging in".`);
+//   } else {
+//     firstVisit = true;
+//     const uuid = generateUUID();
+//     localStorage.setItem(dbUUID, uuid);
+//     console.log(`Accommodating a new guest with account: ${uuid}`);
+//   }
 
-  return {
-    username: GuestUsername + localStorage.getItem(dbUUID),
-    firstVisit: firstVisit,
-  };
+//   return {
+//     username: GuestUsername + localStorage.getItem(dbUUID),
+//     firstVisit: firstVisit,
+//   };
 
-  // pilfered from https://stackoverflow.com/a/8809472/1252649
-  function generateUUID() {
-    let d = new Date().getTime();
-    if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
-      d += performance.now(); // use high-precision timer if available
-    }
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      // tslint:disable-next-line:no-bitwise
-      const r = (d + Math.random() * 16) % 16 | 0;
-      d = Math.floor(d / 16);
-      // tslint:disable-next-line:no-bitwise
-      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-    });
-  }
-}
+//   // pilfered from https://stackoverflow.com/a/8809472/1252649
+//   function generateUUID() {
+//     let d = new Date().getTime();
+//     if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+//       d += performance.now(); // use high-precision timer if available
+//     }
+//     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+//       // tslint:disable-next-line:no-bitwise
+//       const r = (d + Math.random() * 16) % 16 | 0;
+//       d = Math.floor(d / 16);
+//       // tslint:disable-next-line:no-bitwise
+//       return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+//     });
+//   }
+// }
 
 const userCoursesDoc = 'CourseRegistrations';
 const userClassroomsDoc = 'ClassroomRegistrations';
@@ -892,7 +905,9 @@ export async function registerUserForClassroom(
 /**
  * This noop exists to facilitate writing couchdb filter fcns
  */
-function emit(x: any, y: any): any {}
+function emit(x: unknown, y: unknown): void {
+  console.log(`noop:`, x, y);
+}
 
 export async function dropUserFromClassroom(user: string, classID: string) {
   return getOrCreateClassroomRegistrationsDoc(user).then((doc) => {
