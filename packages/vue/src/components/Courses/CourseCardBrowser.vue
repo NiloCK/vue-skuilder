@@ -104,6 +104,7 @@
 </template>
 
 <script lang="ts">
+import { ViewComponent } from '@/base-course/Displayable';
 import { displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import TagsInput from '@/components/Edit/TagsInput.vue';
 import PaginatingToolbar from '@/components/PaginatingToolbar.vue';
@@ -286,7 +287,7 @@ export default defineComponent({
           console.error(`No valid data found for card ${_cardID}`);
           return;
         }
-        const tmpView = Courses.getView(tmpCardData.id_view || 'default.question.BlanksCard.FillInView');
+        const tmpView: ViewComponent = Courses.getView(tmpCardData.id_view || 'default.question.BlanksCard.FillInView');
 
         const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
           return getCourseDoc<DisplayableData>(_courseID, id, {
