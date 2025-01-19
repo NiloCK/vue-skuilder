@@ -19,13 +19,13 @@ import { ScheduledCard, User } from './userDB';
 
 const courseLookupDBTitle = 'coursedb-lookup';
 
-export function docIsDeleted(e: Error) {
-  return (
-    (e as any).error &&
-    (e as any).error === 'not_found' &&
-    (e as any).reason &&
-    (e as any).reason === 'deleted'
-  );
+interface PouchDBError extends Error {
+  error?: string;
+  reason?: string;
+}
+
+export function docIsDeleted(e: PouchDBError): boolean {
+  return Boolean(e?.error === 'not_found' && e?.reason === 'deleted');
 }
 
 const courseLookupDB: PouchDB.Database = new pouch(
@@ -60,7 +60,7 @@ export class CourseDB implements StudyContentSource {
 
     // console.log()
     const newCards = (await this.getCardsByELO(EloToNumber(userCrsdoc!.elo), cardLimit)).filter(
-      (card: any) => {
+      (card) => {
         return activeCards.indexOf(card) === -1;
       }
     );
@@ -151,12 +151,9 @@ export class CourseDB implements StudyContentSource {
     const ret: CourseElo[] = [];
     docs.rows.forEach((r) => {
       // [ ] remove these ts-ignore directives.
-      // @ts-ignore
       if (r.doc && r.doc.elo) {
-        // @ts-ignore
         ret.push(toCourseElo(r.doc.elo));
       } else {
-        // @ts-ignore
         console.warn('no elo data for card: ' + r.id);
         ret.push(blankCourseElo());
       }
@@ -208,14 +205,12 @@ export class CourseDB implements StudyContentSource {
     });
     const ret: { [card: string]: string[] } = {};
     cards.rows.forEach((r) => {
-      // @ts-ignore
       ret[r.id] = r.doc!.id_displayable_data;
     });
 
     await Promise.all(
       cards.rows.map((r) => {
         return async () => {
-          // @ts-ignore
           ret[r.id] = r.doc!.id_displayable_data;
         };
       })
@@ -317,12 +312,11 @@ export class CourseDB implements StudyContentSource {
   }
 
   private async getCardsByELO(elo: number, cardLimit?: number) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     elo = parseInt(elo as any);
     const limit = cardLimit ? cardLimit : 25;
 
-    let below: PouchDB.Query.Response<any>;
-    let above: PouchDB.Query.Response<any>;
-    below = await this.db.query('elo', {
+    const below: PouchDB.Query.Response<object> = await this.db.query('elo', {
       limit: Math.ceil(limit / 2),
       startkey: elo,
       descending: true,
@@ -330,7 +324,7 @@ export class CourseDB implements StudyContentSource {
 
     const aboveLimit = limit - below.rows.length;
 
-    above = await this.db.query('elo', {
+    const above: PouchDB.Query.Response<object> = await this.db.query('elo', {
       limit: aboveLimit,
       startkey: elo + 1,
     });
@@ -367,7 +361,7 @@ above:\n${above.rows.map((r) => `\t${r.id}-${r.key}\n`)}`;
 // }
 
 export async function getCourseName(courseID: string): Promise<string> {
-  const ret = ((await courseLookupDB.get(courseID)) as any)['name'];
+  const ret = (await courseLookupDB.get<CourseConfig>(courseID))['name'];
   // console.log(ret);
   return ret;
 }
@@ -438,7 +432,6 @@ export async function getCourseQuestionTypes(courseID: string) {
 
 export async function getCourseConfig(courseID: string) {
   const config = await getCourseConfigs([courseID]);
-  // @ts-ignore
   return config.rows[0].doc;
 }
 
@@ -496,7 +489,7 @@ export async function updateTag(tag: Tag) {
 
 export async function getTag(courseID: string, tagName: string) {
   const tagID = getTagID(tagName);
-  const courseDB = await getCourseDB(courseID);
+  const courseDB = getCourseDB(courseID);
   return courseDB.get<Tag>(tagID);
 }
 
@@ -538,7 +531,7 @@ export async function getChildTagStubs(courseID: string, tagID: string) {
 }
 
 export async function getAppliedTags(id_course: string, id_card: string) {
-  const db = await getCourseDB(id_course);
+  const db = getCourseDB(id_course);
 
   const result = await db.query<TagStub>('getTags', {
     startkey: id_card,
