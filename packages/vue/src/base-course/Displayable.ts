@@ -1,7 +1,6 @@
 import Vue, { DefineComponent, defineComponent, ComponentOptions } from 'vue';
 import { DataShape } from '../base-course/Interfaces/DataShape';
 import { ViewData } from '../base-course/Interfaces/ViewData';
-import { Viewable } from './OptionsViewable';
 import { FieldType } from '../enums/FieldType';
 
 // [ ] #vue3 - post migration, specify this more precisely (no longer a hodge-podge)

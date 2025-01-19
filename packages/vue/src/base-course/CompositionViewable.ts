@@ -15,7 +15,6 @@ import { HotKey } from '../SkldrMouseTrap';
 import { Answer, Displayable, Question } from './Displayable';
 import { ViewData } from './Interfaces/ViewData';
 import { CardRecord, QuestionRecord } from '../db/types';
-import { Viewable } from './OptionsViewable';
 
 // Core interfaces to ensure type safety
 export interface ViewableUtils {
