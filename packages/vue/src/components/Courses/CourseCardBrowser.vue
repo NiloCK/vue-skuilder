@@ -115,11 +115,13 @@ import { removeTagFromCard } from '@/db/courseDB';
 import { CardData, DisplayableData, DocType, Tag } from '@/db/types';
 import { defineComponent } from 'vue';
 
-function isConstructor(obj: any) {
+function isConstructor(obj: unknown) {
   try {
+    // @ts-expect-error - we are specifically probing an unknown object
     new obj();
     return true;
   } catch (e) {
+    console.warn(`not a constructor: ${obj}, err: ${e}`);
     return false;
   }
 }
