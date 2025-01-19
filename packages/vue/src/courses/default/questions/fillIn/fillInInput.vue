@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, PropType, onMounted } from 'vue';
+import { defineComponent, ref, computed, onMounted } from 'vue';
 import UserInputString from '@/base-course/Components/UserInput/UserInputString.vue';
 
 export default defineComponent({
