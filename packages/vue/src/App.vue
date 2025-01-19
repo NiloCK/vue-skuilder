@@ -9,21 +9,21 @@
           <v-list-item-title>Home</v-list-item-title>
         </v-list-item>
 
-        <v-list-item v-if="true" to="/study" value="study">
+        <v-list-item to="/study" value="study">
           <template #prepend>
             <v-icon icon="mdi-school"></v-icon>
           </template>
           <v-list-item-title>Study</v-list-item-title>
         </v-list-item>
 
-        <v-list-item v-if="true" to="/classrooms" value="classrooms">
+        <v-list-item to="/classrooms" value="classrooms">
           <template #prepend>
             <v-icon icon="mdi-account-group"></v-icon>
           </template>
           <v-list-item-title>Classrooms</v-list-item-title>
         </v-list-item>
 
-        <v-list-item v-if="true" to="/quilts" value="quilts">
+        <v-list-item to="/quilts" value="quilts">
           <template #prepend>
             <v-icon icon="mdi-bookmark-multiple"></v-icon>
           </template>
@@ -40,9 +40,11 @@
 
     <v-main>
       <v-container>
-        <v-fade-transition mode="out-in">
-          <router-view />
-        </v-fade-transition>
+        <router-view v-slot="{ Component }">
+          <v-fade-transition mode="out-in">
+            <component :is="Component" />
+          </v-fade-transition>
+        </router-view>
       </v-container>
     </v-main>
 
