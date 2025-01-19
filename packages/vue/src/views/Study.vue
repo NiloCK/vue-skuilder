@@ -78,60 +78,62 @@
         <sk-tags-input :course-i-d="courseID" :card-i-d="cardID" />
       </div>
 
-      <v-tooltip
-        v-model="timerIsActive"
-        location="right"
-        :open-delay="0"
-        :close-delay="200"
-        color="secondary"
-        class="text-subtitle-1"
-      >
-        <template #activator="{ props }">
-          <v-btn
-            v-if="!sessionFinished"
-            v-bind="props"
-            icon
-            color="transparent"
-            location="bottom left"
-            @click="if (timerIsActive) incrementSessionClock();"
-          >
-            <v-progress-circular
-              alt="Time remaining in study session"
-              size="64"
-              width="8"
-              rotate="-90"
-              :color="timerColor"
-              :model-value="percentageRemaining"
-            >
-              <v-icon v-if="timerIsActive" size="large">mdi-plus</v-icon>
-            </v-progress-circular>
-          </v-btn>
-        </template>
-        {{ timeString }}
-      </v-tooltip>
-
-      <v-speed-dial v-if="!sessionFinished" v-model="fab" location="bottom right" transition="scale-transition">
-        <template #activator="{ props }">
-          <v-btn v-bind="props" color="blue-darken-2" icon>
-            <v-icon>{{ fab ? 'mdi-close' : 'mdi-pencil' }}</v-icon>
-          </v-btn>
-        </template>
-        <router-link :to="`/edit/${courseID}`">
-          <v-btn icon size="small" color="indigo" title="Add content to this course">
-            <v-icon>mdi-plus</v-icon>
-          </v-btn>
-        </router-link>
-        <v-btn
-          icon
-          size="small"
-          color="orange-darken-2"
-          title="Edit tags on this card"
-          :loading="editCard"
-          @click="editTags = !editTags"
+      <v-row align="center" justify="space-between" class="px-4 py-4">
+        <v-tooltip
+          v-model="timerIsActive"
+          location="right"
+          :open-delay="0"
+          :close-delay="200"
+          color="secondary"
+          class="text-subtitle-1"
         >
-          <v-icon>mdi-bookmark</v-icon>
-        </v-btn>
-      </v-speed-dial>
+          <template #activator="{ props }">
+            <v-btn
+              v-if="!sessionFinished"
+              v-bind="props"
+              icon
+              color="transparent"
+              location="bottom left"
+              @click="if (timerIsActive) incrementSessionClock();"
+            >
+              <v-progress-circular
+                alt="Time remaining in study session"
+                size="64"
+                width="8"
+                rotate="-90"
+                :color="timerColor"
+                :model-value="percentageRemaining"
+              >
+                <v-icon v-if="timerIsActive" size="large">mdi-plus</v-icon>
+              </v-progress-circular>
+            </v-btn>
+          </template>
+          {{ timeString }}
+        </v-tooltip>
+
+        <v-speed-dial v-if="!sessionFinished" v-model="fab" location="left center" transition="slide-x-transition">
+          <template #activator="{ props }">
+            <v-btn v-bind="props" color="blue-darken-2" icon>
+              <v-icon>{{ fab ? 'mdi-close' : 'mdi-pencil' }}</v-icon>
+            </v-btn>
+          </template>
+          <router-link :to="`/edit/${courseID}`">
+            <v-btn icon size="small" color="indigo" title="Add content to this course">
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
+          </router-link>
+          <v-btn
+            icon
+            size="small"
+            color="orange-darken-2"
+            title="Edit tags on this card"
+            :loading="editCard"
+            @click="editTags = !editTags"
+          >
+            <v-icon>mdi-bookmark</v-icon>
+          </v-btn>
+        </v-speed-dial>
+      </v-row>
     </div>
   </div>
 </template>
