@@ -1,20 +1,20 @@
 <template>
-  <v-card v-if="!updatePending">
-    <v-app-bar dense flat>
-      <v-toolbar-title @click="routeToCourse">
-        {{ _courseConfig.name }}
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-icon v-if="isPrivate">mdi-eye-off</v-icon>
-    </v-app-bar>
+  <v-card v-if="!updatePending && courseConfig">
+    <v-card-item>
+      <v-card-title @click="routeToCourse">
+        {{ courseConfig.name }}
+        <v-icon v-if="isPrivate" icon="mdi-eye-off" class="ml-2"></v-icon>
+      </v-card-title>
+    </v-card-item>
+
     <v-card-text>
       Questions: {{ questionCount }}
-
-      <p>{{ _courseConfig.description }}</p>
+      <p>{{ courseConfig.description }}</p>
     </v-card-text>
+
     <v-card-actions>
       <v-btn color="primary" @click="routeToCourse">More Info</v-btn>
-      <v-btn :loading="addingCourse" color="primary" @click="registerForCourse">Register</v-btn>
+      <v-btn :loading="addingCourse" color="primary" @click="registerForCourse"> Register </v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -27,6 +27,7 @@ import { getCourseConfig } from '@/db/courseDB';
 import { DocType } from '@/db/types';
 import { CourseConfig } from '@/server/types';
 import { User } from '@/db/userDB';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'CourseStubCard',
@@ -37,10 +38,11 @@ export default defineComponent({
       required: true,
     },
   },
+  emits: ['refresh'],
 
   data() {
     return {
-      _courseConfig: null as CourseConfig | null,
+      courseConfig: null as CourseConfig | null,
       questionCount: 0,
       isPrivate: false,
       updatePending: true,
@@ -50,8 +52,8 @@ export default defineComponent({
 
   async created() {
     const db = await getCourseDB(this._id);
-    this._courseConfig = (await getCourseConfig(this._id))!;
-    this.isPrivate = !this._courseConfig.public;
+    this.courseConfig = (await getCourseConfig(this._id))!;
+    this.isPrivate = !this.courseConfig.public;
     this.questionCount = (
       await db.find({
         limit: 1000,
@@ -65,7 +67,7 @@ export default defineComponent({
 
   methods: {
     routeToCourse() {
-      this.$router.push(`/q/${this._courseConfig!.name.replace(' ', '_')}`);
+      useRouter().push(`/q/${this.courseConfig!.name.replace(' ', '_')}`);
     },
 
     async registerForCourse() {
