@@ -51,18 +51,22 @@ export default defineComponent({
   },
 
   async created() {
-    const db = await getCourseDB(this._id);
-    this.courseConfig = (await getCourseConfig(this._id))!;
-    this.isPrivate = !this.courseConfig.public;
-    this.questionCount = (
-      await db.find({
-        limit: 1000,
-        selector: {
-          docType: DocType.CARD,
-        },
-      })
-    ).docs.length;
-    this.updatePending = false;
+    try {
+      const db = await getCourseDB(this._id);
+      this.courseConfig = (await getCourseConfig(this._id))!;
+      this.isPrivate = !this.courseConfig.public;
+      this.questionCount = (
+        await db.find({
+          limit: 1000,
+          selector: {
+            docType: DocType.CARD,
+          },
+        })
+      ).docs.length;
+      this.updatePending = false;
+    } catch (e) {
+      console.error(`Error loading course ${this._id}: ${e}`);
+    }
   },
 
   methods: {
