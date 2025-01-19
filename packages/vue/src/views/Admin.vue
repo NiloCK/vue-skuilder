@@ -64,6 +64,22 @@
 import { defineComponent } from 'vue';
 import AdminDB from '../db/adminDB';
 import { GuestUsername } from '../stores/useAuthStore';
+interface User {
+  _id: string;
+  name: string;
+}
+
+interface Course {
+  _id: string;
+  name: string;
+}
+
+interface Classroom {
+  _id: string;
+  name: string;
+  teachers: string[];
+  students: string[];
+}
 
 export default defineComponent({
   name: 'AdminView',
@@ -72,14 +88,14 @@ export default defineComponent({
     return {
       title: 'Admin Panel',
       db: null as AdminDB | null,
-      users: [] as any[],
-      courses: [] as any[],
-      classrooms: [] as any[],
+      users: [] as User[],
+      courses: [] as Course[],
+      classrooms: [] as Classroom[],
     };
   },
 
   computed: {
-    registeredUsers(): any[] {
+    registeredUsers(): User[] {
       return this.users.filter((u) => {
         return !(u.name as string).startsWith(GuestUsername);
       });
@@ -89,8 +105,8 @@ export default defineComponent({
   async created() {
     try {
       this.db = await AdminDB.factory();
-      this.users = await this.db.getUsers();
-      this.courses = await this.db.getCourses();
+      this.users = (await this.db.getUsers()) as unknown as User[];
+      this.courses = (await this.db.getCourses()) as unknown as Course[];
       this.classrooms = await this.db.getClassrooms();
     } catch (e) {
       this.title = 'This page is for database admins only.';
