@@ -143,7 +143,6 @@ import { displayableDataToViewData, ViewData } from '@/base-course/Interfaces/Vi
 import { isQuestionView } from '@/base-course/CompositionViewable';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
 import HeatMap from '@/components/HeatMap.vue';
-import CardLoader from '@/components/Study/CardLoader.vue';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
 import Courses from '@/courses';
@@ -169,10 +168,6 @@ import { useConfigStore } from '@/stores/useConfigStore';
 import { useDataInputFormStore } from '@/stores/useDataInputFormStore';
 import { Router } from 'vue-router';
 
-function randInt(n: number) {
-  return Math.floor(Math.random() * n);
-}
-
 interface StudyRefs {
   shadowWrapper: HTMLDivElement;
 }
@@ -182,13 +177,12 @@ type StudyInstance = ReturnType<typeof defineComponent> & {
 };
 
 export default defineComponent({
-  name: 'Study',
+  name: 'StudyView',
 
   ref: {} as StudyRefs,
 
   components: {
-    CardViewer,
-    CardLoader,
+    CardViewer, // [ ] consider: cardloader intermediary?
     SkldrControlsView,
     SkTagsInput,
     SessionConfiguration,
@@ -205,6 +199,7 @@ export default defineComponent({
     previewCourseID: {
       type: String,
       required: false,
+      default: '',
     },
     randomPreview: {
       type: Boolean,
@@ -213,11 +208,12 @@ export default defineComponent({
     focusCourseID: {
       type: String,
       required: false,
+      default: '',
     },
   },
 
   emits: {
-    emitResponse: (response: CardRecord) => true,
+    emitResponse: () => true,
   },
 
   data() {
@@ -250,7 +246,7 @@ export default defineComponent({
       sessionContentSources: [] as StudyContentSource[],
       sessionTimeLimit: 5,
       timeRemaining: 300, // 5 minutes * 60 seconds
-      _intervalHandler: null as NodeJS.Timeout | null,
+      intervalHandler: null as NodeJS.Timeout | null,
       cardType: '',
       inSession: false,
       dataInputFormStore: useDataInputFormStore(),
@@ -365,7 +361,7 @@ export default defineComponent({
     },
 
     handleClassroomMessage() {
-      return (v: any) => {
+      return (v: unknown) => {
         alertUser({
           text: this.user?.username || '[Unknown user]',
           status: Status.ok,
@@ -393,7 +389,7 @@ export default defineComponent({
           : 100 * (this.timeRemaining / 60);
 
       if (this.timeRemaining === 0) {
-        clearInterval(this._intervalHandler!);
+        clearInterval(this.intervalHandler!);
       }
     },
 
@@ -441,7 +437,7 @@ export default defineComponent({
       this.sessionController.sessionRecord = this.sessionRecord;
 
       await this.sessionController.prepareSession();
-      this._intervalHandler = setInterval(this.tick, 1000);
+      this.intervalHandler = setInterval(this.tick, 1000);
 
       this.sessionPrepared = true;
 
@@ -497,6 +493,7 @@ export default defineComponent({
             }
           } catch (e) {
             // swallow error
+            console.warn(`[Study] Error setting shadowWrapper style: ${e}`);
           }
 
           if (this.configStore?.config.likesConfetti) {
@@ -535,6 +532,7 @@ export default defineComponent({
             }
           } catch (e) {
             // swallow error
+            console.warn(`[Study] Error setting shadowWrapper style: ${e}`);
           }
 
           cardHistory.then((history: CardHistory<CardRecord>) => {
@@ -595,10 +593,11 @@ export default defineComponent({
       setTimeout(() => {
         try {
           if (this.$refs.shadowWrapper) {
-            (this.$refs.shadowWrapper as any).classList.remove('correct', 'incorrect');
+            (this.$refs.shadowWrapper as HTMLElement).classList.remove('correct', 'incorrect');
           }
         } catch (e) {
           // swallow error
+          console.warn(`[Study] Error clearing shadowWrapper style: ${e}`);
         }
       }, 1250);
     },
@@ -641,9 +640,7 @@ export default defineComponent({
 
       const qualified_id = item.qualifiedID;
       this.loading = true;
-      const _courseID = qualified_id.split('-')[0];
-      const _cardID = qualified_id.split('-')[1];
-      const _cardElo = qualified_id.split('-')[2];
+      const [_courseID, _cardID] = qualified_id.split('-');
 
       console.log(`[Study] Now displaying: ${qualified_id}`);
 
@@ -683,11 +680,9 @@ export default defineComponent({
         // } else
 
         if (isDefineComponent(tmpView)) {
-          // @ts-ignore
           this.constructedView = tmpView;
         } else {
           console.warn(`[Study] Error constructing view for ${qualified_id}`);
-          // @ts-ignore
           this.constructedView = tmpView;
         }
 
