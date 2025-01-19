@@ -541,6 +541,8 @@ export default defineComponent({
             }
           });
 
+          // [ ] this check is failing now since the vue3 migration - no live 'constructed view's to check.
+          //     need an alternate method to dismiss cards after their max attempts?
           if (isQuestionView(this.constructedView)) {
             if (this.currentCard.records.length >= this.constructedView.maxAttemptsPerView) {
               const sessionViews: number = this.countCardViews(this.courseID, this.cardID);
@@ -561,6 +563,9 @@ export default defineComponent({
     },
 
     async updateUserAndCardElo(userScore: number, course_id: string, card_id: string, k?: number) {
+      if (k) {
+        console.warn(`k value interpretation not currently implemented`);
+      }
       const userElo = toCourseElo(this.userCourseRegDoc!.courses.find((c) => c.courseID === course_id)!.elo);
       const cardElo = (
         await new CourseDB(this.currentCard.card.course_id).getCardEloData([this.currentCard.card.card_id])
