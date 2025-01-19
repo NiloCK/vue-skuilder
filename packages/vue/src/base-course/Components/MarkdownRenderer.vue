@@ -29,7 +29,6 @@ export default defineComponent({
     MdTokenRenderer,
     AudioAutoPlayer,
   },
-  // mixins: [SkldrVueMixin],
   props: {
     md: {
       type: String as PropType<string>,

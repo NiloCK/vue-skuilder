@@ -7,7 +7,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import UserRegistration from '@/components/UserRegistration.vue';
-import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 
 export default defineComponent({
   name: 'LoginRoute',
@@ -15,8 +14,6 @@ export default defineComponent({
   components: {
     UserRegistration,
   },
-
-  mixins: [SkldrVueMixin],
 });
 </script>
 

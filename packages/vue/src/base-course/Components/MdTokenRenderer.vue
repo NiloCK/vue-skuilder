@@ -119,7 +119,6 @@ import {
 import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
 import { marked } from 'marked';
 import { defineComponent } from 'vue';
-import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atelier-seaside-light.css'; // Move CSS import here
@@ -133,8 +132,6 @@ export default defineComponent({
     RadioMultipleChoice,
     highlightjs: hljsVuePlugin.component,
   },
-
-  mixins: [SkldrVueMixin],
 
   props: {
     token: {
