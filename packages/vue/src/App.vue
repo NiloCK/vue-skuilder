@@ -1,6 +1,6 @@
 <template>
   <v-app v-if="storeIsReady">
-    <v-navigation-drawer v-model="drawer" :elevation="2" permanent expand-on-hover>
+    <v-navigation-drawer v-model="drawer" :elevation="2" :rail="rail" @click="rail = false">
       <v-list>
         <v-list-item to="/home" value="home">
           <template #prepend>
@@ -33,7 +33,7 @@
     </v-navigation-drawer>
 
     <v-app-bar density="compact">
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click.stop="toggleDrawer"></v-app-bar-nav-icon>
       <v-spacer></v-spacer>
       <user-login-and-registration-container />
     </v-app-bar>
@@ -77,6 +77,15 @@ const drawer = ref(false);
 const authStore = useAuthStore();
 const configStore = useConfigStore();
 const theme = useTheme();
+const rail = ref(false);
+
+const toggleDrawer = () => {
+  drawer.value = !drawer.value;
+  // Optional: reset rail when drawer is toggled
+  if (!drawer.value) {
+    rail.value = false;
+  }
+};
 
 const { onLoadComplete: storeIsReady } = storeToRefs(authStore);
 
