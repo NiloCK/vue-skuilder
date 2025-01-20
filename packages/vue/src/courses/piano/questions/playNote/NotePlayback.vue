@@ -355,20 +355,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, PropType, onMounted, onBeforeUnmount } from 'vue';
+import { defineComponent, ref, computed, PropType, onMounted } from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
-import SkMidi, { NoteEvent, eventsToSyllableSequence, SyllableSequence } from '../../utility/midi';
+import SkMidi, { eventsToSyllableSequence, SyllableSequence } from '../../utility/midi';
 import { PlayNote } from '.';
 import moment from 'moment';
-import SyllableSeqVis from '../../utility/SyllableSeqVis.vue';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 
 export default defineComponent({
   name: 'NotePlayback',
 
-  components: {
-    SyllableSeqVis,
-  },
+  components: {},
 
   props: {
     data: {
@@ -391,7 +388,6 @@ export default defineComponent({
     const recording = ref(false);
     const playbackProgress = ref(0);
     const playbackStartTime = ref(moment.utc());
-    const playbackDuration = ref(0);
     const attempts = ref(0);
     const gradedSeq = ref<SyllableSequence>(eventsToSyllableSequence([]));
     const graded = ref(false);
@@ -414,7 +410,7 @@ export default defineComponent({
         inputSeq.value.append(e);
       });
 
-      midi.value?.addNoteoffListenter((e) => {
+      midi.value?.addNoteoffListenter(() => {
         if (midi.value?.recording?.length && midi.value?.recording?.length >= 2) {
           submit();
         }
@@ -434,7 +430,6 @@ export default defineComponent({
     const submit = () => {
       if (!midi.value?.recording) return false;
 
-      const aSylSeq = eventsToSyllableSequence(midi.value.recording);
       inputSeq.value = eventsToSyllableSequence([]);
 
       if (!questionUtils.submitAnswer(midi.value.recording).isCorrect) {
