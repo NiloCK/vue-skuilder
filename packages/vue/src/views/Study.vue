@@ -230,6 +230,8 @@ export default defineComponent({
       editCardReady: false,
       cardID: '',
       view: null as ViewComponent | null,
+      // [ ] fix this
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       constructedView: null as any | null, // [ ] #vue3 - type this properly
       data: [] as ViewData[],
       courseID: '',

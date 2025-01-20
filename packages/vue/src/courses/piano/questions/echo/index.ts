@@ -68,7 +68,7 @@ export class EchoQuestion extends Question {
       const gradedSeq = qSylSeq.grade(aSylSeq);
       return gradedSeq.isCorrect();
     } catch (e) {
-      console.log(`ERROR grading this midi sequence!`);
+      console.log(`ERROR grading this midi sequence!`, e);
       return false;
     }
 

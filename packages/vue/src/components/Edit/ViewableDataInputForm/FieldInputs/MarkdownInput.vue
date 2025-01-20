@@ -13,7 +13,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import FieldInput from '../OptionsFieldInput';
-import SimpleMDE from 'simplemde';
+// import SimpleMDE from 'simplemde';
 
 export default defineComponent({
   name: 'MarkdownInput',
@@ -29,5 +29,5 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import url('https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css');
+/* @import url('https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css'); */
 </style>

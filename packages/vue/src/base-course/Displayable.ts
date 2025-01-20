@@ -1,23 +1,24 @@
-import Vue, { DefineComponent, defineComponent, ComponentOptions } from 'vue';
+import { DefineComponent, defineComponent } from 'vue';
 import { DataShape } from '../base-course/Interfaces/DataShape';
 import { ViewData } from '../base-course/Interfaces/ViewData';
 import { FieldType } from '../enums/FieldType';
 
 // [ ] #vue3 - post migration, specify this more precisely (no longer a hodge-podge)
 export type ViewComponent =
-  | DefineComponent<any, any, any, any, any, any, any>
+  | DefineComponent<unknown, unknown, unknown>
   | ReturnType<typeof defineComponent>;
 
 export function isDefineComponent(
   v: ViewComponent
-): v is DefineComponent<any, any, any, any, any, any, any> {
-  return (v as DefineComponent<any, any, any, any, any, any, any>).__isFragment !== undefined;
+): v is DefineComponent<unknown, unknown, unknown> {
+  return (v as DefineComponent<unknown, unknown, unknown>).__isFragment !== undefined;
 }
 
 // export function isComponentOptions(v: ViewComponent): v is ComponentOptions<any> {
 //   return (v as ComponentOptions<Vue>).name !== undefined;
 // }
 
+// eslint-disable-next-line
 export interface Answer {}
 
 // tslint:disable-next-line:max-classes-per-file

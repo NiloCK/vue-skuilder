@@ -61,7 +61,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, onUnmounted, PropType } from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
-import { FallingLettersQuestion, Score } from './index';
+import { FallingLettersQuestion } from './index';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 
 // Types
@@ -100,6 +100,7 @@ export default defineComponent({
     modifyDifficulty: {
       type: Number,
       required: false,
+      default: 0,
     },
   },
 

@@ -144,6 +144,7 @@ export default defineComponent({
     _tag: {
       type: String,
       required: false,
+      default: '',
     },
   },
 

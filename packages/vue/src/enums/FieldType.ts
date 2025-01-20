@@ -10,7 +10,6 @@ export enum FieldType {
   CHESS_PUZZLE = 'chess_puzzle',
 }
 
-const stringConverter: Converter = (value: string) => value;
 const numberConverter: Converter = (value: string) => {
   return parseFloat(value);
 };
@@ -36,7 +35,7 @@ export const fieldConverters: { [index in FieldType]: FieldConverter } = {
     previewConverter: intConverter,
   },
   image: {
-    databaseConverter: value => value,
+    databaseConverter: (value) => value,
     previewConverter: (value: { content_type: string; data: Blob }) => {
       if (value) {
         return value.data;
@@ -46,7 +45,7 @@ export const fieldConverters: { [index in FieldType]: FieldConverter } = {
     },
   },
   audio: {
-    databaseConverter: value => value,
+    databaseConverter: (value) => value,
     previewConverter: (value: { content_type: string; data: Blob }) => {
       if (value) {
         return value.data;
@@ -57,16 +56,16 @@ export const fieldConverters: { [index in FieldType]: FieldConverter } = {
     },
   },
   midi: {
-    databaseConverter: value => value,
-    previewConverter: value => value,
+    databaseConverter: (value) => value,
+    previewConverter: (value) => value,
   },
   markdown: {
-    databaseConverter: value => value,
-    previewConverter: value => value,
+    databaseConverter: (value) => value,
+    previewConverter: (value) => value,
   },
   uploads: {
-    databaseConverter: value => value,
-    previewConverter: value => value,
+    databaseConverter: (value) => value,
+    previewConverter: (value) => value,
   },
 };
 
@@ -75,4 +74,5 @@ interface FieldConverter {
   previewConverter: Converter;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Converter = (value: any) => string | number | boolean | Blob;

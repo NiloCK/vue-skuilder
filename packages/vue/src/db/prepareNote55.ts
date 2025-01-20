@@ -8,6 +8,8 @@ export function prepareNote55(
   courseID: string,
   codeCourse: string,
   shape: DataShape,
+  // [ ] add typing
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any,
   author: string,
   tags: string[],

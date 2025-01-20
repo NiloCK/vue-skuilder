@@ -1,4 +1,3 @@
-import { isNumber } from 'util';
 import { Status } from '../../../../enums/Status';
 import { ValidationResult } from '../../../../base-course/Interfaces/ValidationResult';
 
@@ -37,12 +36,14 @@ export function integerValidator(value: string): ValidationResult {
   }
 }
 
-function isNumeric(value: any): boolean {
+function isNumeric(value: unknown): boolean {
   // pilfered from Angular and assumed to be correctish:
   // https://github.com/angular/angular/blob/4.3.x/packages/common/src/pipes/number_pipe.ts#L172
+
+  // @ts-expect-error - see above
   return !isNaN(value - parseFloat(value));
 }
 
 function isInteger(value: string) {
-  return /^[\+,\-]?\s?\d+$/.test(value);
+  return /^[+,-]?\s?\d+$/.test(value);
 }

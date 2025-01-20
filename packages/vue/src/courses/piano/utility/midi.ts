@@ -1,3 +1,4 @@
+// eslint-disable-next-line
 /// <reference types="webmidi" />
 import webmidi, {
   WebMidi,
@@ -7,7 +8,7 @@ import webmidi, {
   InputEventNoteoff,
   InputEventNoteon,
 } from 'webmidi';
-import { Note, Interval, NoteLiteral, Midi } from '@tonaljs/tonal';
+import { Note, Interval } from '@tonaljs/tonal';
 import { alertUser } from '../../../components/SnackbarService.vue';
 import { Status } from '../../../enums/Status';
 // import Navigator from '@types/webmidi';

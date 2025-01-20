@@ -62,7 +62,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { doesUserExist, User } from '@/db/userDB';
+import { User } from '@/db/userDB';
 import { log } from '@/logshim';
 import { alertUser } from './SnackbarService.vue';
 import { Status } from '../enums/Status';

@@ -1,5 +1,4 @@
 import _ from 'lodash';
-// @ts-ignore
 import pouch from 'pouchdb-browser';
 import { log } from '@/logshim';
 import { filterAllDocsByPrefix, getCourseDB } from '.';
@@ -56,7 +55,7 @@ export class CourseDB implements StudyContentSource {
     // cardLimit = cardLimit ? cardLimit : 999;
     const u = await User.instance();
     const userCrsdoc = await u.getCourseRegDoc(this.id);
-    const activeCards = await u.getActiveCards(this.id);
+    const activeCards = await u.getActiveCards();
 
     // console.log()
     const newCards = (await this.getCardsByELO(EloToNumber(userCrsdoc!.elo), cardLimit)).filter(

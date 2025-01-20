@@ -1,3 +1,4 @@
+import { isInteger } from 'lodash';
 import { Validator } from '../../../base-course/Interfaces/Validator';
 import { Status } from '../../../enums/Status';
 
@@ -34,10 +35,17 @@ export function intValidator(min: number, max: number): Validator {
   return {
     instructions: `This input must be an integer between ${min} and ${max}, inclusive.`,
     test: (value: string) => {
-      return {
-        status: Status.ok,
-        msg: '',
-      };
+      if (isInteger(value)) {
+        return {
+          status: Status.ok,
+          msg: '',
+        };
+      } else {
+        return {
+          status: Status.error,
+          msg: `The value ${value} is not an integer.`,
+        };
+      }
     },
   };
 }

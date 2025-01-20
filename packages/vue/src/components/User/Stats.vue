@@ -9,41 +9,20 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import { log } from '@/logshim';
-import confetti from 'canvas-confetti';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { User } from '@/db/userDB';
 
-export default defineComponent({
-  name: 'Stats',
+const user = ref<User | null>(null);
+const scheduledReviews = ref<number[]>([]);
 
-  props: {
-    _id: {
-      type: String,
-      required: true,
-    },
-  },
+onMounted(async () => {
+  user.value = await User.instance();
 
-  data() {
-    return {
-      u: null as User | null,
-      scheduledReviews: [] as number[],
-    };
-  },
-
-  computed: {
-    isNewUser(): boolean {
-      return this.$route.path.endsWith('new');
-    },
-  },
-
-  async created() {
-    this.u = await User.instance();
-    [1, 7, 30].forEach(async (d) => {
-      this.scheduledReviews.push((await this.u!.getReviewsForcast(d)).length);
-    });
-  },
+  // Using Promise.all to handle all forecasts concurrently
+  const days = [1, 7, 30];
+  const forecasts = await Promise.all(days.map((d) => user.value!.getReviewsForcast(d)));
+  scheduledReviews.value = forecasts.map((f) => f.length);
 });
 </script>
 

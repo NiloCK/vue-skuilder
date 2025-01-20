@@ -86,6 +86,7 @@ export default defineComponent({
     modifyDifficulty: {
       type: Number,
       required: false,
+      default: 0,
     },
   },
 
@@ -118,11 +119,15 @@ export default defineComponent({
     });
 
     // Methods
-    const isPromotionPiece = (p: any): p is PromotionPiece => ['q', 'r', 'b', 'n'].includes(p);
+    const isPromotionPiece = (p?: string): p is PromotionPiece => {
+      if (!p) return false;
+      return ['q', 'r', 'b', 'n'].includes(p);
+    };
 
     const isUnfinishedPromotion = (from: string, to: string, promotionPiece?: PromotionPiece) => {
       if (isPromotionPiece(promotionPiece)) return false;
-      // @ts-ignore
+      // [ ] typing
+      // @ts-expect-error - `from` is well-formed
       const piece = chessEngine.value?.get(from);
       return piece?.type === 'p' && (to[1] === '8' || to[1] === '1');
     };
@@ -212,7 +217,8 @@ export default defineComponent({
           showDests: true,
           dests: toDests(chessEngine.value),
           events: {
-            // @ts-ignore
+            // [ ] typing
+            // @ts-expect-error - `orig` and `dest` are well-formed
             after: checkMove,
           },
         },

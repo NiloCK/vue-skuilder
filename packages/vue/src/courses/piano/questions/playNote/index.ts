@@ -54,7 +54,7 @@ export class PlayNote extends Question {
 
   constructor(data: ViewData[]) {
     super(data);
-    this.note = (data[0].Note as any) as string;
+    this.note = data[0].Note as unknown as string;
   }
 
   public isCorrect(answer: NoteEvent[]): boolean {

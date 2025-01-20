@@ -16,12 +16,13 @@
 import { defineComponent } from 'vue';
 import { integerValidator } from './typeValidators';
 import FieldInput from '../OptionsFieldInput';
+import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
 
 export default defineComponent({
   name: 'IntegerInput',
   extends: FieldInput,
   computed: {
-    validators(): Function[] {
+    validators(): ValidatingFunction[] {
       const baseValidators = FieldInput.computed?.validators.call(this);
       const ret = [integerValidator];
       if (baseValidators) {

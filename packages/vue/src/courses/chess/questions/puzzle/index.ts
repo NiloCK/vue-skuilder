@@ -41,7 +41,7 @@ export class ChessPuzzle extends Question {
               }
             },
           },
-          tagger: (s: string) => {
+          tagger: () => {
             // [ ] not actually used
             return ['test'];
           },
@@ -91,7 +91,16 @@ export class ChessPuzzle extends Question {
     };
   }
   displayedSkill(a: Answer, t: number) {
-    return 0.5;
+    if (this.isCorrect(a)) {
+      if (t < 5000) {
+        return 1;
+      } else {
+        // scale from 1 at t=5s to 0,5 at t>=15s
+        return 1 - Math.min(1, (t - 5000) / 10000);
+      }
+    }
+
+    return 0;
   }
   dataShapes() {
     return ChessPuzzle.dataShapes;

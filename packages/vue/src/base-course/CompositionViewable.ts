@@ -1,20 +1,11 @@
 // src/base-course/CompositionViewable.ts
 
 import moment from 'moment';
-import {
-  defineComponent,
-  PropType,
-  ref,
-  computed,
-  Ref,
-  onMounted,
-  onUnmounted,
-  ComputedRef,
-} from 'vue';
+import { computed, ComputedRef, defineComponent, PropType, ref, Ref } from 'vue';
+import { CardRecord, QuestionRecord } from '../db/types';
 import { HotKey } from '../SkldrMouseTrap';
 import { Answer, Displayable, Question } from './Displayable';
 import { ViewData } from './Interfaces/ViewData';
-import { CardRecord, QuestionRecord } from '../db/types';
 
 // Core interfaces to ensure type safety
 export interface ViewableUtils {
@@ -27,9 +18,9 @@ export interface ViewableUtils {
 }
 
 export interface ViewableLogger {
-  log: (message?: any, ...params: any[]) => void;
-  error: (message?: any, ...params: any[]) => void;
-  warn: (message?: any, ...params: any[]) => void;
+  log: (message?: unknown, ...params: unknown[]) => void;
+  error: (message?: unknown, ...params: unknown[]) => void;
+  warn: (message?: unknown, ...params: unknown[]) => void;
 }
 
 export interface QuestionViewUtils<Q extends Question> {
@@ -45,18 +36,18 @@ export interface QuestionViewUtils<Q extends Question> {
 // Base composable for viewable functionality
 export function useViewable(
   props: { data: ViewData[] },
-  emit: (event: string, ...args: any[]) => void,
+  emit: (event: string, ...args: unknown[]) => void,
   componentName: string
 ): ViewableUtils {
   const startTime = ref(moment.utc());
   const hotKeys = ref<HotKey[]>([]);
 
   const logger: ViewableLogger = {
-    log: (message?: any, ...params: any[]) =>
+    log: (message?: unknown, ...params: unknown[]) =>
       console.log(`[${componentName}]: `, message, ...params),
-    error: (message?: any, ...params: any[]) =>
+    error: (message?: unknown, ...params: unknown[]) =>
       console.error(`[${componentName}]: `, message, ...params),
-    warn: (message?: any, ...params: any[]) =>
+    warn: (message?: unknown, ...params: unknown[]) =>
       console.warn(`[${componentName}]: `, message, ...params),
   };
 

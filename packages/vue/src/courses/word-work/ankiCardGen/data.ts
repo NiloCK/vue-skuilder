@@ -1,14 +1,14 @@
-interface VowelWordData {
-  vowel: string; // length 1
-  consonents: VowelConsonentWordData[];
-}
-interface VowelConsonentWordData {
-  consonent: string; // length 1
-  e_examples: string; // of individual letters
-  double_examples: string; //  ^^^       ^^^
-  exceptions: string;
-  blends: string[];
-}
+// interface VowelWordData {
+//   vowel: string; // length 1
+//   consonents: VowelConsonentWordData[];
+// }
+// interface VowelConsonentWordData {
+//   consonent: string; // length 1
+//   e_examples: string; // of individual letters
+//   double_examples: string; //  ^^^       ^^^
+//   exceptions: string;
+//   blends: string[];
+// }
 
 export default {
   a: {

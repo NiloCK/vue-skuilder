@@ -3,6 +3,7 @@
     ref="inputField"
     v-model="store[field.name]"
     variant="filled"
+    type="text"
     :name="field.name"
     :label="field.name"
     :rules="vuetifyRules()"
@@ -12,24 +13,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { defineComponent } from 'vue';
 import FieldInput from '../OptionsFieldInput';
-import { FieldDefinition } from '../../../../base-course/Interfaces/FieldDefinition';
+import { ValidatingFunction } from '../../../../base-course/Interfaces/ValidatingFunction';
 
 export default defineComponent({
   name: 'StringInput',
   extends: FieldInput,
 
-  props: {
-    autofocus: Boolean,
-    field: Object as PropType<FieldDefinition>,
-    store: {
-      type: Object as PropType<any>,
-      required: true,
-    },
-    uiValidationFu2nction: {
-      type: Function as PropType<() => boolean>,
-      required: true,
+  computed: {
+    validators(): ValidatingFunction[] {
+      const baseValidators = FieldInput.computed?.validators.call(this);
+      if (baseValidators) {
+        return baseValidators;
+      } else {
+        return [];
+      }
     },
   },
 });

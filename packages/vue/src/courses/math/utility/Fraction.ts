@@ -50,13 +50,11 @@ class ProperFraction {
   }
 
   simplify(): ProperFraction {
-    let ret: ProperFraction = this;
-
-    while (ret.hasReduction()) {
-      ret = ret.reduce();
+    let reduced = this.reduce();
+    while (reduced.hasReduction()) {
+      reduced = reduced.reduce();
     }
-
-    return ret;
+    return reduced;
   }
 
   getCanvasDrawing(size: number): HTMLCanvasElement {

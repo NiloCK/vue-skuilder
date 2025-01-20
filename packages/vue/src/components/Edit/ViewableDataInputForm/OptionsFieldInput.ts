@@ -22,6 +22,7 @@ export default defineComponent({
       required: true,
     },
     store: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       type: Object as PropType<any>,
       required: true,
     },

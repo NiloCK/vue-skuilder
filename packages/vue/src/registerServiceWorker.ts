@@ -8,7 +8,7 @@ if (import.meta.env.PROD) {
     onOfflineReady() {
       console.log('Content has been cached for offline use.');
     },
-    onRegistered(r) {
+    onRegistered() {
       console.log('Service worker has been registered.');
     },
     onRegisterError(error) {

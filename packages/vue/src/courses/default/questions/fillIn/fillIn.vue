@@ -37,19 +37,12 @@ import { BlanksCard } from './index';
 import gradeSpellingAttempt from './blanksCorrection';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 
-const typeMap: { [index: string]: string } = {
-  text: 'textType',
-  blank: 'blankType',
-};
-
 export default defineComponent({
   name: 'FillInView',
 
   components: {
     MarkdownRenderer: defineAsyncComponent(() => import('@/base-course/Components/MarkdownRenderer.vue')),
     RadioMultipleChoice,
-    blankType: () => import('./fillInInput.vue'),
-    textType: () => import('./fillInText.vue'),
     AudioAutoPlayer,
   },
 
@@ -187,7 +180,7 @@ export default defineComponent({
 
       // construct a list of all non-answers
       let distractors: string[] = _.shuffle(
-        question.value.options.filter((o: any) => question.value.answers?.indexOf(o) === -1)
+        question.value.options.filter((o: string) => question.value.answers?.indexOf(o) === -1)
       );
 
       if (props.modifyDifficulty) {
