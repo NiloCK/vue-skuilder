@@ -45,6 +45,10 @@ import { Status } from '../../../enums/Status';
 import { User } from '@/db/userDB';
 import { InputEventNoteon } from 'webmidi';
 
+interface MidiDevice {
+  text: string;
+  value: string;
+}
 export default defineComponent({
   name: 'MidiConfig',
 
@@ -58,10 +62,10 @@ export default defineComponent({
   setup(props) {
     const midi = ref<SkMidi>();
     const midiSupported = ref(true);
-    const inputs = ref<{ text: string; value: {} }[]>([]);
-    const outputs = ref<{ text: string; value: {} }[]>([]);
-    const selectedInput = ref('');
-    const selectedOutput = ref('');
+    const inputs = ref<MidiDevice[]>([]);
+    const outputs = ref<MidiDevice[]>([]);
+    const selectedInput = ref<string>('');
+    const selectedOutput = ref<string>('');
     const updatePending = ref(false);
     const user = ref<User>();
 
@@ -296,8 +300,8 @@ export default defineComponent({
               value: i.id,
             }));
         } else {
-          inputs.value = [{ text: 'No inputs available', value: {} }];
-          outputs.value = [{ text: 'No outputs available', value: {} }];
+          inputs.value = [{ text: 'No inputs available', value: '' }];
+          outputs.value = [{ text: 'No outputs available', value: '' }];
         }
 
         selectedInput.value = inputs.value[0].text;
