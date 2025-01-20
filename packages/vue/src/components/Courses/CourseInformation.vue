@@ -1,9 +1,9 @@
 <template>
   <div v-if="!updatePending">
-    <h1 class="text-h4 mb-2"><router-link to="/q">Quilts</router-link> / {{ _courseConfig.name }}</h1>
+    <h1 class="text-h4 mb-2"><router-link to="/q">Quilts</router-link> / {{ courseCongig.name }}</h1>
 
     <p class="text-body-2">
-      {{ _courseConfig.description }}
+      {{ courseCongig.description }}
     </p>
 
     <transition name="component-fade" mode="out-in">
@@ -60,7 +60,6 @@
 import { defineComponent, PropType } from 'vue';
 import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
 import { log } from '@/logshim';
-import { getCourseDB } from '@/db';
 import { CourseDB, getCourseConfig, getCourseTagStubs } from '@/db/courseDB';
 import { Tag } from '@/db/types';
 import { CourseConfig } from '@/server/types';
@@ -92,7 +91,7 @@ export default defineComponent({
         },
       ],
       updatePending: true,
-      _courseConfig: {} as CourseConfig,
+      courseCongig: {} as CourseConfig,
       userIsRegistered: false,
       tags: [] as Tag[],
       user: null as User | null,
@@ -101,7 +100,7 @@ export default defineComponent({
 
   computed: {
     isPianoCourse(): boolean {
-      return this._courseConfig.name.toLowerCase().includes('piano');
+      return this.courseCongig.name.toLowerCase().includes('piano');
     },
   },
 
@@ -115,8 +114,7 @@ export default defineComponent({
         return c.courseID === this._id && (c.status === 'active' || c.status === undefined);
       }).length === 1;
 
-    await getCourseDB(this._id);
-    this._courseConfig = (await getCourseConfig(this._id))!;
+    this.courseCongig = (await getCourseConfig(this._id))!;
     this.tags = (await getCourseTagStubs(this._id)).rows.map((r) => r.doc!);
     this.updatePending = false;
   },
