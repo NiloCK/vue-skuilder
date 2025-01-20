@@ -14,6 +14,7 @@ interface DataInputForm {
   shapeViews: ViewComponent[];
 
   fields: FieldInputInstance[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localStore: any; // [ ] type this...
 
   uploading: boolean;

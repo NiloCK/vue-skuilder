@@ -106,7 +106,7 @@ export function splitParagraphToken(token: marked.Tokens.Paragraph): TokenOrComp
         } else {
           marked.lexer(rawChunks[i]).forEach((t) => {
             if (t.type === 'paragraph') {
-              ret = ret.concat((t as any).tokens);
+              ret = ret.concat(t.tokens);
             } else {
               ret.push(t);
             }
@@ -158,6 +158,7 @@ export const BlanksCardDataShapes: DataShape[] = [
   },
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const val: Validator = {
   test: (input) => {
     console.log(`Testing md input: ${input}`);
@@ -255,9 +256,11 @@ export class BlanksCard extends Question {
       }
     }
 
-    if ((tok as any).tokens) {
-      for (let i = 0; i < (tok as any).tokens.length; i++) {
-        const candidate = this.findAnswers((tok as any).tokens[i]);
+    const toks: { tokens: marked.Token[] } = tok as { tokens: marked.Token[] };
+
+    if (toks.tokens) {
+      for (let i = 0; i < toks.tokens.length; i++) {
+        const candidate = this.findAnswers(toks.tokens[i]);
         if (candidate !== null) {
           return candidate;
         }
@@ -292,7 +295,7 @@ export class BlanksCard extends Question {
 
   constructor(data: ViewData[]) {
     super(data);
-    this.mdText = data[0].Input as any as string;
+    this.mdText = data[0].Input as unknown as string;
 
     const splits = splitByDelimiters(this.mdText, '{{', '}}');
     const recombines = [];
