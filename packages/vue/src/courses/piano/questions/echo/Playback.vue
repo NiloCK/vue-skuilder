@@ -31,7 +31,7 @@
 <script lang="ts">
 import { defineComponent, ref, computed, PropType, onMounted, onBeforeUnmount } from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
-import SkMidi, { NoteEvent, eventsToSyllableSequence, SyllableSequence } from '../../utility/midi';
+import SkMidi, { eventsToSyllableSequence, SyllableSequence } from '../../utility/midi';
 import { EchoQuestion } from '.';
 import moment from 'moment';
 import SyllableSeqVis from '../../utility/SyllableSeqVis.vue';
@@ -42,6 +42,8 @@ import { ViewData } from '@/base-course/Interfaces/ViewData';
 import SkldrMouseTrap from '@/SkldrMouseTrap';
 
 export default defineComponent({
+  // this class name *may* be used as a lookup for dynamic component.
+  // eslint-disable-next-line
   name: 'Playback',
 
   components: {
@@ -138,7 +140,7 @@ export default defineComponent({
             });
           });
         }
-      } catch (e) {
+      } catch {
         setTimeout(runProgressBar, 50);
       }
     };
@@ -157,7 +159,7 @@ export default defineComponent({
         }
       });
 
-      midi.value?.addNoteoffListenter((e) => {
+      midi.value?.addNoteoffListenter(() => {
         notesOff.value++;
         if (notesOn.value + notesOff.value >= question.value.midi.length) {
           submit();
@@ -192,7 +194,6 @@ export default defineComponent({
       gradedSeq.value = qSylSeq.grade(aSylSeq);
       inputSeq.value = eventsToSyllableSequence([]);
 
-      // @ts-ignore  - this property clearly exists - why is it not being recognized?
       if (!questionUtils.submitAnswer(midi.value.recording).isCorrect) {
         attempts.value++;
         graded.value = true;
