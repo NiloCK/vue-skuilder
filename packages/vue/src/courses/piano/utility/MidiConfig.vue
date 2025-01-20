@@ -38,11 +38,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, onMounted, PropType } from 'vue';
+import { defineComponent, ref, watch, onMounted } from 'vue';
 import { alertUser } from '@/components/SnackbarService.vue';
 import SkMidi from './midi';
 import { Status } from '../../../enums/Status';
 import { User } from '@/db/userDB';
+import { InputEventNoteon } from 'webmidi';
 
 export default defineComponent({
   name: 'MidiConfig',
@@ -229,7 +230,7 @@ export default defineComponent({
       ]);
     };
 
-    const indicateHeardNotes = (note: any) => {
+    const indicateHeardNotes = (note: InputEventNoteon) => {
       alertUser({
         text: `I hear a ${note.note.name}!`,
         status: Status.ok,
