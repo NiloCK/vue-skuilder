@@ -13,7 +13,7 @@ export default class UpdateQueue extends Loggable {
 
   private db: PouchDB.Database;
 
-  public update<T extends PouchDB.Core.Document<{}>>(
+  public update<T extends PouchDB.Core.Document<object>>(
     id: PouchDB.Core.DocumentId,
     update: Update<T>
   ) {
@@ -35,49 +35,8 @@ export default class UpdateQueue extends Loggable {
       console.log(`db info: ${JSON.stringify(i)}`);
     });
   }
-  doc = {
-    cardID: 'cccfb49912aab6824f02e0d1d408ce0e',
-    courseID: 'cccfb49912aab6824f02e0d1d4000aa6',
-    records: [
-      {
-        priorAttemps: 0,
-        courseID: 'cccfb49912aab6824f02e0d1d4000aa6',
-        cardID: 'cccfb49912aab6824f02e0d1d408ce0e',
-        isCorrect: false,
-        timeSpent: 3330,
-        timeStamp: '2021-01-28T19:04:54.988Z',
-        userAnswer: 19,
-      },
-      {
-        priorAttemps: 0,
-        courseID: 'cccfb49912aab6824f02e0d1d4000aa6',
-        cardID: 'cccfb49912aab6824f02e0d1d408ce0e',
-        isCorrect: false,
-        timeSpent: 3330,
-        timeStamp: '2021-01-28T19:04:54.988Z',
-        userAnswer: 19,
-      },
-      {
-        priorAttemps: 1,
-        courseID: 'cccfb49912aab6824f02e0d1d4000aa6',
-        cardID: 'cccfb49912aab6824f02e0d1d408ce0e',
-        isCorrect: true,
-        timeSpent: 6727,
-        timeStamp: '2021-01-28T19:04:54.988Z',
-        userAnswer: 18,
-      },
-    ],
-    lapses: 0,
-    streak: 0,
-    bestInterval: 0,
-    _id: 'cardH-cccfb49912aab6824f02e0d1d4000aa6-cccfb49912aab6824f02e0d1d408ce0e',
-    _rev: '5-5dda0bed7dde5d5a065128b87b193bb8',
-  };
 
-  private async applyUpdates<T extends PouchDB.Core.Document<{}>>(
-    id: string,
-    recurseDepth: number = 0
-  ): Promise<T> {
+  private async applyUpdates<T extends PouchDB.Core.Document<object>>(id: string): Promise<T> {
     console.log(`Applying updates on doc: ${id}`);
     if (this.inprogressUpdates[id]) {
       // console.log(`Updates in progress...`);
