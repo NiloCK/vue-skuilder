@@ -8,19 +8,14 @@ import {
   pouchDBincludeCredentialsConfig,
   REVIEW_TIME_FORMAT,
 } from '.';
-import {
-  StudyContentSource,
-  StudySessionItem,
-  StudySessionNewItem,
-  StudySessionReviewItem,
-} from './contentSource';
+import { StudyContentSource, StudySessionNewItem, StudySessionReviewItem } from './contentSource';
 import { CourseDB, getTag } from './courseDB';
 import { ScheduledCard, User } from './userDB';
 
 const classroomLookupDBTitle = 'classdb-lookup';
 export const CLASSROOM_CONFIG = 'ClassroomConfig';
 
-export type ClassroomMessage = {};
+export type ClassroomMessage = object;
 
 export type AssignedContent = AssignedCourse | AssignedTag | AssignedCard;
 
@@ -104,7 +99,7 @@ abstract class ClassroomDBBase {
 
 export class StudentClassroomDB extends ClassroomDBBase implements StudyContentSource {
   private readonly _prefix: string = 'content';
-  private userMessages: PouchDB.Core.Changes<{}>;
+  private userMessages: PouchDB.Core.Changes<object>;
 
   private constructor(classID: string) {
     super();
@@ -139,7 +134,7 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
     return ret;
   }
 
-  public setChangeFcn(f: (value: any) => {}) {
+  public setChangeFcn(f: (value: unknown) => object) {
     // todo: make this into a view request, w/ the user's name attached
     // todo: requires creating the view doc on classroom create in /express
     this.userMessages.on('change', f);
@@ -152,7 +147,7 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
       .map((r) => {
         return {
           ...r,
-          qualifiedID: r.courseId + '-' + r.cardId,
+          qualifiedID: `${r.courseId}-${r.cardId}`,
           courseID: r.courseId,
           cardID: r.cardId,
           contentSourceType: 'classroom',
