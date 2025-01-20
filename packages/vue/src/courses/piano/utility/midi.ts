@@ -3,7 +3,6 @@ import webmidi, {
   WebMidi,
   Input,
   Output,
-  InputEventBase,
   IEventNote,
   InputEventNoteoff,
   InputEventNoteon,
@@ -224,12 +223,12 @@ class Syllable {
     return 1.3 * sequentialEventsLowerBound * n;
   }
 
-  public grade(answer: Syllable, refNote?: IEventNote): Syllable {
-    const ref =
-      refNote ||
-      this.notes.sort((a, b) => {
-        return a.note.number - b.note.number;
-      })[0];
+  public grade(answer: Syllable /*, refNote?: IEventNote */): Syllable {
+    // const ref =
+    //   refNote ||
+    //   this.notes.sort((a, b) => {
+    //     return a.note.number - b.note.number;
+    //   })[0];
 
     if (this.notes.length !== answer.notes.length) {
       answer.isCorrect = false;
@@ -255,10 +254,10 @@ class Syllable {
 
     this.notes.forEach((note) => {
       let fNote = Note.fromMidi(note.note.number);
-      let sNote = Note.fromMidiSharps(note.note.number);
+      // let sNote = Note.fromMidiSharps(note.note.number);
 
       fNote = Note.pitchClass(fNote);
-      sNote = Note.pitchClass(sNote);
+      // sNote = Note.pitchClass(sNote);
 
       if (
         !answer.notes.some(
