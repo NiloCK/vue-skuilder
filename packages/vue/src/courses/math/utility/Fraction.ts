@@ -81,7 +81,7 @@ class ProperFraction {
     con.translate(-mid, -mid);
 
     // the 'arc' fills
-    for (var i = 0; i < this.num; i++) {
+    for (let i = 0; i < this.num; i++) {
       con.beginPath();
       con.arc(mid, mid, radius, angle * i, angle * (i + 1));
       con.fill();
@@ -90,7 +90,7 @@ class ProperFraction {
     // the 'triangular' segments
     con.beginPath();
     con.moveTo(mid, mid);
-    for (var i = 0; i <= this.num; i++) {
+    for (let i = 0; i <= this.num; i++) {
       con.lineTo(mid + radius * Math.cos(angle * i), mid + radius * Math.sin(angle * i));
     }
     con.moveTo(mid, mid);
@@ -99,7 +99,7 @@ class ProperFraction {
     // the dividing spokes
     if (this.den > 1) {
       // prevents drawing of 'solitary' spoke in 1/1
-      for (var i = 0; i < this.den; i++) {
+      for (let i = 0; i < this.den; i++) {
         con.beginPath();
         con.moveTo(mid, mid);
         con.lineTo(mid + radius * Math.cos(i * angle), mid + radius * Math.sin(i * angle));
@@ -136,12 +136,12 @@ class ProperFraction {
 
     // The 'filled in' bits
     con.fillStyle = 'orange';
-    for (var i = 0; i < this.num; i++) {
+    for (let i = 0; i < this.num; i++) {
       con.fillRect((i * size) / this.den, 0, size / this.den, size);
     }
 
     // The vertical bars
-    for (var i = 1; i < this.den; i++) {
+    for (let i = 1; i < this.den; i++) {
       con.beginPath();
       con.moveTo((i * size) / this.den, 0);
       con.lineTo((i * size) / this.den, size);
