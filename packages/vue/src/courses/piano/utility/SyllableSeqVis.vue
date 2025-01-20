@@ -76,7 +76,9 @@ export default defineComponent({
         const suggestedTS = firstTS.value + props.lastTSsuggestion;
 
         lastTS.value = Math.max(dataTS, suggestedTS);
-      } catch {}
+      } catch (e) {
+        console.log(`[SyllableSeqVis] Error updating bounds: ${e}`);
+      }
       props.seq.syllables.forEach((s) => {
         s.notes.forEach((n) => {
           if (n.note.number > high.value) {
