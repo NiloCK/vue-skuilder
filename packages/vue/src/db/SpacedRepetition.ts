@@ -12,7 +12,6 @@ const duration = moment.duration;
  * @param cardHistory The user's history working with the given card
  */
 export function newInterval(cardHistory: CardHistory<CardRecord>): number {
-  const records = cardHistory.records;
   if (areQuestionRecords(cardHistory)) {
     return newQuestionInterval(cardHistory);
   } else {
@@ -100,28 +99,14 @@ function getLapses(records: QuestionRecord[]): number {
 }
 
 function getInitialInterval(cardHistory: QuestionRecord[]): number {
+  console.warn(`history of length: ${cardHistory.length} ignored!`);
+
   // todo make this a data-driven service, relying on:
   //  - global experience w/ the card (ie, what interval
   //      seems to be working well across the population)
   //  - the individual user (how do they respond in general
   //      when compared to the population)
   return 60 * 60 * 24 * 3; // 3 days
-}
-
-/**
- * Returns a list of prior viewing intervals in seconds.
- * @param cardHistory
- */
-function getPreviousIntervals(cardHistory: QuestionRecord[]): number[] {
-  const ret: number[] = [];
-
-  cardHistory.forEach((card, index) => {
-    if (index > 0) {
-      ret.push(secondsBetween(cardHistory[index - 1].timeStamp, cardHistory[index].timeStamp));
-    }
-  });
-
-  return ret;
 }
 
 /**
