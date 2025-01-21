@@ -296,6 +296,9 @@ export class BlanksCard extends Question {
   constructor(data: ViewData[]) {
     super(data);
     this.mdText = data[0].Input as unknown as string;
+    if (this.mdText === undefined) {
+      this.mdText = '';
+    }
 
     const splits = splitByDelimiters(this.mdText, '{{', '}}');
     const recombines = [];
