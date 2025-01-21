@@ -53,11 +53,11 @@ export function hexEncode(str: string): string {
 
   return returnStr;
 }
-
 export const pouchDBincludeCredentialsConfig: PouchDB.Configuration.RemoteDatabaseConfiguration = {
   fetch(url: string | Request, opts: RequestInit): Promise<Response> {
     opts.credentials = 'include';
-    return PouchDB.fetch(url, opts);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (pouch as any).fetch(url, opts);
   },
 } as PouchDB.Configuration.RemoteDatabaseConfiguration;
 

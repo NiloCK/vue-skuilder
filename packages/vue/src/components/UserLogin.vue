@@ -60,7 +60,6 @@ const configStore = useConfigStore();
 
 const username = ref('');
 const password = ref('');
-const retypedPassword = ref('');
 const passwordVisible = ref(false);
 const awaitingResponse = ref(false);
 const badLoginAttempt = ref(false);
@@ -92,7 +91,7 @@ const login = async () => {
   try {
     // #172 starting point - why is the pre-existing _user being referenced here?
     user.value = await User.instance();
-    const res = await user.value.login(username.value, password.value);
+    await user.value.login(username.value, password.value);
 
     // load user config
     configStore.init();

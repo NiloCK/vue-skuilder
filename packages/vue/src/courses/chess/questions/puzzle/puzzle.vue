@@ -153,7 +153,7 @@ export default defineComponent({
       checkMove(promotionMove.value.from, promotionMove.value.to, promotionPiece);
     };
 
-    const checkMove = (orig: any, dest: any, promotionPiece?: PromotionPiece) => {
+    const checkMove = (orig: string, dest: string, promotionPiece?: PromotionPiece) => {
       if (!questionUtils.question.value?.moves.length) {
         throw new Error('No moves');
       }

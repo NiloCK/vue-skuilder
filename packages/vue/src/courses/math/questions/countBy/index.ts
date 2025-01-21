@@ -49,6 +49,14 @@ const data = function () {
   return ret;
 };
 
+function asInt(n: number | string): number {
+  if (typeof n === 'string') {
+    return parseInt(n);
+  } else {
+    return n;
+  }
+}
+
 export class CountBy extends Question {
   public static dataShapes = [
     {
@@ -84,7 +92,7 @@ export class CountBy extends Question {
     console.log(`Solution: ${this.answer.toString()}`);
 
     for (let i = 0; i < this.answer.length; i++) {
-      if (parseInt(answer[i] as any) !== this.answer[i]) {
+      if (asInt(answer[i]) !== this.answer[i]) {
         console.log(`answer[${i}] == ${answer[i]} !== ${this.answer[i]}`);
 
         return false;

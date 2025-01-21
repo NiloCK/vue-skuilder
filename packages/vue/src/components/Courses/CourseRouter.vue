@@ -12,7 +12,7 @@
         <v-row class="ma-3">
           <v-dialog v-model="newCourseDialog" fullscreen transition="dialog-bottom-transition" :overlay="false">
             <template #activator="{ props }">
-              <v-btn color="primary" dark v-bind="props">Start a new Quilt</v-btn>
+              <v-btn color="primary" v-bind="props">Start a new Quilt</v-btn>
             </template>
             <course-editor :name="query" @course-editing-complete="newCourseDialog = false" />
           </v-dialog>
@@ -25,13 +25,7 @@
 
           <div v-for="(c, i) in candidates" :key="i" class="ma-5">
             <v-row class="text-h5">
-              <a
-                @click="
-                  query = c.courseID;
-                  loadQuery();
-                "
-                >{{ c.name }}
-              </a>
+              <a @click="loadQuery(c.courseID)">{{ c.name }} </a>
               -
               <v-text-field
                 :id="`${i}-disambiguator`"
@@ -94,8 +88,13 @@ export default defineComponent({
       }
     },
 
-    loadQuery() {
-      const query = this.query.toLowerCase();
+    loadQuery(q?: string) {
+      let query: string;
+      if (q) {
+        query = q.toLowerCase();
+      } else {
+        query = this.query.toLowerCase();
+      }
 
       this.candidates = this.courseList.filter((c) => {
         const snakedName = c.name.replace(' ', '_').toLowerCase();

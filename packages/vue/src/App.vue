@@ -71,7 +71,7 @@ defineOptions({
   name: 'App',
 });
 
-const build = ref('0.0.2');
+// const build = ref('0.0.2');
 const latestBuild = ref('');
 const drawer = ref(false);
 const authStore = useAuthStore();

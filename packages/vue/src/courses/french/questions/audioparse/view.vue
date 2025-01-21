@@ -48,7 +48,7 @@ export default defineComponent({
 
     const submit = () => {
       if (question.value) {
-        const isCorrect = question.value.isCorrect(parseInt(answer.value, 10));
+        // const isCorrect = question.value.isCorrect(parseInt(answer.value, 10));
         // alert(isCorrect);
       }
     };

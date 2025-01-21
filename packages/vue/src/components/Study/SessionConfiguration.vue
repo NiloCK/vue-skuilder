@@ -95,6 +95,8 @@ export default defineComponent({
     },
   },
 
+  emits: ['update:timeLimit'],
+
   data() {
     return {
       allSelected: true,
@@ -214,12 +216,12 @@ export default defineComponent({
 
       Promise.all(
         this.activeCourses.map((c, i) =>
-          (async (courseID: string) => {
+          (async () => {
             return Promise.all([
               (this.activeCourses[i].name = await getCourseName(c.courseID)),
               (this.activeCourses[i].reviews = await (await User.instance()).getScheduledReviewCount(c.courseID)),
             ]);
-          })(c.courseID)
+          })()
         )
       );
     },

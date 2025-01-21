@@ -43,7 +43,7 @@ export class AudioParsingQuestion extends Question {
   }
 
   public isCorrect(answer: Answer): boolean {
-    return true;
+    throw new Error(`isCorrect() not implemented - cannor parse ${answer}`);
   }
 
   public dataShapes() {

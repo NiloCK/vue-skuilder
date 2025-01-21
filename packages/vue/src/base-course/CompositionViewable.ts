@@ -80,8 +80,8 @@ export function useViewable(
 
 // Question view composable
 export function useQuestionView<Q extends Question>(
-  viewableUtils: ViewableUtils,
-  modifyDifficulty?: number
+  viewableUtils: ViewableUtils
+  // modifyDifficulty?: number
 ): QuestionViewUtils<Q> {
   const priorSessionViews = ref(0);
   const priorAttempts = ref(0);

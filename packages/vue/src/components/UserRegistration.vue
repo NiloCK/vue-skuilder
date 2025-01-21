@@ -130,49 +130,42 @@ Student: ${this.student}
 Teacher: ${this.teacher}
 Author: ${this.author}
 `);
-      if (true) {
-        if (this.password === this.retypedPassword) {
-          if (!this.user) return;
+      if (this.password === this.retypedPassword) {
+        if (!this.user) return;
 
-          this.user
-            .createAccount(this.username, this.password)
-            .then(async (resp) => {
-              if (resp.status === Status.ok) {
-                this.authStore.loginAndRegistration.loggedIn = true;
-                this.authStore.loginAndRegistration.init = false;
-                this.authStore.loginAndRegistration.init = true;
+        this.user
+          .createAccount(this.username, this.password)
+          .then(async (resp) => {
+            if (resp.status === Status.ok) {
+              this.authStore.loginAndRegistration.loggedIn = true;
+              this.authStore.loginAndRegistration.init = false;
+              this.authStore.loginAndRegistration.init = true;
 
-                this.$router.push(`/u/${(await User.instance()).username}/new`);
-              } else {
-                if (resp.error === 'This username is taken!') {
-                  this.usernameError = true;
-                  this.usernameHint = 'Try a different name.';
-                  (this.$refs.userNameTextField as HTMLInputElement).focus();
-                  alertUser({
-                    text: `The name ${this.username} is taken!`,
-                    status: resp.status,
-                  });
-                } else {
-                  alertUser({
-                    text: resp.error,
-                    status: resp.status,
-                  });
-                }
-              }
-            })
-            .catch((e) => {
-              if (e)
+              this.$router.push(`/u/${(await User.instance()).username}/new`);
+            } else {
+              if (resp.error === 'This username is taken!') {
+                this.usernameError = true;
+                this.usernameHint = 'Try a different name.';
+                (this.$refs.userNameTextField as HTMLInputElement).focus();
                 alertUser({
-                  text: JSON.stringify(e),
-                  status: Status.error,
+                  text: `The name ${this.username} is taken!`,
+                  status: resp.status,
                 });
-            });
-        } else {
-          alertUser({
-            text: 'Passwords do not match',
-            status: Status.error,
+              } else {
+                alertUser({
+                  text: resp.error,
+                  status: resp.status,
+                });
+              }
+            }
+          })
+          .catch((e) => {
+            if (e)
+              alertUser({
+                text: JSON.stringify(e),
+                status: Status.error,
+              });
           });
-        }
         this.awaitingResponse = false;
       } else {
         alertUser({

@@ -27,7 +27,7 @@ import { defineComponent } from 'vue';
 import { addTagToCard } from '@/db/courseAPI';
 import { getAppliedTags, getCourseTagStubs, removeTagFromCard } from '@/db/courseDB';
 import type { Tag } from '@/db/types';
-// @ts-ignore
+// @ts-expect-error - tmp supression - needs replacing w/ vue 3 compatible version
 import VueTagsInput from '@johmun/vue-tags-input';
 
 interface TagObject {
@@ -56,6 +56,7 @@ export default defineComponent({
   name: 'SkTagsInput',
 
   components: {
+    // eslint-disable-next-line
     VueTagsInput,
   },
 

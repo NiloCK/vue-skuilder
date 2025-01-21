@@ -4,7 +4,7 @@
       <h2>What kind of angle is this?</h2>
       <canvas ref="canvasRef" width="300" height="300"> </canvas>
 
-      <radio-multiple-choice :choice-list="question.answers" :MouseTrap="mouseTrap" />
+      <radio-multiple-choice :choice-list="question.answers" :mouse-trap="mouseTrap" />
     </template>
   </div>
 </template>
@@ -13,7 +13,6 @@
 import { defineComponent, ref, computed, onMounted, PropType } from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import { AngleCategorize, AngleCategories } from './index';
-import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { randomInt } from '../../utility';
@@ -22,7 +21,6 @@ export default defineComponent({
   name: 'AngleCategorizeV',
 
   components: {
-    UserInputNumber,
     RadioMultipleChoice,
   },
 

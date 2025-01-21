@@ -26,14 +26,9 @@ import { defineComponent, ref, computed, PropType, onMounted } from 'vue';
 import { CountBy } from './index';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
-import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
 
 export default defineComponent({
   name: 'VerbalAddition',
-
-  components: {
-    UserInputNumber,
-  },
 
   props: {
     data: {

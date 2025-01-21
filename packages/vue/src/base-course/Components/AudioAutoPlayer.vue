@@ -40,7 +40,7 @@ const downloadFinished = (i: number): boolean => {
   try {
     return !isNaN(audioElems.value[i].duration);
   } catch (e) {
-    throw new Error('AudioPlayer does not have an element at this index');
+    throw new Error('AudioPlayer does not have an element at this index:', e);
   }
 };
 

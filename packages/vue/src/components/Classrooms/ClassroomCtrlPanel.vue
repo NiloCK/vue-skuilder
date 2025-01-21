@@ -1,16 +1,16 @@
 <template>
   <div v-if="!updatePending">
-    <h1><router-link to="/classrooms">My Classrooms</router-link> / {{ _classroomCfg.name }}</h1>
+    <h1><router-link to="/classrooms">My Classrooms</router-link> / {{ classroomCfg.name }}</h1>
 
     <h3>
-      Join code: {{ _classroomCfg.joinCode }}
+      Join code: {{ classroomCfg.joinCode }}
       <router-link :to="`/classrooms/${_id}/code`">
         <v-btn size="x-small" icon="mdi-fullscreen" color="accent" alt="Make Fullscreen"> </v-btn>
       </router-link>
     </h3>
     <v-row>
       <v-col cols="12" sm="6" md="4">
-        <v-checkbox v-model="_classroomCfg.peerAssist" label="Allow peer instruction" :model-value="true"></v-checkbox>
+        <v-checkbox v-model="classroomCfg.peerAssist" label="Allow peer instruction" :model-value="true"></v-checkbox>
       </v-col>
       <v-col v-if="classroomDB.ready" cols="12">
         <h2>Assigned Content:</h2>
@@ -80,7 +80,6 @@ import TeacherClassroomDB, { AssignedContent, AssignedTag } from '@/db/classroom
 import { getCourseList, getCourseTagStubs } from '@/db/courseDB';
 import { Tag } from '@/db/types';
 import { ClassroomConfig, CourseConfig } from '@/server/types';
-import Vue from 'vue';
 import { User } from '@/db/userDB';
 import { defineComponent } from 'vue';
 
@@ -96,9 +95,9 @@ export default defineComponent({
 
   data() {
     return {
-      _classroomCfg: null as ClassroomConfig | null,
+      classroomCfg: null as ClassroomConfig | null,
       classroomDB: null as TeacherClassroomDB | null,
-      _assignedContent: [] as AssignedContent[],
+      assignedContent: [] as AssignedContent[],
       nameRules: [
         (value: string): string | boolean => {
           const max = 30;
@@ -116,10 +115,10 @@ export default defineComponent({
 
   computed: {
     _assignedCourses(): AssignedContent[] {
-      return this._assignedContent.filter((c) => c.type === 'course');
+      return this.assignedContent.filter((c) => c.type === 'course');
     },
     _assignedTags(): AssignedTag[] {
-      return this._assignedContent.filter((c) => c.type === 'tag') as AssignedTag[];
+      return this.assignedContent.filter((c) => c.type === 'tag') as AssignedTag[];
     },
   },
 
@@ -132,11 +131,11 @@ export default defineComponent({
 
   async created() {
     this.classroomDB = await TeacherClassroomDB.factory(this._id);
-    this._assignedContent = await this.classroomDB.getAssignedContent();
-    this._classroomCfg = this.classroomDB.getConfig();
+    this.assignedContent = await this.classroomDB.getAssignedContent();
+    this.classroomCfg = this.classroomDB.getConfig();
 
     console.log(`[ClassroomCtrlPanel] Route loaded w/ (prop) _id: ${this._id}`);
-    console.log(`[ClassroomCtrlPanel] Config: ${JSON.stringify(this._classroomCfg)}`);
+    console.log(`[ClassroomCtrlPanel] Config: ${JSON.stringify(this.classroomCfg)}`);
 
     this.availableCourses = (await getCourseList()).rows.map((r) => r.doc!);
     this.updatePending = false;
@@ -170,7 +169,7 @@ export default defineComponent({
         );
       }
 
-      this._assignedContent = await this.classroomDB.getAssignedContent();
+      this.assignedContent = await this.classroomDB.getAssignedContent();
       this.addingContent = false;
       this.selectedCourse = '';
       this.selectedTags = [];

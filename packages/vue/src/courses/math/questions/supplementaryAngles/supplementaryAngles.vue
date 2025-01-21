@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, onBeforeUnmount, PropType } from 'vue';
+import { defineComponent, ref, onMounted, onBeforeUnmount, PropType } from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import { SupplementaryAngles } from './index';
 import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.vue';
@@ -42,7 +42,6 @@ export default defineComponent({
 
     const answer = ref('');
     const canvasRef = ref<HTMLCanvasElement | null>(null);
-    const angle = ref(randomInt(10, 83));
     const paperScope = ref<paper.PaperScope>();
 
     // Initialize question immediately

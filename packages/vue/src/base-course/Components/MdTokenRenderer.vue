@@ -120,7 +120,7 @@ import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
 import { marked } from 'marked';
 import { defineComponent } from 'vue';
 
-import hljs from 'highlight.js';
+// import hljs from 'highlight.js';
 import 'highlight.js/styles/atelier-seaside-light.css'; // Move CSS import here
 import hljsVuePlugin from '@highlightjs/vue-plugin';
 

@@ -54,9 +54,13 @@ if (import.meta.env.VITE_MOCK !== undefined) {
 
 if (ENV.DEBUG) {
   console.log(`ENV init:`);
-  for (const s in ENV) {
-    console.log(`${s}:\n  ${(ENV as any)[s]}`);
-  }
+
+  console.log(`  COUCHDB_SERVER_URL: ${ENV.COUCHDB_SERVER_URL}`);
+  console.log(`  COUCHDB_SERVER_PROTOCOL: ${ENV.COUCHDB_SERVER_PROTOCOL}`);
+  console.log(`  EXPRESS_SERVER_URL: ${ENV.EXPRESS_SERVER_URL}`);
+  console.log(`  EXPRESS_SERVER_PROTOCOL: ${ENV.EXPRESS_SERVER_PROTOCOL}`);
+  console.log(`  DEBUG: ${ENV.DEBUG}`);
+  console.log(`  MOCK: ${ENV.MOCK}`);
 }
 
 export default ENV;
