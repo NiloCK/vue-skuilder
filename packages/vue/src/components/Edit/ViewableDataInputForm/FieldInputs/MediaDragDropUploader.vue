@@ -17,22 +17,22 @@
         style="display: none"
         @change="handleFileInput"
       />
-      <template>
-        <div v-for="(item, index) in mediaItems" :key="index" class="media-item">
-          <template v-if="item.type === 'image'">
-            <img :src="item.thumbnailUrl" alt="Uploaded image thumbnail" class="thumbnail" />
-          </template>
-          <template v-else-if="item.type === 'audio'">
-            <audio controls :src="item.url"></audio>
-          </template>
-          <v-btn size="small" @click="removeMedia(index)">Remove</v-btn>
-        </div>
-        <template>
-          Drop image or audio files here...
-          <v-btn @click="triggerFileInput">Or Click to Upload</v-btn>
+      <!-- <template> -->
+      <div v-for="(item, index) in mediaItems" :key="index" class="media-item">
+        <template v-if="item.type === 'image'">
+          <img :src="item.thumbnailUrl" alt="Uploaded image thumbnail" class="thumbnail" />
         </template>
-        <!-- <v-btn @click="addMoreMedia">Add More Media</v-btn> -->
-      </template>
+        <template v-else-if="item.type === 'audio'">
+          <audio controls :src="item.url"></audio>
+        </template>
+        <v-btn size="small" @click="removeMedia(index)">Remove</v-btn>
+      </div>
+      <!-- <template> -->
+      Drop image or audio files here...
+      <v-btn @click="triggerFileInput">Or Click to Upload</v-btn>
+      <!-- </template> -->
+      <!-- <v-btn @click="addMoreMedia">Add More Media</v-btn> -->
+      <!-- </template> -->
     </div>
   </div>
 </template>
@@ -47,10 +47,6 @@ interface MediaItem {
   file: File;
   url: string;
   thumbnailUrl?: string;
-}
-
-interface MDDURefs {
-  fileInput: HTMLInputElement;
 }
 
 export default defineComponent({
@@ -71,7 +67,7 @@ export default defineComponent({
   },
 
   created() {
-    this.validate();
+    // this.validate();
   },
 
   methods: {

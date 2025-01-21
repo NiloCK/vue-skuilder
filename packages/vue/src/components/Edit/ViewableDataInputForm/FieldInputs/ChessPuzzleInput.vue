@@ -14,7 +14,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import FieldInput from '../OptionsFieldInput';
-import { toCourseElo, CourseElo } from '@/tutor/Elo';
+import { CourseElo } from '@/tutor/Elo';
 import { FieldDefinition } from '../../../../base-course/Interfaces/FieldDefinition';
 
 export default defineComponent({
@@ -27,7 +27,7 @@ export default defineComponent({
       required: true,
     },
     store: {
-      type: Object as PropType<any>,
+      type: Object as PropType<object>,
       required: true,
     },
     uiValidationFunction: {

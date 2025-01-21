@@ -49,7 +49,7 @@ export default defineComponent({
       required: true,
     },
     store: {
-      type: Object as PropType<any>,
+      type: Object as PropType<object>,
       required: true,
     },
     uiValidationFunction: {
@@ -109,7 +109,7 @@ File type: ${file.type}
       if (blob === null) {
         alert('nullBlob');
       } else {
-        (this as any).store[this.field.name] = {
+        this.store[this.field.name] = {
           content_type: 'image/png',
           data: blob,
         };
