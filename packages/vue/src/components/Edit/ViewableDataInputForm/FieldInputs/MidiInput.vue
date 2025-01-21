@@ -52,7 +52,7 @@ export default defineComponent({
       this.record();
       this.store[this.field.name] = this.getTransposedSeqs;
     } catch (e) {
-      throw e;
+      throw new Error(`MidiInput.created: ${e}`);
     }
   },
 
