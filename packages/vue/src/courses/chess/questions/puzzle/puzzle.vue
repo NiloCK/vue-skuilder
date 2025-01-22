@@ -4,18 +4,18 @@
     <p class="text-h5">
       Make the best move for {{ playerColor === 'cg-white' ? 'White ♖♘♗♕♔♗♘♖' : 'Black ♜♞♝♚♛♝♞♜' }}:
     </p>
-    <div class="board-wrapper">
-      <div class="ranks-labels">
+    <div class="puzzle-board-wrapper">
+      <div class="puzzle-ranks-labels">
         <div v-for="rank in 8" :key="rank">{{ playerColor === 'cg-white' ? 9 - rank : rank }}</div>
       </div>
-      <div class="board-and-files">
+      <div class="puzzle-board-and-files">
         <div id="cg" ref="boardElement"></div>
-        <div class="files-labels">
+        <div class="puzzle-files-labels">
           <div v-for="file in files" :key="file">{{ file }}</div>
         </div>
       </div>
     </div>
-    <div v-if="showPromotionDialog.value" class="promotion-dialog">
+    <div v-if="showPromotionDialog.value" class="puzzle-promotion-dialog">
       <button v-for="piece in promotionPieces" :key="piece.value" @click="handlePromotion(piece.value)">
         {{ playerColor === 'cg-white' ? piece.whiteSymbol : piece.blackSymbol }}
         {{ piece.name }}
@@ -263,12 +263,12 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style>
 @import '../../chessground/css/chessground.base.css';
 @import '../../chessground/css/chessground.brown.css';
 @import '../../chessground/css/chessground.cburnett.css';
 
-.promotion-dialog {
+.puzzle-promotion-dialog {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -283,7 +283,7 @@ export default defineComponent({
   gap: 8px;
 }
 
-.promotion-dialog button {
+.puzzle-promotion-dialog button {
   padding: 10px 20px;
   font-size: 16px;
   border: none;
@@ -297,23 +297,23 @@ export default defineComponent({
   width: 150px;
 }
 
-.promotion-dialog button:hover {
+.puzzle-promotion-dialog button:hover {
   background: #e0e0e0;
 }
 
 /* Optional: Add piece symbols next to text */
-.promotion-dialog button::before {
+.puzzle-promotion-dialog button::before {
   content: attr(data-piece);
   font-size: 24px;
 }
 
-.board-wrapper {
+.puzzle-board-wrapper {
   display: flex;
   align-items: center;
   width: 440px;
 }
 
-.ranks-labels {
+.puzzle-ranks-labels {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -322,33 +322,33 @@ export default defineComponent({
   margin-right: 10px;
 }
 
-.ranks-labels.reversed {
+.puzzle-ranks-labels.reversed {
   flex-direction: column-reverse;
 }
 
-.ranks-labels div {
+.puzzle-ranks-labels div {
   height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.board-and-files {
+.puzzle-board-and-files {
   display: flex;
   flex-direction: column;
 }
 
-.files-labels {
+.puzzle-files-labels {
   display: flex;
   justify-content: center;
   height: 20px;
 }
 
-.files-labels.reversed {
+.puzzle-files-labels.reversed {
   flex-direction: row-reverse;
 }
 
-.files-labels div {
+.puzzle-files-labels div {
   width: 50px;
   display: flex;
   align-items: center;
