@@ -35,7 +35,7 @@ export default defineComponent({
       required: true,
     },
   },
-  setup(props): FieldInputBase {
+  setup(props): FieldInputSetupReturn {
     const fieldStore = useFieldInputStore();
     const inputField = ref<HTMLInputElement | null>(null);
     // [ ] TODO: Implement hint - need richer validation result

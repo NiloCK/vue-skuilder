@@ -4,8 +4,9 @@
     v-model="modelValue"
     variant="filled"
     :name="field.name"
-    :rules="vuetifyRules()"
     :label="field.name"
+    :rules="vuetifyRules()"
+    :hint="validationStatus.msg"
     :autofocus="autofocus"
   />
 </template>

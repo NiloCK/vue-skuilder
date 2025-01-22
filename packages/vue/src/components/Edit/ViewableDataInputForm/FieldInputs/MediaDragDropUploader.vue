@@ -41,6 +41,7 @@
 import { defineComponent } from 'vue';
 import FieldInput from '../OptionsFieldInput';
 import { Status } from '@/enums/Status';
+import { FieldInputSetupReturn } from '../OptionsFieldInput';
 
 interface MediaItem {
   type: 'image' | 'audio';
@@ -52,6 +53,21 @@ interface MediaItem {
 export default defineComponent({
   name: 'MediaDragDropUploader',
   extends: FieldInput,
+
+  setup(props, ctx) {
+    // Get the parent setup result
+    const parentSetup = FieldInput.setup?.(props, ctx) as FieldInputSetupReturn;
+
+    // Now you can access fieldStore and other parent setup properties
+    const { fieldStore } = parentSetup;
+
+    // Return both parent and child setup properties
+    return {
+      ...parentSetup,
+      fieldStore,
+      // Add any additional setup properties specific to this component
+    };
+  },
 
   data() {
     return {
@@ -154,7 +170,7 @@ export default defineComponent({
       });
       this.mediaItems = [];
       this.updateStore();
-      this.validate();
+      // this.validate();
     },
 
     addMoreMedia() {
@@ -163,29 +179,29 @@ export default defineComponent({
     },
 
     updateStore() {
-      for (let i = 1; i <= 10; i++) {
-        delete this.store[`image-${i}`];
-        delete this.store[`audio-${i}`];
-      }
+      // for (let i = 1; i <= 10; i++) {
+      //   delete this.dataInputForm.dataInputForm[`image-${i}`];
+      //   delete this.dataInputForm.dataInputForm[`audio-${i}`];
+      // }
 
       let imageCount = 0;
       let audioCount = 0;
       this.mediaItems.forEach((item) => {
         if (item.type === 'image') {
           imageCount++;
-          this.store[`image-${imageCount}`] = {
+          this.fieldStore.setMedia(`image-${imageCount}`, {
             content_type: item.file.type,
             data: item.file,
-          };
+          });
         } else if (item.type === 'audio') {
           audioCount++;
-          this.store[`audio-${audioCount}`] = {
+          this.fieldStore.setMedia(`audio-${audioCount}`, {
             content_type: item.file.type,
             data: item.file,
-          };
+          });
         }
       });
-      this.validate();
+      // this.validate();
     },
 
     getValidators() {
