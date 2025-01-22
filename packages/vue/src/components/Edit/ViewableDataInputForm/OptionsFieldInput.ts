@@ -1,10 +1,29 @@
-import { defineComponent, PropType, computed, ref, watch } from 'vue';
+import { defineComponent, PropType, ComputedRef, computed, ref, watch } from 'vue';
 import { FieldDefinition } from '../../../base-course/Interfaces/FieldDefinition';
-import { validationFunctionToVuetifyRule } from '../../../base-course/Interfaces/ValidatingFunction';
+import {
+  ValidatingFunction,
+  validationFunctionToVuetifyRule,
+  VuetifyRule,
+} from '../../../base-course/Interfaces/ValidatingFunction';
 import { ValidationResult } from '../../../base-course/Interfaces/ValidationResult';
 import { Status } from '../../../enums/Status';
 // import { CourseElo } from '../../../tutor/Elo';
 import { useFieldInputStore } from '@/stores/useFieldInputStore';
+import { CourseElo } from '@/tutor/Elo';
+
+export interface FieldInputSetupReturn {
+  inputField: typeof ref<HTMLInputElement | null>;
+  fieldStore: ReturnType<typeof useFieldInputStore>;
+  modelValue: ComputedRef<string>;
+  validators: ComputedRef<ValidatingFunction[]>;
+  focus: () => void;
+  userInput: () => unknown;
+  clearData: () => void;
+  setData: (data: unknown) => void;
+  vuetifyRules: () => VuetifyRule[];
+  generateTags: () => string[];
+  generateELO: () => CourseElo | undefined;
+}
 
 export default defineComponent({
   name: 'FieldInput',
@@ -16,7 +35,7 @@ export default defineComponent({
       required: true,
     },
   },
-  setup(props) {
+  setup(props): FieldInputBase {
     const fieldStore = useFieldInputStore();
     const inputField = ref<HTMLInputElement | null>(null);
     // [ ] TODO: Implement hint - need richer validation result
