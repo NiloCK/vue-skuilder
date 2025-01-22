@@ -1,27 +1,37 @@
 <template>
-  <v-text-field
+  <!-- <v-text-field
     ref="input"
-    :model-value="answer"
+    v-model="answer"
     :prepend-icon="prependIcon"
     :autofocus="autofocus"
     type="text"
     class="text-h5"
     single-line
     hide-details
-    @update:model-value="onInput"
-    @compositionstart="onCompositionStart"
-    @compositionend="onCompositionEnd"
     @keyup.enter="submitAnswer(answer)"
-  ></v-text-field>
+  ></v-text-field> -->
+  <span>
+    <!-- <input ref="input" v-model="answer" type="text" /> -->
+    <v-text-field
+      v-model="answer"
+      :autofocus="autofocus"
+      :prepend-icon="prependIcon"
+      type="text"
+      variant="underlined"
+      class="text-h5"
+      single-line
+      hide-details
+      @keyup.enter="submitAnswer(answer)"
+    ></v-text-field>
+    <!-- Current answer: {{ answer }} -->
+  </span>
 </template>
 
 <script lang="ts">
+// @compositionstart="onCompositionStart"
+// @compositionend="onCompositionEnd"
 import UserInput from './OptionsUserInput';
 import { defineComponent } from 'vue';
-
-// interface InputStringRefs {
-//   input: HTMLInputElement;
-// }
 
 export default defineComponent({
   name: 'UserInputString',
@@ -32,12 +42,6 @@ export default defineComponent({
       type: Boolean,
       required: false,
     },
-  },
-
-  data() {
-    return {
-      isComposing: false,
-    };
   },
 
   computed: {
@@ -51,38 +55,23 @@ export default defineComponent({
   },
 
   methods: {
-    onInput(e: Event | string) {
-      if (typeof e === 'string') {
-        this.answer = e;
-        return;
-      }
-      const target = e.target as HTMLInputElement;
-      console.log('Input event value:', target.value);
-      if (!this.isComposing) {
-        this.answer = target.value;
-      }
-    },
-
-    onCompositionStart() {
-      console.log('Composition started');
-      this.isComposing = true;
-    },
-
-    onCompositionEnd(e: CompositionEvent) {
-      console.log('Composition ended:', e.data);
-      this.isComposing = false;
-      const target = e.target as HTMLInputElement;
-      this.answer = target.value;
-    },
+    // debugInput(e: Event) {
+    //   const target = e.target as HTMLInputElement;
+    //   console.log('Input event:', {
+    //     value: target.value,
+    //     currentAnswer: this.answer,
+    //     target,
+    //   });
+    // },
+    // debugKeyup(e: KeyboardEvent) {
+    //   const target = e.target as HTMLInputElement;
+    //   console.log('Keyup event:', {
+    //     key: e.key,
+    //     value: target.value,
+    //     currentAnswer: this.answer,
+    //     target,
+    //   });
+    // },
   },
 });
 </script>
-
-<style scoped>
-.v-text-field {
-  padding: 0;
-}
-input {
-  text-align: center !important;
-}
-</style>
