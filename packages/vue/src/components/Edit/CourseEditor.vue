@@ -72,13 +72,7 @@ export default defineComponent({
       handler(value?: string, old?: string) {
         if (value) {
           this.dataShape = this.getDataShape(value);
-          this.dataInputFormStore.dataInputForm.dataShape = this.dataShape;
-
-          const validations: { [x: string]: string } = {};
-          for (const field of this.dataShape.fields) {
-            validations[field.name] = '';
-          }
-          this.dataInputFormStore.dataInputForm.localStore.validation = validations;
+          this.dataInputFormStore.setDataShape(this.dataShape);
 
           this.dataInputFormStore.dataInputForm.course = this.courseConfig;
         }
