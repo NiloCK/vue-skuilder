@@ -88,25 +88,25 @@
           class="text-subtitle-1"
         >
           <template #activator="{ props }">
-            <v-btn
-              v-if="!sessionFinished"
-              v-bind="props"
-              icon
-              color="transparent"
-              location="bottom left"
-              @click="if (timerIsActive) incrementSessionClock();"
+            <v-progress-circular
+              alt="Time remaining in study session"
+              size="64"
+              width="8"
+              rotate="0"
+              :color="timerColor"
+              :model-value="percentageRemaining"
             >
-              <v-progress-circular
-                alt="Time remaining in study session"
-                size="64"
-                width="8"
-                rotate="-90"
-                :color="timerColor"
-                :model-value="percentageRemaining"
+              <v-btn
+                v-if="!sessionFinished"
+                v-bind="props"
+                icon
+                color="transparent"
+                location="bottom left"
+                @click="if (timerIsActive) incrementSessionClock();"
               >
                 <v-icon v-if="timerIsActive" size="large">mdi-plus</v-icon>
-              </v-progress-circular>
-            </v-btn>
+              </v-btn>
+            </v-progress-circular>
           </template>
           {{ timeString }}
         </v-tooltip>
