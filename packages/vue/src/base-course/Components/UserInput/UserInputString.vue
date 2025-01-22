@@ -1,30 +1,16 @@
 <template>
-  <!-- <v-text-field
-    ref="input"
-    v-model="answer"
-    :prepend-icon="prependIcon"
-    :autofocus="autofocus"
-    type="text"
-    class="text-h5"
-    single-line
-    hide-details
-    @keyup.enter="submitAnswer(answer)"
-  ></v-text-field> -->
-  <span>
-    <!-- <input ref="input" v-model="answer" type="text" /> -->
+  <v-container class="pa-0">
     <v-text-field
       v-model="answer"
       :autofocus="autofocus"
       :prepend-icon="prependIcon"
       type="text"
       variant="underlined"
-      class="text-h5"
       single-line
       hide-details
       @keyup.enter="submitAnswer(answer)"
     ></v-text-field>
-    <!-- Current answer: {{ answer }} -->
-  </span>
+  </v-container>
 </template>
 
 <script lang="ts">

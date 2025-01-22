@@ -1,11 +1,5 @@
 <template>
-  <!-- <input
-        class='userInput'
-        type="number"
-        v-model="answer"
-        @keyup.enter="submitAnswer(strToNumber(answer))"
-    /> -->
-  <span>
+  <v-container class="pa-0">
     <v-text-field
       ref="input"
       v-model="answer"
@@ -17,7 +11,7 @@
       :rules="[isNumeric]"
       @keyup.enter="submitAnswer(makeNumeric(answer))"
     ></v-text-field>
-  </span>
+  </v-container class="pa-0">
 </template>
 
 <script lang="ts">
