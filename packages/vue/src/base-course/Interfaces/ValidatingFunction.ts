@@ -2,7 +2,7 @@ import { ValidationResult } from '../../base-course/Interfaces/ValidationResult'
 import { Status } from '../../enums/Status';
 
 export type ValidatingFunction = (value: string) => ValidationResult;
-type VuetifyRule = (value: string) => true | string;
+export type VuetifyRule = (value: string) => true | string;
 
 export function validationFunctionToVuetifyRule(f: ValidatingFunction): VuetifyRule {
   return (value: string) => {
