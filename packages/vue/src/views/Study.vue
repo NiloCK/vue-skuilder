@@ -18,7 +18,6 @@
             <v-btn size="small" color="secondary">More info</v-btn>
           </router-link>
           <v-spacer></v-spacer>
-          <SkldrControlsView />
         </v-col>
       </v-row>
       <v-row v-else-if="previewMode">
@@ -34,7 +33,6 @@
             <v-progress-circular v-if="loading" color="primary" indeterminate size="32" width="4" />
           </h1>
           <v-spacer></v-spacer>
-          <SkldrControlsView />
         </v-col>
       </v-row>
 
@@ -78,7 +76,7 @@
         <sk-tags-input :course-i-d="courseID" :card-i-d="cardID" />
       </div>
 
-      <v-row align="center" justify="space-between" class="px-4 py-4">
+      <v-row align="center" justify="space-between" class="footer-controls pa-5">
         <v-tooltip
           v-model="timerIsActive"
           location="right"
@@ -111,7 +109,9 @@
           {{ timeString }}
         </v-tooltip>
 
-        <v-speed-dial v-if="!sessionFinished" v-model="fab" location="left center" transition="slide-x-transition">
+        <SkldrControlsView />
+
+        <!-- <v-speed-dial v-if="!sessionFinished" v-model="fab" location="left center" transition="slide-x-transition">
           <template #activator="{ props }">
             <v-btn v-bind="props" color="blue-darken-2" icon>
               <v-icon>{{ fab ? 'mdi-close' : 'mdi-pencil' }}</v-icon>
@@ -132,7 +132,7 @@
           >
             <v-icon>mdi-bookmark</v-icon>
           </v-btn>
-        </v-speed-dial>
+        </v-speed-dial> -->
       </v-row>
     </div>
   </div>
@@ -150,9 +150,7 @@ import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
 import Courses from '@/courses';
 import { getCourseDoc, putCardRecord, removeScheduledCardReview, scheduleCardReview } from '@/db';
 import { ContentSourceID, getStudySource, isReview, StudyContentSource, StudySessionItem } from '@/db/contentSource';
-import { getCredentialledCourseConfig } from '@/db/courseAPI';
 import { CourseDB, getCourseList, getCourseName, updateCardElo, docIsDeleted } from '@/db/courseDB';
-import { getCardDataShape } from '@/db/getCardDataShape';
 import SessionController, { StudySessionRecord } from '@/db/SessionController';
 import { newInterval } from '@/db/SpacedRepetition';
 import { CardData, CardHistory, CardRecord, DisplayableData, isQuestionRecord } from '@/db/types';
@@ -727,6 +725,15 @@ export default defineComponent({
 /* .muted {
   opacity: 0;
 } */
+
+.footer-controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--v-background); /* Match your app's background color */
+  z-index: 100;
+}
 
 .correct {
   animation: varFade 1250ms ease-out;
