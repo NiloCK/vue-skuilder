@@ -70,6 +70,8 @@ export default defineComponent({
     },
   },
 
+  emits: ['CourseEditingComplete'],
+
   data() {
     return {
       mousetrap: new Mousetrap(this.$el),
