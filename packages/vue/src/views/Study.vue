@@ -272,36 +272,36 @@ export default defineComponent({
     },
   },
 
-  watch: {
-    editCard: {
-      async handler(value: boolean) {
-        if (value) {
-          this.dataInputFormStore.dataInputForm.dataShape = await getCardDataShape(this.courseID, this.cardID);
+  // watch: {
+  //   editCard: {
+  //     async handler(value: boolean) {
+  //       if (value) {
+  //         this.dataInputFormStore.dataInputForm.dataShape = await getCardDataShape(this.courseID, this.cardID);
 
-          const cfg = await getCredentialledCourseConfig(this.courseID);
-          this.dataInputFormStore.dataInputForm.course = cfg!;
+  //         const cfg = await getCredentialledCourseConfig(this.courseID);
+  //         this.dataInputFormStore.dataInputForm.course = cfg!;
 
-          this.editCardReady = true;
+  //         this.editCardReady = true;
 
-          for (const oldField in this.dataInputFormStore.dataInputForm.localStore) {
-            if (oldField) {
-              console.log(`[Study] Removing old data: ${oldField}`);
-              delete this.dataInputFormStore.dataInputForm.localStore[oldField];
-            }
-          }
+  //         for (const oldField in this.dataInputFormStore.dataInputForm.localStore) {
+  //           if (oldField) {
+  //             console.log(`[Study] Removing old data: ${oldField}`);
+  //             delete this.dataInputFormStore.dataInputForm.localStore[oldField];
+  //           }
+  //         }
 
-          for (const field in this.data[0]) {
-            if (field) {
-              console.log(`[Study] Writing ${field}: ${this.data[0][field]} to the dataInputForm state...`);
-              this.dataInputFormStore.dataInputForm.localStore[field] = this.data[0][field];
-            }
-          }
-        } else {
-          this.editCardReady = false;
-        }
-      },
-    },
-  },
+  //         for (const field in this.data[0]) {
+  //           if (field) {
+  //             console.log(`[Study] Writing ${field}: ${this.data[0][field]} to the dataInputForm state...`);
+  //             this.dataInputFormStore.dataInputForm.localStore[field] = this.data[0][field];
+  //           }
+  //         }
+  //       } else {
+  //         this.editCardReady = false;
+  //       }
+  //     },
+  //   },
+  // },
 
   async created() {
     this.sessionPrepared = false;
