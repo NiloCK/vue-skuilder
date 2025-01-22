@@ -1,4 +1,13 @@
-import { defineComponent, PropType, ComputedRef, computed, ref, watch } from 'vue';
+import {
+  computed,
+  ComputedRef,
+  defineComponent,
+  PropType,
+  Ref,
+  ref,
+  watch,
+  WritableComputedRef,
+} from 'vue';
 import { FieldDefinition } from '../../../base-course/Interfaces/FieldDefinition';
 import {
   ValidatingFunction,
@@ -12,9 +21,9 @@ import { useFieldInputStore } from '@/stores/useFieldInputStore';
 import { CourseElo } from '@/tutor/Elo';
 
 export interface FieldInputSetupReturn {
-  inputField: typeof ref<HTMLInputElement | null>;
+  inputField: Ref<HTMLInputElement | null>;
   fieldStore: ReturnType<typeof useFieldInputStore>;
-  modelValue: ComputedRef<string>;
+  modelValue: WritableComputedRef<unknown>;
   validators: ComputedRef<ValidatingFunction[]>;
   focus: () => void;
   userInput: () => unknown;
