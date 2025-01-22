@@ -1,3 +1,9 @@
+<!--
+
+image and audio inputs are semi deprecated - not in use right now -
+     superceded by the generic fillIn type that allows images and audio from the
+     general mediaDragDropUploader
+
 <template>
   <div>
     <label class="text-h5" :for="field.name">{{ title }}: </label>
@@ -178,3 +184,5 @@ input[type='file'] {
   display: none;
 }
 </style>
+
+-->

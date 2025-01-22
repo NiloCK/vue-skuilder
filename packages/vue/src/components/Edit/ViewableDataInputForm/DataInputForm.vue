@@ -4,6 +4,12 @@
       <v-col cols="12" xl="6">
         <v-form ma-2 autocomplete="off">
           <div v-for="(field, i) in dataShape.fields" :key="dataShape.fields.indexOf(field)">
+            <!-- image and audio inputs are semi deprecated - not in use right now -
+                 superceded by the generic fillIn type that allows images and audio from the
+                 general mediaDragDropUploader -->
+            <!-- <audio-input v-else-if="field.type === audio" ref="fieldInputs" :field="field" :autofocus="i == 0" /> -->
+            <!-- <image-input v-else-if="field.type === img" ref="fieldInputs" :field="field" :autofocus="i == 0" /> -->
+
             <string-input v-if="field.type === ftString" ref="fieldInputs" :field="field" :autofocus="i == 0" />
             <!-- <chess-puzzle-input
               v-else-if="field.type === chessPuzzle"
@@ -13,9 +19,7 @@
             /> -->
             <number-input v-else-if="field.type === num" ref="fieldInputs" :field="field" :autofocus="i == 0" />
             <integer-input v-else-if="field.type === int" ref="fieldInputs" :field="field" :autofocus="i == 0" />
-            <image-input v-else-if="field.type === img" ref="fieldInputs" :field="field" :autofocus="i == 0" />
             <markdown-input v-else-if="field.type === mkd" ref="fieldInputs" :field="field" :autofocus="i == 0" />
-            <!-- <audio-input v-else-if="field.type === audio" ref="fieldInputs" :field="field" :autofocus="i == 0" /> -->
             <midi-input v-else-if="field.type === midi" ref="fieldInputs" :field="field" :autofocus="i == 0" />
             <media-drag-drop-uploader
               v-else-if="field.type === uploader"
@@ -63,8 +67,8 @@ import { Status } from '@/enums/Status';
 import ENV from '@/ENVIRONMENT_VARS';
 import { CourseConfig } from '@/server/types';
 import _ from 'lodash';
-import AudioInput from './FieldInputs/AudioInput.vue';
-import ImageInput from './FieldInputs/ImageInput.vue';
+// import AudioInput from './FieldInputs/AudioInput.vue';
+// import ImageInput from './FieldInputs/ImageInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
 import MarkdownInput from './FieldInputs/MarkdownInput.vue';
 import MediaDragDropUploader from './FieldInputs/MediaDragDropUploader.vue';
@@ -99,11 +103,11 @@ export default defineComponent({
   },
 
   components: {
-    AudioInput,
+    // AudioInput,
+    // ImageInput,
     NumberInput,
     StringInput,
     IntegerInput,
-    ImageInput,
     MarkdownInput,
     MidiInput,
     CardBrowser,
