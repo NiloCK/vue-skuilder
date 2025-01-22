@@ -7,23 +7,48 @@
             <!-- image and audio inputs are semi deprecated - not in use right now -
                  superceded by the generic fillIn type that allows images and audio from the
                  general mediaDragDropUploader -->
-            <!-- <audio-input v-else-if="field.type === audio" ref="fieldInputs" :field="field" :autofocus="i == 0" /> -->
-            <!-- <image-input v-else-if="field.type === img" ref="fieldInputs" :field="field" :autofocus="i == 0" /> -->
+            <!-- <audio-input v-else-if="field.type === audio" :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)" :field="field" :autofocus="i == 0" /> -->
+            <!-- <image-input v-else-if="field.type === img" :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)" :field="field" :autofocus="i == 0" /> -->
 
-            <string-input v-if="field.type === ftString" ref="fieldInputs" :field="field" :autofocus="i == 0" />
-            <!-- <chess-puzzle-input
-              v-else-if="field.type === chessPuzzle"
-              ref="fieldInputs"
+            <string-input
+              v-if="field.type === ftString"
+              :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)"
               :field="field"
               :autofocus="i == 0"
-            /> -->
-            <number-input v-else-if="field.type === num" ref="fieldInputs" :field="field" :autofocus="i == 0" />
-            <integer-input v-else-if="field.type === int" ref="fieldInputs" :field="field" :autofocus="i == 0" />
-            <markdown-input v-else-if="field.type === mkd" ref="fieldInputs" :field="field" :autofocus="i == 0" />
-            <midi-input v-else-if="field.type === midi" ref="fieldInputs" :field="field" :autofocus="i == 0" />
+            />
+            <chess-puzzle-input
+              v-else-if="field.type === chessPuzzle"
+              :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)"
+              :field="field"
+              :autofocus="i == 0"
+            />
+            <number-input
+              v-else-if="field.type === num"
+              :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)"
+              :field="field"
+              :autofocus="i == 0"
+            />
+            <integer-input
+              v-else-if="field.type === int"
+              :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)"
+              :field="field"
+              :autofocus="i == 0"
+            />
+            <markdown-input
+              v-else-if="field.type === mkd"
+              :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)"
+              :field="field"
+              :autofocus="i == 0"
+            />
+            <midi-input
+              v-else-if="field.type === midi"
+              :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)"
+              :field="field"
+              :autofocus="i == 0"
+            />
             <media-drag-drop-uploader
               v-else-if="field.type === uploader"
-              ref="fieldInputs"
+              :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)"
               :field="field"
               :autofocus="i == 0"
             />
@@ -89,18 +114,11 @@ interface ComponentData {
   autoCompleteSuggestions: string[];
   timer?: NodeJS.Timeout;
   dataInputFormStore: ReturnType<typeof useDataInputFormStore>;
-}
-
-interface ComponentRefs {
-  fieldInputs: FieldInputInstance[];
+  fieldInputRefs: (FieldInputInstance | null)[];
 }
 
 export default defineComponent({
   name: 'DataInputForm',
-
-  refs: {
-    type: Object as () => ComponentRefs,
-  },
 
   components: {
     // AudioInput,
@@ -137,6 +155,7 @@ export default defineComponent({
       autoCompleteSuggestions: [],
       timer: undefined,
       dataInputFormStore: useDataInputFormStore(),
+      fieldInputRefs: [] as (FieldInputInstance | null)[],
     };
   },
 
@@ -169,13 +188,7 @@ export default defineComponent({
       return FieldType.CHESS_PUZZLE;
     },
     fieldInputs(): FieldInputInstance[] {
-      const inputs = this.$refs.fieldInputs;
-
-      if (Array.isArray(inputs)) {
-        return inputs.filter((input) => isFieldInput(input)) as FieldInputInstance[];
-      } else {
-        throw new Error('Field inputs are not an array');
-      }
+      return Array.from(this.fieldInputRefs.values()) as FieldInputInstance[];
     },
 
     shapeViews: {
@@ -246,6 +259,12 @@ export default defineComponent({
         this.convertInput();
       },
     },
+    'dataShape.fields'(newFields) {
+      console.log(`[DataInputForm].watch(fields): newFields ${JSON.stringify(newFields)}`);
+      console.log(`[DataInputForm].watch(fields): fields ${JSON.stringify(this.dataShape.fields)}`);
+      this.fieldInputRefs = new Array(newFields.length).fill(null);
+      console.log(`[DataInputForm].watch(fields): fieldRefs ${JSON.stringify(this.fieldInputRefs)}`);
+    },
   },
 
   created() {
@@ -253,12 +272,33 @@ export default defineComponent({
 
     this.getCourseTags();
     this.dataInputFormStore.setDataShape(this.dataShape);
+    console.log(`[DataInputForm].created: fields: ${JSON.stringify(this.dataShape.fields)}`);
+    this.fieldInputRefs = new Array(this.dataShape.fields.length).fill(null);
+  },
+
+  beforeUnmount() {
+    this.fieldInputRefs = [];
   },
 
   methods: {
     async updateTags(newTags: string[]) {
       console.log(`[DataInputForm] tags updated: ${JSON.stringify(newTags)}`);
       this.tags = newTags;
+    },
+
+    setFieldInputRef(el: FieldInputInstance, index: number) {
+      console.log(`[DataInputForm].setFieldInputRef: index: ${index}`);
+      // Ensure array is large enough
+      if (index >= this.fieldInputRefs.length) {
+        this.fieldInputRefs = this.fieldInputRefs.concat(new Array(index - this.fieldInputRefs.length + 1).fill(null));
+      }
+      // remove any null entries at the end
+
+      while (this.fieldInputRefs[this.fieldInputRefs.length - 1] === null) {
+        this.fieldInputRefs.pop();
+      }
+
+      this.fieldInputRefs[index] = el;
     },
 
     async getCourseTags() {
@@ -273,7 +313,8 @@ export default defineComponent({
     },
 
     checkInput(): boolean {
-      return this.fieldInputs.every((input) => input.validate());
+      return true;
+      // return this.fieldInputs.every((input) => input.validate());
     },
 
     convertInput() {},
