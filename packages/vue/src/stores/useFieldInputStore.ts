@@ -79,6 +79,7 @@ export const useFieldInputStore = defineStore('fieldStore', {
     $reset() {
       console.log(`[FieldInputStore].reset()`);
       this.inputs = {};
+      this.mediaInputs = {};
       this.validation = {};
       this.convertedInput = {};
       this.previewInput = {};
@@ -98,6 +99,18 @@ export const useFieldInputStore = defineStore('fieldStore', {
     setFieldValue(fieldName: string, value: unknown) {
       this.inputs[fieldName] = value;
       this.validate();
+      this.convert();
+    },
+
+    setMedia(
+      fieldName: keyof MediaInputs,
+      media: {
+        content_type: string;
+        data: Blob;
+      }
+    ) {
+      console.log(`[FieldInputStore].setMedia: ${fieldName}`);
+      this.mediaInputs[fieldName] = media;
       this.convert();
     },
 
