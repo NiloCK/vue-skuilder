@@ -1,30 +1,30 @@
 <template>
   <v-textarea
     ref="inputField"
-    v-model="store[field.name]"
+    v-model="modelValue"
     variant="filled"
     :name="field.name"
+    :rules="vuetifyRules()"
     :label="field.name"
     :autofocus="autofocus"
-    @update:model-value="() => validate()"
   />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import FieldInput from '../OptionsFieldInput';
-// import SimpleMDE from 'simplemde';
 
 export default defineComponent({
   name: 'MarkdownInput',
   extends: FieldInput,
-  computed: {
-    validators() {
-      const ret = FieldInput.computed?.validators;
-      return ret;
-    },
+  setup(props, ctx) {
+    // Get all the setup logic from parent
+    const parentSetup = FieldInput.setup?.(props, ctx);
+
+    return {
+      ...parentSetup,
+    };
   },
-  mounted() {},
 });
 </script>
 
