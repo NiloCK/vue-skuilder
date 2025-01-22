@@ -1,16 +1,10 @@
-import { defineComponent, PropType, reactive } from 'vue';
+import { defineComponent, PropType, computed, ref, watch } from 'vue';
 import { FieldDefinition } from '../../../base-course/Interfaces/FieldDefinition';
-import {
-  ValidatingFunction,
-  validationFunctionToVuetifyRule,
-} from '../../../base-course/Interfaces/ValidatingFunction';
+import { validationFunctionToVuetifyRule } from '../../../base-course/Interfaces/ValidatingFunction';
 import { ValidationResult } from '../../../base-course/Interfaces/ValidationResult';
 import { Status } from '../../../enums/Status';
-import { CourseElo } from '../../../tutor/Elo';
-
-export interface ValidatedInput {
-  getValidators: () => ValidatingFunction[];
-}
+// import { CourseElo } from '../../../tutor/Elo';
+import { useFieldInputStore } from '@/stores/useFieldInputStore';
 
 export default defineComponent({
   name: 'FieldInput',
@@ -21,15 +15,112 @@ export default defineComponent({
       type: Object as PropType<FieldDefinition>,
       required: true,
     },
-    store: {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      type: Object as PropType<any>,
-      required: true,
-    },
-    uiValidationFunction: {
-      type: Function as PropType<() => boolean>,
-      required: true,
-    },
+  },
+  setup(props) {
+    const fieldStore = useFieldInputStore();
+    const inputField = ref<HTMLInputElement | null>(null);
+    // [ ] TODO: Implement hint - need richer validation result
+    //     on the fieldStore to do this.
+    //
+    //     Exose / Retrieve it as a computed property
+    //
+    // const hint = ref('');
+
+    // Computed property for v-model binding in child components
+    const modelValue = computed({
+      get: () => fieldStore.inputs[props.field.name],
+      set: (value) => fieldStore.setFieldValue(props.field.name, value),
+    });
+
+    watch(modelValue, (newValue: unknown, oldValue: unknown) => {
+      console.log('[FieldInput] modelValue changed:', {
+        new: newValue,
+        old: oldValue,
+        currentStoreValue: fieldStore.inputs[props.field.name],
+      });
+      // Trigger validation when value changes
+      // props.uiValidationFunction();
+      //
+      // validate();
+      // fieldStore.setFieldValue(props.field.name, newValue);
+    });
+
+    const validators = computed(() => {
+      const ret = [];
+      if (props.field?.validator) {
+        ret.push(props.field.validator.test);
+      }
+      return ret;
+    });
+
+    const focus = () => {
+      if (inputField.value) {
+        inputField.value.focus();
+      }
+    };
+
+    const userInput = () => {
+      if (!props.field?.name) {
+        throw new Error('Field name is required for FieldInput component');
+      }
+      return fieldStore.inputs[props.field.name];
+    };
+
+    const setData = (data: unknown) => {
+      if (!props.field?.name) {
+        throw new Error('Field name is required for FieldInput component');
+      }
+      fieldStore.setFieldValue(props.field.name, data);
+    };
+
+    const clearData = () => {
+      console.log(
+        `[FieldInput] Running generic clearData() for ${props.field?.name} in FieldInput.ts`
+      );
+      if (inputField.value) {
+        // if (inputField.value.type === 'file') {
+        inputField.value.value = '';
+        // } else if (inputField.value.type === 'text') {
+        //   inputField.value.value = '';
+        // } else if (inputField.value.type === '')
+        if (!props.field?.name) return;
+
+        fieldStore.clearField(props.field.name);
+      }
+    };
+
+    const vuetifyRules = () => {
+      if (props.field?.validator) {
+        return validators.value.map((f) => {
+          return validationFunctionToVuetifyRule(f);
+        });
+      }
+      return [];
+    };
+
+    const generateTags = () => {
+      console.log('[FieldInput] Running generic generateTags() in FieldInput.ts');
+      return props.field?.tagger ? props.field.tagger(userInput()) : [];
+    };
+
+    const generateELO = () => {
+      console.log('[FieldInput] Running generic generateELO() in FieldInput.ts');
+      return props.field?.generateELO ? props.field.generateELO(userInput()) : undefined;
+    };
+
+    return {
+      inputField,
+      fieldStore,
+      modelValue,
+      validators,
+      focus,
+      userInput,
+      clearData,
+      setData,
+      vuetifyRules,
+      generateTags,
+      generateELO,
+    };
   },
 
   data() {
@@ -39,103 +130,5 @@ export default defineComponent({
         msg: '',
       } as ValidationResult,
     };
-  },
-
-  computed: {
-    validators(): ValidatingFunction[] {
-      const ret = [];
-      if (this.field?.validator) {
-        ret.push(this.field.validator.test);
-      }
-      return ret;
-    },
-  },
-
-  created() {
-    if (!this.store.validation) {
-      this.store.validation = reactive({});
-    }
-  },
-
-  methods: {
-    focus(): void {
-      (this.$refs.inputField as HTMLInputElement).focus();
-    },
-
-    userInput() {
-      if (!this.field?.name) {
-        throw new Error('Field name is required for FieldInput component');
-      }
-      return this.store[this.field.name];
-    },
-
-    setData(data: any) {
-      if (!this.field?.name) {
-        throw new Error('Field name is required for FieldInput component');
-      }
-      this.store[this.field.name] = data;
-    },
-
-    clearData() {
-      const inputField = this.$refs.inputField as HTMLInputElement;
-      if (inputField.type === 'file') {
-        inputField.value = '';
-      }
-      if (!this.field?.name) return;
-      this.store[this.field.name] = '';
-    },
-
-    vuetifyRules() {
-      if (this.field?.validator) {
-        return this.validators.map((f) => {
-          return validationFunctionToVuetifyRule(f);
-        });
-      }
-      return [];
-    },
-
-    generateTags() {
-      console.log('[FieldInput] Running generic generateTags() in FieldInput.ts');
-      return this.field?.tagger ? this.field.tagger(this.userInput()) : [];
-    },
-
-    generateELO(): CourseElo | undefined {
-      console.log('[FieldInput] Running generic generateELO() in FieldInput.ts');
-      return this.field?.generateELO ? this.field.generateELO(this.userInput()) : undefined;
-    },
-
-    validate() {
-      let ret: ValidationResult = {
-        status: Status.ok,
-        msg: '',
-      };
-
-      const validators = this.validators;
-      let index = 0;
-      while (ret.status === Status.ok && index < validators.length) {
-        ret = validators[index](this.userInput());
-        console.log(`[FieldInput] validation[${index}]\n ${ret.status}\n  ${ret.msg}`);
-        index++;
-      }
-
-      this.validationStatus.status = ret.status;
-      this.validationStatus.msg = ret.msg;
-
-      const validationResult = ret.status === Status.ok;
-
-      if (this.field?.name) {
-        // [ ] #vue3 - possible reactivity issues here
-        console.warn(`check validation reactivity assumptions - does this work?`);
-        this.store.validation[this.field.name] = validationResult;
-
-        if (!validationResult) {
-          delete this.store[this.field.name];
-        }
-      }
-
-      this.uiValidationFunction();
-
-      return ret;
-    },
   },
 });
