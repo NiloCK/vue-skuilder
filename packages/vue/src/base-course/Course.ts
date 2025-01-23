@@ -48,7 +48,7 @@ export class Course {
 
   public getQuestion(name: string): typeof Displayable | undefined {
     return this.questionList.find((question) => {
-      return question.name === name;
+      return question.name === name || question.name === `_${name}`;
     });
   }
 
