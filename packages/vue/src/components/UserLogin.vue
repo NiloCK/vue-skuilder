@@ -3,19 +3,19 @@
     <v-card-title v-if="!loginRoute" class="text-h5 bg-grey-lighten-2">Log In</v-card-title>
 
     <v-card-text>
-      <v-form onsubmit="return false;">
+      <v-form onsubmit="return false;" @submit.prevent="login">
         <v-text-field
           id=""
           v-model="username"
           autofocus
-          name="name"
+          name="username"
           label="Username"
           prepend-icon="mdi-account-circle"
         ></v-text-field>
         <v-text-field
           v-model="password"
           prepend-icon="mdi-lock"
-          name="name"
+          name="password"
           hover="Show password input"
           label="Enter your password"
           hint=""
@@ -30,7 +30,7 @@
           <v-btn color="pink" variant="text" @click="badLoginAttempt = false">Close</v-btn>
         </v-snackbar>
 
-        <v-btn class="mr-2" type="submit" :loading="awaitingResponse" :color="buttonStatus.color" @click="login">
+        <v-btn class="mr-2" type="submit" :loading="awaitingResponse" :color="buttonStatus.color">
           <v-icon start>mdi-lock-open</v-icon>
           Log In
         </v-btn>
