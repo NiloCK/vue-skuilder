@@ -2,3 +2,6 @@
 coverage
 coverage/**/*
 .nyc_output
+
+# yarn cache
+.yarn

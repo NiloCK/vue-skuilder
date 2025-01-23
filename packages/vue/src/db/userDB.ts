@@ -22,9 +22,18 @@ import { PouchError } from '../types/pouchdb';
 
 const cardHistoryPrefix = 'cardH-';
 const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + 'skuilder';
-const remoteCouchRootDB: PouchDB.Database = new pouch(remoteStr, {
-  skip_setup: true,
-});
+
+console.log(`Connecting to remote: ${remoteStr}`);
+
+let remoteCouchRootDB: PouchDB.Database;
+try {
+  remoteCouchRootDB = new pouch(remoteStr, {
+    skip_setup: true,
+  });
+} catch (error) {
+  console.error('Failed to initialize remote CouchDB connection:', error);
+  throw new Error(`Failed to initialize CouchDB: ${JSON.stringify(error)}`);
+}
 
 interface DesignDoc {
   _id: string;
