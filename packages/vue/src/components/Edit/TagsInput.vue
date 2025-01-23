@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- <vue-tags-input
+    <vue-tags-input
       v-model="tag"
       :tags="tags"
       :autocomplete-items="autoCompleteSuggestions"
@@ -16,7 +16,7 @@
           </span>
         </div>
       </template>
-    </vue-tags-input> -->
+    </vue-tags-input>
 
     <v-btn v-if="!hideSubmit" color="success" :loading="loading" @click="submit">Save Changes</v-btn>
   </div>
@@ -28,7 +28,7 @@ import { addTagToCard } from '@/db/courseAPI';
 import { getAppliedTags, getCourseTagStubs, removeTagFromCard } from '@/db/courseDB';
 import type { Tag } from '@/db/types';
 // @ts-expect-error - tmp supression - needs replacing w/ vue 3 compatible version
-import VueTagsInput from '@johmun/vue-tags-input';
+import { VueTagsInput } from '@vojtechlanka/vue-tags-input';
 
 interface TagObject {
   text: string;
