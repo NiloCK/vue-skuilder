@@ -101,7 +101,7 @@ const login = async () => {
     router.push('/study');
   } catch (e) {
     // entry #186
-    console.log(`login error: ${e}`);
+    console.log(`login error: ${JSON.stringify(e)}`);
     // - differentiate response
     // - return better message to UI
     initBadLogin();
