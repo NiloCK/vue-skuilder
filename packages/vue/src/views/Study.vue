@@ -201,6 +201,10 @@ export default defineComponent({
       required: false,
       default: '',
     },
+    /**
+     * If true, the user will engage in a study session for a
+     * random (public) course they are not already registered for.
+     */
     randomPreview: {
       type: Boolean,
       required: false,
