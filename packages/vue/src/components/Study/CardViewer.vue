@@ -3,10 +3,11 @@
     <transition name="component-fade" mode="out-in">
       <component
         :is="view"
+        ref="activeView"
         :key="course_id + '-' + card_id + '-' + sessionOrder"
-        class="cardView ma-2 pa-2"
         :data="data"
         :modify-difficulty="user_elo.global.score - card_elo"
+        class="cardView ma-2 pa-2"
         @emit-response="processResponse($event)"
       />
     </transition>
@@ -21,10 +22,16 @@ import { CardRecord } from '@/db/types';
 import { CourseElo } from '@/tutor/Elo';
 import { ViewComponent } from '@/base-course/Displayable';
 
+interface CardViewerRefs {
+  activeView: ViewComponent;
+}
+
 export default defineComponent({
   name: 'CardViewer',
 
   components: Courses.allViewsRaw(),
+
+  ref: {} as CardViewerRefs,
 
   props: {
     sessionOrder: {

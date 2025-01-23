@@ -54,6 +54,7 @@
 
       <div v-else ref="shadowWrapper">
         <card-viewer
+          ref="cardViewer"
           :class="loading ? 'muted' : ''"
           :view="view"
           :data="data"
@@ -170,6 +171,7 @@ import { Router } from 'vue-router';
 
 interface StudyRefs {
   shadowWrapper: HTMLDivElement;
+  cardViewer: InstanceType<typeof CardViewer>;
 }
 
 type StudyInstance = ReturnType<typeof defineComponent> & {
@@ -196,6 +198,9 @@ export default defineComponent({
   },
 
   props: {
+    /**
+     * If present, user will engage in a study session for the specified (non-registered) course.
+     */
     previewCourseID: {
       type: String,
       required: false,
@@ -209,6 +214,9 @@ export default defineComponent({
       type: Boolean,
       required: false,
     },
+    /**
+     * If present, user will engage in a study session for the specified (registered) course.
+     */
     focusCourseID: {
       type: String,
       required: false,
@@ -232,9 +240,6 @@ export default defineComponent({
       editCardReady: false,
       cardID: '',
       view: null as ViewComponent | null,
-      // [ ] fix this
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      constructedView: null as any | null, // [ ] #vue3 - type this properly
       data: [] as ViewData[],
       courseID: '',
       card_elo: 1000,
@@ -549,10 +554,25 @@ export default defineComponent({
 
           // [ ] this check is failing now since the vue3 migration - no live 'constructed view's to check.
           //     need an alternate method to dismiss cards after their max attempts?
-          if (isQuestionView(this.constructedView)) {
-            if (this.currentCard.records.length >= this.constructedView.maxAttemptsPerView) {
+          // if (isQuestionView(this.constructedView)) {
+          //   if (this.currentCard.records.length >= this.constructedView.maxAttemptsPerView) {
+          //     const sessionViews: number = this.countCardViews(this.courseID, this.cardID);
+          //     if (sessionViews >= this.constructedView.maxSessionViews) {
+          //       this.loadCard(this.sessionController!.nextCard('dismiss-failed'));
+          //       this.updateUserAndCardElo(0, this.courseID, this.cardID);
+          //     } else {
+          //       this.loadCard(this.sessionController!.nextCard('marked-failed'));
+          //     }
+          //   }
+          // }
+
+          // [ ]  v3 version. Keep an eye on this -
+          if (isQuestionView(this.$refs.cardViewer?.$refs.activeView)) {
+            const view = this.$refs.cardViewer.$refs.activeView;
+
+            if (this.currentCard.records.length >= view.maxAttemptsPerView) {
               const sessionViews: number = this.countCardViews(this.courseID, this.cardID);
-              if (sessionViews >= this.constructedView.maxSessionViews) {
+              if (sessionViews >= view.maxSessionViews) {
                 this.loadCard(this.sessionController!.nextCard('dismiss-failed'));
                 this.updateUserAndCardElo(0, this.courseID, this.cardID);
               } else {
@@ -662,7 +682,7 @@ export default defineComponent({
           tmpCardData.elo = toCourseElo(tmpCardData.elo);
         }
 
-        const tmpView = Courses.getView(tmpCardData.id_view);
+        const tmpView: ViewComponent = Courses.getView(tmpCardData.id_view);
         const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
           return getCourseDoc<DisplayableData>(_courseID, id, {
             attachments: true,
@@ -689,13 +709,14 @@ export default defineComponent({
         //   // @ts-ignore
         //   this.constructedView = new tmpView() as Viewable;
         // } else
+        //
 
-        if (isDefineComponent(tmpView)) {
-          this.constructedView = tmpView;
-        } else {
-          console.warn(`[Study] Error constructing view for ${qualified_id}`);
-          this.constructedView = tmpView;
-        }
+        // if (isDefineComponent(tmpView)) {
+        //   this.constructedView = tmpView;
+        // } else {
+        //   console.warn(`[Study] Error constructing view for ${qualified_id}`);
+        //   this.constructedView = tmpView;
+        // }
 
         this.sessionRecord.push({
           card: {
