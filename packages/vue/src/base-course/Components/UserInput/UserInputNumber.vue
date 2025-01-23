@@ -11,7 +11,7 @@
       :rules="[isNumeric]"
       @keyup.enter="submitAnswer(makeNumeric(answer))"
     ></v-text-field>
-  </v-container class="pa-0">
+  </v-container>
 </template>
 
 <script lang="ts">
