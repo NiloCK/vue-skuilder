@@ -552,20 +552,6 @@ export default defineComponent({
             }
           });
 
-          // [ ] this check is failing now since the vue3 migration - no live 'constructed view's to check.
-          //     need an alternate method to dismiss cards after their max attempts?
-          // if (isQuestionView(this.constructedView)) {
-          //   if (this.currentCard.records.length >= this.constructedView.maxAttemptsPerView) {
-          //     const sessionViews: number = this.countCardViews(this.courseID, this.cardID);
-          //     if (sessionViews >= this.constructedView.maxSessionViews) {
-          //       this.loadCard(this.sessionController!.nextCard('dismiss-failed'));
-          //       this.updateUserAndCardElo(0, this.courseID, this.cardID);
-          //     } else {
-          //       this.loadCard(this.sessionController!.nextCard('marked-failed'));
-          //     }
-          //   }
-          // }
-
           // [ ]  v3 version. Keep an eye on this -
           if (isQuestionView(this.$refs.cardViewer?.$refs.activeView)) {
             const view = this.$refs.cardViewer.$refs.activeView;
@@ -703,20 +689,6 @@ export default defineComponent({
         this.cardID = _cardID;
         this.courseID = _courseID;
         this.card_elo = tmpCardData.elo.global.score;
-
-        // [ ] #vue3 - remove after migration
-        // if (isVueConstructor(tmpView)) {
-        //   // @ts-ignore
-        //   this.constructedView = new tmpView() as Viewable;
-        // } else
-        //
-
-        // if (isDefineComponent(tmpView)) {
-        //   this.constructedView = tmpView;
-        // } else {
-        //   console.warn(`[Study] Error constructing view for ${qualified_id}`);
-        //   this.constructedView = tmpView;
-        // }
 
         this.sessionRecord.push({
           card: {
