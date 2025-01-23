@@ -7,8 +7,8 @@ import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
 import LetterQuestionView from './typeSingleLetter.vue';
 
-const data = function() {
-  let ret: { letter: string }[] = [];
+const data = function () {
+  const ret: { letter: string }[] = [];
   for (let i = 0; i < 26; i++) {
     ret.push({
       letter: String.fromCharCode(65 + i),
@@ -27,7 +27,7 @@ export class TypeLetterQuestion extends Question {
           type: FieldType.STRING,
           validator: {
             instructions: 'Enter a single letter',
-            test: function(s: string) {
+            test: function (s: string) {
               if (!s || s.length !== 1 || !/[a-zA-Z]/.test(s)) {
                 return {
                   status: Status.error,
@@ -64,7 +64,15 @@ export class TypeLetterQuestion extends Question {
   }
 
   displayedSkill(a: Answer, t: number) {
-    return this.isCorrect(a) ? 1.0 : 0.0;
+    if (this.isCorrect(a)) {
+      if (t < 3000) {
+        return 1.0;
+      } else {
+        // scale from 1 at 3s to 0.25 at 10s
+        return 1 - ((t - 3000) / 7000) * 0.75;
+      }
+    }
+    return 0;
   }
 
   dataShapes() {
@@ -76,7 +84,7 @@ export class TypeLetterQuestion extends Question {
   }
 
   isCorrect(a: Answer) {
-    let isCorrect = (a as string).toLowerCase() === this.letter.toLowerCase();
+    const isCorrect = (a as string).toLowerCase() === this.letter.toLowerCase();
     console.log(`singleLetter Q isCorrect: ${isCorrect}`);
     return isCorrect;
   }

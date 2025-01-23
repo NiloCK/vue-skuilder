@@ -1,5 +1,5 @@
 <template>
-  <div class="courseEditor" v-if="course">
+  <div v-if="course" class="courseEditor">
     <div v-if="loading">
       <v-progress-circular indeterminate color="secondary"></v-progress-circular>
     </div>
@@ -8,18 +8,18 @@
         <router-link to="/q">Quilts</router-link> /
         <router-link :to="`/q/${courseConfig ? courseConfig.name : course}`">{{ courseConfig?.name }}</router-link>
       </h1>
-      <v-btn v-on:click="toggleComponent" color="success">Content Editing / Component Registration</v-btn>
+      <v-btn color="success" @click="toggleComponent">Content Editing / Component Registration</v-btn>
       <div v-if="editingMode">
         <v-select
           v-model="selectedShape"
           label="What kind of content are you adding?"
-          v-bind:items="registeredDataShapes.map((shape) => shape.name)"
+          :items="registeredDataShapes.map((shape) => shape.name)"
         />
 
         <data-input-form
           v-if="!loading && selectedShape !== '' && courseConfig && dataShape"
-          v-bind:data-shape="dataShape"
-          v-bind:course-cfg="courseConfig"
+          :data-shape="dataShape"
+          :course-cfg="courseConfig"
         />
       </div>
       <component-registration v-else :course="course" />
@@ -72,13 +72,7 @@ export default defineComponent({
       handler(value?: string, old?: string) {
         if (value) {
           this.dataShape = this.getDataShape(value);
-          this.dataInputFormStore.dataInputForm.dataShape = this.dataShape;
-
-          const validations: { [x: string]: string } = {};
-          for (const field of this.dataShape.fields) {
-            validations[field.name] = '';
-          }
-          this.dataInputFormStore.dataInputForm.localStore.validation = validations;
+          this.dataInputFormStore.setDataShape(this.dataShape);
 
           this.dataInputFormStore.dataInputForm.course = this.courseConfig;
         }

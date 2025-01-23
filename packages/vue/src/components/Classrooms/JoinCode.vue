@@ -1,15 +1,13 @@
 <template>
   <v-container fluid class="fill-height pa-0">
     <!-- Close button in top-right corner -->
-    <v-btn fab color="red" dark class="close-btn" @click="close">
-      <v-icon>mdi-close</v-icon>
-    </v-btn>
+    <v-btn icon="mdi-close" color="red" variant="elevated" class="close-btn" @click="close"> </v-btn>
 
     <!-- Main content -->
     <v-row align="center" justify="center" class="fill-height">
       <v-col cols="12" class="text-center">
         <div v-if="!updatePending" class="join-code">
-          {{ _classroomCfg.joinCode }}
+          {{ classroomCfg?.joinCode }}
         </div>
         <v-progress-circular v-else indeterminate size="64"></v-progress-circular>
       </v-col>
@@ -18,12 +16,12 @@
 </template>
 
 <script lang="ts">
-import { log } from 'util';
-import Vue from 'vue';
+import { log } from '@/logshim';
 import TeacherClassroomDB from '../../db/classroomDB';
 import { ClassroomConfig } from '../../server/types';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'JoinCode',
 
   props: {
@@ -35,7 +33,7 @@ export default Vue.extend({
 
   data() {
     return {
-      _classroomCfg: null as ClassroomConfig | null,
+      classroomCfg: null as ClassroomConfig | null,
       classroomDB: null as TeacherClassroomDB | null,
       updatePending: true,
     };
@@ -43,11 +41,11 @@ export default Vue.extend({
 
   async created() {
     this.classroomDB = await TeacherClassroomDB.factory(this._id);
-    this._classroomCfg = await this.classroomDB.getConfig();
+    this.classroomCfg = await this.classroomDB.getConfig();
     await Promise.all([]);
     log(`Route loaded w/ (prop) _id: ${this._id}`);
     log(`Config:
-    ${JSON.stringify(this._classroomCfg)}`);
+    ${JSON.stringify(this.classroomCfg)}`);
     this.updatePending = false;
   },
 

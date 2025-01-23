@@ -1,65 +1,65 @@
 <template>
   <div v-if="!updatePending">
-    <h1 class="text-h4"><router-link to="/q">Quilts</router-link> / {{ _courseConfig.name }}</h1>
+    <h1 class="text-h4 mb-2"><router-link to="/q">Quilts</router-link> / {{ courseCongig.name }}</h1>
 
     <p class="text-body-2">
-      {{ _courseConfig.description }}
+      {{ courseCongig.description }}
     </p>
 
     <transition name="component-fade" mode="out-in">
       <div v-if="userIsRegistered">
-        <router-link :to="`/study/${_id}`" class="mr-2">
+        <router-link :to="`/study/${_id}`" class="me-2">
           <v-btn color="success">Start a study session</v-btn>
         </router-link>
-        <router-link :to="`/edit/${_id}`" class="mr-2">
-          <v-btn dark color="indigo lighten-1" title="Add content to this course">
-            <v-icon left>mdi-plus</v-icon>
+        <router-link :to="`/edit/${_id}`" class="me-2">
+          <v-btn color="indigo-lighten-1">
+            <v-icon start>mdi-plus</v-icon>
             Add content
           </v-btn>
         </router-link>
-        <router-link :to="`/courses/${_id}/elo`" class="mr-2">
-          <v-btn dark color="green darken-2" title="Rank course content for difficulty">
-            <v-icon left>mdi-format-list-numbered</v-icon>
+        <router-link :to="`/courses/${_id}/elo`" class="me-2">
+          <v-btn color="green-darken-2" title="Rank course content for difficulty">
+            <v-icon start>mdi-format-list-numbered</v-icon>
             Arrange
           </v-btn>
         </router-link>
-        <v-btn color="error" small outlined @click="drop">Drop this course</v-btn>
+        <v-btn color="error" size="small" variant="outlined" @click="drop"> Drop this course </v-btn>
       </div>
       <div v-else>
         <v-btn color="primary" @click="register">Register</v-btn>
         <router-link :to="`/q/${_id}/preview`">
-          <v-btn outlined color="primary">Start a trial study session</v-btn>
+          <v-btn variant="outlined" color="primary">Start a trial study session</v-btn>
         </router-link>
       </div>
     </transition>
     <midi-config v-if="isPianoCourse" :_id="_id" />
 
     <v-card class="my-2">
-      <v-app-bar dense>
+      <v-toolbar density="compact">
         <v-toolbar-title>Tags</v-toolbar-title>
-        <v-spacer></v-spacer>
-        {{ tags.length }}
-      </v-app-bar>
+        <v-toolbar-items>
+          <v-btn variant="text">({{ tags.length }})</v-btn>
+        </v-toolbar-items>
+      </v-toolbar>
       <v-card-text>
-        <v-chip outlined v-for="(tag, i) in tags" v-bind:key="i" class="mr-2 mb-2">
-          <!-- todo: -->
-          <!-- <router-link :to="`/q/${_courseConfig.name}/tags/${tag.name}`"> -->
+        <span v-for="(tag, i) in tags" :key="i">
           <router-link :to="`/q/${_id}/tags/${tag.name}`">
-            {{ tag.name }}
+            <v-chip variant="tonal" class="me-2 mb-2">
+              {{ tag.name }}
+            </v-chip>
           </router-link>
-        </v-chip>
+        </span>
       </v-card-text>
     </v-card>
 
-    <course-card-browser class="my-3" v-bind:_id="_id" />
+    <course-card-browser class="my-3" :_id="_id" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import MidiConfig from '@/courses/piano/utility/MidiConfig.vue';
-import { log } from 'util';
-import { getCourseDB } from '@/db';
+import { log } from '@/logshim';
 import { CourseDB, getCourseConfig, getCourseTagStubs } from '@/db/courseDB';
 import { Tag } from '@/db/types';
 import { CourseConfig } from '@/server/types';
@@ -68,17 +68,17 @@ import { User } from '@/db/userDB';
 
 export default defineComponent({
   name: 'CourseInformation',
-  
-  components: { 
-    MidiConfig, 
-    CourseCardBrowser 
+
+  components: {
+    MidiConfig,
+    CourseCardBrowser,
   },
 
   props: {
     _id: {
       type: String as PropType<string>,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data() {
@@ -88,20 +88,20 @@ export default defineComponent({
         (value: string): string | boolean => {
           const max = 30;
           return value.length > max ? `Course name must be ${max} characters or less` : true;
-        }
+        },
       ],
       updatePending: true,
-      _courseConfig: {} as CourseConfig,
+      courseCongig: {} as CourseConfig,
       userIsRegistered: false,
       tags: [] as Tag[],
-      user: null as User | null
+      user: null as User | null,
     };
   },
 
   computed: {
     isPianoCourse(): boolean {
-      return this._courseConfig.name.toLowerCase().includes('piano');
-    }
+      return this.courseCongig.name.toLowerCase().includes('piano');
+    },
   },
 
   async created() {
@@ -113,9 +113,8 @@ export default defineComponent({
       userCourses.courses.filter((c) => {
         return c.courseID === this._id && (c.status === 'active' || c.status === undefined);
       }).length === 1;
-      
-    await getCourseDB(this._id);
-    this._courseConfig = (await getCourseConfig(this._id))!;
+
+    this.courseCongig = (await getCourseConfig(this._id))!;
     this.tags = (await getCourseTagStubs(this._id)).rows.map((r) => r.doc!);
     this.updatePending = false;
   },
@@ -135,8 +134,8 @@ export default defineComponent({
       if (res.ok) {
         this.userIsRegistered = false;
       }
-    }
-  }
+    },
+  },
 });
 </script>
 

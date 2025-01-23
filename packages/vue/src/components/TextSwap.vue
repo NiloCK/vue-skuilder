@@ -1,13 +1,13 @@
 <template>
   <transition appear name="fade" mode="out-in">
-    <a @click="next()" v-for="(t, i) in text" v-if="i === index" :key="i">{{ text[index] }}</a>
+    <a :key="index" @click="next()">{{ text[index] }}</a>
   </transition>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 
-export interface ITextSwap extends Vue {
+export interface ITextSwap {
   next: () => void;
   text: string[];
   index: number;

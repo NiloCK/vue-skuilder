@@ -1,34 +1,40 @@
+<!--
+
+image and audio inputs are semi deprecated - not in use right now -
+     superceded by the generic fillIn type that allows images and audio from the
+     general mediaDragDropUploader
+
 <template>
   <div>
-    <label class="headline" v-bind:for="field.name">{{ title }}: </label>
+    <label class="text-h5" :for="field.name">{{ title }}: </label>
 
     <div>
       <v-btn-toggle mandatory multiple elevation-5>
-        <v-btn flat>
-          <v-icon v-bind:color="recording ? 'red' : null" v-on:click="record">mic</v-icon>
+        <v-btn variant="flat">
+          <v-icon :color="recording ? 'red' : null" @click="record">mic</v-icon>
         </v-btn>
-        <v-btn flat>
-          <v-icon v-on:click="stop">stop</v-icon>
+        <v-btn variant="flat">
+          <v-icon @click="stop">stop</v-icon>
         </v-btn>
-        <v-btn flat>
-          <v-icon v-on:click="play">play_arrow</v-icon>
+        <v-btn variant="flat">
+          <v-icon @click="play">play_arrow</v-icon>
         </v-btn>
 
-        <v-btn flat
+        <v-btn variant="flat"
           ><label>
             <input
+              :id="blobInputID"
               ref="inputField"
-              v-bind:id="blobInputID"
-              v-bind:name="field.name"
-              v-on:change="processInput"
+              :name="field.name"
               type="file"
-              v-bind:class="validationStatus.status"
+              :class="validationStatus.status"
+              @change="processInput"
             />
             <span>Upload</span><v-icon>folder</v-icon>
           </label>
         </v-btn>
       </v-btn-toggle>
-      <div v-bind:id="waveSurferId"></div>
+      <div :id="waveSurferId"></div>
     </div>
   </div>
 </template>
@@ -38,7 +44,7 @@ import { defineComponent, PropType } from 'vue';
 import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
 import WaveSurfer from 'wavesurfer.js';
 import FieldInput from '../OptionsFieldInput';
-const MediaStreamRecorder = require('msr');
+import MediaStreamRecorder from 'msr';
 import { FieldDefinition } from '../../../../base-course/Interfaces/FieldDefinition';
 
 export default defineComponent({
@@ -49,7 +55,7 @@ export default defineComponent({
       required: true,
     },
     store: {
-      type: Object as PropType<any>,
+      type: Object as PropType<object>,
       required: true,
     },
     uiValidationFunction: {
@@ -109,7 +115,7 @@ File type: ${file.type}
       if (blob === null) {
         alert('nullBlob');
       } else {
-        (this as any).store[this.field.name] = {
+        this.store[this.field.name] = {
           content_type: 'image/png',
           data: blob,
         };
@@ -178,3 +184,5 @@ input[type='file'] {
   display: none;
 }
 </style>
+
+-->

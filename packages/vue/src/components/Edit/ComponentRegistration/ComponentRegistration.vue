@@ -2,9 +2,9 @@
   <div>
     <h3>DataShapes</h3>
     <ul>
-      <li class="ma-2" v-for="dataShape in dataShapes" :key="dataShape.name">
-        <v-btn small v-if="!dataShape.registered" @click="registerShape(dataShape.name)"> Register </v-btn>
-        <span class="inset" v-else> (Registered) </span>
+      <li v-for="dataShape in dataShapes" :key="dataShape.name" class="ma-2">
+        <v-btn v-if="!dataShape.registered" size="small" @click="registerShape(dataShape.name)"> Register </v-btn>
+        <span v-else class="inset"> (Registered) </span>
         {{ dataShape.name }}
         <ul>
           <div v-for="view in dataShape.dataShape.views" :key="view.name">
@@ -18,9 +18,9 @@
 
     <h3>Questions</h3>
     <ul>
-      <li class="ma-2" v-for="question in questions" :key="question.name">
-        <v-btn small v-if="!question.registered" @click="registerQuestionView(question.name)"> Register </v-btn>
-        <span class="inset" v-else> (Registered) </span>
+      <li v-for="question in questions" :key="question.name" class="ma-2">
+        <v-btn v-if="!question.registered" size="small" @click="registerQuestionView(question.name)"> Register </v-btn>
+        <span v-else class="inset"> (Registered) </span>
         {{ question.name }}
       </li>
     </ul>

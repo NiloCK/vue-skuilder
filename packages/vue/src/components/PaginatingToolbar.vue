@@ -1,24 +1,36 @@
 <template>
   <v-toolbar dense>
-    <v-toolbar-title>{{ title }}</v-toolbar-title>
-    &nbsp;&nbsp; {{ subtitle }}
+    <v-toolbar-title>
+      <span>{{ title }}</span>
+      <span class="ms-2 text-subtitle-2">{{ subtitle }}</span>
+    </v-toolbar-title>
     <v-spacer></v-spacer>
-    <v-btn v-on:click="() => $emit('first')" text icon color="secondary" v-bind:disabled="page == 1">
+    <v-btn variant="text" icon color="secondary" :disabled="page == 1" @click="$emit('first')">
       <v-icon>mdi-page-first</v-icon>
     </v-btn>
-    <v-btn v-on:click="() => $emit('prev')" text icon color="secondary" v-bind:disabled="page == 1">
+    <v-btn variant="text" icon color="secondary" :disabled="page == 1" @click="$emit('prev')">
       <v-icon>mdi-chevron-left</v-icon>
     </v-btn>
+
     <v-select
-      v-bind:items="pages"
-      v-on:change="() => $emit('set-page', page)"
-      v-model="page"
+      :model-value="page"
+      :items="pages"
       class="pageSelect"
-    ></v-select>
-    <v-btn v-on:click="() => $emit('next')" text icon color="secondary" v-bind:disabled="page == pages.length">
+      density="compact"
+      hide-details
+      :return-object="false"
+      variant="outlined"
+      @update:model-value="(val) => $emit('set-page', val)"
+    >
+      <template #selection="{ item }">
+        {{ item.value }}
+      </template>
+    </v-select>
+
+    <v-btn variant="text" icon color="secondary" :disabled="page == pages.length" @click="$emit('next')">
       <v-icon>mdi-chevron-right</v-icon>
     </v-btn>
-    <v-btn v-on:click="() => $emit('last')" text icon color="secondary" v-bind:disabled="page == pages.length">
+    <v-btn variant="text" icon color="secondary" :disabled="page == pages.length" @click="$emit('last')">
       <v-icon>mdi-page-last</v-icon>
     </v-btn>
   </v-toolbar>
@@ -42,10 +54,12 @@ export default defineComponent({
     title: {
       type: String,
       required: false,
+      default: '',
     },
     subtitle: {
       type: String,
       required: false,
+      default: '',
     },
   },
 

@@ -1,18 +1,17 @@
 import { Course } from '../base-course/Course';
+import { Displayable, ViewComponent } from '../base-course/Displayable';
 import { DataShape } from '../base-course/Interfaces/DataShape';
-import Vue, { VueConstructor } from 'vue';
-import french from './french';
-import typing from './typing';
-import math from './math';
-import wordWork from './word-work';
-import piano from './piano';
 import chess from './chess';
 import defaultCourse from './default';
-import Viewable from '../base-course/Viewable';
-import { Displayable, ViewComponent } from '../base-course/Displayable';
+import french from './french';
+import math from './math';
+import { NameSpacer, ShapeDescriptor, ViewDescriptor } from './NameSpacer';
+import piano from './piano';
 import pitch from './pitch';
 import sightSing from './sightsing';
-import { NameSpacer, ShapeDescriptor, ViewDescriptor } from './NameSpacer';
+import typing from './typing';
+import wordWork from './word-work';
+import { markRaw } from 'vue';
 
 export class CourseList {
   private readonly courseList: Course[];
@@ -31,12 +30,22 @@ export class CourseList {
     });
   }
 
+  private cachedRawViews: { [index: string]: ViewComponent } | null = null;
+
+  public allViewsRaw(): { [index: string]: ViewComponent } {
+    if (!this.cachedRawViews) {
+      const av = this.allViews();
+      this.cachedRawViews = Object.fromEntries(Object.entries(av).map(([k, v]) => [k, markRaw(v)]));
+    }
+    return this.cachedRawViews;
+  }
+
   /**
    * allViews supplies the CardViewer component with the required
    * Vue components it needs at run-time.
    */
-  public allViews(): { [index: string]: VueConstructor<Vue> } {
-    const ret: { [index: string]: VueConstructor<Vue> } = {};
+  public allViews(): { [index: string]: ViewComponent } {
+    const ret: { [index: string]: ViewComponent } = {};
 
     this.courseList.forEach((course) => {
       Object.assign(ret, course.allViewsMap);

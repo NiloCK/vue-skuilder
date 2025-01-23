@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="initComplete">
-      <course-information v-if="courseId !== undefined && courseId !== ''" v-bind:_id="courseId" />
+      <course-information v-if="courseId !== undefined && courseId !== ''" :_id="courseId" />
       <v-container v-else-if="candidates.length === 0">
         <v-row class="text-h4">
           {{ query }}
@@ -11,10 +11,10 @@
 
         <v-row class="ma-3">
           <v-dialog v-model="newCourseDialog" fullscreen transition="dialog-bottom-transition" :overlay="false">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn color="primary" dark v-bind="attrs" v-on="on">Start a new Quilt</v-btn>
+            <template #activator="{ props }">
+              <v-btn color="primary" v-bind="props">Start a new Quilt</v-btn>
             </template>
-            <course-editor v-bind:name="query" v-on:CourseEditingComplete="newCourseDialog = false" />
+            <course-editor :name="query" @course-editing-complete="newCourseDialog = false" />
           </v-dialog>
         </v-row>
       </v-container>
@@ -23,21 +23,15 @@
           <span class="text-h3">{{ query }} </span> <span class="text-h5">could refer to:</span>
           <v-divider></v-divider>
 
-          <div class="ma-5" v-bind:key="i" v-for="(c, i) in candidates">
+          <div v-for="(c, i) in candidates" :key="i" class="ma-5">
             <v-row class="text-h5">
-              <a
-                v-on:click="
-                  query = c.courseID;
-                  loadQuery();
-                "
-                >{{ c.name }}
-              </a>
+              <a @click="loadQuery(c.courseID)">{{ c.name }} </a>
               -
               <v-text-field
-                label="Disambiguator"
                 :id="`${i}-disambiguator`"
                 v-model="c.disambiguator"
-                v-on:change="update(c)"
+                label="Disambiguator"
+                @change="update(c)"
               ></v-text-field>
               {{ c.description }}
             </v-row>
@@ -80,6 +74,11 @@ export default defineComponent({
     };
   },
 
+  async created() {
+    this.courseList = await getCachedCourseList();
+    this.loadQuery();
+  },
+
   methods: {
     update(c: CourseConfig) {
       if (c.courseID && c.disambiguator) {
@@ -89,8 +88,13 @@ export default defineComponent({
       }
     },
 
-    loadQuery() {
-      const query = this.query.toLowerCase();
+    loadQuery(q?: string) {
+      let query: string;
+      if (q) {
+        query = q.toLowerCase();
+      } else {
+        query = this.query.toLowerCase();
+      }
 
       this.candidates = this.courseList.filter((c) => {
         const snakedName = c.name.replace(' ', '_').toLowerCase();
@@ -105,11 +109,6 @@ export default defineComponent({
 
       this.initComplete = true;
     },
-  },
-
-  async created() {
-    this.courseList = await getCachedCourseList();
-    this.loadQuery();
   },
 });
 </script>

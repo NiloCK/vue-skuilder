@@ -1,3 +1,4 @@
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { RadioSelectAnswer } from '../../../../base-course/Components/RadioMultipleChoice.vue';
 import { Question } from '../../../../base-course/Displayable';
 import { DataShapeName } from '../../../../enums/DataShapeNames';
@@ -59,7 +60,7 @@ export class IdentifyKeyQuestion extends Question {
     return keys[value];
   }
 
-  constructor(data: any[]) {
+  constructor(data: ViewData[]) {
     super(data);
     this.key = IdentifyKeyQuestion.getKey(data[0].key as number);
   }

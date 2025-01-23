@@ -3,36 +3,36 @@
     <v-label class="text-h5">Add media:</v-label>
     <div
       class="drop-zone"
-      v-bind:class="{ 'drop-zone--over': isDragging }"
-      v-on:drop="dropHandler"
-      v-on:dragover.prevent="dragOverHandler"
-      v-on:dragenter.prevent="dragEnterHandler"
-      v-on:dragleave.prevent="dragLeaveHandler"
+      :class="{ 'drop-zone--over': isDragging }"
+      @drop="dropHandler"
+      @dragover.prevent="dragOverHandler"
+      @dragenter.prevent="dragEnterHandler"
+      @dragleave.prevent="dragLeaveHandler"
     >
       <input
         ref="fileInput"
         type="file"
-        @change="handleFileInput"
         accept="image/*,audio/*"
         multiple
         style="display: none"
+        @change="handleFileInput"
       />
-      <template>
-        <div v-for="(item, index) in mediaItems" :key="index" class="media-item">
-          <template v-if="item.type === 'image'">
-            <img :src="item.thumbnailUrl" alt="Uploaded image thumbnail" class="thumbnail" />
-          </template>
-          <template v-else-if="item.type === 'audio'">
-            <audio controls :src="item.url"></audio>
-          </template>
-          <v-btn small @click="removeMedia(index)">Remove</v-btn>
-        </div>
-        <template>
-          Drop image or audio files here...
-          <v-btn @click="triggerFileInput">Or Click to Upload</v-btn>
+      <!-- <template> -->
+      <div v-for="(item, index) in mediaItems" :key="index" class="media-item">
+        <template v-if="item.type === 'image'">
+          <img :src="item.thumbnailUrl" alt="Uploaded image thumbnail" class="thumbnail" />
         </template>
-        <!-- <v-btn @click="addMoreMedia">Add More Media</v-btn> -->
-      </template>
+        <template v-else-if="item.type === 'audio'">
+          <audio controls :src="item.url"></audio>
+        </template>
+        <v-btn size="small" @click="removeMedia(index)">Remove</v-btn>
+      </div>
+      <!-- <template> -->
+      Drop image or audio files here...
+      <v-btn @click="triggerFileInput">Or Click to Upload</v-btn>
+      <!-- </template> -->
+      <!-- <v-btn @click="addMoreMedia">Add More Media</v-btn> -->
+      <!-- </template> -->
     </div>
   </div>
 </template>
@@ -41,6 +41,7 @@
 import { defineComponent } from 'vue';
 import FieldInput from '../OptionsFieldInput';
 import { Status } from '@/enums/Status';
+import { FieldInputSetupReturn } from '../OptionsFieldInput';
 
 interface MediaItem {
   type: 'image' | 'audio';
@@ -49,13 +50,24 @@ interface MediaItem {
   thumbnailUrl?: string;
 }
 
-interface MDDURefs {
-  fileInput: HTMLInputElement;
-}
-
 export default defineComponent({
   name: 'MediaDragDropUploader',
   extends: FieldInput,
+
+  setup(props, ctx) {
+    // Get the parent setup result
+    const parentSetup = FieldInput.setup?.(props, ctx) as FieldInputSetupReturn;
+
+    // Now you can access fieldStore and other parent setup properties
+    const { fieldStore } = parentSetup;
+
+    // Return both parent and child setup properties
+    return {
+      ...parentSetup,
+      fieldStore,
+      // Add any additional setup properties specific to this component
+    };
+  },
 
   data() {
     return {
@@ -71,7 +83,7 @@ export default defineComponent({
   },
 
   created() {
-    this.validate();
+    // this.validate();
   },
 
   methods: {
@@ -158,7 +170,7 @@ export default defineComponent({
       });
       this.mediaItems = [];
       this.updateStore();
-      this.validate();
+      // this.validate();
     },
 
     addMoreMedia() {
@@ -167,29 +179,29 @@ export default defineComponent({
     },
 
     updateStore() {
-      for (let i = 1; i <= 10; i++) {
-        this.$delete(this.store, `image-${i}`);
-        this.$delete(this.store, `audio-${i}`);
-      }
+      // for (let i = 1; i <= 10; i++) {
+      //   delete this.dataInputForm.dataInputForm[`image-${i}`];
+      //   delete this.dataInputForm.dataInputForm[`audio-${i}`];
+      // }
 
       let imageCount = 0;
       let audioCount = 0;
       this.mediaItems.forEach((item) => {
         if (item.type === 'image') {
           imageCount++;
-          this.store[`image-${imageCount}`] = {
+          this.fieldStore.setMedia(`image-${imageCount}`, {
             content_type: item.file.type,
             data: item.file,
-          };
+          });
         } else if (item.type === 'audio') {
           audioCount++;
-          this.store[`audio-${audioCount}`] = {
+          this.fieldStore.setMedia(`audio-${audioCount}`, {
             content_type: item.file.type,
             data: item.file,
-          };
+          });
         }
       });
-      this.validate();
+      // this.validate();
     },
 
     getValidators() {

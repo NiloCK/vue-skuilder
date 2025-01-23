@@ -1,10 +1,10 @@
 <template>
   <div data-viewable="IdentifyVocab">
     <template v-if="question">
-      <span class="headline"> Spell the word: </span>
+      <span class="text-h5"> Spell the word: </span>
       <UserInputString v-model="answer" />
       <center>
-        <span v-if="questionUtils.priorAttempts" class="title">
+        <span v-if="questionUtils.priorAttempts" class="text-h6">
           {{ question.word }}
         </span>
       </center>
@@ -39,6 +39,7 @@ export default defineComponent({
     modifyDifficulty: {
       type: Number,
       required: false,
+      default: 0,
     },
   },
 
@@ -56,7 +57,6 @@ export default defineComponent({
 
     const submit = () => {
       if (question.value) {
-        const isCorrect = question.value.isCorrect(answer.value);
         questionUtils.submitAnswer(answer.value);
       }
     };

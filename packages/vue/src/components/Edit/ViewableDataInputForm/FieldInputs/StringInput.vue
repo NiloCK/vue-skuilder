@@ -1,36 +1,49 @@
 <template>
   <v-text-field
     ref="inputField"
-    box
-    v-model="store[field.name]"
-    v-bind:name="field.name"
-    v-bind:label="field.name"
-    v-bind:rules="vuetifyRules()"
-    v-bind:autofocus="autofocus"
-    v-on:input="() => validate()"
+    v-model="modelValue"
+    variant="filled"
+    type="text"
+    :name="field.name"
+    :label="field.name"
+    :rules="vuetifyRules()"
+    :hint="validationStatus.msg"
+    :autofocus="autofocus"
   />
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { defineComponent, computed } from 'vue';
 import FieldInput from '../OptionsFieldInput';
-import { FieldDefinition } from '../../../../base-course/Interfaces/FieldDefinition';
+import { ValidatingFunction } from '../../../../base-course/Interfaces/ValidatingFunction';
 
 export default defineComponent({
   name: 'StringInput',
   extends: FieldInput,
 
-  props: {
-    autofocus: Boolean,
-    field: Object as PropType<FieldDefinition>,
-    store: {
-      type: Object as PropType<any>,
-      required: true,
-    },
-    uiValidationFu2nction: {
-      type: Function as PropType<() => boolean>,
-      required: true,
-    },
+  setup(props, ctx) {
+    // Get all the setup logic from parent
+    const parentSetup = FieldInput.setup?.(props, ctx);
+
+    // [ ] Test datashape-field-custom validators
+    const validators = computed<ValidatingFunction[]>(() => {
+      const baseValidators = FieldInput.validators.call(this);
+
+      if (props.field.validator?.test) {
+        baseValidators.push(props.field.validator.test);
+      }
+
+      if (baseValidators) {
+        return baseValidators;
+      } else {
+        return [];
+      }
+    });
+
+    return {
+      ...parentSetup,
+      validators,
+    };
   },
 });
 </script>

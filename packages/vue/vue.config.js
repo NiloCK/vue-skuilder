@@ -2,10 +2,19 @@ const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 const path = require('path');
 const { defineConfig } = require('@vue/cli-service');
+const { VuetifyPlugin } = require('webpack-plugin-vuetify');
 
 module.exports = defineConfig({
-  transpileDependencies: ['vuetify'], // Add this line for Vuetify 2.x
-
+  lintOnSave: false,
+  // [ ] #vue3: remove this commented line after migration done
+  // transpileDependencies: ['vuetify'], // Add this line for Vuetify 2.x... and remove for vuetify 3
+  transpileDependencies: true,
+  pluginOptions: {
+    vuetify: {
+      // https://github.com/vuetifyjs/vuetify-loader/tree/master/packages/vuetify-loader
+      autoImport: true,
+    },
+  },
   configureWebpack: (config) => {
     console.log('[config] NODE_ENV:', process.env.NODE_ENV);
     console.log('[config] VUE_APP_MOCK:', process.env.VUE_APP_MOCK);
@@ -54,6 +63,7 @@ module.exports = defineConfig({
 
     config.plugins = [
       ...(config.plugins || []),
+      new VuetifyPlugin({ autoImport: true }), // Add Vuetify plugin
       new webpack.ProvidePlugin({
         process: 'process/browser',
         Buffer: ['buffer', 'Buffer'],

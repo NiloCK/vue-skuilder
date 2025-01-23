@@ -97,8 +97,12 @@ export function toCourseElo(elo: Eloish | undefined): CourseElo {
   }
 }
 
-export function isCourseElo(x: any): x is CourseElo {
-  return x !== undefined && x.global !== undefined && x.tags !== undefined;
+export function isCourseElo(x: unknown): x is CourseElo {
+  if (!x || typeof x !== 'object') {
+    return false;
+  }
+
+  return 'global' in x && 'tags' in x;
 }
 
 /**

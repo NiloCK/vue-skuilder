@@ -106,7 +106,7 @@ export function splitParagraphToken(token: marked.Tokens.Paragraph): TokenOrComp
         } else {
           marked.lexer(rawChunks[i]).forEach((t) => {
             if (t.type === 'paragraph') {
-              ret = ret.concat((t as any).tokens);
+              ret = ret.concat(t.tokens);
             } else {
               ret.push(t);
             }
@@ -123,15 +123,10 @@ export function splitParagraphToken(token: marked.Tokens.Paragraph): TokenOrComp
   return ret;
 }
 
-export function paragraphContainsComponent(t: marked.Token) {
-  if ((t as any).tokens) {
-  }
-}
-
 export function containsComponent(token: marked.Token) {
   if (token.type === 'text' || token.type === 'paragraph') {
-    let opening = token.raw.indexOf('{{');
-    let closing = token.raw.indexOf('}}');
+    const opening = token.raw.indexOf('{{');
+    const closing = token.raw.indexOf('}}');
 
     if (opening !== -1 && closing !== -1 && closing > opening) {
       return true;
@@ -163,6 +158,7 @@ export const BlanksCardDataShapes: DataShape[] = [
   },
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const val: Validator = {
   test: (input) => {
     console.log(`Testing md input: ${input}`);
@@ -208,7 +204,7 @@ export class BlanksCard extends Question {
       const text = splitText(token.text, '{{', '}}');
       const raw = splitText(token.raw, '{{', '}}');
 
-      let ret: marked.Tokens.Text[] = [];
+      const ret: marked.Tokens.Text[] = [];
 
       if (raw.left.length > 0) {
         ret.push({
@@ -260,9 +256,11 @@ export class BlanksCard extends Question {
       }
     }
 
-    if ((tok as any).tokens) {
-      for (let i = 0; i < (tok as any).tokens.length; i++) {
-        const candidate = this.findAnswers((tok as any).tokens[i]);
+    const toks: { tokens: marked.Token[] } = tok as { tokens: marked.Token[] };
+
+    if (toks.tokens) {
+      for (let i = 0; i < toks.tokens.length; i++) {
+        const candidate = this.findAnswers(toks.tokens[i]);
         if (candidate !== null) {
           return candidate;
         }
@@ -297,7 +295,10 @@ export class BlanksCard extends Question {
 
   constructor(data: ViewData[]) {
     super(data);
-    this.mdText = data[0].Input as any as string;
+    this.mdText = data[0].Input as unknown as string;
+    if (this.mdText === undefined) {
+      this.mdText = '';
+    }
 
     const splits = splitByDelimiters(this.mdText, '{{', '}}');
     const recombines = [];

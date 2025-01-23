@@ -1,6 +1,12 @@
+<!--
+
+image and audio inputs are semi deprecated - not in use right now -
+     superceded by the generic fillIn type that allows images and audio from the
+     general mediaDragDropUploader
+
 <template>
   <div>
-    <label v-bind:for="field.name">{{ field.name }}: </label>
+    <label :for="field.name">{{ field.name }}: </label>
     <div
       class="drop-zone"
       :class="{ 'drop-zone--over': isDragging }"
@@ -12,14 +18,14 @@
       <template v-if="!thumbnailUrl">
         Drop a file here...
         <input
+          :id="blobInputID"
           ref="inputField"
-          v-bind:id="blobInputID"
-          v-bind:name="field.name"
+          :name="field.name"
+          type="file"
+          :class="validationStatus.status"
+          accept="image/*"
           @change="processInput"
           @click.stop
-          type="file"
-          v-bind:class="validationStatus.status"
-          accept="image/*"
         />
       </template>
       <template v-else>
@@ -221,3 +227,5 @@ input[type='file'] {
   margin-bottom: 10px;
 }
 </style>
+
+-->

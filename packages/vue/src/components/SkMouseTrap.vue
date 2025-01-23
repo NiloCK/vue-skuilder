@@ -1,8 +1,9 @@
 <template>
-  <v-dialog max-width="500px" transition="dialog-transition" v-if="display">
-    <template v-slot:activator="{ on, attrs }">
-      <v-btn fab dark color="primary" v-bind="attrs" v-on="on">
-        <v-icon dark>mdi-keyboard</v-icon>
+  <v-dialog v-if="display" max-width="500px" transition="dialog-transition">
+    <template #activator="{ props }">
+      <v-btn icon color="primary" v-bind="props">
+        <!-- <v-icon>mdi-question-mark</v-icon> -->
+        ?
       </v-btn>
     </template>
 
@@ -13,7 +14,7 @@
       </v-toolbar>
       <v-list>
         <v-list-item v-for="hk in commands" :key="hk.hotkey">
-          <v-btn outlined color="black">
+          <v-btn variant="outlined" color="black">
             {{ hk.hotkey }}
           </v-btn>
           <v-spacer></v-spacer>

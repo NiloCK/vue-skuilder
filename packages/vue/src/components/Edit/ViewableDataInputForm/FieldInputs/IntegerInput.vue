@@ -1,35 +1,49 @@
 <template>
   <v-text-field
     ref="inputField"
-    box
+    v-model="modelValue"
+    variant="filled"
     type="number"
-    v-model="store[field.name]"
-    v-bind:name="field.name"
-    v-bind:label="field.name"
-    v-bind:rules="vuetifyRules()"
-    v-bind:autofocus="autofocus"
-    v-on:input="() => validate()"
+    :name="field.name"
+    :label="field.name"
+    :rules="vuetifyRules()"
+    :hint="validationStatus.msg"
+    :autofocus="autofocus"
   />
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, computed } from 'vue';
 import { integerValidator } from './typeValidators';
 import FieldInput from '../OptionsFieldInput';
+import { ValidatingFunction } from '@/base-course/Interfaces/ValidatingFunction';
 
 export default defineComponent({
   name: 'IntegerInput',
   extends: FieldInput,
-  computed: {
-    validators(): Function[] {
-      const baseValidators = FieldInput.computed?.validators.call(this);
-      const ret = [integerValidator];
-      if (baseValidators) {
-        return ret.concat(baseValidators);
+
+  setup(props, ctx) {
+    // Get all the setup logic from parent
+    const parentSetup = FieldInput.setup?.(props, ctx);
+
+    const validators = computed<ValidatingFunction[]>(() => {
+      const baseValidators = FieldInput.validators.call(this);
+
+      if (props.field.validator?.test) {
+        baseValidators.push(props.field.validator.test);
       }
-      console.log(`validators for ${this.field.name} has ${ret.length} entries`);
-      return ret;
-    },
+
+      if (baseValidators) {
+        return [integerValidator, ...baseValidators];
+      } else {
+        return [integerValidator];
+      }
+    });
+
+    return {
+      ...parentSetup,
+      validators,
+    };
   },
 });
 </script>

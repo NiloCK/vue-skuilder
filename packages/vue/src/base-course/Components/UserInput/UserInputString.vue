@@ -1,38 +1,27 @@
 <template>
-  <v-text-field
-    v-model="answer"
-    :prepend-icon="prependIcon"
-    @keyup.enter="submitAnswer(answer)"
-    :autofocus="autofocus"
-    toggle-keys="[13,32]"
-    type="text"
-    class="headline"
-    single-line
-    hide-details
-    hide-headers
-    hide-overlay
-    ref="input"
-  ></v-text-field>
+  <v-container class="pa-0">
+    <v-text-field
+      v-model="answer"
+      :autofocus="autofocus"
+      :prepend-icon="prependIcon"
+      type="text"
+      variant="underlined"
+      single-line
+      hide-details
+      @keyup.enter="submitAnswer(answer)"
+    ></v-text-field>
+  </v-container>
 </template>
 
 <script lang="ts">
+// @compositionstart="onCompositionStart"
+// @compositionend="onCompositionEnd"
 import UserInput from './OptionsUserInput';
-import { defineComponent, PropType } from 'vue';
-
-interface InputStringRefs {
-  input: HTMLInputElement;
-}
-
-type InputStringInstance = ReturnType<typeof defineComponent> & {
-  $refs: InputStringRefs;
-};
+import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: 'UserInputString',
-
   extends: UserInput,
-
-  ref: {} as InputStringRefs,
 
   props: {
     icon: {
@@ -47,19 +36,28 @@ export default defineComponent({
     },
   },
 
+  mounted() {
+    (this.$refs.input as HTMLInputElement)?.focus();
+  },
+
   methods: {
-    mounted(this: InputStringInstance) {
-      this.$refs.input.focus();
-    },
+    // debugInput(e: Event) {
+    //   const target = e.target as HTMLInputElement;
+    //   console.log('Input event:', {
+    //     value: target.value,
+    //     currentAnswer: this.answer,
+    //     target,
+    //   });
+    // },
+    // debugKeyup(e: KeyboardEvent) {
+    //   const target = e.target as HTMLInputElement;
+    //   console.log('Keyup event:', {
+    //     key: e.key,
+    //     value: target.value,
+    //     currentAnswer: this.answer,
+    //     target,
+    //   });
+    // },
   },
 });
 </script>
-
-<style scoped>
-.v-text-field {
-  padding: 0;
-}
-input {
-  text-align: center !important;
-}
-</style>

@@ -1,18 +1,16 @@
 <template>
   <div v-if="!updatePending">
-    <h1><router-link to="/classrooms">My Classrooms</router-link> / {{ _classroomCfg.name }}</h1>
+    <h1><router-link to="/classrooms">My Classrooms</router-link> / {{ classroomCfg.name }}</h1>
 
     <h3>
-      Join code: {{ _classroomCfg.joinCode }}
+      Join code: {{ classroomCfg.joinCode }}
       <router-link :to="`/classrooms/${_id}/code`">
-        <v-btn x-small icon color="accent" alt="Make Fullscreen">
-          <v-icon>mdi-fullscreen</v-icon>
-        </v-btn>
+        <v-btn size="x-small" icon="mdi-fullscreen" color="accent" alt="Make Fullscreen"> </v-btn>
       </router-link>
     </h3>
     <v-row>
       <v-col cols="12" sm="6" md="4">
-        <v-checkbox label="Allow peer instruction" v-model="_classroomCfg.peerAssist" :value="true"></v-checkbox>
+        <v-checkbox v-model="classroomCfg.peerAssist" label="Allow peer instruction" :model-value="true"></v-checkbox>
       </v-col>
       <v-col v-if="classroomDB.ready" cols="12">
         <h2>Assigned Content:</h2>
@@ -32,33 +30,31 @@
         <v-fade-transition>
           <v-btn v-if="!addingContent" color="primary" @click="addingContent = true">
             Assign New Content
-            <v-icon right>mdi-plus</v-icon>
+            <v-icon end>mdi-plus</v-icon>
           </v-btn>
         </v-fade-transition>
         <v-card v-if="addingContent">
-          <v-app-bar>
+          <v-toolbar>
             <v-toolbar-title>Add Content</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn icon color="error" @click="addingContent = false">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
-          </v-app-bar>
+            <v-btn icon="mdi-close" color="error" @click="addingContent = false"> </v-btn>
+          </v-toolbar>
           <v-card-text>
             <v-select
+              v-model="selectedCourse"
               label="Select Quilt"
               :items="availableCourses"
-              v-model="selectedCourse"
-              item-text="name"
+              item-title="name"
               item-value="_id"
               title="Select Quilt"
             ></v-select>
 
             <v-select
+              v-model="selectedTags"
               label="Select Tags"
               :items="availableTags"
-              item-text="name"
+              item-title="name"
               item-value="name"
-              v-model="selectedTags"
               multiple
               chips
               hint=""
@@ -69,7 +65,7 @@
           <v-card-actions>
             <v-btn v-if="selectedCourse !== ''" color="primary" @click="assignContent">
               {{ selectedTags.length == 0 ? 'Add Entire Quilt' : 'Add Tags' }}
-              <v-icon right>mdi-plus</v-icon>
+              <v-icon end>mdi-plus</v-icon>
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -84,10 +80,10 @@ import TeacherClassroomDB, { AssignedContent, AssignedTag } from '@/db/classroom
 import { getCourseList, getCourseTagStubs } from '@/db/courseDB';
 import { Tag } from '@/db/types';
 import { ClassroomConfig, CourseConfig } from '@/server/types';
-import Vue from 'vue';
 import { User } from '@/db/userDB';
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'ClassroomCtrlPanel',
 
   props: {
@@ -99,9 +95,9 @@ export default Vue.extend({
 
   data() {
     return {
-      _classroomCfg: null as ClassroomConfig | null,
+      classroomCfg: null as ClassroomConfig | null,
       classroomDB: null as TeacherClassroomDB | null,
-      _assignedContent: [] as AssignedContent[],
+      assignedContent: [] as AssignedContent[],
       nameRules: [
         (value: string): string | boolean => {
           const max = 30;
@@ -119,10 +115,10 @@ export default Vue.extend({
 
   computed: {
     _assignedCourses(): AssignedContent[] {
-      return this._assignedContent.filter((c) => c.type === 'course');
+      return this.assignedContent.filter((c) => c.type === 'course');
     },
     _assignedTags(): AssignedTag[] {
-      return this._assignedContent.filter((c) => c.type === 'tag') as AssignedTag[];
+      return this.assignedContent.filter((c) => c.type === 'tag') as AssignedTag[];
     },
   },
 
@@ -135,11 +131,11 @@ export default Vue.extend({
 
   async created() {
     this.classroomDB = await TeacherClassroomDB.factory(this._id);
-    this._assignedContent = await this.classroomDB.getAssignedContent();
-    this._classroomCfg = this.classroomDB.getConfig();
+    this.assignedContent = await this.classroomDB.getAssignedContent();
+    this.classroomCfg = this.classroomDB.getConfig();
 
     console.log(`[ClassroomCtrlPanel] Route loaded w/ (prop) _id: ${this._id}`);
-    console.log(`[ClassroomCtrlPanel] Config: ${JSON.stringify(this._classroomCfg)}`);
+    console.log(`[ClassroomCtrlPanel] Config: ${JSON.stringify(this.classroomCfg)}`);
 
     this.availableCourses = (await getCourseList()).rows.map((r) => r.doc!);
     this.updatePending = false;
@@ -173,7 +169,7 @@ export default Vue.extend({
         );
       }
 
-      this._assignedContent = await this.classroomDB.getAssignedContent();
+      this.assignedContent = await this.classroomDB.getAssignedContent();
       this.addingContent = false;
       this.selectedCourse = '';
       this.selectedTags = [];

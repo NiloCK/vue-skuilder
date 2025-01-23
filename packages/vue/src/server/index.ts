@@ -21,7 +21,7 @@ export default async function serverRequest<T extends ServerRequest>(requestData
     requestData.response = {
       status: Status.error,
       ok: false,
-      errorText: (error as any).message ? (error as any).message : JSON.stringify(error),
+      errorText: error instanceof Error ? error.message : JSON.stringify(error),
     };
   }
   return requestData;

@@ -3,7 +3,6 @@ import { FieldDefinition } from '../../../../base-course/Interfaces/FieldDefinit
 import { ViewData } from '../../../../base-course/Interfaces/ViewData';
 import { DataShapeName } from '../../../../enums/DataShapeNames';
 import { FieldType } from '../../../../enums/FieldType';
-import { VueConstructor } from 'vue';
 import HorizontalAddition from './horizontal.vue';
 import VerbalAddition from './verbal.vue';
 
@@ -18,8 +17,8 @@ const fields: FieldDefinition[] = [
   },
 ];
 
-const data = function () {
-  let ret: { a: number; b: number }[] = [];
+const data = function() {
+  const ret: { a: number; b: number }[] = [];
   for (let i = 0; i < 10; i++) {
     for (let j = 0; j < 10; j++) {
       ret.push({

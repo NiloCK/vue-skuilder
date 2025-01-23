@@ -5,12 +5,11 @@
       :key="snacks.indexOf(snack)"
       v-model="show[snacks.indexOf(snack)]"
       :timeout="snack.timeout"
-      bottom
-      right
+      location="bottom right"
       :color="getColor(snack)"
     >
       {{ snack.text }}
-      <v-btn icon text @click="close()">
+      <v-btn icon variant="text" @click="close()">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </v-snackbar>
@@ -27,17 +26,22 @@ interface SnackbarOptions {
   timeout?: number;
 }
 
-export function alertUser(msg: SnackbarOptions): void {
-  const snackBarService = (document.getElementById('SnackbarService')! as any)
-    .__vue__ as InstanceType<typeof SnackbarService>;
+let globalSnackbarInstance: {
+  addSnack: (snack: SnackbarOptions) => void;
+} | null = null;
 
-  msg = {
-    text: msg.text,
-    status: msg.status,
-    timeout: msg.timeout !== undefined ? msg.timeout : 5000, // 5000 ms default
-  };
-
-  snackBarService.addSnack(msg);
+export function alertUser(msg: SnackbarOptions) {
+  // Try getting the instance through DOM first
+  const element = document.getElementById('SnackbarService');
+  if (element) {
+    // Vue 3 way to access component instance
+    const snackBarService = globalSnackbarInstance;
+    if (snackBarService) {
+      snackBarService.addSnack(msg);
+      return;
+    }
+  }
+  console.error('SnackbarService not found');
 }
 
 const SnackbarService = defineComponent({
@@ -52,8 +56,12 @@ const SnackbarService = defineComponent({
        * for persistance
        */
       snacks: [] as SnackbarOptions[],
-      show: [] as boolean[]
+      show: [] as boolean[],
     };
+  },
+  mounted() {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    globalSnackbarInstance = this;
   },
 
   methods: {
@@ -76,8 +84,8 @@ const SnackbarService = defineComponent({
         return 'yellow';
       }
       return undefined;
-    }
-  }
+    },
+  },
 });
 
 export default SnackbarService;

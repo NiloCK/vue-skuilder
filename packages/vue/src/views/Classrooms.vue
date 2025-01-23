@@ -1,92 +1,95 @@
 <template>
   <v-container fluid>
     <v-row class="pa-4" justify="space-around">
+      <!-- Student Classes -->
       <v-col v-if="studentClasses.length > 0" cols="12" sm="12" md="4">
         <v-card>
-          <v-toolbar>
+          <v-toolbar color="primary">
             <v-toolbar-title>My Classes</v-toolbar-title>
           </v-toolbar>
 
           <v-list>
-            <transition-group name="component-fade" mode="out-in" key="registered">
-              <template v-for="classroom in studentClasses">
-                <v-list-item :key="classroom._id" avatar>
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      {{ classroom.name }}
-                    </v-list-item-title>
-                  </v-list-item-content>
-                  <v-list-item-action>
-                    <v-btn
-                      small
-                      color="secondary"
-                      @click="leaveClass(classroom._id)"
-                      :loading="spinnerMap[classroom._id] !== undefined"
-                    >
-                      Leave this class
-                    </v-btn>
-                  </v-list-item-action>
-                </v-list-item>
-              </template>
+            <transition-group name="component-fade" mode="out-in">
+              <v-list-item v-for="classroom in studentClasses" :key="classroom._id" :value="classroom">
+                <v-list-item-title>
+                  {{ classroom.name }}
+                </v-list-item-title>
+
+                <template #append>
+                  <v-btn
+                    size="small"
+                    color="secondary"
+                    :loading="spinnerMap[classroom._id] !== undefined"
+                    @click="leaveClass(classroom._id)"
+                  >
+                    Leave this class
+                  </v-btn>
+                </template>
+              </v-list-item>
             </transition-group>
           </v-list>
         </v-card>
       </v-col>
 
+      <!-- Teacher Classes -->
       <v-col v-if="teacherClasses.length > 0" cols="12" sm="12" md="4">
         <v-card>
-          <v-toolbar>
+          <v-toolbar color="primary">
             <v-toolbar-title>Classes I Manage</v-toolbar-title>
           </v-toolbar>
 
           <v-list>
-            <transition-group name="component-fade" mode="out-in" key="registered">
-              <template v-for="classroom in teacherClasses">
-                <v-list-item :key="classroom._id" avatar>
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      {{ classroom.name }}
-                    </v-list-item-title>
-                  </v-list-item-content>
-                  <v-list-item-action>
-                    <router-link :to="`/classrooms/${classroom._id}`">
-                      <v-btn small color="secondary" :loading="spinnerMap[classroom._id] !== undefined"> Open </v-btn>
-                    </router-link>
-                  </v-list-item-action>
-                </v-list-item>
-              </template>
+            <transition-group name="component-fade" mode="out-in">
+              <v-list-item v-for="classroom in teacherClasses" :key="classroom._id" :value="classroom">
+                <v-list-item-title>
+                  {{ classroom.name }}
+                </v-list-item-title>
+
+                <template #append>
+                  <v-btn
+                    size="small"
+                    color="secondary"
+                    :loading="spinnerMap[classroom._id] !== undefined"
+                    :to="`/classrooms/${classroom._id}`"
+                  >
+                    Open
+                  </v-btn>
+                </template>
+              </v-list-item>
             </transition-group>
           </v-list>
         </v-card>
       </v-col>
 
-      <v-col v-if="studentClasses.length === 0 && teacherClasses.length === 0" class="headline">
+      <!-- Empty State Message -->
+      <v-col v-if="studentClasses.length === 0 && teacherClasses.length === 0" class="text-h5 text-center">
         You are not in any classes! Join your class below if someone has given you a joincode. Or else, start your own!
       </v-col>
     </v-row>
 
-    <v-divider></v-divider>
+    <v-divider class="my-4"></v-divider>
 
+    <!-- Join Class Form -->
     <v-row class="pa-4">
       <v-col cols="12" sm="12" md="8" lg="6" xl="6">
         <v-card>
-          <!-- <v-form> -->
-          <v-toolbar>
+          <v-toolbar color="primary">
             <v-toolbar-title>Join a class</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-text-field name="joinCode" label="Class Code" id="joinCode" v-model="joinCode"></v-text-field>
+            <v-text-field v-model="joinCode" label="Class Code" variant="outlined"></v-text-field>
             <v-btn color="primary" @click="joinClass">Join</v-btn>
           </v-card-text>
-          <!-- </v-form> -->
         </v-card>
       </v-col>
     </v-row>
-    <v-dialog v-model="newClassDialog" fullscreen transition="dialog-bottom-transition" :overlay="false">
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn color="primary" dark v-bind="attrs" v-on="on">Start a new Class</v-btn>
+
+    <!-- New Class Dialog -->
+    <v-dialog v-model="newClassDialog" fullscreen transition="dialog-bottom-transition" :scrim="false">
+      <template #activator="{ props }">
+        <v-btn color="primary" v-bind="props">Start a new Class</v-btn>
       </template>
-      <classroom-editor v-on:ClassroomEditingComplete="processResponse($event)" />
+      <classroom-editor @classroom-editing-complete="processResponse" />
     </v-dialog>
   </v-container>
 </template>
@@ -94,10 +97,9 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import serverRequest from '@/server/index';
-import { ServerRequestType, JoinClassroom, CreateClassroom, LeaveClassroom } from '@/server/types';
+import { ServerRequestType, JoinClassroom, LeaveClassroom, DeleteClassroom } from '@/server/types';
 import { alertUser } from '@/components/SnackbarService.vue';
 import { Status } from '@/enums/Status';
-import { log } from 'util';
 import ClassroomEditor from '@/components/Classrooms/CreateClassroom.vue';
 import { registerUserForClassroom, getUserClassrooms, dropUserFromClassroom } from '../db/userDB';
 import { getClassroomConfig } from '../db/classroomDB';
@@ -109,10 +111,19 @@ interface CourseReg {
 }
 
 export default defineComponent({
-  name: 'Classroom',
+  name: 'ClassroomsView',
 
   components: {
     ClassroomEditor,
+  },
+
+  beforeRouteEnter(to, from, next) {
+    // todo ?
+    // See https://router.vuejs.org/guide/advanced/data-fetching.html#fetching-before-navigation
+    // this.refreshData().then(() => {
+    //   next();
+    // });
+    next();
   },
 
   data() {
@@ -131,15 +142,6 @@ export default defineComponent({
     this.refreshData();
   },
 
-  beforeRouteEnter(to: any, from: any, next: () => void) {
-    // todo ?
-    // See https://router.vuejs.org/guide/advanced/data-fetching.html#fetching-before-navigation
-    // this.refreshData().then(() => {
-    //   next();
-    // });
-    next();
-  },
-
   methods: {
     async refreshData() {
       this.$data.user = await User.instance();
@@ -149,7 +151,7 @@ export default defineComponent({
 
       registrations.forEach(async (reg) => {
         const cfg = await getClassroomConfig(reg.classID);
-        log(`Registered class: ${JSON.stringify(cfg)}`);
+        console.log(`Registered class: ${JSON.stringify(cfg)}`);
         const regItem = {
           _id: reg.classID,
           name: cfg.name,
@@ -167,17 +169,28 @@ export default defineComponent({
     },
 
     async deleteClass(classId: string) {
-      const result = await serverRequest({
+      const result = await serverRequest<DeleteClassroom>({
         type: ServerRequestType.DELETE_CLASSROOM,
         user: this.user?.username || '',
         classID: classId,
         response: null,
       });
+      if (result.response && result.response.ok) {
+        alertUser({
+          text: `Class deleted successfully.`,
+          status: Status.ok,
+        });
+      } else {
+        alertUser({
+          text: `Failed to delete class. Please try again.`,
+          status: Status.error,
+        });
+      }
     },
 
     async leaveClass(classID: string) {
-      this.$set(this.spinnerMap, classID, true);
-      log(`Attempting to drop class: ${classID}`);
+      this.spinnerMap[classID] = true;
+      console.log(`Attempting to drop class: ${classID}`);
 
       const result = await serverRequest<LeaveClassroom>({
         type: ServerRequestType.LEAVE_CLASSROOM,
@@ -193,7 +206,7 @@ export default defineComponent({
         }
       }
 
-      this.$set(this.spinnerMap, classID, undefined);
+      delete this.spinnerMap[classID];
       this.refreshData();
     },
 
@@ -210,7 +223,7 @@ export default defineComponent({
       });
 
       if (result.response && result.response.ok) {
-        log(`Adding registration to userDB...`);
+        console.log(`Adding registration to userDB...`);
         if (this.user) {
           await registerUserForClassroom(this.user.username, result.response!.id_course, 'student');
           alertUser({

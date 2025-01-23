@@ -1,17 +1,17 @@
 <template>
-  <v-card v-bind:class="`${className}`" v-on:mouseover="select" v-on:click="submitThisOption">
-    <markdown-renderer v-bind:md="content" />
+  <v-card :class="`${className}`" @mouseover="select" @click="submitThisOption">
+    <markdown-renderer :md="content" />
   </v-card>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { defineComponent, defineAsyncComponent, PropType } from 'vue';
 
 export default defineComponent({
   name: 'MultipleChoiceOption',
 
   components: {
-    MarkdownRenderer: () => import('@/base-course/Components/MarkdownRenderer.vue'),
+    MarkdownRenderer: defineAsyncComponent(() => import('@/base-course/Components/MarkdownRenderer.vue')),
   },
 
   props: {
@@ -41,46 +41,31 @@ export default defineComponent({
     },
   },
 
-  methods: {
-    select(): void {
-      this.setSelection(this.number);
-    },
-
-    submitThisOption(): void {
-      if (this.markedWrong) {
-        return;
-      } else {
-        this.select();
-        this.submit();
-      }
-    },
-  },
-
   computed: {
     className(): string {
       let color: string;
 
       switch (this.number) {
         case 0:
-          color = 'red';
+          color = 'bg-red';
           break;
         case 1:
-          color = 'purple';
+          color = 'bg-purple';
           break;
         case 2:
-          color = 'indigo';
+          color = 'bg-indigo';
           break;
         case 3:
-          color = 'light-blue';
+          color = 'bg-light-blue';
           break;
         case 4:
-          color = 'teal';
+          color = 'bg-teal';
           break;
         case 5:
-          color = 'deep-orange';
+          color = 'bg-deep-orange';
           break;
         default:
-          color = 'grey';
+          color = 'bg-grey';
           break;
       }
 
@@ -96,6 +81,21 @@ export default defineComponent({
         throw new Error(
           `'selected' and 'markedWrong' props in MultipleChoiceOption are in an impossible configuration.`
         );
+      }
+    },
+  },
+
+  methods: {
+    select(): void {
+      this.setSelection(this.number);
+    },
+
+    submitThisOption(): void {
+      if (this.markedWrong) {
+        return;
+      } else {
+        this.select();
+        this.submit();
       }
     },
   },

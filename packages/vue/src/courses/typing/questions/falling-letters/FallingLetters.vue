@@ -28,7 +28,7 @@
           top: explosion.y + 'px',
         }"
       >
-        <div class="particle" v-for="n in 12" :key="n"></div>
+        <div v-for="n in 12" :key="n" class="particle"></div>
       </div>
 
       <!-- Grass effect -->
@@ -38,9 +38,9 @@
       </div>
       <div class="trees">
         <div
-          class="tree"
           v-for="tree in treePositions"
           :key="tree.id"
+          class="tree"
           :style="{
             left: `${tree.left}%`,
             height: `${tree.height}px`,
@@ -61,7 +61,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, onUnmounted, PropType } from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
-import { FallingLettersQuestion, Score } from './index';
+import { FallingLettersQuestion } from './index';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 
 // Types
@@ -100,6 +100,7 @@ export default defineComponent({
     modifyDifficulty: {
       type: Number,
       required: false,
+      default: 0,
     },
   },
 

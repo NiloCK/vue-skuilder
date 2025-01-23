@@ -1,23 +1,19 @@
 <template>
-  <v-container grid-list-xs align-center class="login">
+  <v-container class="d-flex align-center login">
     <user-login />
   </v-container>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 import UserLogin from '@/components/UserLogin.vue';
-import SkldrMixin from '@/mixins/SkldrVueMixin';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'LoginRoute',
 
   components: {
     UserLogin,
   },
-
-  // Extending SkldrVue functionality
-  mixins: [SkldrMixin],
 });
 </script>
 

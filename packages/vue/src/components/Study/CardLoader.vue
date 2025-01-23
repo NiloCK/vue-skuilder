@@ -1,14 +1,14 @@
 <template>
   <card-viewer
-    class="ma-2"
     v-if="!loading"
-    v-bind:class="loading ? 'muted' : ''"
-    v-bind:view="view"
-    v-bind:data="data"
-    v-bind:card_id="cardID"
-    v-bind:course_id="courseID"
-    v-bind:sessionOrder="sessionOrder"
-    v-on:emitResponse="processResponse($event)"
+    class="ma-2"
+    :class="loading ? 'muted' : ''"
+    :view="view"
+    :data="data"
+    :card_id="cardID"
+    :course_id="courseID"
+    :session-order="sessionOrder"
+    @emit-response="processResponse($event)"
   />
 </template>
 
@@ -17,7 +17,7 @@ import { defineComponent } from 'vue';
 import Courses from '@/courses';
 import { displayableDataToViewData, ViewData } from '@/base-course/Interfaces/ViewData';
 import { CardData, CardRecord, DisplayableData } from '@/db/types';
-import { log } from 'util';
+import { log } from '@/logshim';
 import CardViewer from './CardViewer.vue';
 import { getCourseDoc } from '@/db';
 import { ViewComponent } from '@/base-course/Displayable';
@@ -49,6 +49,10 @@ export default defineComponent({
       courseID: '',
       cardID: '',
     };
+  },
+
+  created() {
+    this.loadCard();
   },
 
   methods: {
@@ -96,10 +100,6 @@ export default defineComponent({
         this.$emit('card-loaded');
       }
     },
-  },
-
-  created() {
-    this.loadCard();
   },
 });
 </script>

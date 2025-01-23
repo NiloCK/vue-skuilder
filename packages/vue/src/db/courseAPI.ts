@@ -23,7 +23,7 @@ export async function addNote55(
   courseID: string,
   codeCourse: string,
   shape: DataShape,
-  data: any,
+  data: unknown,
   author: string,
   tags: string[],
   uploads?: { [x: string]: PouchDB.Core.FullAttachment },
@@ -76,7 +76,7 @@ async function createCard(
   tags: string[],
   elo: CourseElo = blankCourseElo()
 ) {
-  tags.forEach(t => console.log(`Adding ${t}!`));
+  tags.forEach((t) => console.log(`Adding ${t}!`));
   const qDescriptor = NameSpacer.getQuestionDescriptor(questionViewName);
   const cfg = await getCredentialledCourseConfig(courseID);
 
@@ -123,7 +123,7 @@ async function addCard(
     docType: DocType.CARD,
     elo: elo || toCourseElo(990 + Math.round(20 * Math.random())),
   });
-  tags.forEach(tag => {
+  tags.forEach((tag) => {
     console.log(`adding tag: ${tag} to card ${card.id}`);
     addTagToCard(courseID, card.id, tag, false);
   });
@@ -170,7 +170,7 @@ export async function addTagToCard(
       tag.taggedCards.push(cardID);
 
       if (updateELO) {
-        courseApi.getCardEloData([cardID]).then(eloData => {
+        courseApi.getCardEloData([cardID]).then((eloData) => {
           const elo = eloData[0];
           elo.tags[tagID] = {
             count: 0,

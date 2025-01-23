@@ -1,12 +1,12 @@
 <template>
-  <span v-if="radioType" class="headline underline"
+  <span v-if="radioType" class="text-h5 underline"
     >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span
   >
   <user-input-string v-else id="input" :icon="false" type="text" :value="processedText" />
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, PropType, onMounted } from 'vue';
+import { defineComponent, ref, computed, onMounted } from 'vue';
 import UserInputString from '@/base-course/Components/UserInput/UserInputString.vue';
 
 export default defineComponent({

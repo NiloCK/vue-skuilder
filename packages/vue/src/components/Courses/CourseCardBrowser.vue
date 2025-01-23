@@ -2,93 +2,98 @@
   <v-card v-if="!updatePending">
     <paginating-toolbar
       title="Exercises"
-      v-bind:page="page"
-      v-bind:pages="pages"
-      v-bind:subtitle="`(${questionCount})`"
-      v-on:first="first"
-      v-on:prev="prev"
-      v-on:next="next"
-      v-on:last="last"
-      v-on:set-page="(n) => setPage(n)"
+      :page="page"
+      :pages="pages"
+      :subtitle="`(${questionCount})`"
+      @first="first"
+      @prev="prev"
+      @next="next"
+      @last="last"
+      @set-page="(n) => setPage(n)"
     />
-    <v-list v-for="c in cards" v-bind:key="c.id" v-bind:class="c.isOpen ? 'blue-grey lighten-5' : ''" two-line dense>
-      <v-list-item v-bind:class="c.isOpen ? 'elevation-4 font-weight-black blue-grey lighten-4' : ''">
-        <v-list-item-content>
-          <template>
-            <v-list-item-title v-bind:class="c.isOpen ? 'blue-grey--text text--lighten-4' : ''">
-              {{ cardPreview[c.id] }}
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              {{ c.id.split('-').length === 3 ? c.id.split('-')[2] : '' }}
-            </v-list-item-subtitle>
+
+    <v-list>
+      <template v-for="c in cards" :key="c.id">
+        <v-list-item
+          :class="{
+            'bg-blue-grey-lighten-5': c.isOpen,
+            'elevation-4': c.isOpen,
+          }"
+          density="compact"
+        >
+          <template #prepend>
+            <div>
+              <v-list-item-title :class="{ 'text-blue-grey-darken-1': c.isOpen }" class="font-weight-medium">
+                {{ cardPreview[c.id] }}
+              </v-list-item-title>
+              <v-list-item-subtitle>
+                {{ c.id.split('-').length === 3 ? c.id.split('-')[2] : '' }}
+              </v-list-item-subtitle>
+            </div>
           </template>
-        </v-list-item-content>
-        <v-speed-dial v-model="c.isOpen" direction="left" transition="slide-x-reverse-transition">
-          <v-btn
-            v-if="c.isOpen"
-            v-on:click="clearSelections(c.id)"
-            slot="activator"
-            color="disabled"
-            icon
-            fab
-            small
-            v-model="c.isOpen"
-          >
-            <v-icon>close</v-icon>
-          </v-btn>
-          <v-btn
-            v-else
-            v-on:click="clearSelections(c.id)"
-            slot="activator"
-            color="disabled"
-            icon
-            fab
-            small
-            v-model="c.isOpen"
-          >
-            <v-icon>open_in_full</v-icon>
-          </v-btn>
-          <v-btn
-            fab
-            small
-            :outlined="editMode != 'tags'"
-            :dark="editMode == 'tags'"
-            :color="editMode === 'tags' ? 'teal' : 'teal darken-3'"
-            @click.stop="editMode = 'tags'"
-          >
-            <v-icon>mdi-bookmark</v-icon>
-          </v-btn>
-          <v-btn
-            fab
-            small
-            :outlined="editMode != 'flag'"
-            :dark="editMode == 'flag'"
-            :color="editMode === 'flag' ? 'error' : 'error darken-3'"
-            @click.stop="editMode = 'flag'"
-          >
-            <v-icon>mdi-flag</v-icon>
-          </v-btn>
-        </v-speed-dial>
-      </v-list-item>
-      <card-loader class="blue-grey lighten-5 elevation-1" v-if="c.isOpen" v-bind:qualified_id="c.id" />
-      <tags-input
-        class="ma-3"
-        v-show="c.isOpen && editMode === 'tags'"
-        v-bind:courseID="_id"
-        v-bind:cardID="c.id.split('-')[1]"
-      />
-      <div class="ma-3" v-show="c.isOpen && editMode === 'flag'">
-        <v-btn outlined color="error" v-on:click="delBtn = true">Delete this card</v-btn>
-        <span v-if="delBtn">
-          <span>Are you sure?</span>
-          <v-btn color="error" v-on:click="deleteCard(c.id)">Confirm</v-btn>
-        </span>
-      </div>
+
+          <template #append>
+            <v-speed-dial
+              v-model="c.isOpen"
+              location="left center"
+              transition="slide-x-transition"
+              style="display: flex; flex-direction: row-reverse"
+            >
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  :icon="c.isOpen ? 'mdi-close' : 'mdi-plus'"
+                  size="small"
+                  variant="text"
+                  @click="clearSelections(c.id)"
+                />
+              </template>
+
+              <v-btn
+                key="tags"
+                icon
+                size="small"
+                :variant="editMode !== 'tags' ? 'outlined' : 'elevated'"
+                :color="editMode === 'tags' ? 'teal' : 'teal-darken-3'"
+                @click.stop="editMode = 'tags'"
+              >
+                <v-icon>mdi-bookmark</v-icon>
+              </v-btn>
+
+              <v-btn
+                key="flag"
+                icon
+                size="small"
+                :variant="editMode !== 'flag' ? 'outlined' : 'elevated'"
+                :color="editMode === 'flag' ? 'error' : 'error-darken-3'"
+                @click.stop="editMode = 'flag'"
+              >
+                <v-icon>mdi-flag</v-icon>
+              </v-btn>
+            </v-speed-dial>
+          </template>
+        </v-list-item>
+
+        <div v-if="c.isOpen" class="px-4 py-2 bg-blue-grey-lighten-5">
+          <card-loader :qualified_id="c.id" class="elevation-1" />
+
+          <tags-input v-show="editMode === 'tags'" :course-i-d="_id" :card-i-d="c.id.split('-')[1]" class="mt-4" />
+
+          <div v-show="editMode === 'flag'" class="mt-4">
+            <v-btn color="error" variant="outlined" @click="delBtn = true"> Delete this card </v-btn>
+            <span v-if="delBtn" class="ml-4">
+              <span class="mr-2">Are you sure?</span>
+              <v-btn color="error" variant="elevated" @click="deleteCard(c.id)"> Confirm </v-btn>
+            </span>
+          </div>
+        </div>
+      </template>
     </v-list>
+
     <paginating-toolbar
       class="elevation-0"
-      v-bind:page="page"
-      v-bind:pages="pages"
+      :page="page"
+      :pages="pages"
       @first="first"
       @prev="prev"
       @next="next"
@@ -99,6 +104,7 @@
 </template>
 
 <script lang="ts">
+import { ViewComponent } from '@/base-course/Displayable';
 import { displayableDataToViewData } from '@/base-course/Interfaces/ViewData';
 import TagsInput from '@/components/Edit/TagsInput.vue';
 import PaginatingToolbar from '@/components/PaginatingToolbar.vue';
@@ -108,18 +114,20 @@ import { getCourseDB, getCourseDoc, getCourseDocs } from '@/db';
 import { CourseDB, getTag } from '@/db/courseDB';
 import { removeTagFromCard } from '@/db/courseDB';
 import { CardData, DisplayableData, DocType, Tag } from '@/db/types';
-import Vue from 'vue';
+import { defineComponent } from 'vue';
 
-function isConstructor(obj: any) {
+function isConstructor(obj: unknown) {
   try {
+    // @ts-expect-error - we are specifically probing an unknown object
     new obj();
     return true;
   } catch (e) {
+    console.warn(`not a constructor: ${obj}, err: ${e}`);
     return false;
   }
 }
 
-export default Vue.extend({
+export default defineComponent({
   name: 'CourseCardBrowser',
 
   components: {
@@ -136,6 +144,7 @@ export default Vue.extend({
     _tag: {
       type: String,
       required: false,
+      default: '',
     },
   },
 
@@ -254,7 +263,9 @@ export default Vue.extend({
           } else {
             console.error(`Card ${r.id} not found`);
             toRemove.push(r.id);
-            removeTagFromCard(this._id, r.id, this._tag);
+            if (this._tag) {
+              removeTagFromCard(this._id, r.id, this._tag);
+            }
             return false;
           }
         })
@@ -277,7 +288,7 @@ export default Vue.extend({
           console.error(`No valid data found for card ${_cardID}`);
           return;
         }
-        const tmpView = Courses.getView(tmpCardData.id_view || 'default.question.BlanksCard.FillInView');
+        const tmpView: ViewComponent = Courses.getView(tmpCardData.id_view || 'default.question.BlanksCard.FillInView');
 
         const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
           return getCourseDoc<DisplayableData>(_courseID, id, {

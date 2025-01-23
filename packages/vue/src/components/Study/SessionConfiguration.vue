@@ -2,34 +2,39 @@
   <div v-if="hasRegistrations">
     <div class="text-h4">Select your quilts</div>
     <table width="100%">
-      <th>
-        <v-checkbox
-          ref="selectAll"
-          id="SelectAll"
-          autofocus
-          label="Select All"
-          @change="toggleAll"
-          v-model="allSelected"
-        ></v-checkbox>
-      </th>
+      <thead>
+        <tr>
+          <th>
+            <v-checkbox
+              id="SelectAll"
+              ref="selectAll"
+              v-model="allSelected"
+              autofocus
+              label="Select All"
+              @update:model-value="toggleAll"
+            ></v-checkbox>
+          </th>
 
-      <th>
-        Reviews
-        <!-- <v-icon>info</v-icon> -->
-      </th>
-
-      <tr v-for="classroom in activeClasses" :key="classroom.classID">
-        <td>
-          <v-checkbox :label="`Class: ${classroom.name}`" @click.capture="update" v-model="classroom.selected" />
-        </td>
-        <td>-</td>
-      </tr>
-      <tr v-for="course in activeCourses" :key="course.courseID">
-        <td>
-          <v-checkbox :label="`q/${course.name}`" @click.capture="update" v-model="course.selected" />
-        </td>
-        <td>{{ course.reviews }}</td>
-      </tr>
+          <th>
+            Reviews
+            <!-- <v-icon>info</v-icon> -->
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="classroom in activeClasses" :key="classroom.classID">
+          <td>
+            <v-checkbox v-model="classroom.selected" :label="`Class: ${classroom.name}`" @click.capture="update" />
+          </td>
+          <td>-</td>
+        </tr>
+        <tr v-for="course in activeCourses" :key="course.courseID">
+          <td>
+            <v-checkbox v-model="course.selected" :label="`q/${course.name}`" @click.capture="update" />
+          </td>
+          <td>{{ course.reviews }}</td>
+        </tr>
+      </tbody>
     </table>
     <!-- <v-text-field
       label="Card Limit for this Session"
@@ -39,19 +44,19 @@
       v-model="cardCount"
     /> -->
     <v-text-field
-      class="col-12 col-sm-6 col-md-4 col-lg-3 text-h5"
-      solo
-      prepend-inner-icon="mdi-clock-outline"
-      prepend-icon="mdi-minus"
-      append-outer-icon="mdi-plus"
-      :suffix="timeLimit > 1 ? '(minutes)' : '(minute)'"
-      hint="Time Limit for this Session"
       ref="numberField"
       v-model="timeLimit"
+      class="col-12 col-sm-6 col-md-4 col-lg-3 text-h5"
+      variant="solo"
+      prepend-inner-icon="mdi-clock-outline"
+      prepend-icon="mdi-minus"
+      append-icon="mdi-plus"
+      :suffix="timeLimit > 1 ? '(minutes)' : '(minute)'"
+      hint="Time Limit for this Session"
       mask="##"
       type="number"
       @click:prepend="dec"
-      @click:append-outer="inc"
+      @click:append="inc"
     />
     <v-btn color="success" @click="startSession">Start Studying!</v-btn>
   </div>
@@ -90,6 +95,8 @@ export default defineComponent({
     },
   },
 
+  emits: ['update:timeLimit'],
+
   data() {
     return {
       allSelected: true,
@@ -110,6 +117,26 @@ export default defineComponent({
         this.$emit('update:timeLimit', this.timeLimit);
       },
     },
+  },
+
+  async created() {
+    this.user = await User.instance();
+    this.timeLimit = this.initialTimeLimit;
+
+    this.setHotkeys();
+    await Promise.all([this.getActiveCourses(), this.getActiveClassrooms()]);
+
+    if (this.activeCourses.length === 0 && this.activeClasses.length === 0) {
+      this.hasRegistrations = false;
+    }
+  },
+
+  mounted() {
+    document.getElementById('SelectAll')!.focus();
+  },
+
+  unmounted() {
+    SkldrMouseTrap.reset();
   },
 
   methods: {
@@ -189,12 +216,12 @@ export default defineComponent({
 
       Promise.all(
         this.activeCourses.map((c, i) =>
-          (async (courseID: string) => {
+          (async () => {
             return Promise.all([
               (this.activeCourses[i].name = await getCourseName(c.courseID)),
               (this.activeCourses[i].reviews = await (await User.instance()).getScheduledReviewCount(c.courseID)),
             ]);
-          })(c.courseID)
+          })()
         )
       );
     },
@@ -223,26 +250,6 @@ export default defineComponent({
         },
       ]);
     },
-  },
-
-  async created() {
-    this.user = await User.instance();
-    this.timeLimit = this.initialTimeLimit;
-
-    this.setHotkeys();
-    await Promise.all([this.getActiveCourses(), this.getActiveClassrooms()]);
-
-    if (this.activeCourses.length === 0 && this.activeClasses.length === 0) {
-      this.hasRegistrations = false;
-    }
-  },
-
-  mounted() {
-    document.getElementById('SelectAll')!.focus();
-  },
-
-  destroyed() {
-    SkldrMouseTrap.reset();
   },
 });
 </script>

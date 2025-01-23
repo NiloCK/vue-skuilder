@@ -60,7 +60,7 @@ export interface DisplayableData extends SkuilderCourseData {
 }
 
 export interface Field {
-  data: any;
+  data: unknown;
   name: string;
 }
 
@@ -83,9 +83,7 @@ export function getCardHistoryID(courseID: string, cardID: string): PouchDB.Core
   return `${cardHistoryPrefix}-${courseID}-${cardID}`;
 }
 
-export function parseCardHistoryID(
-  id: string
-): {
+export function parseCardHistoryID(id: string): {
   courseID: string;
   cardID: string;
 } {

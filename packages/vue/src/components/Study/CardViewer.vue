@@ -2,12 +2,13 @@
   <v-card elevation="12">
     <transition name="component-fade" mode="out-in">
       <component
+        :is="view"
+        ref="activeView"
+        :key="course_id + '-' + card_id + '-' + sessionOrder"
+        :data="data"
+        :modify-difficulty="user_elo.global.score - card_elo"
         class="cardView ma-2 pa-2"
-        v-bind:is="view"
-        v-bind:data="data"
-        v-bind:key="course_id + '-' + card_id + '-' + sessionOrder"
-        v-bind:modifyDifficulty="user_elo.global.score - card_elo"
-        v-on:emitResponse="processResponse($event)"
+        @emit-response="processResponse($event)"
       />
     </transition>
   </v-card>
@@ -16,18 +17,21 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
-import Viewable from '@/base-course/Viewable';
 import Courses from '@/courses';
 import { CardRecord } from '@/db/types';
 import { CourseElo } from '@/tutor/Elo';
-import { VueConstructor } from 'vue';
-import { DefineComponent } from 'vue';
 import { ViewComponent } from '@/base-course/Displayable';
+
+interface CardViewerRefs {
+  activeView: ViewComponent;
+}
 
 export default defineComponent({
   name: 'CardViewer',
 
-  components: Courses.allViews(),
+  components: Courses.allViewsRaw(),
+
+  ref: {} as CardViewerRefs,
 
   props: {
     sessionOrder: {

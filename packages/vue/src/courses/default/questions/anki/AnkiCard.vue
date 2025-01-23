@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div></div>
 </template>
 
@@ -152,4 +152,4 @@ const noteData = {
 };
 
 export default class AnkiCard extends Viewable {}
-</script>
+</script> -->

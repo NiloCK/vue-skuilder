@@ -12,9 +12,10 @@ import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
-import { log } from 'util';
+import { log } from '@/logshim';
 import { getUserDB, ScheduledCard, User } from './userDB';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).process = process; // required as a fix for pouchdb - see #18
 
 pouch.plugin(PouchDBAuth);
@@ -33,7 +34,6 @@ if (ENV.DEBUG) {
 }
 
 const expiryDocID: string = 'GuestAccountExpirationDate';
-const dbUUID = 'dbUUID';
 
 const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERVER_URL + 'skuilder';
 
@@ -53,10 +53,10 @@ export function hexEncode(str: string): string {
 
   return returnStr;
 }
-
 export const pouchDBincludeCredentialsConfig: PouchDB.Configuration.RemoteDatabaseConfiguration = {
-  fetch(url: any, opts: any) {
+  fetch(url: string | Request, opts: RequestInit): Promise<Response> {
     opts.credentials = 'include';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (pouch as any).fetch(url, opts);
   },
 } as PouchDB.Configuration.RemoteDatabaseConfiguration;
@@ -105,7 +105,7 @@ export async function usernameIsAvailable(username: string): Promise<boolean> {
   return req.status === 404;
 }
 
-export function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) {
+export function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<object>) {
   const currentTime = moment.utc();
   const expirationDate: string = currentTime.add(2, 'months').toISOString();
 
@@ -118,7 +118,7 @@ export function updateGuestAccountExpirationDate(guestDB: PouchDB.Database<{}>) 
         date: expirationDate,
       });
     })
-    .catch((err: PouchDB.Core.Error) => {
+    .catch(() => {
       guestDB.put({
         _id: expiryDocID,
         date: expirationDate,
@@ -190,7 +190,7 @@ export async function putCardRecord<T extends CardRecord>(
 ): Promise<CardHistory<CardRecord>> {
   const cardHistoryID = getCardHistoryID(record.courseID, record.cardID);
   // stringify the current record to make it writable to couchdb
-  record.timeStamp = moment.utc(record.timeStamp).toString() as any;
+  record.timeStamp = moment.utc(record.timeStamp).toString() as unknown as Moment;
 
   try {
     const u = await User.instance();
@@ -229,14 +229,6 @@ message: ${reason.message}`);
   }
 }
 
-function deMomentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>) {
-  cardHistory.records = cardHistory.records.map((r) => {
-    return {
-      ...r,
-      timeStamp: r.timeStamp.toString(),
-    };
-  });
-}
 function momentifyCardHistory<T extends CardRecord>(cardHistory: CardHistory<T>) {
   cardHistory.records = cardHistory.records.map<T>((record) => {
     const ret: T = {
@@ -273,7 +265,7 @@ export function scheduleCardReview(review: {
 
 export async function removeScheduledCardReview(user: string, reviewDocID: string) {
   const db = getUserDB(user);
-  let reviewDoc = await db.get(reviewDocID);
+  const reviewDoc = await db.get(reviewDocID);
   db.remove(reviewDoc)
     .then((res) => {
       if (res.ok) {
@@ -292,7 +284,7 @@ export function filterAllDocsByPrefix<T>(
 ) {
   // see couchdb docs 6.2.2:
   //   Guide to Views -> Views Collation -> String Ranges
-  let options: PouchDB.Core.AllDocsWithinRangeOptions = {
+  const options: PouchDB.Core.AllDocsWithinRangeOptions = {
     startkey: prefix,
     endkey: prefix + '\ufff0',
     include_docs: true,

@@ -1,6 +1,4 @@
 import { Displayable, ViewComponent } from '../base-course/Displayable';
-import Vue, { VueConstructor } from 'vue';
-import defaultCourse from '../courses/default';
 import { BlanksCard } from '../courses/default/questions/fillIn/';
 
 // tslint:disable-next-line:max-classes-per-file

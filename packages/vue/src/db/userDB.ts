@@ -4,8 +4,8 @@ import { GuestUsername } from '../stores/useAuthStore';
 import { UserConfig } from '../stores/useConfigStore';
 import { CourseElo } from '../tutor/Elo';
 import moment, { Moment } from 'moment';
-import pouch from 'pouchdb-browser';
-import { log } from 'util';
+import pouch from './pouchdb-setup';
+import { log } from '@/logshim';
 import { getCourseConfigs } from './courseDB';
 import {
   filterAllDocsByPrefix,
@@ -25,6 +25,15 @@ const remoteStr: string = ENV.COUCHDB_SERVER_PROTOCOL + '://' + ENV.COUCHDB_SERV
 const remoteCouchRootDB: PouchDB.Database = new pouch(remoteStr, {
   skip_setup: true,
 });
+
+interface DesignDoc {
+  _id: string;
+  views: {
+    [viewName: string]: {
+      map: string; // String representation of the map function
+    };
+  };
+}
 
 export async function doesUserExist(name: string) {
   try {
@@ -97,7 +106,7 @@ export class User {
   private updateQueue: UpdateQueue;
 
   public async createAccount(username: string, password: string) {
-    let ret = {
+    const ret = {
       status: Status.ok,
       error: '',
     };
@@ -156,7 +165,7 @@ Currently logged-in as ${this._username}.`
       Log out of account ${this.username} before logging in as ${username}.`);
     }
 
-    let loginResult = await remoteCouchRootDB.logIn(username, password);
+    const loginResult = await remoteCouchRootDB.logIn(username, password);
     if (loginResult.ok) {
       log(`Logged in as ${username}`);
       this._username = username;
@@ -177,7 +186,7 @@ Currently logged-in as ${this._username}.`
     return ret;
   }
 
-  public update<T extends PouchDB.Core.Document<{}>>(id: string, update: Update<T>) {
+  public update<T extends PouchDB.Core.Document<object>>(id: string, update: Update<T>) {
     return this.updateQueue.update(id, update);
   }
 
@@ -221,10 +230,8 @@ Currently logged-in as ${this._username}.`
    * Returns a promise of the card IDs that the user has
    * a scheduled review for.
    *
-   * @param course_id
-   * @returns
    */
-  public async getActiveCards(course_id?: string) {
+  public async getActiveCards() {
     const keys = getStartAndEndKeys(REVIEW_PREFIX);
 
     const reviews = await this.remoteDB.allDocs<ScheduledCard>({
@@ -428,7 +435,7 @@ Currently logged-in as ${this._username}.`
       // log(`USER.instance() returning user ${User._instance._username}`);
       return User._instance;
     } else if (User._instance) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         (function waitForUser() {
           if (User._initialized) {
             return resolve(User._instance);
@@ -476,14 +483,20 @@ Currently logged-in as ${this._username}.`
     User._initialized = true;
   }
 
-  private static designDocs = [
+  private static designDocs: DesignDoc[] = [
     {
       _id: '_design/reviewCards',
       views: {
         reviewCards: {
-          map: function (doc: PouchDB.Core.Document<{}>) {
+          map: function (doc: PouchDB.Core.Document<object>) {
             if (doc._id.indexOf('card_review') === 0) {
-              const copy: any = doc;
+              type ReviewCard = {
+                _id: string;
+                courseId: string;
+                cardId: string;
+              };
+
+              const copy: ReviewCard = doc as ReviewCard;
               emit(copy._id, copy.courseId + '-' + copy.cardId);
             }
           }.toString(),
@@ -503,38 +516,38 @@ Currently logged-in as ${this._username}.`
             ...doc,
             _rev: existingDoc._rev,
           });
-        } catch (e: any) {
-          if (e.name === 'not_found') {
+        } catch (e: unknown) {
+          if (e instanceof Error && e.name === 'not_found') {
             // Create new doc
             await this.remoteDB.put(doc);
           } else {
             throw e; // Re-throw unexpected errors
           }
         }
-      } catch (e: any) {
-        if (e.name === 'conflict') {
+      } catch (error: unknown) {
+        if (error instanceof Error && error.name === 'conflict') {
           console.warn(`Design doc ${doc._id} update conflict - will retry`);
           // Wait a bit and try again
           await new Promise((resolve) => setTimeout(resolve, 1000));
           await this.applyDesignDoc(doc); // Recursive retry
         } else {
-          console.error(`Failed to apply design doc ${doc._id}:`, e);
-          throw e;
+          console.error(`Failed to apply design doc ${doc._id}:`, error);
+          throw error;
         }
       }
     }
   }
 
   // Helper method for single doc update with retry
-  private async applyDesignDoc(doc: any, retries = 3): Promise<void> {
+  private async applyDesignDoc(doc: DesignDoc, retries = 3): Promise<void> {
     try {
       const existingDoc = await this.remoteDB.get(doc._id);
       await this.remoteDB.put({
         ...doc,
         _rev: existingDoc._rev,
       });
-    } catch (e: any) {
-      if (e.name === 'conflict' && retries > 0) {
+    } catch (e: unknown) {
+      if (e instanceof Error && e.name === 'conflict' && retries > 0) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         return this.applyDesignDoc(doc, retries - 1);
       }
@@ -554,7 +567,7 @@ Currently logged-in as ${this._username}.`
     const reviewsMap: { [index: string]: string } = {};
 
     const scheduledReviews = await this.remoteDB.query<{
-      id: String;
+      id: string;
       value: string;
     }>('reviewCards');
 
@@ -610,7 +623,7 @@ Currently logged-in as ${this._username}.`
    * @returns A promise of the cards that the user has seen in the past.
    */
   async getHistory() {
-    let cards = await filterAllDocsByPrefix<CardHistory<CardRecord>>(
+    const cards = await filterAllDocsByPrefix<CardHistory<CardRecord>>(
       this.remoteDB,
       cardHistoryPrefix,
       {
@@ -629,7 +642,7 @@ Currently logged-in as ${this._username}.`
     }[]
   ) {
     this.getCourseRegistrationsDoc().then((doc) => {
-      let crs = doc.courses.find((c) => c.courseID === course_id);
+      const crs = doc.courses.find((c) => c.courseID === course_id);
       if (crs) {
         if (crs.settings === null || crs.settings === undefined) {
           crs.settings = {};
@@ -689,7 +702,9 @@ Currently logged-in as ${this._username}.`
 }
 
 export function getLocalUserDB(username: string): PouchDB.Database {
-  return new pouch(`userdb-${username}`);
+  return new pouch(`userdb-${username}`, {
+    adapter: 'idb',
+  });
 }
 
 async function clearLocalGuestDB() {
@@ -706,7 +721,7 @@ async function clearLocalGuestDB() {
 }
 
 export function getUserDB(username: string): PouchDB.Database {
-  let guestAccount: boolean = false;
+  const guestAccount: boolean = false;
   // console.log(`Getting user db: ${username}`);
 
   const hexName = hexEncode(username);
@@ -727,43 +742,43 @@ export function getUserDB(username: string): PouchDB.Database {
   return ret;
 }
 
-function accomodateGuest(): {
-  username: string;
-  firstVisit: boolean;
-} {
-  const dbUUID = 'dbUUID';
-  let firstVisit: boolean;
+// function accomodateGuest(): {
+//   username: string;
+//   firstVisit: boolean;
+// } {
+//   const dbUUID = 'dbUUID';
+//   let firstVisit: boolean;
 
-  if (localStorage.getItem(dbUUID) !== null) {
-    firstVisit = false;
-    console.log(`Returning guest ${localStorage.getItem(dbUUID)} "logging in".`);
-  } else {
-    firstVisit = true;
-    const uuid = generateUUID();
-    localStorage.setItem(dbUUID, uuid);
-    console.log(`Accommodating a new guest with account: ${uuid}`);
-  }
+//   if (localStorage.getItem(dbUUID) !== null) {
+//     firstVisit = false;
+//     console.log(`Returning guest ${localStorage.getItem(dbUUID)} "logging in".`);
+//   } else {
+//     firstVisit = true;
+//     const uuid = generateUUID();
+//     localStorage.setItem(dbUUID, uuid);
+//     console.log(`Accommodating a new guest with account: ${uuid}`);
+//   }
 
-  return {
-    username: GuestUsername + localStorage.getItem(dbUUID),
-    firstVisit: firstVisit,
-  };
+//   return {
+//     username: GuestUsername + localStorage.getItem(dbUUID),
+//     firstVisit: firstVisit,
+//   };
 
-  // pilfered from https://stackoverflow.com/a/8809472/1252649
-  function generateUUID() {
-    let d = new Date().getTime();
-    if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
-      d += performance.now(); // use high-precision timer if available
-    }
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      // tslint:disable-next-line:no-bitwise
-      const r = (d + Math.random() * 16) % 16 | 0;
-      d = Math.floor(d / 16);
-      // tslint:disable-next-line:no-bitwise
-      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-    });
-  }
-}
+//   // pilfered from https://stackoverflow.com/a/8809472/1252649
+//   function generateUUID() {
+//     let d = new Date().getTime();
+//     if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+//       d += performance.now(); // use high-precision timer if available
+//     }
+//     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+//       // tslint:disable-next-line:no-bitwise
+//       const r = (d + Math.random() * 16) % 16 | 0;
+//       d = Math.floor(d / 16);
+//       // tslint:disable-next-line:no-bitwise
+//       return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+//     });
+//   }
+// }
 
 const userCoursesDoc = 'CourseRegistrations';
 const userClassroomsDoc = 'ClassroomRegistrations';
@@ -855,7 +870,7 @@ async function getOrCreateCourseRegistrationsDoc(
 }
 
 export async function updateUserElo(user: string, course_id: string, elo: CourseElo) {
-  let regDoc = await getOrCreateCourseRegistrationsDoc(user);
+  const regDoc = await getOrCreateCourseRegistrationsDoc(user);
   const course = regDoc.courses.find((c) => c.courseID === course_id)!;
   course.elo = elo;
   return getUserDB(user).put(regDoc);
@@ -890,7 +905,9 @@ export async function registerUserForClassroom(
 /**
  * This noop exists to facilitate writing couchdb filter fcns
  */
-function emit(x: any, y: any): any {}
+function emit(x: unknown, y: unknown): void {
+  console.log(`noop:`, x, y);
+}
 
 export async function dropUserFromClassroom(user: string, classID: string) {
   return getOrCreateClassroomRegistrationsDoc(user).then((doc) => {

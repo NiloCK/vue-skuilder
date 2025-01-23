@@ -3,92 +3,73 @@
     <v-row>
       <v-col cols="12" xl="6">
         <v-form ma-2 autocomplete="off">
-          <div
-            ref="fieldInputWraps"
-            v-for="(field, i) in dataShape.fields"
-            v-bind:key="dataShape.fields.indexOf(field)"
-          >
+          <div v-for="(field, i) in dataShape.fields" :key="dataShape.fields.indexOf(field)">
+            <!-- image and audio inputs are semi deprecated - not in use right now -
+                 superceded by the generic fillIn type that allows images and audio from the
+                 general mediaDragDropUploader -->
+            <!-- <audio-input v-else-if="field.type === audio" :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)" :field="field" :autofocus="i == 0" /> -->
+            <!-- <image-input v-else-if="field.type === img" :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)" :field="field" :autofocus="i == 0" /> -->
+
             <string-input
               v-if="field.type === ftString"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)"
+              :field="field"
+              :autofocus="i == 0"
             />
             <chess-puzzle-input
               v-else-if="field.type === chessPuzzle"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)"
+              :field="field"
+              :autofocus="i == 0"
             />
             <number-input
               v-else-if="field.type === num"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)"
+              :field="field"
+              :autofocus="i == 0"
             />
             <integer-input
               v-else-if="field.type === int"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
-            />
-            <image-input
-              v-else-if="field.type === img"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)"
+              :field="field"
+              :autofocus="i == 0"
             />
             <markdown-input
               v-else-if="field.type === mkd"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
-            />
-            <audio-input
-              v-else-if="field.type === audio"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)"
+              :field="field"
+              :autofocus="i == 0"
             />
             <midi-input
               v-else-if="field.type === midi"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)"
+              :field="field"
+              :autofocus="i == 0"
             />
             <media-drag-drop-uploader
               v-else-if="field.type === uploader"
-              v-bind:store="store"
-              v-bind:field="field"
-              v-bind:uiValidationFunction="checkInput"
-              v-bind:autofocus="i == 0"
+              :ref="(el: FieldInputInstance) => setFieldInputRef(el, i)"
+              :field="field"
+              :autofocus="i == 0"
             />
           </div>
 
-          <tags-input :hideSubmit="true" ref="tagsInput" v-bind:courseID="courseCfg.courseID" cardID="" />
+          <tags-input ref="tagsInput" :hide-submit="true" :course-i-d="courseCfg.courseID" card-i-d="" />
           <v-btn
             class="float-right"
             type="submit"
             color="primary"
-            v-bind:loading="uploading"
-            v-bind:disabled="!allowSubmit"
-            v-on:click.prevent="submit"
+            :loading="uploading"
+            :disabled="!allowSubmit"
+            @click.prevent="submit"
           >
             Add card
-            <v-icon right>mdi-plus-circle</v-icon>
+            <v-icon end>mdi-plus-circle</v-icon>
           </v-btn>
         </v-form>
       </v-col>
       <v-col cols="12" xl="6">
-        <card-browser class="ml-4" v-if="inputIsValidated" v-bind:views="shapeViews" v-bind:data="[previewInput]" />
+        <card-browser v-if="inputIsValidated" class="ml-4" :views="shapeViews" :data="[previewInput]" />
       </v-col>
     </v-row>
   </v-container>
@@ -97,7 +78,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
-import { FieldDefinition } from '@/base-course/Interfaces/FieldDefinition';
 import CardBrowser from '@/components/Edit/CardBrowser.vue';
 import TagsInput, { TagsInputInstance } from '@/components/Edit/TagsInput.vue';
 import { FieldInputInstance, isFieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput.types';
@@ -107,13 +87,13 @@ import FillInView from '@/courses/default/questions/fillIn/fillIn.vue';
 import { NameSpacer, ShapeDescriptor } from '@/courses/NameSpacer';
 import { addNote55 } from '@/db/courseAPI';
 import { getCourseTagStubs } from '@/db/courseDB';
-import { fieldConverters, FieldType } from '@/enums/FieldType';
+import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
 import ENV from '@/ENVIRONMENT_VARS';
 import { CourseConfig } from '@/server/types';
 import _ from 'lodash';
-import AudioInput from './FieldInputs/AudioInput.vue';
-import ImageInput from './FieldInputs/ImageInput.vue';
+// import AudioInput from './FieldInputs/AudioInput.vue';
+// import ImageInput from './FieldInputs/ImageInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
 import MarkdownInput from './FieldInputs/MarkdownInput.vue';
 import MediaDragDropUploader from './FieldInputs/MediaDragDropUploader.vue';
@@ -124,32 +104,28 @@ import ChessPuzzleInput from './FieldInputs/ChessPuzzleInput.vue';
 import { CourseElo } from '@/tutor/Elo';
 import { User } from '@/db/userDB';
 import { useDataInputFormStore } from '@/stores/useDataInputFormStore';
+import { ViewData } from '@/base-course/Interfaces/ViewData';
 
-type StringIndexable = { [x: string]: any };
+type StringIndexable = { [x: string]: unknown };
 
 interface ComponentData {
   tag: string;
-  tags: any[];
-  autoCompleteSuggestions: any[];
-  allowSubmit: boolean;
+  tags: string[];
+  autoCompleteSuggestions: string[];
   timer?: NodeJS.Timeout;
   dataInputFormStore: ReturnType<typeof useDataInputFormStore>;
-}
-
-interface ComponentRefs {
-  fieldInputWraps: HTMLDivElement[];
-  tagsInput: TagsInputInstance;
+  fieldInputRefs: (FieldInputInstance | null)[];
 }
 
 export default defineComponent({
   name: 'DataInputForm',
 
   components: {
-    AudioInput,
+    // AudioInput,
+    // ImageInput,
     NumberInput,
     StringInput,
     IntegerInput,
-    ImageInput,
     MarkdownInput,
     MidiInput,
     CardBrowser,
@@ -177,9 +153,9 @@ export default defineComponent({
       tag: '',
       tags: [],
       autoCompleteSuggestions: [],
-      allowSubmit: false,
       timer: undefined,
       dataInputFormStore: useDataInputFormStore(),
+      fieldInputRefs: [] as (FieldInputInstance | null)[],
     };
   },
 
@@ -212,63 +188,24 @@ export default defineComponent({
       return FieldType.CHESS_PUZZLE;
     },
     fieldInputs(): FieldInputInstance[] {
-      const ret: FieldInputInstance[] = [];
-      if (!this.$refs.fieldInputWraps) return ret;
-
-      const wraps = Array.isArray(this.$refs.fieldInputWraps)
-        ? this.$refs.fieldInputWraps
-        : [this.$refs.fieldInputWraps];
-
-      for (const div of wraps) {
-        if (div instanceof HTMLElement) {
-          const firstChild = div.children[0];
-          if (firstChild) {
-            const child = (firstChild as any).__vue__;
-            if (isFieldInput(child)) {
-              ret.push(child);
-            } else if (child.$parent && isFieldInput(child.$parent)) {
-              ret.push(child.$parent);
-            }
-          }
-        }
-      }
-      return ret;
-    },
-
-    existingData: {
-      get() {
-        return this.dataInputFormStore.dataInputForm.existingData;
-      },
-      set(data: any) {
-        this.dataInputFormStore.dataInputForm.existingData = data;
-      },
+      return Array.from(this.fieldInputRefs.values()) as FieldInputInstance[];
     },
 
     shapeViews: {
       get() {
         return this.dataInputFormStore.dataInputForm.shapeViews;
       },
-      set(views: any) {
+      set(views: ViewData[]) {
         this.dataInputFormStore.dataInputForm.shapeViews = views;
       },
     },
 
-    fields: {
-      get() {
-        return this.dataInputFormStore.dataInputForm.fields;
-      },
-      set(fields: any) {
-        this.dataInputFormStore.dataInputForm.fields = fields;
-      },
+    allowSubmit() {
+      return this.dataInputFormStore.dataInputForm.fieldStore.isValidated;
     },
 
-    store: {
-      get() {
-        return this.dataInputFormStore.dataInputForm.localStore;
-      },
-      set(store: any) {
-        this.dataInputFormStore.dataInputForm.localStore = store;
-      },
+    fieldStore() {
+      return this.dataInputFormStore.dataInputForm.fieldStore;
     },
 
     uploading: {
@@ -281,17 +218,18 @@ export default defineComponent({
     },
 
     previewInput() {
-      this.convertInput();
-      return this.store.previewInput;
+      // this.convertInput();
+      return this.fieldStore.getPreview as unknown as ViewData;
     },
 
     convertedInput() {
-      this.convertInput();
-      return this.store.convertedInput;
+      // this.convertInput();
+      return this.fieldStore.convertedInput;
     },
 
     inputIsValidated(): boolean {
-      return this.checkInput();
+      const store = this.dataInputFormStore.dataInputForm.fieldStore;
+      return store.isValidated;
     },
 
     datashapeDescriptor(): ShapeDescriptor {
@@ -311,29 +249,35 @@ export default defineComponent({
 
   watch: {
     dataShape: {
-      handler(value?: DataShape, old?: DataShape) {
+      handler() {
         this.getImplementingViews();
       },
       immediate: true,
     },
     store: {
-      handler(v: {}, old?: any) {
+      handler() {
         this.convertInput();
       },
+    },
+    'dataShape.fields'(newFields) {
+      console.log(`[DataInputForm].watch(fields): newFields ${JSON.stringify(newFields)}`);
+      console.log(`[DataInputForm].watch(fields): fields ${JSON.stringify(this.dataShape.fields)}`);
+      this.fieldInputRefs = new Array(newFields.length).fill(null);
+      console.log(`[DataInputForm].watch(fields): fieldRefs ${JSON.stringify(this.fieldInputRefs)}`);
     },
   },
 
   created() {
-    this.existingData = [];
-    this.fields = [];
-    this.store = {
-      validation: {},
-      convertedInput: {},
-      previewInput: {},
-    };
     this.uploading = false;
 
     this.getCourseTags();
+    this.dataInputFormStore.setDataShape(this.dataShape);
+    console.log(`[DataInputForm].created: fields: ${JSON.stringify(this.dataShape.fields)}`);
+    this.fieldInputRefs = new Array(this.dataShape.fields.length).fill(null);
+  },
+
+  beforeUnmount() {
+    this.fieldInputRefs = [];
   },
 
   methods: {
@@ -342,11 +286,26 @@ export default defineComponent({
       this.tags = newTags;
     },
 
+    setFieldInputRef(el: FieldInputInstance, index: number) {
+      console.log(`[DataInputForm].setFieldInputRef: index: ${index}`);
+      // Ensure array is large enough
+      if (index >= this.fieldInputRefs.length) {
+        this.fieldInputRefs = this.fieldInputRefs.concat(new Array(index - this.fieldInputRefs.length + 1).fill(null));
+      }
+      // remove any null entries at the end
+
+      while (this.fieldInputRefs[this.fieldInputRefs.length - 1] === null) {
+        this.fieldInputRefs.pop();
+      }
+
+      this.fieldInputRefs[index] = el;
+    },
+
     async getCourseTags() {
       const existingTags = await getCourseTagStubs(this.courseCfg.courseID!);
-      this.autoCompleteSuggestions = existingTags.rows.map((tag) => ({
-        text: tag.doc!.name,
-      }));
+      this.autoCompleteSuggestions = existingTags.rows.map((tagDoc) => {
+        return tagDoc.doc!.name;
+      });
     },
 
     expectedValidations(): number {
@@ -354,77 +313,11 @@ export default defineComponent({
     },
 
     checkInput(): boolean {
-      let validations = Object.getOwnPropertyNames(this.store.validation);
-      validations = validations.filter((v) => v !== '__ob__');
-
-      let inputIsValid: boolean = validations.length === this.expectedValidations();
-
-      const invalidFields = Object.getOwnPropertyNames(this.store.validation).filter(
-        (fieldName) => this.store.validation[fieldName] === false
-      );
-
-      if (invalidFields.length > 0) {
-        inputIsValid = false;
-        console.error('Invalid Fields:', invalidFields);
-        invalidFields.forEach((field) => {
-          console.error(`Field ${field} validation:`, this.store.validation[field]);
-        });
-      }
-
-      if (inputIsValid) {
-        this.convertInput();
-      }
-      this.allowSubmit = inputIsValid;
-      console.log(`[DataInputForm] Form data is valid: ${inputIsValid}`);
-      return inputIsValid;
+      return true;
+      // return this.fieldInputs.every((input) => input.validate());
     },
 
-    convertInput() {
-      const supplementedFields = this.dataShape.fields.map((f) => ({
-        name: f.name,
-        type: f.type,
-        validator: f.validator,
-      }));
-
-      for (let i = 1; i < 11; i++) {
-        if (this.store[`audio-${i}`]) {
-          supplementedFields.push({
-            name: `audio-${i}`,
-            type: FieldType.AUDIO,
-            validator: undefined,
-          });
-        } else {
-          break;
-        }
-      }
-
-      for (let i = 1; i < 11; i++) {
-        if (this.store[`image-${i}`]) {
-          supplementedFields.push({
-            name: `image-${i}`,
-            type: FieldType.IMAGE,
-            validator: undefined,
-          });
-        } else {
-          break;
-        }
-      }
-
-      supplementedFields.forEach((fieldDef) => {
-        this.store.convertedInput[fieldDef.name] = fieldConverters[fieldDef.type].databaseConverter(
-          this.store[fieldDef.name]
-        );
-        this.store.previewInput[fieldDef.name] = fieldConverters[fieldDef.type].previewConverter(
-          this.store[fieldDef.name]
-        );
-      });
-
-      if (this.store.convertedInput.toggle) {
-        delete this.store.convertedInput.toggle;
-      } else {
-        this.store.convertedInput.toggle = true;
-      }
-    },
+    convertInput() {},
 
     inputContainsTranspositionFcns(): boolean {
       this.convertInput();
@@ -454,7 +347,7 @@ export default defineComponent({
             console.log(`[DataInputForm] Key ${fKey} is a function.`);
             const replaced: StringIndexable[] = [];
 
-            (o[fKey]() as Array<any>).forEach((fcnOutput) => {
+            (o[fKey]() as Array<unknown>).forEach((fcnOutput) => {
               let copy: StringIndexable = {};
               copy = _.cloneDeep(o);
               copy[fKey] = fcnOutput;
@@ -491,7 +384,7 @@ export default defineComponent({
         }
       });
 
-      const manualTags = (this.$refs.tagsInput as any as TagsInputInstance).tags.map((t) => t.text);
+      const manualTags = (this.$refs.tagsInput as unknown as TagsInputInstance).tags.map((t) => t.text);
 
       return dataShapeParsedTags.concat(manualTags);
     },
@@ -507,7 +400,7 @@ export default defineComponent({
 
     async submit() {
       if (this.checkInput()) {
-        console.log(`[DataInputForm] Store: ${JSON.stringify(this.store)}`);
+        console.log(`[DataInputForm] Store: ${JSON.stringify(this.fieldStore)}`);
         console.log(`[DataInputForm] ConvertedStore: ${JSON.stringify(this.convertedInput)}`);
         this.uploading = true;
 
@@ -543,7 +436,7 @@ export default defineComponent({
             text: `Content added... Thank you!`,
             status: Status.ok,
           });
-          const ti = this.$refs.tagsInput as any as TagsInputInstance;
+          const ti = this.$refs.tagsInput as unknown as TagsInputInstance;
           if (ti.tags.length) {
             ti.updateAvailableCourseTags();
             ti.tags = [];
@@ -561,47 +454,21 @@ export default defineComponent({
     },
 
     reset() {
+      console.log(`[DataInputForm].reset()`);
       this.uploading = false;
 
+      // Clear all field inputs
       this.fieldInputs.forEach((input) => {
         input.clearData();
       });
 
-      const max_media_inputs = 10;
+      // Reset the field store
+      this.fieldStore.$reset();
 
-      for (let i = 1; i <= max_media_inputs; i++) {
-        const audioKey = `audio-${i}`;
-        if (this.store.hasOwnProperty(audioKey)) {
-          this.$delete(this.store, audioKey);
-          this.$delete(this.store.convertedInput, audioKey);
-          this.$delete(this.store.previewInput, audioKey);
-        } else {
-          break;
-        }
-      }
-
-      for (let i = 1; i <= max_media_inputs; i++) {
-        const imageKey = `image-${i}`;
-        if (this.store.hasOwnProperty(imageKey)) {
-          this.$delete(this.store, imageKey);
-          this.$delete(this.store.convertedInput, imageKey);
-          this.$delete(this.store.previewInput, imageKey);
-        } else {
-          break;
-        }
-      }
-
-      Object.keys(this.store.validation).forEach((key) => {
-        this.store.validation[key] = {
-          valid: true,
-          message: '',
-        };
-      });
-
-      this.store.convertedInput = {};
-      this.store.previewInput = {};
-
+      // Focus the first input
       this.fieldInputs[0].focus();
+
+      // Reinitialize converted inputs
       this.convertInput();
     },
 
@@ -639,7 +506,7 @@ export default defineComponent({
       }
     },
 
-    isFieldInput(component: any): component is FieldInputInstance {
+    isFieldInput(component: unknown): component is FieldInputInstance {
       return isFieldInput(component);
     },
   },

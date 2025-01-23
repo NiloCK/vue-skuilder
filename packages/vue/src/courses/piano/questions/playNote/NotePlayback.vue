@@ -1,11 +1,12 @@
 <template>
   <div data-viewable="NotePlayback">
-    <div class="display-1">
+    <div class="text-h4">
       Play the note: <span class="font-weight-bold">{{ note }}</span>
     </div>
 
     <svg
       v-if="graded"
+      id="svg8"
       width="300px"
       height="auto"
       xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -17,12 +18,12 @@
       xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
       sodipodi:docname="keys.svg"
       inkscape:version="1.0rc1 (09960d6f05, 2020-04-09)"
-      id="svg8"
       version="1.1"
       viewBox="0 0 175.24936 73.594925"
     >
       <defs id="defs2" />
       <sodipodi:namedview
+        id="base"
         inkscape:window-maximized="1"
         inkscape:window-y="726"
         inkscape:window-x="1491"
@@ -41,7 +42,6 @@
         borderopacity="1.0"
         bordercolor="#666666"
         pagecolor="#ffffff"
-        id="base"
       />
       <metadata id="metadata5">
         <rdf:RDF>
@@ -52,13 +52,13 @@
           </cc:Work>
         </rdf:RDF>
       </metadata>
-      <g transform="translate(167.75219,-151.96011)" id="layer1" inkscape:groupmode="layer" inkscape:label="Layer 1">
+      <g id="layer1" transform="translate(167.75219,-151.96011)" inkscape:groupmode="layer" inkscape:label="Layer 1">
         <rect
+          id="rect845"
           y="152.19064"
           x="-150.12129"
           height="73.220116"
           width="17.486626"
-          id="rect845"
           style="
             fill: #ffffff;
             fill-opacity: 0;
@@ -70,6 +70,7 @@
           "
         />
         <rect
+          id="rect845-9"
           style="
             fill: #ffffff;
             fill-opacity: 0;
@@ -79,13 +80,13 @@
             stroke-dasharray: none;
             stroke-opacity: 1;
           "
-          id="rect845-9"
           width="17.486626"
           height="73.220116"
           x="-132.63466"
           y="152.19064"
         />
         <rect
+          id="rect845-6"
           style="
             fill: #ffffff;
             fill-opacity: 0;
@@ -95,13 +96,13 @@
             stroke-dasharray: none;
             stroke-opacity: 1;
           "
-          id="rect845-6"
           width="17.486626"
           height="73.220116"
           x="-115.14803"
           y="152.19064"
         />
         <rect
+          id="rect845-0"
           style="
             fill: #ffffff;
             fill-opacity: 0;
@@ -111,13 +112,13 @@
             stroke-dasharray: none;
             stroke-opacity: 1;
           "
-          id="rect845-0"
           width="17.486626"
           height="73.220116"
           x="-45.20153"
           y="152.19064"
         />
         <rect
+          id="rect845-92"
           style="
             fill: #ffffff;
             fill-opacity: 0;
@@ -127,13 +128,13 @@
             stroke-dasharray: none;
             stroke-opacity: 1;
           "
-          id="rect845-92"
           width="17.486626"
           height="73.220116"
           x="-80.174782"
           y="152.19064"
         />
         <rect
+          id="rect845-3"
           style="
             fill: #ffffff;
             fill-opacity: 0;
@@ -143,13 +144,13 @@
             stroke-dasharray: none;
             stroke-opacity: 1;
           "
-          id="rect845-3"
           width="17.486626"
           height="73.220116"
           x="-62.688156"
           y="152.19064"
         />
         <rect
+          id="rect845-4"
           style="
             fill: #ffffff;
             fill-opacity: 0;
@@ -159,13 +160,13 @@
             stroke-dasharray: none;
             stroke-opacity: 1;
           "
-          id="rect845-4"
           width="17.486626"
           height="73.220116"
           x="-97.661407"
           y="152.19064"
         />
         <rect
+          id="rect845-30"
           style="
             fill: #ffffff;
             fill-opacity: 0;
@@ -175,19 +176,18 @@
             stroke-dasharray: none;
             stroke-opacity: 1;
           "
-          id="rect845-30"
           width="17.486626"
           height="73.220116"
           x="-27.714905"
           y="152.10745"
         />
         <rect
+          id="rect898"
           ry="0"
           y="152.10744"
           x="-138.43532"
           height="54.415863"
           width="10.466455"
-          id="rect898"
           style="
             fill: #000000;
             fill-opacity: 1;
@@ -199,6 +199,7 @@
           "
         />
         <rect
+          id="rect898-3"
           style="
             fill: #000000;
             fill-opacity: 1;
@@ -208,7 +209,6 @@
             stroke-dasharray: none;
             stroke-opacity: 1;
           "
-          id="rect898-3"
           width="10.466455"
           height="54.415863"
           x="-120.84978"
@@ -216,6 +216,7 @@
           ry="0"
         />
         <rect
+          id="rect898-7"
           style="
             fill: #000000;
             fill-opacity: 1;
@@ -225,7 +226,6 @@
             stroke-dasharray: none;
             stroke-opacity: 1;
           "
-          id="rect898-7"
           width="10.466455"
           height="54.415863"
           x="-85.678711"
@@ -233,6 +233,7 @@
           ry="0"
         />
         <rect
+          id="rect898-8"
           style="
             fill: #000000;
             fill-opacity: 1;
@@ -242,7 +243,6 @@
             stroke-dasharray: none;
             stroke-opacity: 1;
           "
-          id="rect898-8"
           width="10.466455"
           height="54.415863"
           x="-68.09317"
@@ -250,6 +250,7 @@
           ry="0"
         />
         <rect
+          id="rect898-1"
           style="
             fill: #000000;
             fill-opacity: 1;
@@ -259,7 +260,6 @@
             stroke-dasharray: none;
             stroke-opacity: 1;
           "
-          id="rect898-1"
           width="10.466455"
           height="54.415863"
           x="-50.507633"
@@ -267,11 +267,11 @@
           ry="0"
         />
         <rect
+          id="rect845-30-1"
           y="152.10745"
           x="-10.228278"
           height="73.220116"
           width="17.486626"
-          id="rect845-30-1"
           style="
             fill: #ffffff;
             fill-opacity: 0;
@@ -283,11 +283,11 @@
           "
         />
         <rect
+          id="rect845-30-9"
           y="152.10744"
           x="-167.60791"
           height="73.220116"
           width="17.486626"
-          id="rect845-30-9"
           style="
             fill: #ffffff;
             fill-opacity: 0;
@@ -299,6 +299,7 @@
           "
         />
         <rect
+          id="rect898-4"
           style="
             fill: #000000;
             fill-opacity: 1;
@@ -308,7 +309,6 @@
             stroke-dasharray: none;
             stroke-opacity: 1;
           "
-          id="rect898-4"
           width="10.466455"
           height="54.415863"
           x="-15.336554"
@@ -316,6 +316,7 @@
           ry="0"
         />
         <rect
+          id="rect898-74"
           style="
             fill: #000000;
             fill-opacity: 1;
@@ -325,7 +326,6 @@
             stroke-dasharray: none;
             stroke-opacity: 1;
           "
-          id="rect898-74"
           width="4.4679713"
           height="54.415863"
           x="-167.60791"
@@ -333,6 +333,7 @@
           ry="0"
         />
         <rect
+          id="rect898-10"
           style="
             fill: #000000;
             fill-opacity: 1;
@@ -342,7 +343,6 @@
             stroke-dasharray: none;
             stroke-opacity: 1;
           "
-          id="rect898-10"
           width="5.1863246"
           height="54.507248"
           x="2.2092075"
@@ -355,20 +355,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, PropType, onMounted, onBeforeUnmount } from 'vue';
+import { defineComponent, ref, computed, PropType, onMounted } from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
-import SkMidi, { NoteEvent, eventsToSyllableSequence, SyllableSequence } from '../../utility/midi';
+import SkMidi, { eventsToSyllableSequence, SyllableSequence } from '../../utility/midi';
 import { PlayNote } from '.';
 import moment from 'moment';
-import SyllableSeqVis from '../../utility/SyllableSeqVis.vue';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 
 export default defineComponent({
   name: 'NotePlayback',
 
-  components: {
-    SyllableSeqVis,
-  },
+  components: {},
 
   props: {
     data: {
@@ -378,6 +375,7 @@ export default defineComponent({
     modifyDifficulty: {
       type: Number,
       required: false,
+      default: 0,
     },
   },
 
@@ -391,7 +389,6 @@ export default defineComponent({
     const recording = ref(false);
     const playbackProgress = ref(0);
     const playbackStartTime = ref(moment.utc());
-    const playbackDuration = ref(0);
     const attempts = ref(0);
     const gradedSeq = ref<SyllableSequence>(eventsToSyllableSequence([]));
     const graded = ref(false);
@@ -414,7 +411,7 @@ export default defineComponent({
         inputSeq.value.append(e);
       });
 
-      midi.value?.addNoteoffListenter((e) => {
+      midi.value?.addNoteoffListenter(() => {
         if (midi.value?.recording?.length && midi.value?.recording?.length >= 2) {
           submit();
         }
@@ -434,7 +431,6 @@ export default defineComponent({
     const submit = () => {
       if (!midi.value?.recording) return false;
 
-      const aSylSeq = eventsToSyllableSequence(midi.value.recording);
       inputSeq.value = eventsToSyllableSequence([]);
 
       if (!questionUtils.submitAnswer(midi.value.recording).isCorrect) {

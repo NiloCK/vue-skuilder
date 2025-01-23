@@ -7,7 +7,7 @@ import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
 import FallingLettersView from './FallingLetters.vue';
 
-const data = function() {
+const data = function () {
   return [
     {
       gameLength: 30, // 30 seconds game
@@ -48,7 +48,10 @@ export class FallingLettersQuestion extends Question {
           type: FieldType.NUMBER,
           validator: {
             instructions: 'How often should a new letter spawn? (in seconds)',
-            test: (x: any) => {
+            test: (x: unknown) => {
+              if (typeof x !== 'number') {
+                return { status: Status.error, msg: 'Must be a number' };
+              }
               if (x > 0) {
                 return { status: Status.ok, msg: '' };
               } else {
@@ -86,7 +89,7 @@ export class FallingLettersQuestion extends Question {
     };
   }
 
-  displayedSkill(a: Answer, t: number) {
+  displayedSkill(a: Answer) {
     if ((a as Score).win) {
       return 1;
     } else {

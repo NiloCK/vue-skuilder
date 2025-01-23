@@ -28,7 +28,7 @@ export class EchoQuestion extends Question {
 
   constructor(data: ViewData[]) {
     super(data);
-    this.midi = (data[0].Melody as any) as NoteEvent[];
+    this.midi = data[0].Melody as unknown as NoteEvent[];
   }
 
   /**
@@ -61,11 +61,6 @@ export class EchoQuestion extends Question {
   }
 
   public isCorrect(answer: NoteEvent[]): boolean {
-    const firstNoteNumber = this.midi[0].note.number;
-
-    const onMidi = this.midi.filter((e) => e.type === 'noteon');
-    const onAnswer = answer.filter((e) => e.type === 'noteon');
-
     const qSylSeq = eventsToSyllableSequence(this.midi);
     const aSylSeq = eventsToSyllableSequence(answer);
 
@@ -73,7 +68,7 @@ export class EchoQuestion extends Question {
       const gradedSeq = qSylSeq.grade(aSylSeq);
       return gradedSeq.isCorrect();
     } catch (e) {
-      console.log(`ERROR grading this midi sequence!`);
+      console.log(`ERROR grading this midi sequence!`, e);
       return false;
     }
 

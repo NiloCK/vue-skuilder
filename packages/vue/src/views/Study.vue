@@ -1,46 +1,40 @@
 <template>
   <div v-if="!inSession">
     <SessionConfiguration
-      v-bind:startFcn="initStudySession"
-      v-bind:initialTimeLimit="sessionTimeLimit"
-      v-on:update:timeLimit="(val) => (sessionTimeLimit = val)"
+      :start-fcn="initStudySession"
+      :initial-time-limit="sessionTimeLimit"
+      @update:time-limit="(val) => (sessionTimeLimit = val)"
     />
   </div>
   <div v-else>
     <div v-if="sessionPrepared" class="Study">
-      <v-layout v-if="previewMode && previewCourseConfig">
-        <span class="headline"
-          >Quilt preview for <em>{{ previewCourseConfig.name }}</em></span
-        >
-        <v-btn small @click="registerUserForPreviewCourse" color="primary">Join</v-btn>
-        <router-link :to="`/quilts/${previewCourseConfig.courseID}`"
-          ><v-btn small color="secondary">More info</v-btn></router-link
-        >
-        <v-spacer></v-spacer>
-        <SkldrControlsView />
-      </v-layout>
-      <v-layout v-else-if="previewMode">
-        <span class="headline">... No course was specified for the preview.</span>
-        <div>(this shouldn't happen)...</div>
-      </v-layout>
-      <v-layout v-else>
-        <h1 class="display-1">
-          {{ courseNames[courseID] }}:
-          <v-progress-circular
-            v-if="loading"
-            absolute
-            top
-            color="primary"
-            indeterminate
-            rotate="0"
-            size="32"
-            value="0"
-            width="4"
-          />
-        </h1>
-        <v-spacer></v-spacer>
-        <SkldrControlsView />
-      </v-layout>
+      <v-row v-if="previewMode && previewCourseConfig" align="center">
+        <v-col>
+          <span class="text-h5">
+            Quilt preview for <em>{{ previewCourseConfig.name }}</em>
+          </span>
+          <v-btn size="small" color="primary" @click="registerUserForPreviewCourse">Join</v-btn>
+          <router-link :to="`/quilts/${previewCourseConfig.courseID}`">
+            <v-btn size="small" color="secondary">More info</v-btn>
+          </router-link>
+          <v-spacer></v-spacer>
+        </v-col>
+      </v-row>
+      <v-row v-else-if="previewMode">
+        <v-col>
+          <span class="text-h5">... No course was specified for the preview.</span>
+          <div>(this shouldn't happen)...</div>
+        </v-col>
+      </v-row>
+      <v-row v-else align="center">
+        <v-col>
+          <h1 class="text-h3">
+            {{ courseNames[courseID] }}:
+            <v-progress-circular v-if="loading" color="primary" indeterminate size="32" width="4" />
+          </h1>
+          <v-spacer></v-spacer>
+        </v-col>
+      </v-row>
 
       <br />
 
@@ -60,6 +54,7 @@
 
       <div v-else ref="shadowWrapper">
         <card-viewer
+          ref="cardViewer"
           :class="loading ? 'muted' : ''"
           :view="view"
           :data="data"
@@ -68,115 +63,95 @@
           :session-order="cardCount"
           :user_elo="user_elo(courseID)"
           :card_elo="card_elo"
-          v-on:emitResponse="processResponse($event)"
+          @emit-response="processResponse($event)"
         />
-        <!-- <pre>
-        {{ sessionController.detailedReport }}
-        </pre> -->
-        <!-- <card-loader
-          :class="loading ? 'muted' : ''"
-          :qualified_id="`${courseID}-${cardID}`"
-          :sessionOrder="cardCount"
-          v-on:emitResponse="processResponse($event)"
-        /> -->
       </div>
 
       <br />
       <div v-if="sessionController">
-        <span class="headline" v-for="i in sessionController.failedCount" :key="i">•</span>
-        <!-- {{ cardType }} -->
-        <!--
-        <br><br><br>
-        Session Report: {{ sessionController.reportString()}}
-        <br><br><br>
-        Current Queues: {{ sessionController.toString() }}
-         -->
+        <span v-for="i in sessionController.failedCount" :key="i" class="text-h5">•</span>
       </div>
 
       <div v-if="!sessionFinished && editTags">
         <p>Add tags to this card:</p>
-        <sk-tags-input :courseID="courseID" :cardID="cardID" />
+        <sk-tags-input :course-i-d="courseID" :card-i-d="cardID" />
       </div>
-      <v-tooltip
-        fixed
-        right
-        :open-delay="0"
-        :close-delay="200"
-        color="secondary"
-        content-class="subheading"
-        transition="slide-x-transition"
-        v-model="timerIsActive"
-      >
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            v-if="!sessionFinished"
-            v-bind="attrs"
-            v-on="on"
-            fab
-            color="transparent"
-            bottom
-            left
-            fixed
-            @click="if (timerIsActive) incrementSessionClock();"
-          >
+
+      <v-row align="center" justify="space-between" class="footer-controls pa-5">
+        <v-tooltip
+          v-model="timerIsActive"
+          location="right"
+          :open-delay="0"
+          :close-delay="200"
+          color="secondary"
+          class="text-subtitle-1"
+        >
+          <template #activator="{ props }">
             <v-progress-circular
               alt="Time remaining in study session"
-              centered
               size="64"
               width="8"
-              rotate="-90"
+              rotate="0"
               :color="timerColor"
-              :value="percentageRemaining"
+              :model-value="percentageRemaining"
             >
-              <v-icon v-if="timerIsActive" large dark>mdi-add</v-icon>
+              <v-btn
+                v-if="!sessionFinished"
+                v-bind="props"
+                icon
+                color="transparent"
+                location="bottom left"
+                @click="if (timerIsActive) incrementSessionClock();"
+              >
+                <v-icon v-if="timerIsActive" size="large">mdi-plus</v-icon>
+              </v-btn>
             </v-progress-circular>
+          </template>
+          {{ timeString }}
+        </v-tooltip>
+
+        <SkldrControlsView />
+
+        <!-- <v-speed-dial v-if="!sessionFinished" v-model="fab" location="left center" transition="slide-x-transition">
+          <template #activator="{ props }">
+            <v-btn v-bind="props" color="blue-darken-2" icon>
+              <v-icon>{{ fab ? 'mdi-close' : 'mdi-pencil' }}</v-icon>
+            </v-btn>
+          </template>
+          <router-link :to="`/edit/${courseID}`">
+            <v-btn icon size="small" color="indigo" title="Add content to this course">
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
+          </router-link>
+          <v-btn
+            icon
+            size="small"
+            color="orange-darken-2"
+            title="Edit tags on this card"
+            :loading="editCard"
+            @click="editTags = !editTags"
+          >
+            <v-icon>mdi-bookmark</v-icon>
           </v-btn>
-        </template>
-        {{ timeString }}
-      </v-tooltip>
-      <v-speed-dial v-if="!sessionFinished" v-model="fab" fixed bottom right transition="scale-transition">
-        <template v-slot:activator>
-          <v-btn v-model="fab" color="blue darken-2" dark fab>
-            <v-icon>{{ fab ? 'mdi-close' : 'mdi-pencil' }}</v-icon>
-          </v-btn>
-        </template>
-        <router-link :to="`/edit/${courseID}`">
-          <v-btn fab small dark color="indigo" title="Add content to this course">
-            <v-icon>mdi-plus</v-icon>
-          </v-btn>
-        </router-link>
-        <v-btn
-          fab
-          dark
-          small
-          color="orange darken-2"
-          title="Edit tags on this card"
-          @click="editTags = !editTags"
-          :loading="editCard"
-        >
-          <v-icon>mdi-bookmark</v-icon>
-        </v-btn>
-      </v-speed-dial>
+        </v-speed-dial> -->
+      </v-row>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { ViewComponent, isVueConstructor, isDefineComponent } from '@/base-course/Displayable';
+import { ViewComponent, isDefineComponent } from '@/base-course/Displayable';
 import { displayableDataToViewData, ViewData } from '@/base-course/Interfaces/ViewData';
-import Viewable, { isQuestionView } from '@/base-course/Viewable';
+import { isQuestionView } from '@/base-course/CompositionViewable';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
 import HeatMap from '@/components/HeatMap.vue';
-import CardLoader from '@/components/Study/CardLoader.vue';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import SessionConfiguration from '@/components/Study/SessionConfiguration.vue';
 import Courses from '@/courses';
 import { getCourseDoc, putCardRecord, removeScheduledCardReview, scheduleCardReview } from '@/db';
 import { ContentSourceID, getStudySource, isReview, StudyContentSource, StudySessionItem } from '@/db/contentSource';
-import { getCredentialledCourseConfig } from '@/db/courseAPI';
 import { CourseDB, getCourseList, getCourseName, updateCardElo, docIsDeleted } from '@/db/courseDB';
-import { getCardDataShape } from '@/db/getCardDataShape';
 import SessionController, { StudySessionRecord } from '@/db/SessionController';
 import { newInterval } from '@/db/SpacedRepetition';
 import { CardData, CardHistory, CardRecord, DisplayableData, isQuestionRecord } from '@/db/types';
@@ -192,13 +167,11 @@ import { Status } from '../enums/Status';
 import { CourseConfig } from '../server/types';
 import { useConfigStore } from '@/stores/useConfigStore';
 import { useDataInputFormStore } from '@/stores/useDataInputFormStore';
-
-function randInt(n: number) {
-  return Math.floor(Math.random() * n);
-}
+import { Router } from 'vue-router';
 
 interface StudyRefs {
   shadowWrapper: HTMLDivElement;
+  cardViewer: InstanceType<typeof CardViewer>;
 }
 
 type StudyInstance = ReturnType<typeof defineComponent> & {
@@ -206,36 +179,53 @@ type StudyInstance = ReturnType<typeof defineComponent> & {
 };
 
 export default defineComponent({
-  name: 'Study',
+  name: 'StudyView',
 
   ref: {} as StudyRefs,
 
-  emits: {
-    emitResponse: (response: CardRecord) => true,
-  },
-
   components: {
-    CardViewer,
-    CardLoader,
+    CardViewer, // [ ] consider: cardloader intermediary?
     SkldrControlsView,
     SkTagsInput,
     SessionConfiguration,
     HeatMap,
   },
 
+  inject: {
+    router: {
+      from: 'router',
+    },
+  },
+
   props: {
+    /**
+     * If present, user will engage in a study session for the specified (non-registered) course.
+     */
     previewCourseID: {
       type: String,
       required: false,
+      default: '',
     },
+    /**
+     * If true, the user will engage in a study session for a
+     * random (public) course they are not already registered for.
+     */
     randomPreview: {
       type: Boolean,
       required: false,
     },
+    /**
+     * If present, user will engage in a study session for the specified (registered) course.
+     */
     focusCourseID: {
       type: String,
       required: false,
+      default: '',
     },
+  },
+
+  emits: {
+    emitResponse: () => true,
   },
 
   data() {
@@ -250,7 +240,6 @@ export default defineComponent({
       editCardReady: false,
       cardID: '',
       view: null as ViewComponent | null,
-      constructedView: null as Viewable | null,
       data: [] as ViewData[],
       courseID: '',
       card_elo: 1000,
@@ -268,7 +257,7 @@ export default defineComponent({
       sessionContentSources: [] as StudyContentSource[],
       sessionTimeLimit: 5,
       timeRemaining: 300, // 5 minutes * 60 seconds
-      _intervalHandler: null as NodeJS.Timeout | null,
+      intervalHandler: null as NodeJS.Timeout | null,
       cardType: '',
       inSession: false,
       dataInputFormStore: useDataInputFormStore(),
@@ -290,36 +279,36 @@ export default defineComponent({
     },
   },
 
-  watch: {
-    editCard: {
-      async handler(value: boolean) {
-        if (value) {
-          this.dataInputFormStore.dataInputForm.dataShape = await getCardDataShape(this.courseID, this.cardID);
+  // watch: {
+  //   editCard: {
+  //     async handler(value: boolean) {
+  //       if (value) {
+  //         this.dataInputFormStore.dataInputForm.dataShape = await getCardDataShape(this.courseID, this.cardID);
 
-          const cfg = await getCredentialledCourseConfig(this.courseID);
-          this.dataInputFormStore.dataInputForm.course = cfg!;
+  //         const cfg = await getCredentialledCourseConfig(this.courseID);
+  //         this.dataInputFormStore.dataInputForm.course = cfg!;
 
-          this.editCardReady = true;
+  //         this.editCardReady = true;
 
-          for (const oldField in this.dataInputFormStore.dataInputForm.localStore) {
-            if (oldField) {
-              console.log(`[Study] Removing old data: ${oldField}`);
-              delete this.dataInputFormStore.dataInputForm.localStore[oldField];
-            }
-          }
+  //         for (const oldField in this.dataInputFormStore.dataInputForm.localStore) {
+  //           if (oldField) {
+  //             console.log(`[Study] Removing old data: ${oldField}`);
+  //             delete this.dataInputFormStore.dataInputForm.localStore[oldField];
+  //           }
+  //         }
 
-          for (const field in this.data[0]) {
-            if (field) {
-              console.log(`[Study] Writing ${field}: ${this.data[0][field]} to the dataInputForm state...`);
-              this.dataInputFormStore.dataInputForm.localStore[field] = this.data[0][field];
-            }
-          }
-        } else {
-          this.editCardReady = false;
-        }
-      },
-    },
-  },
+  //         for (const field in this.data[0]) {
+  //           if (field) {
+  //             console.log(`[Study] Writing ${field}: ${this.data[0][field]} to the dataInputForm state...`);
+  //             this.dataInputFormStore.dataInputForm.localStore[field] = this.data[0][field];
+  //           }
+  //         }
+  //       } else {
+  //         this.editCardReady = false;
+  //       }
+  //     },
+  //   },
+  // },
 
   async created() {
     this.sessionPrepared = false;
@@ -379,11 +368,11 @@ export default defineComponent({
     },
 
     refreshRoute() {
-      this.$router.go(0);
+      (this.router as Router).go(0);
     },
 
     handleClassroomMessage() {
-      return (v: any) => {
+      return (v: unknown) => {
         alertUser({
           text: this.user?.username || '[Unknown user]',
           status: Status.ok,
@@ -411,7 +400,7 @@ export default defineComponent({
           : 100 * (this.timeRemaining / 60);
 
       if (this.timeRemaining === 0) {
-        clearInterval(this._intervalHandler!);
+        clearInterval(this.intervalHandler!);
       }
     },
 
@@ -459,7 +448,7 @@ export default defineComponent({
       this.sessionController.sessionRecord = this.sessionRecord;
 
       await this.sessionController.prepareSession();
-      this._intervalHandler = setInterval(this.tick, 1000);
+      this.intervalHandler = setInterval(this.tick, 1000);
 
       this.sessionPrepared = true;
 
@@ -482,7 +471,7 @@ export default defineComponent({
 
     registerUserForPreviewCourse() {
       this.user!.registerForCourse(this.previewCourseConfig!.courseID!).then(() =>
-        this.$router.push(`/quilts/${this.previewCourseConfig!.courseID!}`)
+        (this.router as Router).push(`/quilts/${this.previewCourseConfig!.courseID!}`)
       );
     },
 
@@ -515,6 +504,7 @@ export default defineComponent({
             }
           } catch (e) {
             // swallow error
+            console.warn(`[Study] Error setting shadowWrapper style: ${e}`);
           }
 
           if (this.configStore?.config.likesConfetti) {
@@ -553,6 +543,7 @@ export default defineComponent({
             }
           } catch (e) {
             // swallow error
+            console.warn(`[Study] Error setting shadowWrapper style: ${e}`);
           }
 
           cardHistory.then((history: CardHistory<CardRecord>) => {
@@ -561,10 +552,13 @@ export default defineComponent({
             }
           });
 
-          if (isQuestionView(this.constructedView)) {
-            if (this.currentCard.records.length >= this.constructedView.maxAttemptsPerView) {
+          // [ ]  v3 version. Keep an eye on this -
+          if (isQuestionView(this.$refs.cardViewer?.$refs.activeView)) {
+            const view = this.$refs.cardViewer.$refs.activeView;
+
+            if (this.currentCard.records.length >= view.maxAttemptsPerView) {
               const sessionViews: number = this.countCardViews(this.courseID, this.cardID);
-              if (sessionViews >= this.constructedView.maxSessionViews) {
+              if (sessionViews >= view.maxSessionViews) {
                 this.loadCard(this.sessionController!.nextCard('dismiss-failed'));
                 this.updateUserAndCardElo(0, this.courseID, this.cardID);
               } else {
@@ -581,6 +575,9 @@ export default defineComponent({
     },
 
     async updateUserAndCardElo(userScore: number, course_id: string, card_id: string, k?: number) {
+      if (k) {
+        console.warn(`k value interpretation not currently implemented`);
+      }
       const userElo = toCourseElo(this.userCourseRegDoc!.courses.find((c) => c.courseID === course_id)!.elo);
       const cardElo = (
         await new CourseDB(this.currentCard.card.course_id).getCardEloData([this.currentCard.card.card_id])
@@ -613,10 +610,11 @@ export default defineComponent({
       setTimeout(() => {
         try {
           if (this.$refs.shadowWrapper) {
-            (this.$refs.shadowWrapper as any).classList.remove('correct', 'incorrect');
+            (this.$refs.shadowWrapper as HTMLElement).classList.remove('correct', 'incorrect');
           }
         } catch (e) {
           // swallow error
+          console.warn(`[Study] Error clearing shadowWrapper style: ${e}`);
         }
       }, 1250);
     },
@@ -659,9 +657,7 @@ export default defineComponent({
 
       const qualified_id = item.qualifiedID;
       this.loading = true;
-      const _courseID = qualified_id.split('-')[0];
-      const _cardID = qualified_id.split('-')[1];
-      const _cardElo = qualified_id.split('-')[2];
+      const [_courseID, _cardID] = qualified_id.split('-');
 
       console.log(`[Study] Now displaying: ${qualified_id}`);
 
@@ -672,7 +668,7 @@ export default defineComponent({
           tmpCardData.elo = toCourseElo(tmpCardData.elo);
         }
 
-        const tmpView = Courses.getView(tmpCardData.id_view);
+        const tmpView: ViewComponent = Courses.getView(tmpCardData.id_view);
         const tmpDataDocs = tmpCardData.id_displayable_data.map((id) => {
           return getCourseDoc<DisplayableData>(_courseID, id, {
             attachments: true,
@@ -693,19 +689,6 @@ export default defineComponent({
         this.cardID = _cardID;
         this.courseID = _courseID;
         this.card_elo = tmpCardData.elo.global.score;
-
-        //
-        if (isVueConstructor(tmpView)) {
-          // @ts-ignore
-          this.constructedView = new tmpView() as Viewable;
-        } else if (isDefineComponent(tmpView)) {
-          // @ts-ignore
-          this.constructedView = tmpView;
-        } else {
-          console.warn(`[Study] Error constructing view for ${qualified_id}`);
-          // @ts-ignore
-          this.constructedView = tmpView;
-        }
 
         this.sessionRecord.push({
           card: {
@@ -739,6 +722,15 @@ export default defineComponent({
 /* .muted {
   opacity: 0;
 } */
+
+.footer-controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--v-background); /* Match your app's background color */
+  z-index: 100;
+}
 
 .correct {
   animation: varFade 1250ms ease-out;

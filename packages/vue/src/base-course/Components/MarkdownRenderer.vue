@@ -1,9 +1,9 @@
 <template>
   <div>
-    <v-textarea v-if="testRoute" outline label="Type Here" name="name" v-model="md" />
-    <span v-for="(token, i) in tokens" v-bind:key="i">
-      <md-token-renderer v-if="token.type" v-bind:token="token" v-bind:last="i === tokens.length - 1" />
-      <audio-auto-player v-else-if="token.audio" v-bind:src="token.audio" />
+    <!-- <v-textarea v-if="testRoute" v-model="md" variant="outlined" label="Type Here" name="name" /> -->
+    <span v-for="(token, i) in tokens" :key="i">
+      <md-token-renderer v-if="token.type" :token="token" :last="i === tokens.length - 1" />
+      <audio-auto-player v-else-if="token.audio" :src="token.audio" />
       <!-- // [ ] insert img display here.  "if token.image ? (also see if the audio aboke is functional)" -->
     </span>
   </div>
@@ -12,8 +12,8 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import MdTokenRenderer from './MdTokenRenderer.vue';
+import AudioAutoPlayer from './AudioAutoPlayer.vue';
 import { marked } from 'marked';
-import SkldrVueMixin, { ISkldrMixin } from '@/mixins/SkldrVueMixin';
 
 type SkldrToken =
   | marked.Token
@@ -27,8 +27,8 @@ export default defineComponent({
   name: 'MarkdownRenderer',
   components: {
     MdTokenRenderer,
+    AudioAutoPlayer,
   },
-  mixins: [SkldrVueMixin],
   props: {
     md: {
       type: String as PropType<string>,

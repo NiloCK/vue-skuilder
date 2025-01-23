@@ -1,6 +1,10 @@
+// eslint-disable-next-line
 const { exit } = require('process');
+// eslint-disable-next-line
 const { readdir, readFile, writeFile } = require('fs/promises');
+// eslint-disable-next-line
 const { join } = require('path');
+// eslint-disable-next-line
 const { execSync } = require('child_process');
 // const { fetch } = require('node-fetch');
 
@@ -93,7 +97,7 @@ async function convertFile(filepath: string) {
       console.log(`Dry-run complete`);
       exit();
     }
-    const filename = filepath.replace(/^.*[\\\/]/, '').replace('.vue', '');
+    const filename = filepath.replace(/^.*[\\/]/, '').replace('.vue', '');
     const branchName = `convert-v3-${filename}`;
 
     // Check for git repository and clean working tree

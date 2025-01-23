@@ -45,7 +45,7 @@ export const useAuthStore = defineStore('auth', {
         console.log(`init listener running`);
         try {
           const resp: {
-            info: {};
+            info: unknown;
             ok: boolean;
             userCtx: {
               name: string;

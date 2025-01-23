@@ -31,7 +31,7 @@ class ProperFraction {
   }
 
   reduce(): ProperFraction {
-    for (var i = 2; i <= this.num && i <= this.den; i++) {
+    for (let i = 2; i <= this.num && i <= this.den; i++) {
       if (this.num % i === 0 && this.den % i === 0) {
         const num = this.num / i;
         const den = this.den / i;
@@ -50,13 +50,11 @@ class ProperFraction {
   }
 
   simplify(): ProperFraction {
-    let ret: ProperFraction = this;
-
-    while (ret.hasReduction()) {
-      ret = ret.reduce();
+    let reduced = this.reduce();
+    while (reduced.hasReduction()) {
+      reduced = reduced.reduce();
     }
-
-    return ret;
+    return reduced;
   }
 
   getCanvasDrawing(size: number): HTMLCanvasElement {
@@ -65,14 +63,14 @@ class ProperFraction {
       size = 100;
     }
 
-    var canvas = document.createElement('canvas');
+    const canvas = document.createElement('canvas');
     canvas.height = size;
     canvas.width = size;
-    var con = canvas.getContext('2d')!;
+    const con = canvas.getContext('2d')!;
 
-    var mid = size / 2;
-    var radius = mid * 0.9;
-    var angle = (2 * Math.PI) / this.den;
+    const mid = size / 2;
+    const radius = mid * 0.9;
+    const angle = (2 * Math.PI) / this.den;
 
     con.fillStyle = 'orange';
 
@@ -81,7 +79,7 @@ class ProperFraction {
     con.translate(-mid, -mid);
 
     // the 'arc' fills
-    for (var i = 0; i < this.num; i++) {
+    for (let i = 0; i < this.num; i++) {
       con.beginPath();
       con.arc(mid, mid, radius, angle * i, angle * (i + 1));
       con.fill();
@@ -90,7 +88,7 @@ class ProperFraction {
     // the 'triangular' segments
     con.beginPath();
     con.moveTo(mid, mid);
-    for (var i = 0; i <= this.num; i++) {
+    for (let i = 0; i <= this.num; i++) {
       con.lineTo(mid + radius * Math.cos(angle * i), mid + radius * Math.sin(angle * i));
     }
     con.moveTo(mid, mid);
@@ -99,7 +97,7 @@ class ProperFraction {
     // the dividing spokes
     if (this.den > 1) {
       // prevents drawing of 'solitary' spoke in 1/1
-      for (var i = 0; i < this.den; i++) {
+      for (let i = 0; i < this.den; i++) {
         con.beginPath();
         con.moveTo(mid, mid);
         con.lineTo(mid + radius * Math.cos(i * angle), mid + radius * Math.sin(i * angle));
@@ -126,22 +124,22 @@ class ProperFraction {
       size = 100;
     }
 
-    var canvas = document.createElement('canvas');
+    const canvas = document.createElement('canvas');
     canvas.height = size;
     canvas.width = size;
-    var con = canvas.getContext('2d')!;
+    const con = canvas.getContext('2d')!;
 
     con.translate(size / 20, size / 20);
     size = 0.9 * size;
 
     // The 'filled in' bits
     con.fillStyle = 'orange';
-    for (var i = 0; i < this.num; i++) {
+    for (let i = 0; i < this.num; i++) {
       con.fillRect((i * size) / this.den, 0, size / this.den, size);
     }
 
     // The vertical bars
-    for (var i = 1; i < this.den; i++) {
+    for (let i = 1; i < this.den; i++) {
       con.beginPath();
       con.moveTo((i * size) / this.den, 0);
       con.lineTo((i * size) / this.den, size);

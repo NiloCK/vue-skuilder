@@ -1,16 +1,19 @@
 <template>
-  <div class="subheading">
-    <div v-if="isNewUser" class="v-alert success subheading">
-      <v-icon left dark>check</v-icon>
+  <div class="text-subtitle-1">
+    <v-alert v-if="isNewUser" type="success" class="text-subtitle-1" variant="tonal" :prepend-icon="'mdi-check'">
       Welcome, {{ _id }}! Please take a moment to look through these settings:
-    </div>
+    </v-alert>
 
-    <h1 class="display-2">Account Settings</h1>
-    <h2 class="display-1">General:</h2>
+    <h1 class="text-h3">Account Settings</h1>
+    <h2 class="text-h4">General:</h2>
 
-    <v-checkbox label="I like confetti" v-model="configStore.config.likesConfetti" @click.capture="updateConfetti" />
-    <v-checkbox label="I like the dark" v-model="configStore.config.darkMode" @change="updateDark" />
-    <!-- <h2 class="display-1">Languages:</h2>
+    <v-checkbox
+      v-model="configStore.config.likesConfetti"
+      label="I like confetti"
+      @update:model-value="updateConfetti"
+    />
+    <v-checkbox v-model="configStore.config.darkMode" label="I like the dark" @update:model-value="updateDark" />
+    <!-- <h2 class="text-h4">Languages:</h2>
     I am near-fluent or better in the following languages:
     {{ selectedLanguages.toString() }}
     <v-checkbox
@@ -19,7 +22,7 @@
       :label="language.name"
       :value="language.code"
       v-model="selectedLanguages"
-      @click.capture="updateLanguage"
+      @update:model-value="updateLanguage"
     /> -->
   </div>
 </template>
@@ -36,7 +39,7 @@ interface Language {
 }
 
 export default defineComponent({
-  name: 'User',
+  name: 'UserSettings',
 
   props: {
     _id: {
@@ -48,8 +51,8 @@ export default defineComponent({
   setup() {
     const configStore = useConfigStore();
 
-    let darkMode = configStore.config.darkMode;
-    let likesConfetti = configStore.config.likesConfetti;
+    const darkMode = configStore.config.darkMode;
+    const likesConfetti = configStore.config.likesConfetti;
 
     return { configStore, darkMode, likesConfetti };
   },
@@ -73,8 +76,18 @@ export default defineComponent({
 
   computed: {
     isNewUser(): boolean {
-      return this.$route.path.endsWith('new');
+      console.error(`Not implemented: User.isNewUser`);
+      return false;
+      // [ ] #vue3 - $route not available.
+      // return this.$route.path.endsWith('new');
     },
+  },
+
+  async created() {
+    this.u = await User.instance();
+    this.configLanguages.forEach((l) => {
+      console.log(`afweatifvwzeatfvwzeta` + l.name);
+    });
   },
 
   methods: {
@@ -94,13 +107,6 @@ export default defineComponent({
         });
       }
     },
-  },
-
-  async created() {
-    this.u = await User.instance();
-    this.configLanguages.forEach((l) => {
-      console.log(`afweatifvwzeatfvwzeta` + l.name);
-    });
   },
 });
 </script>

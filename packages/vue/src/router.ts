@@ -1,6 +1,5 @@
 import MarkdownRenderer from './base-course/Components/MarkdownRenderer.vue';
-import Vue, { Component } from 'vue';
-import Router from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import ClassroomCtrlPanel from './components/Classrooms/ClassroomCtrlPanel.vue';
 import JoinCode from './components/Classrooms/JoinCode.vue';
 import CourseRouter from './components/Courses/CourseRouter.vue';
@@ -21,22 +20,21 @@ import User from './views/User.vue';
 import UIMocks from '@/mocks/UIMocks.vue';
 import ENV from './ENVIRONMENT_VARS';
 
-Vue.use(Router);
+export default createRouter({
+  history: createWebHistory(),
+  // mode: 'history', // deprecated in Vue 3 / Vue Router 4
 
-// todo:
-//
-// beforeEnter: () => authenticateAdmin ?
-//
-// const components: Component[] = [];
-
-export default new Router({
-  mode: 'history',
   routes: [
     // {
     //   path: '/debug/:component',
     //   name: 'componentPreviews',
     //   component: components[component]
     // }
+    // todo:
+    //
+    // beforeEnter: () => authenticateAdmin ?
+    //
+    // const components: Component[] = [];
     {
       path: '/md',
       component: MarkdownRenderer,

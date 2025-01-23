@@ -1,21 +1,17 @@
 <template>
-  <!-- <input
-        class='userInput'
-        type="number"
-        v-model="answer"
-        @keyup.enter="submitAnswer(strToNumber(answer))"
-    /> -->
-  <v-text-field
-    v-model="answer"
-    prepend-icon="edit"
-    @keyup.enter="submitAnswer(makeNumeric(answer))"
-    :autofocus="autofocus"
-    row-height="24"
-    toggle-keys="[13,32]"
-    class="headline"
-    ref="input"
-    :rules="[isNumeric]"
-  ></v-text-field>
+  <v-container class="pa-0">
+    <v-text-field
+      ref="input"
+      v-model="answer"
+      prepend-icon="edit"
+      :autofocus="autofocus"
+      row-height="24"
+      toggle-keys="[13,32]"
+      class="text-h5"
+      :rules="[isNumeric]"
+      @keyup.enter="submitAnswer(makeNumeric(answer))"
+    ></v-text-field>
+  </v-container>
 </template>
 
 <script lang="ts">

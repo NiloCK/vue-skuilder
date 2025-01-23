@@ -5,9 +5,9 @@
       <CardViewer
         course-id="preview"
         card-id="preview"
-        session-order="1"
-        v-bind:view="flvCtr"
-        v-bind:data="[
+        :session-order="1"
+        :view="flvCtr"
+        :data="[
           {
             gameLength: 30,
             initialSpeed: 0.5,
@@ -17,12 +17,12 @@
         ]"
       />
 
-      <!-- <h2>Falling Letters Game</h2>
+      <h2>Falling Letters Game</h2>
       <FallingLettersView
-        v-bind:course-id="mockCourseId"
-        v-bind:card-id="mockCardId"
-        v-bind:modifyDifficulty="0"
-        v-bind:data="[
+        :course-id="mockCourseId"
+        :card-id="mockCardId"
+        :modify-difficulty="0"
+        :data="[
           {
             gameLength: 30,
             initialSpeed: 0.5,
@@ -30,16 +30,16 @@
             spawnInterval: 1,
           },
         ]"
-      /> -->
+      />
     </div>
 
     <div class="component">
       <h2>Letter Question</h2>
       <LetterQuestionView
-        v-bind:course-id="mockCourseId"
-        v-bind:card-id="mockCardId"
-        v-bind:modifyDifficulty="0"
-        v-bind:data="[{ letter: 'A' }]"
+        :course-id="mockCourseId"
+        :card-id="mockCardId"
+        :modify-difficulty="0"
+        :data="[{ letter: 'A' }]"
       />
     </div>
 
@@ -50,10 +50,10 @@
     <div class="component">
       <h2>Chess PuzzleView</h2>
       <PuzzleView
-        v-bind:course-id="mockCourseId"
-        v-bind:card-id="mockCardId"
-        v-bind:modifyDifficulty="0"
-        v-bind:data="[{ puzzleData: Math.random() > 0.5 ? puzzleBlack : puzzleWhite }]"
+        :course-id="mockCourseId"
+        :card-id="mockCardId"
+        :modify-difficulty="0"
+        :data="[{ puzzleData: Math.random() > 0.5 ? puzzleBlack : puzzleWhite }]"
       />
     </div>
 
@@ -62,38 +62,54 @@
       <HeatMap :data="{}" />
     </div>
 
-    <!-- <div class="component">
+    <div class="component">
       <h2>DataInputForm</h2>
-      <data-input-form :courseCfg="{}" :dataShape="ChessPuzzleDataShapes[0]" />
-    </div> -->
+      <data-input-form
+        :course-cfg="{
+          admins: ['admin'],
+          creator: 'admin',
+          dataShapes: [],
+          deleted: false,
+          description: 'uimocks',
+          moderators: ['admin'],
+          name: 'uimocks',
+          public: true,
+          disambiguator: 'uimocks',
+          questionTypes: [],
+        }"
+        :data-shape="ChessPuzzleDataShapes[0]"
+      />
+    </div>
 
     <!-- <div class="component">
       <h2>DataInputForm</h2>
       <data-input-form :courseCfg="{}" :dataShape="BlanksCardDataShapes[0]" />
     </div> -->
 
-    <div class="component">
+    <!-- <div class="component">
       <h2>MediaUploader</h2>
       <media-uploader
         :autofocus="false"
-        :uiValidationFunction="() => true"
+        :ui-validation-function="() => true"
         :store="{}"
         :field="{
           name: 'MediaUploader',
           type: 'media-uploader',
           validator: {
-            test: () => true,
+            test: () => {
+              return validationResult;
+            },
             status: 'success',
           },
         }"
       />
-    </div>
+    </div> -->
 
-    <div class="component">
+    <!-- <div class="component">
       <h2>ImageInput</h2>
       <image-input
         :autofocus="false"
-        :uiValidationFunction="() => true"
+        :ui-validation-function="() => true"
         :field="{
           name: 'Image',
           type: 'image',
@@ -104,11 +120,11 @@
         }"
         :store="{}"
       />
-    </div>
+    </div> -->
 
     <div class="component">
       <h2>SkTagsInput</h2>
-      <sk-tags-input :courseID="mockCourseId" :cardID="mockCardId" :hide-submit="false" />
+      <sk-tags-input :course-i-d="mockCourseId" :card-i-d="mockCardId" :hide-submit="false" />
     </div>
   </div>
 </template>
@@ -116,11 +132,11 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';
-import ImageInput from '@/components/Edit/ViewableDataInputForm/FieldInputs/ImageInput.vue';
-import MediaUploader from '@/components/Edit/ViewableDataInputForm/FieldInputs/MediaUploader.vue';
+// import ImageInput from '@/components/Edit/ViewableDataInputForm/FieldInputs/ImageInput.vue';
+// import MediaUploader from '@/components/Edit/ViewableDataInputForm/FieldInputs/MediaUploader.vue';
 import HeatMap from '@/components/HeatMap.vue';
 import PuzzleView from '@/courses/chess/questions/puzzle/puzzle.vue';
-import ChessPieceMove from '@/courses/chess/questions/piecemove/piece-move.vue';
+// import ChessPieceMove from '@/courses/chess/questions/piecemove/piece-move.vue';
 import FillInView from '@/courses/default/questions/fillIn/fillIn.vue';
 import { BlanksCardDataShapes } from '@/courses/default/questions/fillIn/index';
 import { ChessPuzzle } from '@/courses/chess/questions/puzzle/index';
@@ -128,6 +144,8 @@ import DataInputForm from '../components/Edit/ViewableDataInputForm/DataInputFor
 import LetterQuestionView from '@/courses/typing/questions/single-letter/typeSingleLetter.vue';
 import FallingLettersView from '@/courses/typing/questions/falling-letters/FallingLetters.vue';
 import CardViewer from '@/components/Study/CardViewer.vue';
+import { Status } from '@/enums/Status';
+import { ValidationResult } from '@/base-course/Interfaces/ValidationResult';
 
 export default defineComponent({
   name: 'UIMocks',
@@ -135,8 +153,8 @@ export default defineComponent({
   components: {
     SkTagsInput,
     DataInputForm,
-    MediaUploader,
-    ImageInput,
+    // MediaUploader,
+    // ImageInput,
     HeatMap,
     PuzzleView,
     LetterQuestionView,
@@ -160,6 +178,10 @@ export default defineComponent({
       BlanksCardDataShapes,
       ChessPuzzleDataShapes: ChessPuzzle.dataShapes,
       FillInView,
+      validationResult: {
+        status: Status.ok,
+        msg: 'lookin good',
+      } as ValidationResult,
     };
   },
 

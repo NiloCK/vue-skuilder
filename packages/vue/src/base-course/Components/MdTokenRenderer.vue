@@ -2,10 +2,10 @@
   <span v-if="isText(token)">
     <span v-if="!token.tokens || token.tokens.length === 0">
       <span v-if="isComponent(token)">
-        <component v-if="!last" v-bind:is="parsedComponent(token).is" v-bind:text="parsedComponent(token).text" />
+        <component :is="parsedComponent(token).is" v-if="!last" :text="parsedComponent(token).text" />
       </span>
       <span v-else-if="containsComponent(token)">
-        <md-token-renderer v-for="(subTok, j) in splitTextToken(token)" v-bind:key="j" v-bind:token="subTok" />
+        <md-token-renderer v-for="(subTok, j) in splitTextToken(token)" :key="j" :token="subTok" />
       </span>
       <span v-else>{{ decodeBasicEntities(token.text) }}</span>
     </span>
@@ -15,13 +15,13 @@
   </span>
 
   <span v-else-if="token.type === 'heading'">
-    <h1 class="display-3" v-if="token.depth === 1">
+    <h1 v-if="token.depth === 1" class="text-h2">
       <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
     </h1>
-    <h2 class="display-2" v-else-if="token.depth === 2">
+    <h2 v-else-if="token.depth === 2" class="text-h3">
       <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
     </h2>
-    <h3 class="display-1" v-else-if="token.depth === 3">
+    <h3 v-else-if="token.depth === 3" class="text-h4">
       <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
     </h3>
     <h4 v-else-if="token.depth === 4">
@@ -39,21 +39,21 @@
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
   </strong>
 
-  <p class="headline" v-else-if="token.type === 'paragraph'">
+  <p v-else-if="token.type === 'paragraph'" class="text-h5">
     <span v-if="containsComponent(token)">
       <md-token-renderer
         v-for="(splitTok, j) in splitParagraphToken(token)"
-        v-bind:key="j"
-        v-bind:token="splitTok"
-        v-bind:last="last && token.tokens.length === 1 && j === splitParagraphToken(token).length - 1"
+        :key="j"
+        :token="splitTok"
+        :last="last && token.tokens.length === 1 && j === splitParagraphToken(token).length - 1"
       />
     </span>
     <template v-else>
       <md-token-renderer
         v-for="(subTok, j) in token.tokens"
-        v-bind:key="j"
-        v-bind:token="subTok"
-        v-bind:last="last && token.tokens.length === 1"
+        :key="j"
+        :token="subTok"
+        :last="last && token.tokens.length === 1"
       />
     </template>
   </p>
@@ -94,7 +94,7 @@
 
   <highlightjs v-else-if="token.type === 'code'" class="hljs_render pa-2" :language="token.lang" :code="token.text" />
 
-  <code class="codespan" v-else-if="token.type === 'codespan'" v-html="token.text"></code>
+  <code v-else-if="token.type === 'codespan'" class="codespan" v-html="token.text"></code>
 
   <blockquote v-else-if="token.type === 'blockquote'">
     <md-token-renderer v-for="(subTok, j) in token.tokens" :key="j" :token="subTok" />
@@ -117,13 +117,12 @@ import {
   TokenOrComponent,
 } from '@/courses/default/questions/fillIn';
 import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
-import hljs from 'highlight.js';
 import { marked } from 'marked';
 import { defineComponent } from 'vue';
-import Vue from 'vue';
-import SkldrVueMixin from '@/mixins/SkldrVueMixin';
 
-Vue.use(hljs.vuePlugin);
+// import hljs from 'highlight.js';
+import 'highlight.js/styles/atelier-seaside-light.css'; // Move CSS import here
+import hljsVuePlugin from '@highlightjs/vue-plugin';
 
 export default defineComponent({
   name: 'MdTokenRenderer',
@@ -131,13 +130,12 @@ export default defineComponent({
   components: {
     fillIn: FillInInput,
     RadioMultipleChoice,
+    highlightjs: hljsVuePlugin.component,
   },
-
-  mixins: [SkldrVueMixin],
 
   props: {
     token: {
-      type: Object as () => marked.Token,
+      type: Object as () => marked.Token | TokenOrComponent,
       required: true,
     },
     last: {
@@ -195,7 +193,7 @@ export default defineComponent({
         .replace(/&gt;/g, '>');
     },
 
-    isText(tok: marked.Token): tok is marked.Tokens.Text {
+    isText(tok: TokenOrComponent): tok is marked.Tokens.Text {
       return (tok as marked.Tokens.Tag).inLink === undefined && tok.type === 'text';
     },
   },
@@ -203,6 +201,15 @@ export default defineComponent({
 </script>
 
 <style lang="css" scoped>
+@import './../../../node_modules/highlight.js/styles/atelier-seaside-light.css';
+/* @import './../../../node_modules/highlight.js/styles/stackoverflow-light.css'; */
+/* @import './../../../node_modules/highlight.js/styles/xt256.css'; */
+/* @import './../../../node_modules/highlight.js/styles/zenburn.css'; */
+/* @import './../../../node_modules/highlight.js/styles/tomorrow.css'; */
+/* @import './../../../node_modules/highlight.js/styles/lioshi.css'; */
+/* @import './../../../node_modules/highlight.js/styles/rainbow.css'; */
+/* @import './../../../node_modules/highlight.js/styles/monokai-sublime.css'; */
+
 blockquote {
   border-left: 3px teal solid;
   padding-left: 8px;
@@ -219,13 +226,4 @@ p {
   margin-bottom: 15px;
   margin-top: 15px;
 }
-
-/* @import './../../../node_modules/highlight.js/styles/stackoverflow-light.css'; */
-/* @import './../../../node_modules/highlight.js/styles/xt256.css'; */
-/* @import './../../../node_modules/highlight.js/styles/zenburn.css'; */
-/* @import './../../../node_modules/highlight.js/styles/tomorrow.css'; */
-/* @import './../../../node_modules/highlight.js/styles/lioshi.css'; */
-/* @import './../../../node_modules/highlight.js/styles/rainbow.css'; */
-/* @import './../../../node_modules/highlight.js/styles/monokai-sublime.css'; */
-@import './../../../node_modules/highlight.js/styles/atelier-seaside-light.css';
 </style>

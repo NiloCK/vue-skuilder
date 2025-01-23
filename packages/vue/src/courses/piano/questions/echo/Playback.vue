@@ -1,16 +1,16 @@
 <template>
-  <div data-viewable="Playback" v-if="initialized">
+  <div v-if="initialized" data-viewable="Playback">
     <div v-if="state === 'ready'">
-      <div class="display-1">{{ promptText }} <note-display :chroma="firstNoteChroma" /></div>
-      <div class="headline">Listen...<span v-if="recording"> and Repeat</span></div>
+      <div class="text-h4">{{ promptText }} <note-display :chroma="firstNoteChroma" /></div>
+      <div class="text-h5">Listen...<span v-if="recording"> and Repeat</span></div>
 
       <div class="progressContainer">
         <div id="progress" ref="progressBar"></div>
       </div>
 
-      <v-btn color="primary" @click="clearAttempt" autofocus> Play again <v-icon right>volume_up</v-icon> </v-btn>
+      <v-btn color="primary" autofocus @click="clearAttempt"> Play again <v-icon end>volume_up</v-icon> </v-btn>
 
-      <syllable-seq-vis ref="inputVisRef" v-if="true" :seq="inputSeq" :lastTSsuggestion="lastTSsuggestion" />
+      <syllable-seq-vis v-if="true" ref="inputVisRef" :seq="inputSeq" :last-t-ssuggestion="lastTSsuggestion" />
       <syllable-seq-vis v-if="graded" :seq="gradedSeq" />
     </div>
     <div v-else-if="state === 'nodevice'">No midi device detected. Please attach one!</div>
@@ -31,7 +31,7 @@
 <script lang="ts">
 import { defineComponent, ref, computed, PropType, onMounted, onBeforeUnmount } from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
-import SkMidi, { NoteEvent, eventsToSyllableSequence, SyllableSequence } from '../../utility/midi';
+import SkMidi, { eventsToSyllableSequence, SyllableSequence } from '../../utility/midi';
 import { EchoQuestion } from '.';
 import moment from 'moment';
 import SyllableSeqVis from '../../utility/SyllableSeqVis.vue';
@@ -42,6 +42,8 @@ import { ViewData } from '@/base-course/Interfaces/ViewData';
 import SkldrMouseTrap from '@/SkldrMouseTrap';
 
 export default defineComponent({
+  // this class name *may* be used as a lookup for dynamic component.
+  // eslint-disable-next-line
   name: 'Playback',
 
   components: {
@@ -57,6 +59,7 @@ export default defineComponent({
     modifyDifficulty: {
       type: Number,
       required: false,
+      default: 0,
     },
   },
 
@@ -138,7 +141,7 @@ export default defineComponent({
             });
           });
         }
-      } catch (e) {
+      } catch {
         setTimeout(runProgressBar, 50);
       }
     };
@@ -157,7 +160,7 @@ export default defineComponent({
         }
       });
 
-      midi.value?.addNoteoffListenter((e) => {
+      midi.value?.addNoteoffListenter(() => {
         notesOff.value++;
         if (notesOn.value + notesOff.value >= question.value.midi.length) {
           submit();
@@ -192,7 +195,6 @@ export default defineComponent({
       gradedSeq.value = qSylSeq.grade(aSylSeq);
       inputSeq.value = eventsToSyllableSequence([]);
 
-      // @ts-ignore  - this property clearly exists - why is it not being recognized?
       if (!questionUtils.submitAnswer(midi.value.recording).isCorrect) {
         attempts.value++;
         graded.value = true;

@@ -1,6 +1,6 @@
 <template>
   <div data-viewable="TrueFalse">
-    <RadioSelect :choiceList="['True', 'False']" :MouseTrap="MouseTrap" :submit="submit" />
+    <RadioSelect :choice-list="['True', 'False']" :MouseTrap="MouseTrap" :submit="submit" />
   </div>
 </template>
 

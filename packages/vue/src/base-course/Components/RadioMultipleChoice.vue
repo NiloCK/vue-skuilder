@@ -1,14 +1,14 @@
 <template>
-  <div class="multipleChoice" ref="containerRef">
+  <div ref="containerRef" class="multipleChoice">
     <MultipleChoiceOption
       v-for="(choice, i) in choiceList"
-      v-bind:key="i"
-      v-bind:content="choice"
-      v-bind:selected="choiceList.indexOf(choice) === currentSelection"
-      v-bind:number="choiceList.indexOf(choice)"
-      v-bind:setSelection="setSelection"
-      v-bind:submit="forwardSelection"
-      v-bind:markedWrong="choiceIsWrong(choice)"
+      :key="i"
+      :content="choice"
+      :selected="choiceList.indexOf(choice) === currentSelection"
+      :number="choiceList.indexOf(choice)"
+      :set-selection="setSelection"
+      :submit="forwardSelection"
+      :marked-wrong="choiceIsWrong(choice)"
     />
   </div>
 </template>
@@ -27,10 +27,10 @@ export interface RadioSelectAnswer extends Answer {
 
 export default defineComponent({
   name: 'RadioSelect',
-  extends: UserInput,
   components: {
     MultipleChoiceOption,
   },
+  extends: UserInput,
   props: {
     choiceList: {
       type: Array as PropType<string[]>,

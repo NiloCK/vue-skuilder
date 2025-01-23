@@ -3,11 +3,11 @@
     <CardViewer :view="views[viewIndex]" :data="data" :course_id="'[browsing]'" :card_id="'[browsing]'" />
     <br /><br />
     <div class="text-subtitle-1 pa-2">
-      <v-btn v-if="spinner" @click="decrementView" icon color="accent">
+      <v-btn v-if="spinner" icon color="accent" @click="decrementView">
         <v-icon>chevron_left</v-icon>
       </v-btn>
       {{ views[viewIndex].name }}
-      <v-btn v-if="spinner" @click="incrementView" icon color="accent">
+      <v-btn v-if="spinner" icon color="accent" @click="incrementView">
         <v-icon alt="Hello">chevron_right</v-icon>
       </v-btn>
     </div>
@@ -16,11 +16,10 @@
 
 <script lang="ts">
 import { ViewData } from '@/base-course/Interfaces/ViewData';
-import Viewable from '@/base-course/Viewable';
 import CardViewer from '@/components/Study/CardViewer.vue';
 import { defineComponent, PropType } from 'vue';
-import { VueConstructor } from 'vue';
 import { useCardPreviewModeStore } from '@/stores/useCardPreviewModeStore';
+import { ViewComponent } from '@/base-course/Displayable';
 
 export default defineComponent({
   name: 'CardBrowser',
@@ -31,7 +30,7 @@ export default defineComponent({
 
   props: {
     views: {
-      type: Array as PropType<Array<VueConstructor<Viewable>>>,
+      type: Array as PropType<Array<ViewComponent>>,
       required: true,
     },
     data: {
@@ -58,8 +57,8 @@ export default defineComponent({
     this.previewMode.setPreviewMode(true);
   },
 
-  destroyed() {
-    console.log(`[CardBrowser] Card browser destroyed. Cards no longer in 'prewviewMode'`);
+  unmounted() {
+    console.log(`[CardBrowser] Card browser unmounted. Cards no longer in 'prewviewMode'`);
     this.previewMode.setPreviewMode(false);
   },
 

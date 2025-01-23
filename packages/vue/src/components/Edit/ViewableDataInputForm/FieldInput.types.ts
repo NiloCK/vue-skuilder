@@ -10,21 +10,24 @@ export interface FieldInputInterface {
   validationStatus: ValidationResult;
   validators: ValidatingFunction[];
   focus: () => void;
-  userInput: () => any;
-  setData: (data: any) => void;
+  userInput: () => unknown;
+  setData: (data: unknown) => void;
   clearData: () => void;
-  vuetifyRules: () => any[];
+  vuetifyRules: () => Array<(value: unknown) => boolean | string>;
   generateTags: () => string[];
   generateELO: () => CourseElo | undefined;
   validate: () => ValidationResult;
 }
 
 // Type guard
-export function isFieldInput(component: any): component is FieldInputInstance {
+export function isFieldInput(component: unknown): component is FieldInputInstance {
   return (
-    component &&
-    typeof component.clearData === 'function' &&
-    typeof component.validate === 'function'
+    component !== null &&
+    typeof component === 'object' &&
+    'clearData' in component &&
+    'validate' in component &&
+    typeof (component as any).clearData === 'function' &&
+    typeof (component as any).validate === 'function'
   );
 }
 

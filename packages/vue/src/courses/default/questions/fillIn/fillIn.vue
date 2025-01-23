@@ -1,25 +1,34 @@
 <template>
   <div data-viewable="FillInView">
-    <audio-auto-player v-if="hasAudio" v-bind:src="audioURL" />
-    <img v-if="hasImage" v-bind:src="imageURL" />
+    <audio-auto-player v-if="hasAudio" :src="audioURL" />
+    <img v-if="hasImage" :src="imageURL" />
     <!-- Add v-if to prevent undefined markdown -->
-    <markdown-renderer v-if="markdownText" v-bind:md="markdownText" />
-    <radio-multiple-choice v-if="question?.options" v-bind:choiceList="truncatedOptions" />
-    <center v-else-if="priorAttempts == 1" class="title">
+    <markdown-renderer v-if="markdownText" :md="markdownText" />
+    <radio-multiple-choice v-if="question?.options" :choice-list="truncatedOptions" />
+    <div v-else-if="priorAttempts == 1" class="text-center text-h6">
       <span>{{ obscuredAnswer }}</span>
-    </center>
-    <center v-else-if="priorAttempts == 2" class="title">
-      <span>{{ someAnswer }}</span>
-    </center>
+    </div>
+    <div v-else-if="priorAttempts == 2" class="text-center text-h6">
+      <span>{{ obscuredAnswer }}</span>
+    </div>
     <v-card-actions v-if="!isQuestion">
       <v-spacer></v-spacer>
-      <v-btn color="primary" @click="handleNext" autofocus="autofocus"> Next </v-btn>
+      <v-btn color="primary" autofocus="autofocus" @click="handleNext"> Next </v-btn>
     </v-card-actions>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, PropType, onMounted, onUnmounted, watchEffect } from 'vue';
+import {
+  defineComponent,
+  defineAsyncComponent,
+  ref,
+  computed,
+  PropType,
+  onMounted,
+  onUnmounted,
+  watchEffect,
+} from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import AudioAutoPlayer from '@/base-course/Components/AudioAutoPlayer.vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
@@ -28,19 +37,12 @@ import { BlanksCard } from './index';
 import gradeSpellingAttempt from './blanksCorrection';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 
-const typeMap: { [index: string]: string } = {
-  text: 'textType',
-  blank: 'blankType',
-};
-
 export default defineComponent({
   name: 'FillInView',
 
   components: {
-    MarkdownRenderer: () => import('@/base-course/Components/MarkdownRenderer.vue'),
+    MarkdownRenderer: defineAsyncComponent(() => import('@/base-course/Components/MarkdownRenderer.vue')),
     RadioMultipleChoice,
-    blankType: () => import('./fillInInput.vue'),
-    textType: () => import('./fillInText.vue'),
     AudioAutoPlayer,
   },
 
@@ -52,6 +54,7 @@ export default defineComponent({
     modifyDifficulty: {
       type: Number,
       required: false,
+      default: 0,
     },
   },
 
@@ -69,22 +72,6 @@ export default defineComponent({
         throw new Error('Question not initialized');
       }
       return questionUtils.question.value;
-    });
-
-    /**
-     * update the question whenever the data changes
-     */
-    watchEffect(() => {
-      try {
-        questionUtils.question.value = new BlanksCard(props.data);
-        // Update shuffled options whenever question changes
-        if (questionUtils.question.value?.options) {
-          const truncatedList = getTruncatedList();
-          shuffledOptions.value = _.shuffle(truncatedList);
-        }
-      } catch (error) {
-        viewableUtils.logger.error('Failed to initialize/update question:', error);
-      }
     });
 
     onMounted(() => {
@@ -144,6 +131,8 @@ export default defineComponent({
     const someAnswer = computed(() => {
       if (question.value.answers) {
         return question.value.answers[Math.floor(question.value.answers.length * Math.random())];
+      } else {
+        throw new Error('No answers provided');
       }
     });
 
@@ -169,6 +158,8 @@ export default defineComponent({
         }
         return obscuredAnswer;
       }
+
+      return '';
     });
 
     const isQuestion = computed(() => {
@@ -189,7 +180,7 @@ export default defineComponent({
 
       // construct a list of all non-answers
       let distractors: string[] = _.shuffle(
-        question.value.options.filter((o: any) => question.value.answers?.indexOf(o) === -1)
+        question.value.options.filter((o: string) => question.value.answers?.indexOf(o) === -1)
       );
 
       if (props.modifyDifficulty) {
@@ -216,6 +207,22 @@ export default defineComponent({
     const handleNext = () => {
       questionUtils.submitAnswer('');
     };
+
+    /**
+     * update the question whenever the data changes
+     */
+    watchEffect(() => {
+      try {
+        questionUtils.question.value = new BlanksCard(props.data);
+        // Update shuffled options whenever question changes
+        if (questionUtils.question.value?.options) {
+          const truncatedList = getTruncatedList();
+          shuffledOptions.value = _.shuffle(truncatedList);
+        }
+      } catch (error) {
+        viewableUtils.logger.error('Failed to initialize/update question:', error);
+      }
+    });
 
     return {
       ...viewableUtils,

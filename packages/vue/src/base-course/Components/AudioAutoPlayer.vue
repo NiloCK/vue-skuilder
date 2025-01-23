@@ -1,5 +1,5 @@
 <template>
-  <v-btn @click="play" large icon v-bind:color="playing ? 'primary lighten-3' : 'primary'" :class="{ playing }">
+  <v-btn size="large" icon :color="playing ? 'primary lighten-3' : 'primary'" :class="{ playing }" @click="play">
     <v-icon>mdi-volume-high</v-icon>
   </v-btn>
 </template>
@@ -40,7 +40,7 @@ const downloadFinished = (i: number): boolean => {
   try {
     return !isNaN(audioElems.value[i].duration);
   } catch (e) {
-    throw new Error('AudioPlayer does not have an element at this index');
+    throw new Error('AudioPlayer does not have an element at this index:', e);
   }
 };
 

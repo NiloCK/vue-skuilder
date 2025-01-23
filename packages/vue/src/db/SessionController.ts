@@ -10,7 +10,6 @@ import {
 import { Loggable } from './Loggable';
 import { CardRecord } from './types';
 import { ScheduledCard, User } from './userDB';
-import { CourseDB } from './courseDB';
 
 export interface StudySessionRecord {
   card: {
@@ -111,14 +110,14 @@ export default class SessionController extends Loggable {
     this._secondsRemaining = time;
     this.endTime = new Date(this.startTime.valueOf() + 1000 * this._secondsRemaining);
 
-    console.log(`Session constructed:
+    this.log(`Session constructed:
     startTime: ${this.startTime}
     endTime: ${this.endTime}`);
   }
 
   private tick() {
     this._secondsRemaining = Math.floor((this.endTime.valueOf() - Date.now()) / 1000);
-    // console.log(this.secondsRemaining);
+    // this.log(this.secondsRemaining);
 
     if (this._secondsRemaining === 0) {
       clearInterval(this._intervalHandle);
@@ -136,13 +135,13 @@ export default class SessionController extends Loggable {
     let time: number = 0;
     for (let i = 0; i < this.failedQ.length; i++) {
       const c = this.failedQ.peek(i);
-      // console.log(`Failed card ${c.qualifiedID} found`)
+      // this.log(`Failed card ${c.qualifiedID} found`)
 
       const record = this._sessionRecord.find((r) => r.item.cardID === c.cardID);
       let cardTime = 0;
 
       if (record) {
-        // console.log(`Card Record Found...`);
+        // this.log(`Card Record Found...`);
         for (let j = 0; j < record.records.length; j++) {
           cardTime += record.records[j].timeSpent;
         }
@@ -152,7 +151,7 @@ export default class SessionController extends Loggable {
     }
 
     const ret: number = time / 1000;
-    console.log(`Failed card cleanup estimate: ${Math.round(ret)}`);
+    this.log(`Failed card cleanup estimate: ${Math.round(ret)}`);
     return ret;
   }
 
@@ -162,7 +161,7 @@ export default class SessionController extends Loggable {
    */
   private estimateReviewTime(): number {
     const ret = 5 * this.reviewQ.length;
-    console.log(`Review card time estimate: ${ret}`);
+    this.log(`Review card time estimate: ${ret}`);
     return ret;
   }
 
@@ -170,7 +169,7 @@ export default class SessionController extends Loggable {
     try {
       await Promise.all([this.getScheduledReviews(), this.getNewCards()]);
     } catch (e) {
-      console.error('Error preparing study session:', e);
+      this.error('Error preparing study session:', e);
     }
 
     this._isInitialized = true;
@@ -199,13 +198,13 @@ export default class SessionController extends Loggable {
     const reviews = await Promise.all(
       this.sources.map((c) =>
         c.getPendingReviews().catch((error) => {
-          console.error(`Failed to get reviews for source ${JSON.stringify(c)}:`, error);
+          this.error(`Failed to get reviews for source ${JSON.stringify(c)}:`, error);
           return [];
         })
       )
     );
 
-    let dueCards: (StudySessionReviewItem & ScheduledCard)[] = [];
+    const dueCards: (StudySessionReviewItem & ScheduledCard)[] = [];
 
     while (reviews.length != 0 && reviews.some((r) => r.length > 0)) {
       // pick a random review source
@@ -226,15 +225,16 @@ export default class SessionController extends Loggable {
       this.reviewQ.add(card);
       report += `\t${card.qualifiedID}}\n`;
     }
-    console.log(report);
+    this.log(report);
   }
 
   private async getNewCards(n: number = 10) {
     const perCourse = Math.ceil(n / this.sources.length);
     const newContent = await Promise.all(this.sources.map((c) => c.getNewCards(perCourse)));
 
+    // [ ] is this a noop?
     newContent.forEach((newContentFromSource) => {
-      newContentFromSource = newContentFromSource.filter((c) => {
+      newContentFromSource.filter((c) => {
         return this._sessionRecord.find((record) => record.card.card_id === c.cardID) === undefined;
       });
     });
@@ -243,7 +243,7 @@ export default class SessionController extends Loggable {
       for (let i = 0; i < newContent.length; i++) {
         if (newContent[i].length > 0) {
           const item = newContent[i].splice(0, 1)[0];
-          console.log(`Adding new card: ${item.qualifiedID}`);
+          this.log(`Adding new card: ${item.qualifiedID}`);
           this.newQ.add(item);
           n--;
         }
@@ -338,7 +338,7 @@ export default class SessionController extends Loggable {
     } else if (this.failedQ.length) {
       this._currentCard = this.failedQ.dequeue();
     } else {
-      console.log(`No more cards available for the session!`);
+      this.log(`No more cards available for the session!`);
       this._currentCard = null;
     }
 
@@ -353,13 +353,13 @@ export default class SessionController extends Loggable {
       | 'dismiss-error' = 'dismiss-success'
   ) {
     if (this._currentCard) {
-      // console.log(`Running dismissCurrentCard on ${this._currentCard!.qualifiedID}`);
+      // this.log(`Running dismissCurrentCard on ${this._currentCard!.qualifiedID}`);
       // if (action.includes('dismiss')) {
       //   if (this._currentCard.status === 'review' ||
       //     this._currentCard.status === 'failed-review') {
       //     removeScheduledCardReview(this.user.username,
       //       (this._currentCard as StudySessionReviewItem).reviewID);
-      //     console.log(`Dismissed review card: ${this._currentCard.qualifiedID}`)
+      //     this.log(`Dismissed review card: ${this._currentCard.qualifiedID}`)
       //   }
       // }
 

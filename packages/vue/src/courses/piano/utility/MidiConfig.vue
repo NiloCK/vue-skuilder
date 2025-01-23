@@ -1,17 +1,17 @@
 <template>
   <v-card>
-    <v-card-title class="headline grey lighten-2" primary-title> Configure Midi Device </v-card-title>
+    <v-card-title class="text-h5 bg-grey-lighten-2" primary-title> Configure Midi Device </v-card-title>
 
     <v-card-text>
       <v-form v-if="midiSupported" onsubmit="return false;">
         <v-select
-          :items="inputs"
           v-model="selectedInput"
+          :items="inputs"
           label="Select Input"
           hint="Play some notes on your input device to test the connection"
         ></v-select>
-        <v-select :items="outputs" v-model="selectedOutput" label="Select Output"></v-select>
-        <v-btn @click="saveSettings" :loading="updatePending"> Save these settings </v-btn>
+        <v-select v-model="selectedOutput" :items="outputs" label="Select Output"></v-select>
+        <v-btn :loading="updatePending" @click="saveSettings"> Save these settings </v-btn>
         <v-btn color="primary" @click="playSound">Test midi output</v-btn>
       </v-form>
       <div v-else>
@@ -38,12 +38,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, onMounted, PropType } from 'vue';
+import { defineComponent, ref, watch, onMounted } from 'vue';
 import { alertUser } from '@/components/SnackbarService.vue';
 import SkMidi from './midi';
 import { Status } from '../../../enums/Status';
 import { User } from '@/db/userDB';
+import { InputEventNoteon } from 'webmidi';
 
+interface MidiDevice {
+  text: string;
+  value: string;
+}
 export default defineComponent({
   name: 'MidiConfig',
 
@@ -57,10 +62,10 @@ export default defineComponent({
   setup(props) {
     const midi = ref<SkMidi>();
     const midiSupported = ref(true);
-    const inputs = ref<{ text: string; value: {} }[]>([]);
-    const outputs = ref<{ text: string; value: {} }[]>([]);
-    const selectedInput = ref('');
-    const selectedOutput = ref('');
+    const inputs = ref<MidiDevice[]>([]);
+    const outputs = ref<MidiDevice[]>([]);
+    const selectedInput = ref<string>('');
+    const selectedOutput = ref<string>('');
     const updatePending = ref(false);
     const user = ref<User>();
 
@@ -229,7 +234,7 @@ export default defineComponent({
       ]);
     };
 
-    const indicateHeardNotes = (note: any) => {
+    const indicateHeardNotes = (note: InputEventNoteon) => {
       alertUser({
         text: `I hear a ${note.note.name}!`,
         status: Status.ok,
@@ -295,8 +300,8 @@ export default defineComponent({
               value: i.id,
             }));
         } else {
-          inputs.value = [{ text: 'No inputs available', value: {} }];
-          outputs.value = [{ text: 'No outputs available', value: {} }];
+          inputs.value = [{ text: 'No inputs available', value: '' }];
+          outputs.value = [{ text: 'No outputs available', value: '' }];
         }
 
         selectedInput.value = inputs.value[0].text;

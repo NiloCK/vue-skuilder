@@ -18,7 +18,7 @@
       </template>
     </vue-tags-input>
 
-    <v-btn v-if="!hideSubmit" color="success" @click="submit" :loading="loading">Save Changes</v-btn>
+    <v-btn v-if="!hideSubmit" color="success" :loading="loading" @click="submit">Save Changes</v-btn>
   </div>
 </template>
 
@@ -27,8 +27,8 @@ import { defineComponent } from 'vue';
 import { addTagToCard } from '@/db/courseAPI';
 import { getAppliedTags, getCourseTagStubs, removeTagFromCard } from '@/db/courseDB';
 import type { Tag } from '@/db/types';
-// @ts-ignore
-import VueTagsInput from '@johmun/vue-tags-input';
+// @ts-expect-error - tmp supression - needs replacing w/ vue 3 compatible version
+import { VueTagsInput } from '@vojtechlanka/vue-tags-input';
 
 interface TagObject {
   text: string;
@@ -56,6 +56,7 @@ export default defineComponent({
   name: 'SkTagsInput',
 
   components: {
+    // eslint-disable-next-line
     VueTagsInput,
   },
 

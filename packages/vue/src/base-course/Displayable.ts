@@ -1,28 +1,24 @@
-import Vue, { VueConstructor, DefineComponent, defineComponent, ComponentOptions } from 'vue';
+import { DefineComponent, defineComponent } from 'vue';
 import { DataShape } from '../base-course/Interfaces/DataShape';
 import { ViewData } from '../base-course/Interfaces/ViewData';
-import { Viewable } from './OptionsViewable';
 import { FieldType } from '../enums/FieldType';
 
+// [ ] #vue3 - post migration, specify this more precisely (no longer a hodge-podge)
 export type ViewComponent =
-  | VueConstructor<Vue>
-  | DefineComponent<any, any, any, any, any, any, any>
+  | DefineComponent<unknown, unknown, unknown>
   | ReturnType<typeof defineComponent>;
-
-export function isVueConstructor(v: ViewComponent): v is VueConstructor<Vue> {
-  return v.prototype instanceof Vue;
-}
 
 export function isDefineComponent(
   v: ViewComponent
-): v is DefineComponent<any, any, any, any, any, any, any> {
-  return (v as DefineComponent<any, any, any, any, any, any, any>).__isFragment !== undefined;
+): v is DefineComponent<unknown, unknown, unknown> {
+  return (v as DefineComponent<unknown, unknown, unknown>).__isFragment !== undefined;
 }
 
 // export function isComponentOptions(v: ViewComponent): v is ComponentOptions<any> {
 //   return (v as ComponentOptions<Vue>).name !== undefined;
 // }
 
+// eslint-disable-next-line
 export interface Answer {}
 
 // tslint:disable-next-line:max-classes-per-file
@@ -61,7 +57,8 @@ function validateData(shape: DataShape[], data: ViewData[]) {
     shape[i].fields.forEach((field, j) => {
       console.log(`[Displayable] shape[${i}].field[${j}]:\n ${JSON.stringify(field)}`);
       if (data[i][field.name] === undefined && field.type !== FieldType.MEDIA_UPLOADS) {
-        throw new Error(`field validation failed:\n\t${field.name}, (${field.type})`);
+        // throw new Error(`field validation failed:\n\t${field.name}, (${field.type})`);
+        console.warn(`[Displayable] missing data`);
       }
     });
   }

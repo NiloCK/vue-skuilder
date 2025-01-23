@@ -8,19 +8,14 @@ import {
   pouchDBincludeCredentialsConfig,
   REVIEW_TIME_FORMAT,
 } from '.';
-import {
-  StudyContentSource,
-  StudySessionItem,
-  StudySessionNewItem,
-  StudySessionReviewItem,
-} from './contentSource';
+import { StudyContentSource, StudySessionNewItem, StudySessionReviewItem } from './contentSource';
 import { CourseDB, getTag } from './courseDB';
 import { ScheduledCard, User } from './userDB';
 
 const classroomLookupDBTitle = 'classdb-lookup';
 export const CLASSROOM_CONFIG = 'ClassroomConfig';
 
-export type ClassroomMessage = {};
+export type ClassroomMessage = object;
 
 export type AssignedContent = AssignedCourse | AssignedTag | AssignedCard;
 
@@ -72,13 +67,13 @@ abstract class ClassroomDBBase {
     console.log(`Getting assigned content...`);
     // see couchdb docs 6.2.2:
     //   Guide to Views -> Views Collation -> String Ranges
-    let docRows = await this._db.allDocs<AssignedContent>({
+    const docRows = await this._db.allDocs<AssignedContent>({
       startkey: this._content_prefix,
       endkey: this._content_prefix + `\ufff0`,
       include_docs: true,
     });
 
-    let ret = docRows.rows.map((row) => {
+    const ret = docRows.rows.map((row) => {
       return row.doc!;
     });
     // console.log(`Assigned content: ${JSON.stringify(ret)}`);
@@ -104,7 +99,7 @@ abstract class ClassroomDBBase {
 
 export class StudentClassroomDB extends ClassroomDBBase implements StudyContentSource {
   private readonly _prefix: string = 'content';
-  private userMessages: PouchDB.Core.Changes<{}>;
+  private userMessages: PouchDB.Core.Changes<object>;
 
   private constructor(classID: string) {
     super();
@@ -134,12 +129,12 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
   }
 
   public static async factory(classID: string): Promise<StudentClassroomDB> {
-    let ret = new StudentClassroomDB(classID);
+    const ret = new StudentClassroomDB(classID);
     await ret.init();
     return ret;
   }
 
-  public setChangeFcn(f: (value: any) => {}) {
+  public setChangeFcn(f: (value: unknown) => object) {
     // todo: make this into a view request, w/ the user's name attached
     // todo: requires creating the view doc on classroom create in /express
     this.userMessages.on('change', f);
@@ -152,7 +147,7 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
       .map((r) => {
         return {
           ...r,
-          qualifiedID: r.courseId + '-' + r.cardId,
+          qualifiedID: `${r.courseId}-${r.cardId}`,
           courseID: r.courseId,
           cardID: r.cardId,
           contentSourceType: 'classroom',
@@ -250,7 +245,7 @@ export default class TeacherClassroomDB extends ClassroomDBBase {
   }
 
   public static async factory(classID: string): Promise<TeacherClassroomDB> {
-    let ret = new TeacherClassroomDB(classID);
+    const ret = new TeacherClassroomDB(classID);
     await ret.init();
     return ret;
   }
@@ -272,7 +267,7 @@ export default class TeacherClassroomDB extends ClassroomDBBase {
 
   public async assignContent(content: AssignedContent) {
     let put: PouchDB.Core.Response;
-    let id: string = this.getContentId(content);
+    const id: string = this.getContentId(content);
 
     if (content.type === 'tag') {
       put = await this._db.put<AssignedTag>({

@@ -34,7 +34,7 @@ export class VocabQuestion extends Question {
   public static views = [IdentifyVocab];
 
   public isCorrect(answer: Answer): boolean {
-    throw new Error('Method not implemented.');
+    throw new Error(`isCorrect() not implemented. Cannot parse ${answer}`);
   }
   public dataShapes(): DataShape[] {
     return VocabQuestion.dataShapes;

@@ -1,9 +1,8 @@
 import { defineStore } from 'pinia';
-import { VueConstructor } from 'vue';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
-import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { CourseConfig } from '@/server/types';
 import { FieldInputInstance } from '@/components/Edit/ViewableDataInputForm/FieldInput.types';
+import { useFieldInputStore } from './useFieldInputStore';
 import { ViewComponent } from '@/base-course/Displayable';
 
 interface DataInputForm {
@@ -11,11 +10,10 @@ interface DataInputForm {
   dataShape: DataShape | null;
   course: CourseConfig | null;
 
-  existingData: ViewData[];
   shapeViews: ViewComponent[];
-
   fields: FieldInputInstance[];
-  localStore: any; // [ ] type this...
+
+  fieldStore: ReturnType<typeof useFieldInputStore>;
 
   uploading: boolean;
 }
@@ -29,10 +27,10 @@ export const useDataInputFormStore = defineStore('dataInputForm', {
     dataInputForm: {
       dataShape: null,
       course: null,
-      existingData: [],
       shapeViews: [],
+
       fields: [],
-      localStore: {},
+      fieldStore: useFieldInputStore(),
       uploading: false,
     },
   }),
@@ -40,6 +38,8 @@ export const useDataInputFormStore = defineStore('dataInputForm', {
   actions: {
     setDataShape(ds: DataShape) {
       this.dataInputForm.dataShape = ds;
+      this.dataInputForm.fieldStore.dataShape = ds;
+      this.dataInputForm.fieldStore.$reset();
     },
     setCourse(course: CourseConfig) {
       this.dataInputForm.course = course;

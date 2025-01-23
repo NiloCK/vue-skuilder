@@ -5,8 +5,6 @@ import { DataShapeName } from '../../../../enums/DataShapeNames';
 import { FieldType } from '../../../../enums/FieldType';
 import { Status } from '../../../../enums/Status';
 import CalculateSupplementaryAngles from './supplementaryAngles.vue';
-import _ from 'lodash';
-import { RadioMultipleChoiceAnswer } from '../../../../base-course/Interfaces/AnswerInterfaces';
 import { randomInt } from '../../utility';
 
 const validator = {

@@ -2,16 +2,15 @@
   <div>
     <svg :width="510" :height="Math.max(3 * (high - low) + 10, 0)">
       <template v-for="syl in seq.syllables">
-        <template v-for="note in syl.notes">
+        <template v-for="note in syl.notes" :key="syl.timestamp + '-' + note.note.number">
           <circle
-            @mouseenter="sayNote(note)"
-            :key="syl.timestamp + '-' + note.note.number"
             :cx="((syl.timestamp - firstTS) * 500) / (lastTS - firstTS) + 4"
             :cy="3 * (high - note.note.number) + 4"
             :alt="note.note.name"
             r="3"
             :fill="note.isCorrect ? 'black' : note.isMissing ? 'none' : 'red'"
             :stroke="note.isMissing ? 'red' : 'none'"
+            @mouseenter="sayNote(note)"
           />
         </template>
       </template>
@@ -77,7 +76,9 @@ export default defineComponent({
         const suggestedTS = firstTS.value + props.lastTSsuggestion;
 
         lastTS.value = Math.max(dataTS, suggestedTS);
-      } catch {}
+      } catch (e) {
+        console.log(`[SyllableSeqVis] Error updating bounds: ${e}`);
+      }
       props.seq.syllables.forEach((s) => {
         s.notes.forEach((n) => {
           if (n.note.number > high.value) {

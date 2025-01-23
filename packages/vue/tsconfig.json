@@ -11,15 +11,23 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "allowSyntheticDefaultImports": true,
+        "allowJs": true,
         "esModuleInterop": true,
         "sourceMap": true,
         "baseUrl": ".",
-        "types": ["node", "jest", "@types/jest", "vuetify/types"],
+        "types": ["node", "jest", "@types/jest", "vuetify", "vite/client"],
         "paths": {
             "@/*": ["src/*"]
         },
-        "lib": ["es2015", "dom", "dom.iterable", "scripthost"]
+        "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
     },
-    "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "tests/**/*.ts", "tests/**/*.tsx"],
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/**/*.vue",
+        "tests/**/*.ts",
+        "tests/**/*.tsx",
+        "src/**/*.d.ts"
+    ],
     "exclude": ["node_modules"]
 }

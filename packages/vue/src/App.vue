@@ -1,72 +1,53 @@
 <template>
   <v-app v-if="storeIsReady">
-    <!-- class="blue darken-2 grey--text text--lighten-5" dark> -->
-    <v-navigation-drawer clipped v-model="drawer" enable-resize-watcher fixed app>
+    <v-navigation-drawer v-model="drawer" :elevation="2" :rail="rail" @click="rail = false">
       <v-list>
-        <v-list-item value="true" :to="{ path: '/home' }">
-          <v-list-item-action>
-            <v-icon>home</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title> Home </v-list-item-title>
-          </v-list-item-content>
+        <v-list-item to="/home" value="home">
+          <template #prepend>
+            <v-icon icon="mdi-home"></v-icon>
+          </template>
+          <v-list-item-title>Home</v-list-item-title>
         </v-list-item>
-        <v-list-item v-if="true" value="true" :to="{ path: '/study' }">
-          <v-list-item-action>
-            <v-icon>school</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title> Study </v-list-item-title>
-          </v-list-item-content>
+
+        <v-list-item to="/study" value="study">
+          <template #prepend>
+            <v-icon icon="mdi-school"></v-icon>
+          </template>
+          <v-list-item-title>Study</v-list-item-title>
         </v-list-item>
-        <v-list-item v-if="true" value="true" :to="{ path: '/classrooms' }">
-          <v-list-item-action>
-            <v-icon>people</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title> Classrooms </v-list-item-title>
-          </v-list-item-content>
+
+        <v-list-item to="/classrooms" value="classrooms">
+          <template #prepend>
+            <v-icon icon="mdi-account-group"></v-icon>
+          </template>
+          <v-list-item-title>Classrooms</v-list-item-title>
         </v-list-item>
-        <v-list-item v-if="true" value="true" :to="{ path: '/quilts' }">
-          <v-list-item-action>
-            <v-icon>bookmarks</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title> Quilts </v-list-item-title>
-          </v-list-item-content>
+
+        <v-list-item to="/quilts" value="quilts">
+          <template #prepend>
+            <v-icon icon="mdi-bookmark-multiple"></v-icon>
+          </template>
+          <v-list-item-title>Quilts</v-list-item-title>
         </v-list-item>
-        <!-- <v-list-item
-          v-if='true'
-          value="true"
-          :to="{path: '/edit'}"
-        >
-          <v-list-item-action>
-            <v-icon>add_to_queue</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>
-              Edit
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item> -->
       </v-list>
     </v-navigation-drawer>
-    <v-app-bar app dense clipped-left>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <!-- <v-toolbar-title class="text-uppercase">
-        <span class="font-weight-thin grey--text text--darken-1">edu</span>
-        <span class="grey--text text--darken-2">Quilt</span>
-      </v-toolbar-title> -->
+
+    <v-app-bar density="compact">
+      <v-app-bar-nav-icon @click.stop="toggleDrawer"></v-app-bar-nav-icon>
       <v-spacer></v-spacer>
       <user-login-and-registration-container />
     </v-app-bar>
+
     <v-main>
       <v-container>
-        <v-slide-y-transition mode="out-in">
-          <router-view />
-        </v-slide-y-transition>
+        <router-view v-slot="{ Component }">
+          <v-fade-transition mode="out-in">
+            <component :is="Component" />
+          </v-fade-transition>
+        </router-view>
       </v-container>
     </v-main>
+
     <!-- <v-footer fixed app>
       <span>
        v: <router-link to='/notes'>{{build}}</router-link>
@@ -76,68 +57,57 @@
   </v-app>
 </template>
 
-<script lang="ts">
-import Vue from 'vue';
+<script lang="ts" setup>
+import { ref, computed, onBeforeMount, onMounted, watch } from 'vue';
+import { useTheme } from 'vuetify';
 import UserLoginAndRegistrationContainer from '@/components/UserLoginAndRegistrationContainer.vue';
 import SnackbarService from '@/components/SnackbarService.vue';
 import { getLatestVersion } from '@/db';
-import SkldrVueMixin from './mixins/SkldrVueMixin';
 import { useConfigStore } from '@/stores/useConfigStore';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { mapState } from 'pinia';
+import { storeToRefs } from 'pinia';
 
-export default Vue.extend({
+defineOptions({
   name: 'App',
-  mixins: [SkldrVueMixin],
+});
 
-  components: {
-    UserLoginAndRegistrationContainer,
-    SnackbarService,
+// const build = ref('0.0.2');
+const latestBuild = ref('');
+const drawer = ref(false);
+const authStore = useAuthStore();
+const configStore = useConfigStore();
+const theme = useTheme();
+const rail = ref(false);
+
+const toggleDrawer = () => {
+  drawer.value = !drawer.value;
+  // Optional: reset rail when drawer is toggled
+  if (!drawer.value) {
+    rail.value = false;
+  }
+};
+
+const { onLoadComplete: storeIsReady } = storeToRefs(authStore);
+
+const dark = computed(() => {
+  return configStore.config.darkMode;
+});
+
+watch(
+  dark,
+  (newVal) => {
+    theme.global.name.value = newVal ? 'dark' : 'light';
   },
+  { immediate: true }
+);
 
-  data() {
-    return {
-      build: '0.0.2',
-      latestBuild: '',
-      drawer: false,
-      authStore: useAuthStore(),
-    };
-  },
+onBeforeMount(async () => {
+  await configStore.init();
+  await authStore.init();
+});
 
-  computed: {
-    dark() {
-      const configStore = useConfigStore();
-      const dm = configStore.config.darkMode;
-      return configStore.config.darkMode;
-    },
-
-    ...mapState(useAuthStore, {
-      storeIsReady: (state) => state.onLoadComplete,
-    }),
-  },
-
-  watch: {
-    dark: {
-      immediate: true,
-      handler(newVal) {
-        // This is how we properly toggle Vuetify's dark mode
-        this.$vuetify.theme.dark = newVal;
-      },
-    },
-  },
-
-  async beforeCreate() {
-    // hydrate all (some?) pinia stores
-    const configStore = useConfigStore();
-    let i = await configStore.init();
-
-    const authStore = useAuthStore();
-    await authStore.init();
-  },
-
-  async created() {
-    this.latestBuild = await getLatestVersion();
-  },
+onMounted(async () => {
+  latestBuild.value = await getLatestVersion();
 });
 </script>
 
