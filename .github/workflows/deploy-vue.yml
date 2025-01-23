@@ -28,7 +28,7 @@ jobs:
       - name: Build
         run: |
           lerna bootstrap
-          printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
+          printf "${{ secrets.VITE_ENV }}" > ./packages/vue/.env.production
           cd ./packages/express
           yarn remove @types/jest
           cd ../vue
