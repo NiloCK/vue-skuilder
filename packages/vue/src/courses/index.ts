@@ -73,17 +73,54 @@ export class CourseList {
         if (ret) {
           return ret;
         } else {
-          console.error(`${description.view} not found in course ${description.course}`);
+          console.error(
+            `QuestionView ${description.view} not found in course ${description.course}
+
+            descriptor: ${JSON.stringify(description)}
+
+            course: ${course.name}
+            question: ${question.name}
+            views: ${question.views.map((v) => v.name).join(', ')}
+            `
+          );
+
           throw new Error(`view ${description.view} does not exist.`);
         }
       } else {
-        console.error(`${description.questionType} not found in course ${description.course}`);
+        console.error(
+          `Question ${description.questionType} not found in course ${description.course}
+
+          descriptor: ${JSON.stringify(description)}
+
+          course: ${course.name}
+          questions: ${course.questions.map((q) => q.name).join(', ')}
+          `
+        );
         throw new Error(`question ${description.questionType} does not exist.`);
       }
     } else {
-      console.error(`${description.course} not found.`);
+      console.error(`Course ${description.course} not found.
+
+        descriptor: ${JSON.stringify(description)}`);
       throw new Error(`course ${description.course} does not exist.`);
     }
+  }
+
+  /**
+   * @returns a string that displays a summary of registered courses
+   */
+  public toString(): string {
+    let ret = '';
+    this.courses.forEach((c) => {
+      ret += `Course: ${c.name}\n`;
+      c.questions.forEach((q) => {
+        ret += `  Question: ${q.name}\n`;
+        q.views.forEach((v) => {
+          ret += `    View: ${v.name}\n`;
+        });
+      });
+    });
+    return ret;
   }
 
   public allDataShapesRaw(): DataShape[] {
