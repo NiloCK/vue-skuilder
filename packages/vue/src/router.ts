@@ -20,7 +20,7 @@ import User from './views/User.vue';
 import UIMocks from '@/mocks/UIMocks.vue';
 import ENV from './ENVIRONMENT_VARS';
 
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(),
   // mode: 'history', // deprecated in Vue 3 / Vue Router 4
 
@@ -166,3 +166,18 @@ export default createRouter({
     },
   ],
 });
+
+router.beforeEach((to, from, next) => {
+  // paths that should be handled by the server, not the SPA
+  const apiPaths = ['/express', '/couch'];
+
+  if (apiPaths.some((path) => to.path.startsWith(path))) {
+    // Return false to cancel navigation and let the browser handle the request
+    return false;
+  }
+
+  // Continue with navigation for all other routes
+  next();
+});
+
+export default router;
