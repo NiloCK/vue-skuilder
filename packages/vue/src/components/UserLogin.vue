@@ -63,7 +63,7 @@ const password = ref('');
 const passwordVisible = ref(false);
 const awaitingResponse = ref(false);
 const badLoginAttempt = ref(false);
-const errorTimeout = ref(5000);
+const errorTimeout = ref(7000);
 const user = ref<User | undefined>(undefined);
 
 const loginRoute = computed(() => route.name === 'login');
@@ -87,26 +87,41 @@ const initBadLogin = () => {
 
 const login = async () => {
   awaitingResponse.value = true;
+  log('Starting login attempt');
+  log(`Login attempt for username: ${username.value}`);
 
   try {
+    log('Attempting to get User instance');
     // #172 starting point - why is the pre-existing _user being referenced here?
     user.value = await User.instance();
+    log('Got User instance, attempting login');
+
     await user.value.login(username.value, password.value);
+    log('Login successful');
 
     // load user config
+    log('Initializing user config');
     configStore.init();
+    log('User config initialized');
 
     // set login state
+    log('Setting authentication state');
     authStore.loginAndRegistration.loggedIn = true;
+    log('Authentication state set, redirecting to study page');
     router.push('/study');
+    log('Login and redirect complete');
   } catch (e) {
     // entry #186
+    log('Login attempt failed');
+    log(`Login error details: ${JSON.stringify(e)}`);
     console.log(`login error: ${JSON.stringify(e)}`);
     // - differentiate response
     // - return better message to UI
+    log('Initiating bad login feedback');
     initBadLogin();
   }
 
+  log('Resetting awaiting response state');
   awaitingResponse.value = false;
 };
 
