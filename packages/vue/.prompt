@@ -30,3 +30,10 @@ If you parse source code that contains critical errors, please prefix your respo
 Afterward, address the specific questions that were posed.
 
 Thanks!
+
+
+# IMMEDIATE CONTEXT:
+
+This is a working branch. The project has just been upgraded to Vue 3 and Vuetify 3 (from 2.x on each before), after migrating original Vuetify 1 class-based components to a mixture of OptionsAPI and CompositionAPI Vuetify 2.
+
+Keep a particular eye out for potential issues related to legacy Vue 2 and Vuetify 2 assumptions.
