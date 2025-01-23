@@ -26,6 +26,8 @@ export default defineConfig({
       workbox: {
         cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2}'],
+        navigateFallback: '/index.html',
+        navigateFallbackAllowlist: [/^(?!\/(couch|express)).*$/],
         maximumFileSizeToCacheInBytes: 2.5 * 1024 * 1024,
       },
       manifest: {
