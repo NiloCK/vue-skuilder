@@ -31,7 +31,7 @@ import UserInputNumber from '@/base-course/Components/UserInput/UserInputNumber.
 import { randomInt } from '../../utility';
 
 export default defineComponent({
-  name: 'Solve',
+  name: 'SolveView',
 
   components: {
     UserInputNumber,

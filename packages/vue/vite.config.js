@@ -40,7 +40,7 @@ export default defineConfig({
       },
     }),
     eslint({
-      failOnError: false,
+      failOnError: true,
       failOnWarning: false,
       cache: false,
       include: ['src/**/*.js', 'src/**/*.vue', 'src/**/*.ts'], // Files to include

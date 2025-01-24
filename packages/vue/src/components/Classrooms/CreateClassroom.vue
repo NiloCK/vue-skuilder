@@ -45,13 +45,13 @@
 import moment from 'moment';
 import Mousetrap from 'mousetrap';
 import { log } from '@/logshim';
-import Vue from 'vue';
-import { registerUserForClassroom, User } from '../../db/userDB';
+import { registerUserForClassroom } from '../../db/userDB';
 import { Status } from '../../enums/Status';
 import serverRequest from '../../server';
 import { ClassroomConfig, CreateClassroom, ServerRequestType } from '../../server/types';
 import { alertUser } from '../SnackbarService.vue';
 import { defineComponent } from 'vue';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 export default defineComponent({
   data() {
@@ -108,7 +108,7 @@ export default defineComponent({
   methods: {
     async submit() {
       this.updatePending = true;
-      const u = await User.instance();
+      const u = await getCurrentUser();
 
       const config: ClassroomConfig = {
         name: this.name,

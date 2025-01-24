@@ -65,6 +65,7 @@ import { Tag } from '@/db/types';
 import { CourseConfig } from '@/server/types';
 import CourseCardBrowser from './CourseCardBrowser.vue';
 import { User } from '@/db/userDB';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 export default defineComponent({
   name: 'CourseInformation',
@@ -106,7 +107,7 @@ export default defineComponent({
 
   async created() {
     this.courseDB = new CourseDB(this._id);
-    this.user = await User.instance();
+    this.user = await getCurrentUser();
 
     const userCourses = await this.user.getCourseRegistrationsDoc();
     this.userIsRegistered =

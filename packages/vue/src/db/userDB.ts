@@ -399,7 +399,7 @@ Currently logged-in as ${this._username}.`
 
     try {
       const cfg = await this.localDB.get<UserConfig>(User.DOC_IDS.CONFIG);
-      console.log(`found cfg: ${JSON.stringify(cfg)}`);
+      console.log('Raw config from DB:', cfg);
 
       return cfg;
     } catch (e) {
@@ -431,9 +431,14 @@ Currently logged-in as ${this._username}.`
   }
 
   /**
-   * Returns the current user.
+   * @deprecated
+   * @deprecated
+   * This function should be called *only* by the pinia auth store.
    *
-   * @param username Only supplied on page-load by store.ts - from the cookie authSession response
+   * Anyone else seeking the current user should use the auth store's
+   * exported `getCurrentUser` method.
+   * @deprecated
+   * @deprecated
    */
   public static async instance(username?: string): Promise<User> {
     if (username) {

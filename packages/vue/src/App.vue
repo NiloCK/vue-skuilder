@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="storeIsReady">
+  <v-app v-if="ready">
     <v-navigation-drawer v-model="drawer" :elevation="2" :rail="rail" @click="rail = false">
       <v-list>
         <v-list-item to="/home" value="home">
@@ -65,7 +65,6 @@ import SnackbarService from '@/components/SnackbarService.vue';
 import { getLatestVersion } from '@/db';
 import { useConfigStore } from '@/stores/useConfigStore';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { storeToRefs } from 'pinia';
 
 defineOptions({
   name: 'App',
@@ -79,6 +78,8 @@ const configStore = useConfigStore();
 const theme = useTheme();
 const rail = ref(false);
 
+const ready = ref(false);
+
 const toggleDrawer = () => {
   drawer.value = !drawer.value;
   // Optional: reset rail when drawer is toggled
@@ -86,8 +87,6 @@ const toggleDrawer = () => {
     rail.value = false;
   }
 };
-
-const { onLoadComplete: storeIsReady } = storeToRefs(authStore);
 
 const dark = computed(() => {
   return configStore.config.darkMode;
@@ -102,8 +101,10 @@ watch(
 );
 
 onBeforeMount(async () => {
-  await configStore.init();
   await authStore.init();
+  await configStore.init();
+
+  ready.value = true;
 });
 
 onMounted(async () => {

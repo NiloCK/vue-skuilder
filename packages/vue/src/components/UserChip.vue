@@ -44,8 +44,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { User } from '../db/userDB';
-import { useAuthStore } from '@/stores/useAuthStore';
+import { getCurrentUser, useAuthStore } from '@/stores/useAuthStore';
 import { useConfigStore } from '@/stores/useConfigStore';
 
 export default defineComponent({
@@ -68,18 +67,18 @@ export default defineComponent({
   },
 
   created() {
-    User.instance().then((u) => {
+    getCurrentUser().then((u) => {
       this.username = u.username;
     });
   },
 
   methods: {
     async gotoSettings() {
-      this.$router.push(`/u/${(await User.instance()).username}`);
+      this.$router.push(`/u/${(await getCurrentUser()).username}`);
     },
 
     async gotoStats() {
-      this.$router.push(`/u/${(await User.instance()).username}/stats`);
+      this.$router.push(`/u/${(await getCurrentUser()).username}/stats`);
     },
 
     dismiss(item: string) {

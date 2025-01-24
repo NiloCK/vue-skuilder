@@ -16,9 +16,41 @@ interface AuthState {
 
 export const GuestUsername: string = 'Guest';
 
+export async function getCurrentUser(): Promise<User> {
+  const store = useAuthStore();
+
+  if (store._user) {
+    return store._user as User;
+  }
+
+  // Wait for initialization if it's in progress
+  if (!store.onLoadComplete) {
+    // 200 * 50ms = 10 seconds
+    let retries = 200;
+    const timeout = 50;
+    while (!store.onLoadComplete && retries > 0) {
+      await new Promise((resolve) => setTimeout(resolve, timeout));
+      retries--;
+      if (store._user) {
+        return store._user;
+      }
+    }
+    if (!store._user) {
+      throw new Error('User initialization timed out');
+    }
+  }
+
+  // If we get here and still no user, something's wrong
+  if (!store._user) {
+    throw new Error('User not initialized and store load complete - invalid state');
+  }
+
+  return store._user;
+}
+
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
-    _user: undefined,
+    _user: undefined as User | undefined,
     loginAndRegistration: {
       init: false,
       loggedIn: false,
@@ -89,7 +121,7 @@ export const useAuthStore = defineStore('auth', {
   },
 
   getters: {
-    currentUser: (state) => state._user,
+    currentUser: async () => getCurrentUser(),
     isLoggedIn: (state) => state.loginAndRegistration.loggedIn,
     isInitialized: (state) => state.loginAndRegistration.init,
     status: (state) => {

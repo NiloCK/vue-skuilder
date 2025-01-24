@@ -32,6 +32,7 @@ import confetti from 'canvas-confetti';
 import { defineComponent, PropType } from 'vue';
 import { User } from '@/db/userDB';
 import { useConfigStore } from '@/stores/useConfigStore';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 interface Language {
   name: string;
@@ -84,7 +85,7 @@ export default defineComponent({
   },
 
   async created() {
-    this.u = await User.instance();
+    this.u = await getCurrentUser();
     this.configLanguages.forEach((l) => {
       console.log(`afweatifvwzeatfvwzeta` + l.name);
     });

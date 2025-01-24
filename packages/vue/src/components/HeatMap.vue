@@ -29,7 +29,7 @@
 import { defineComponent } from 'vue';
 import { CardHistory, CardRecord } from '@/db/types';
 import moment from 'moment';
-import { User } from '../db/userDB';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 interface DayData {
   date: string;
@@ -55,8 +55,8 @@ export default defineComponent({
       tooltipStyle: {} as { [key: string]: string },
       maxInRange: 0,
       inactiveColor: { h: 0, s: 0, l: 0.9 } as Color,
-      activeColor: { h: 155, s: 1, l: 0.5 } as Color
-    }
+      activeColor: { h: 155, s: 1, l: 0.5 } as Color,
+    };
   },
 
   computed: {
@@ -65,12 +65,12 @@ export default defineComponent({
     },
     height(): number {
       return 7 * (this.cellSize + this.cellMargin);
-    }
+    },
   },
 
   async created() {
     console.log('Heatmap created');
-    const history = await (await User.instance()).getHistory();
+    const history = await (await getCurrentUser()).getHistory();
 
     const allHist: CardHistory<CardRecord>[] = [];
     for (let i = 0; i < history.length; i++) {
@@ -136,10 +136,7 @@ export default defineComponent({
 
       const now = moment();
       if (now.month() === 11 && now.date() >= 5) {
-        seasonalColor =
-          Math.random() > 0.5
-            ? { h: 350, s: 0.8, l: 0.5 }
-            : { h: 135, s: 0.8, l: 0.4 };
+        seasonalColor = Math.random() > 0.5 ? { h: 350, s: 0.8, l: 0.5 } : { h: 135, s: 0.8, l: 0.4 };
       } else if (now.month() === 9 && now.date() >= 25) {
         seasonalColor =
           Math.random() > 0.5
@@ -175,8 +172,8 @@ export default defineComponent({
 
     hideTooltip() {
       this.tooltipData = null;
-    }
-  }
+    },
+  },
 });
 </script>
 

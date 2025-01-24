@@ -6,14 +6,14 @@ import {
   SkuilderCourseData,
 } from '../db/types';
 import ENV from '../ENVIRONMENT_VARS';
-import { GuestUsername } from '../stores/useAuthStore';
+import { getCurrentUser, GuestUsername } from '../stores/useAuthStore';
 import moment, { Moment } from 'moment';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
 import { log } from '@/logshim';
-import { getUserDB, ScheduledCard, User } from './userDB';
+import { getUserDB, ScheduledCard } from './userDB';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).process = process; // required as a fix for pouchdb - see #18
@@ -193,7 +193,7 @@ export async function putCardRecord<T extends CardRecord>(
   record.timeStamp = moment.utc(record.timeStamp).toString() as unknown as Moment;
 
   try {
-    const u = await User.instance();
+    const u = await getCurrentUser();
 
     const cardHistory = await u.update<CardHistory<T>>(cardHistoryID, function (h: CardHistory<T>) {
       h.records.push(record);

@@ -1,6 +1,6 @@
 // stores/useConfigStore.ts
 import { defineStore } from 'pinia';
-import { User } from '@/db/userDB';
+import { getCurrentUser } from './useAuthStore';
 
 export interface UserConfig {
   darkMode: boolean;
@@ -21,22 +21,24 @@ export const useConfigStore = defineStore('config', {
     },
     async updateDarkMode(darkMode: boolean) {
       this.config.darkMode = darkMode;
-      const u = await User.instance();
-      await u.setConfig({
+      const user = await getCurrentUser();
+      await user.setConfig({
         darkMode,
       });
     },
+
     async updateLikesConfetti(likesConfetti: boolean) {
       this.config.likesConfetti = likesConfetti;
-      const u = await User.instance();
-      await u.setConfig({
+      const user = await getCurrentUser();
+      await user.setConfig({
         likesConfetti,
       });
     },
-    async hydrate() {
-      const u = await User.instance();
-      const cfg = await u.getConfig();
 
+    async hydrate() {
+      const user = await getCurrentUser();
+      const cfg = await user.getConfig();
+      console.log(`user config: ${JSON.stringify(cfg)}`);
       this.updateConfig(cfg);
     },
     async init() {

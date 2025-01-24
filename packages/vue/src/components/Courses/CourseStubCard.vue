@@ -26,8 +26,8 @@ import { getCourseDB } from '@/db';
 import { getCourseConfig } from '@/db/courseDB';
 import { DocType } from '@/db/types';
 import { CourseConfig } from '@/server/types';
-import { User } from '@/db/userDB';
 import { useRouter } from 'vue-router';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 export default defineComponent({
   name: 'CourseStubCard',
@@ -77,7 +77,7 @@ export default defineComponent({
     async registerForCourse() {
       this.addingCourse = true;
       log(`Attempting to register for ${this._id}.`);
-      await (await User.instance()).registerForCourse(this._id);
+      await (await getCurrentUser()).registerForCourse(this._id);
       this.$emit('refresh');
     },
   },

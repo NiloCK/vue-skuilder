@@ -12,12 +12,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { User } from '@/db/userDB';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 const user = ref<User | null>(null);
 const scheduledReviews = ref<number[]>([]);
 
 onMounted(async () => {
-  user.value = await User.instance();
+  user.value = await getCurrentUser();
 
   // Using Promise.all to handle all forecasts concurrently
   const days = [1, 7, 30];

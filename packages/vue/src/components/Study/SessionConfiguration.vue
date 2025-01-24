@@ -73,6 +73,7 @@ import { getCourseName } from '@/db/courseDB';
 import SkldrMouseTrap from '@/SkldrMouseTrap';
 import { StudentClassroomDB } from '@/db/classroomDB';
 import { ContentSourceID } from '@/db/contentSource';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 interface SessionConfigMetaData {
   selected: boolean;
@@ -120,7 +121,7 @@ export default defineComponent({
   },
 
   async created() {
-    this.user = await User.instance();
+    this.user = await getCurrentUser();
     this.timeLimit = this.initialTimeLimit;
 
     this.setHotkeys();
@@ -185,7 +186,7 @@ export default defineComponent({
     },
 
     async getActiveClassrooms() {
-      const classes = await (await User.instance()).getActiveClasses();
+      const classes = await (await getCurrentUser()).getActiveClasses();
       const activeClasses: ({ classID: string } & SessionConfigMetaData)[] = [];
 
       console.log(`Active classes: ${JSON.stringify(classes)}`);
@@ -219,7 +220,7 @@ export default defineComponent({
           (async () => {
             return Promise.all([
               (this.activeCourses[i].name = await getCourseName(c.courseID)),
-              (this.activeCourses[i].reviews = await (await User.instance()).getScheduledReviewCount(c.courseID)),
+              (this.activeCourses[i].reviews = await (await getCurrentUser()).getScheduledReviewCount(c.courseID)),
             ]);
           })()
         )

@@ -104,6 +104,7 @@ import ClassroomEditor from '@/components/Classrooms/CreateClassroom.vue';
 import { registerUserForClassroom, getUserClassrooms, dropUserFromClassroom } from '../db/userDB';
 import { getClassroomConfig } from '../db/classroomDB';
 import { User } from '../db/userDB';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 interface CourseReg {
   _id: string;
@@ -144,7 +145,7 @@ export default defineComponent({
 
   methods: {
     async refreshData() {
-      this.$data.user = await User.instance();
+      this.$data.user = await getCurrentUser();
       const registrations = (await getUserClassrooms(this.$data.user.username)).registrations;
       const studentClasses: CourseReg[] = [];
       const teacherClasses: CourseReg[] = [];

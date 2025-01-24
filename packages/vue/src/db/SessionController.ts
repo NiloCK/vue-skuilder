@@ -1,3 +1,4 @@
+import { getCurrentUser } from '@/stores/useAuthStore';
 import { randomInt } from '../courses/math/utility';
 import {
   isReview,
@@ -101,7 +102,7 @@ export default class SessionController extends Loggable {
    */
   constructor(sources: StudyContentSource[], time: number) {
     super();
-    User.instance().then((u) => {
+    getCurrentUser().then((u) => {
       this.user = u;
     });
 

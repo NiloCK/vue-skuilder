@@ -6,7 +6,7 @@ import CourseRouter from './components/Courses/CourseRouter.vue';
 import ELOModerator from './components/Courses/EloModeration.vue';
 import TagInformation from './components/Courses/TagInformation.vue';
 import CourseEditor from './components/Edit/CourseEditor.vue';
-import Stats from './components/User/Stats.vue';
+import Stats from './components/User/UserStats.vue';
 import About from './views/About.vue';
 import Admin from './views/Admin.vue';
 import Classrooms from './views/Classrooms.vue';
