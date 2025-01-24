@@ -63,7 +63,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import AdminDB from '../db/adminDB';
-import { GuestUsername } from '../stores/useAuthStore';
+import { GuestUsername } from '@/constants';
 interface User {
   _id: string;
   name: string;
