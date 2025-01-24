@@ -107,7 +107,7 @@ export default defineComponent({
   setup(props, { emit }) {
     // Base utilities
     const viewableUtils = useViewable(props, emit, 'FallingLettersView');
-    const questionUtils = useQuestionView<FallingLettersQuestion>(viewableUtils, props.modifyDifficulty);
+    const questionUtils = useQuestionView<FallingLettersQuestion>(viewableUtils);
 
     // Template-accessible state
     const gameArea = ref<HTMLElement | null>(null);
@@ -292,6 +292,7 @@ export default defineComponent({
 
     // Expose to template
     return {
+      ...questionUtils,
       gameArea,
       letters,
       gameOver,

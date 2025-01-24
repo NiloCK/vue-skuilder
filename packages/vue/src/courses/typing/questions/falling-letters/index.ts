@@ -48,14 +48,16 @@ export class FallingLettersQuestion extends Question {
           type: FieldType.NUMBER,
           validator: {
             instructions: 'How often should a new letter spawn? (in seconds)',
-            test: (x: unknown) => {
-              if (typeof x !== 'number') {
-                return { status: Status.error, msg: 'Must be a number' };
-              }
-              if (x > 0) {
-                return { status: Status.ok, msg: '' };
+            test: (input: unknown) => {
+              if (typeof input === 'string') {
+                const x = parseFloat(input);
+                if (x > 0) {
+                  return { status: Status.ok, msg: '' };
+                } else {
+                  return { status: Status.error, msg: 'Must be greater than 0' };
+                }
               } else {
-                return { status: Status.error, msg: 'Must be greater than 0' };
+                return { status: Status.error, msg: 'Unexpected non-string input.' };
               }
             },
             placeholder: '1',
