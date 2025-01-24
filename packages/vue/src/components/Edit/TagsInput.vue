@@ -8,7 +8,7 @@
       :add-on-key="separators"
       @tags-changed="tagsChanged"
     >
-      <template v-slot:autocomplete-item="props">
+      <template #autocomplete-item="props">
         <div class="autocomplete-item" :class="{ 'is-active': props.selected }">
           <span class="tag-name">{{ props.item.text }}</span>
           <span v-if="props.item.data && props.item.data.snippet" class="tag-snippet">
@@ -27,7 +27,7 @@ import { defineComponent } from 'vue';
 import { addTagToCard } from '@/db/courseAPI';
 import { getAppliedTags, getCourseTagStubs, removeTagFromCard } from '@/db/courseDB';
 import type { Tag } from '@/db/types';
-// @ts-expect-error - tmp supression - needs replacing w/ vue 3 compatible version
+// @ts-expect-error - suppress TS error for VueTagsInput - no types available
 import { VueTagsInput } from '@vojtechlanka/vue-tags-input';
 
 interface TagObject {
