@@ -6,7 +6,8 @@ import {
   SkuilderCourseData,
 } from '../db/types';
 import ENV from '../ENVIRONMENT_VARS';
-import { getCurrentUser, GuestUsername } from '../stores/useAuthStore';
+import { getCurrentUser } from '../stores/useAuthStore';
+import { GuestUsername } from '@/constants';
 import moment, { Moment } from 'moment';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';

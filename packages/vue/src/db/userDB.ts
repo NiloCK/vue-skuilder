@@ -1,6 +1,6 @@
 import { Status } from '../enums/Status';
 import ENV from '../ENVIRONMENT_VARS';
-import { GuestUsername } from '../stores/useAuthStore';
+import { GuestUsername } from '@/constants';
 import { UserConfig } from '../stores/useConfigStore';
 import { CourseElo } from '../tutor/Elo';
 import moment, { Moment } from 'moment';

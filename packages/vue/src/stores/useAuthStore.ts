@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia';
 import { User } from '@/db/userDB';
 import ENV from '@/ENVIRONMENT_VARS';
+import { GuestUsername } from '@/constants';
 
 interface AuthState {
   _user?: User;
@@ -13,8 +14,6 @@ interface AuthState {
   };
   onLoadComplete: boolean;
 }
-
-export const GuestUsername: string = 'Guest';
 
 export async function getCurrentUser(): Promise<User> {
   const store = useAuthStore();
