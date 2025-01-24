@@ -6,7 +6,7 @@ import globals from 'globals';
 import typescriptEslint from 'typescript-eslint';
 
 export default typescriptEslint.config(
-  { ignores: ['*.d.ts', '**/coverage', '**/dist'] },
+  { ignores: ['*.d.ts', '**/coverage', '**/dist', '**/src/courses/chess/chessground'] },
   {
     extends: [
       eslint.configs.recommended,
@@ -25,6 +25,7 @@ export default typescriptEslint.config(
     },
     rules: {
       // your rules
+      '@typescript-eslint/no-explicit-any': 'warn',
     },
   },
   eslintConfigPrettier

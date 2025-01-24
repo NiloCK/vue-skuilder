@@ -28,7 +28,6 @@
 
 <script lang="ts">
 import CardLoader from '@/components/Study/CardLoader.vue';
-import CardViewer from '@/components/Study/CardViewer.vue';
 import { CourseElo, adjustCourseScores } from '@/tutor/Elo';
 import { CourseDB, getCourseConfig, updateCardElo } from '@/db/courseDB';
 import { CourseConfig } from '@/server/types';
@@ -38,7 +37,6 @@ export default defineComponent({
   name: 'ELOModerator',
 
   components: {
-    CardViewer,
     CardLoader,
   },
 
@@ -53,7 +51,7 @@ export default defineComponent({
     return {
       courseDB: null as CourseDB | null,
       updatePending: true,
-      _courseConfig: null as CourseConfig | null,
+      courseConfig: null as CourseConfig | null,
       cards: [] as {
         courseId: string;
         cardId: string;
@@ -70,7 +68,7 @@ export default defineComponent({
   async created() {
     this.courseDB = new CourseDB(this._id);
 
-    this._courseConfig = (await getCourseConfig(this._id))!;
+    this.courseConfig = (await getCourseConfig(this._id))!;
     await this.getNewCards();
   },
 

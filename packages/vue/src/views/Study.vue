@@ -141,7 +141,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { ViewComponent, isDefineComponent } from '@/base-course/Displayable';
+import { ViewComponent } from '@/base-course/Displayable';
 import { displayableDataToViewData, ViewData } from '@/base-course/Interfaces/ViewData';
 import { isQuestionView } from '@/base-course/CompositionViewable';
 import SkTagsInput from '@/components/Edit/TagsInput.vue';

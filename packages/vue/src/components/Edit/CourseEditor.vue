@@ -69,7 +69,7 @@ export default defineComponent({
 
   watch: {
     selectedShape: {
-      handler(value?: string, old?: string) {
+      handler(value?: string) {
         if (value) {
           this.dataShape = this.getDataShape(value);
           this.dataInputFormStore.setDataShape(this.dataShape);
