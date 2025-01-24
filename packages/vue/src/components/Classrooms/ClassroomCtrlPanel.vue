@@ -80,7 +80,6 @@ import TeacherClassroomDB, { AssignedContent, AssignedTag } from '@/db/classroom
 import { getCourseList, getCourseTagStubs } from '@/db/courseDB';
 import { Tag } from '@/db/types';
 import { ClassroomConfig, CourseConfig } from '@/server/types';
-import { User } from '@/db/userDB';
 import { defineComponent } from 'vue';
 import { getCurrentUser } from '@/stores/useAuthStore';
 

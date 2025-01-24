@@ -45,7 +45,7 @@
 import moment from 'moment';
 import Mousetrap from 'mousetrap';
 import { log } from '@/logshim';
-import { registerUserForClassroom, User } from '../../db/userDB';
+import { registerUserForClassroom } from '../../db/userDB';
 import { Status } from '../../enums/Status';
 import serverRequest from '../../server';
 import { ClassroomConfig, CreateClassroom, ServerRequestType } from '../../server/types';

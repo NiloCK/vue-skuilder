@@ -14,7 +14,7 @@ import {
 } from './contentSource';
 import { getCredentialledCourseConfig, getTagID } from './courseAPI';
 import { CardData, DocType, Tag, TagStub } from './types';
-import { ScheduledCard, User } from './userDB';
+import { ScheduledCard } from './userDB';
 import { getCurrentUser } from '@/stores/useAuthStore';
 
 const courseLookupDBTitle = 'coursedb-lookup';

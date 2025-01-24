@@ -10,7 +10,7 @@ import {
 } from '.';
 import { StudyContentSource, StudySessionNewItem, StudySessionReviewItem } from './contentSource';
 import { CourseDB, getTag } from './courseDB';
-import { ScheduledCard, User } from './userDB';
+import { ScheduledCard } from './userDB';
 import { getCurrentUser } from '@/stores/useAuthStore';
 
 const classroomLookupDBTitle = 'classdb-lookup';

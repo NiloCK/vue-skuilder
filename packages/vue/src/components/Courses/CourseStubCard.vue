@@ -26,7 +26,6 @@ import { getCourseDB } from '@/db';
 import { getCourseConfig } from '@/db/courseDB';
 import { DocType } from '@/db/types';
 import { CourseConfig } from '@/server/types';
-import { User } from '@/db/userDB';
 import { useRouter } from 'vue-router';
 import { getCurrentUser } from '@/stores/useAuthStore';
 

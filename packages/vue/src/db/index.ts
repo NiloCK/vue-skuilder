@@ -13,7 +13,7 @@ import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
 import { log } from '@/logshim';
-import { getUserDB, ScheduledCard, User } from './userDB';
+import { getUserDB, ScheduledCard } from './userDB';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).process = process; // required as a fix for pouchdb - see #18

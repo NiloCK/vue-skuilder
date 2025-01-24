@@ -1,6 +1,5 @@
 import { areQuestionRecords, CardHistory, CardRecord, QuestionRecord } from '../db/types';
 import moment from 'moment';
-import { User } from './userDB';
 import { getCurrentUser } from '@/stores/useAuthStore';
 
 type Moment = moment.Moment;

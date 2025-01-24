@@ -57,7 +57,6 @@ import Mousetrap from 'mousetrap';
 import serverRequest from '../../server';
 import { CourseConfig, CreateCourse, DataShape55, QuestionType55, ServerRequestType } from '../../server/types';
 import { alertUser } from '../SnackbarService.vue';
-import { User } from '../../db/userDB';
 import { getCurrentUser } from '@/stores/useAuthStore';
 
 export default defineComponent({
