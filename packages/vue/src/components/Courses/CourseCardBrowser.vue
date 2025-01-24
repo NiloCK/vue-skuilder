@@ -80,8 +80,8 @@
           <tags-input v-show="editMode === 'tags'" :course-i-d="_id" :card-i-d="c.id.split('-')[1]" class="mt-4" />
 
           <div v-show="editMode === 'flag'" class="mt-4">
-            <v-btn color="error" variant="outlined" @click="delBtn = true"> Delete this card </v-btn>
-            <span v-if="delBtn" class="ml-4">
+            <v-btn color="error" variant="outlined" @click="c.delBtn = true"> Delete this card </v-btn>
+            <span v-if="c.delBtn" class="ml-4">
               <span class="mr-2">Are you sure?</span>
               <v-btn color="error" variant="elevated" @click="deleteCard(c.id)"> Confirm </v-btn>
             </span>
@@ -115,6 +115,8 @@ import { CourseDB, getTag } from '@/db/courseDB';
 import { removeTagFromCard } from '@/db/courseDB';
 import { CardData, DisplayableData, DocType, Tag } from '@/db/types';
 import { defineComponent } from 'vue';
+import { alertUser } from '../SnackbarService.vue';
+import { Status } from '@/enums/Status';
 
 function isConstructor(obj: unknown) {
   try {
@@ -153,7 +155,7 @@ export default defineComponent({
       courseDB: null as CourseDB | null,
       page: 1,
       pages: [] as number[],
-      cards: [] as { id: string; isOpen: boolean }[],
+      cards: [] as { id: string; isOpen: boolean; delBtn: boolean }[],
       cardData: {} as { [card: string]: string[] },
       cardPreview: {} as { [card: string]: string },
       editMode: 'none' as 'tags' | 'flag' | 'none',
@@ -219,17 +221,24 @@ export default defineComponent({
       this.delBtn = false;
     },
     async deleteCard(c: string) {
+      console.log(`Deleting card ${c}`);
       const res = await this.courseDB!.removeCard(c.split('-')[1]);
       if (res.ok) {
         this.cards = this.cards.filter((card) => card.id != c);
         this.clearSelections();
+      } else {
+        console.error(`Failed to delete card:\n\n${JSON.stringify(res)}`);
+        alertUser({
+          text: 'Failed to delete card',
+          status: Status.error,
+        });
       }
     },
     async populateTableData() {
       if (this._tag) {
         const tag = await getTag(this._id, this._tag);
         this.cards = tag.taggedCards.map((c) => {
-          return { id: `${this._id}-${c}`, isOpen: false };
+          return { id: `${this._id}-${c}`, isOpen: false, delBtn: false };
         });
       } else {
         this.cards = (
@@ -243,6 +252,7 @@ export default defineComponent({
           return {
             id: c,
             isOpen: false,
+            delBtn: false,
           };
         });
       }
