@@ -399,7 +399,7 @@ Currently logged-in as ${this._username}.`
 
     try {
       const cfg = await this.localDB.get<UserConfig>(User.DOC_IDS.CONFIG);
-      console.log(`found cfg: ${JSON.stringify(cfg)}`);
+      console.log('Raw config from DB:', cfg);
 
       return cfg;
     } catch (e) {
