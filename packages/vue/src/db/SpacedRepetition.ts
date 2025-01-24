@@ -1,6 +1,7 @@
 import { areQuestionRecords, CardHistory, CardRecord, QuestionRecord } from '../db/types';
 import moment from 'moment';
 import { User } from './userDB';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 type Moment = moment.Moment;
 const duration = moment.duration;
@@ -27,7 +28,7 @@ function newQuestionInterval(cardHistory: CardHistory<QuestionRecord>) {
   if (lastInterval > cardHistory.bestInterval) {
     cardHistory.bestInterval = lastInterval;
     // update bestInterval on cardHistory in db
-    User.instance().then((u) => {
+    getCurrentUser().then((u) => {
       u.update<CardHistory<QuestionRecord>>(cardHistory._id, {
         bestInterval: lastInterval,
       });

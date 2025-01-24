@@ -82,6 +82,7 @@ import { Tag } from '@/db/types';
 import { ClassroomConfig, CourseConfig } from '@/server/types';
 import { User } from '@/db/userDB';
 import { defineComponent } from 'vue';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 export default defineComponent({
   name: 'ClassroomCtrlPanel',
@@ -144,7 +145,7 @@ export default defineComponent({
   methods: {
     async assignContent() {
       if (!this.classroomDB) return;
-      const u = await User.instance();
+      const u = await getCurrentUser();
 
       if (this.selectedTags.length === 0) {
         await this.classroomDB.assignContent({

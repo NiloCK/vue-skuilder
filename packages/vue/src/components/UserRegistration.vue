@@ -66,7 +66,7 @@ import { User } from '@/db/userDB';
 import { log } from '@/logshim';
 import { alertUser } from './SnackbarService.vue';
 import { Status } from '../enums/Status';
-import { useAuthStore } from '@/stores/useAuthStore';
+import { getCurrentUser, useAuthStore } from '@/stores/useAuthStore';
 
 export default defineComponent({
   name: 'UserRegistration',
@@ -106,7 +106,7 @@ export default defineComponent({
   },
 
   async created() {
-    this.user = await User.instance();
+    this.user = await getCurrentUser();
   },
 
   methods: {
@@ -141,7 +141,7 @@ Author: ${this.author}
               this.authStore.loginAndRegistration.init = false;
               this.authStore.loginAndRegistration.init = true;
 
-              this.$router.push(`/u/${(await User.instance()).username}/new`);
+              this.$router.push(`/u/${(await getCurrentUser()).username}/new`);
             } else {
               if (resp.error === 'This username is taken!') {
                 this.usernameError = true;

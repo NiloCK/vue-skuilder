@@ -50,7 +50,7 @@ import { alertUser } from '@/components/SnackbarService.vue';
 import { log } from '@/logshim';
 import { Status } from '@/enums/Status';
 import { User } from '@/db/userDB';
-import { useAuthStore } from '@/stores/useAuthStore';
+import { getCurrentUser, useAuthStore } from '@/stores/useAuthStore';
 import { useConfigStore } from '@/stores/useConfigStore';
 
 const router = useRouter();
@@ -93,7 +93,7 @@ const login = async () => {
   try {
     log('Attempting to get User instance');
     // #172 starting point - why is the pre-existing _user being referenced here?
-    user.value = await User.instance();
+    user.value = await getCurrentUser();
     log('Got User instance, attempting login');
 
     await user.value.login(username.value, password.value);

@@ -15,6 +15,7 @@ import {
 import { getCredentialledCourseConfig, getTagID } from './courseAPI';
 import { CardData, DocType, Tag, TagStub } from './types';
 import { ScheduledCard, User } from './userDB';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 const courseLookupDBTitle = 'coursedb-lookup';
 
@@ -53,7 +54,7 @@ export class CourseDB implements StudyContentSource {
 
   public async getStudySession(cardLimit: number = 99) {
     // cardLimit = cardLimit ? cardLimit : 999;
-    const u = await User.instance();
+    const u = await getCurrentUser();
     const userCrsdoc = await u.getCourseRegDoc(this.id);
     const activeCards = await u.getActiveCards();
 
@@ -70,7 +71,7 @@ export class CourseDB implements StudyContentSource {
   public async getPendingReviews(): Promise<(StudySessionReviewItem & ScheduledCard)[]> {
     type ratedReview = ScheduledCard & CourseElo;
 
-    const u = await User.instance();
+    const u = await getCurrentUser();
     u.getCourseRegDoc(this.id);
 
     const reviews = await u.getPendingReviews(this.id); // todo: this adds a db round trip - should be server side
@@ -231,7 +232,7 @@ export class CourseDB implements StudyContentSource {
     let targetElo: number;
 
     if (options.elo === 'user') {
-      const u = await User.instance();
+      const u = await getCurrentUser();
 
       targetElo = -1;
       try {
@@ -291,9 +292,9 @@ export class CourseDB implements StudyContentSource {
     });
   }
   public async getNewCards(limit: number = 99): Promise<StudySessionNewItem[]> {
-    const u = await User.instance();
+    const u = await getCurrentUser();
 
-    const activeCards = await u.getActiveCards(this.id);
+    const activeCards = await u.getActiveCards();
     return (
       await this.getCardsCenteredAtELO({ limit: limit, elo: 'user' }, (c: string) => {
         if (activeCards.some((ac) => c.includes(ac))) {

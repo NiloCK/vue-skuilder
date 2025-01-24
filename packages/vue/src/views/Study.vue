@@ -168,6 +168,7 @@ import { CourseConfig } from '../server/types';
 import { useConfigStore } from '@/stores/useConfigStore';
 import { useDataInputFormStore } from '@/stores/useDataInputFormStore';
 import { Router } from 'vue-router';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 interface StudyRefs {
   shadowWrapper: HTMLDivElement;
@@ -313,7 +314,7 @@ export default defineComponent({
   async created() {
     this.sessionPrepared = false;
 
-    this.user = await User.instance();
+    this.user = await getCurrentUser();
     this.userCourseRegDoc = await this.user.getCourseRegistrationsDoc();
     this.configStore = useConfigStore();
 

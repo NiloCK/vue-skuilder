@@ -38,6 +38,7 @@ import { updateCredentialledCourseConfig } from '@/db/courseDB';
 import { CourseConfig, DataShape55, QuestionType55 } from '@/server/types';
 import * as _ from 'lodash';
 import { User } from '@/db/userDB';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 interface DataShapeRegistrationStatus {
   name: string;
@@ -193,7 +194,7 @@ export default defineComponent({
       });
 
       const update = await updateCredentialledCourseConfig(this.course, this.courseConfig!);
-      const u = await User.instance();
+      const u = await getCurrentUser();
 
       if (update.ok) {
         question.registered = true;

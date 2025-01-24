@@ -83,6 +83,7 @@ import { ServerRequestType, CourseConfig } from '../server/types';
 import { alertUser } from '../components/SnackbarService.vue';
 import { getCourseList } from '@/db/courseDB';
 import { User } from '../db/userDB';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 type DBCourseConfig = CourseConfig & PouchDB.Core.IdMeta;
 
@@ -152,7 +153,7 @@ export default defineComponent({
   },
 
   async created() {
-    this.user = await User.instance();
+    this.user = await getCurrentUser();
     this.refreshData();
   },
 

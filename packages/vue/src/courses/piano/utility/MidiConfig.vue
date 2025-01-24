@@ -44,6 +44,7 @@ import SkMidi from './midi';
 import { Status } from '../../../enums/Status';
 import { User } from '@/db/userDB';
 import { InputEventNoteon } from 'webmidi';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 interface MidiDevice {
   text: string;
@@ -275,7 +276,7 @@ export default defineComponent({
     };
 
     onMounted(async () => {
-      user.value = await User.instance();
+      user.value = await getCurrentUser();
       try {
         midi.value = await SkMidi.instance();
         midiSupported.value = midi.value.state === 'ready' || midi.value.state === 'nodevice';

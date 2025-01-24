@@ -6,7 +6,7 @@ import {
   SkuilderCourseData,
 } from '../db/types';
 import ENV from '../ENVIRONMENT_VARS';
-import { GuestUsername } from '../stores/useAuthStore';
+import { getCurrentUser, GuestUsername } from '../stores/useAuthStore';
 import moment, { Moment } from 'moment';
 import PouchDBAuth from 'pouchdb-authentication';
 import pouch from 'pouchdb-browser';
@@ -193,7 +193,7 @@ export async function putCardRecord<T extends CardRecord>(
   record.timeStamp = moment.utc(record.timeStamp).toString() as unknown as Moment;
 
   try {
-    const u = await User.instance();
+    const u = await getCurrentUser();
 
     const cardHistory = await u.update<CardHistory<T>>(cardHistoryID, function (h: CardHistory<T>) {
       h.records.push(record);

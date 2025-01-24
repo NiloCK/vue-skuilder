@@ -11,6 +11,7 @@ import {
 import { StudyContentSource, StudySessionNewItem, StudySessionReviewItem } from './contentSource';
 import { CourseDB, getTag } from './courseDB';
 import { ScheduledCard, User } from './userDB';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 const classroomLookupDBTitle = 'classdb-lookup';
 export const CLASSROOM_CONFIG = 'ClassroomConfig';
@@ -141,7 +142,7 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
   }
 
   public async getPendingReviews(): Promise<(StudySessionReviewItem & ScheduledCard)[]> {
-    const u = await User.instance();
+    const u = await getCurrentUser();
     return (await u.getPendingReviews())
       .filter((r) => r.scheduledFor === 'classroom' && r.schedulingAgentId === this._id)
       .map((r) => {
@@ -159,7 +160,7 @@ export class StudentClassroomDB extends ClassroomDBBase implements StudyContentS
   }
 
   public async getNewCards(): Promise<StudySessionNewItem[]> {
-    const activeCards = await (await User.instance()).getActiveCards();
+    const activeCards = await (await getCurrentUser()).getActiveCards();
     const now = moment.utc();
     const assigned = await this.getAssignedContent();
     const due = assigned.filter((c) => now.isAfter(moment.utc(c.activeOn, REVIEW_TIME_FORMAT)));

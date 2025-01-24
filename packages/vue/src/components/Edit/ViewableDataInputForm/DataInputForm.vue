@@ -105,6 +105,7 @@ import { CourseElo } from '@/tutor/Elo';
 import { User } from '@/db/userDB';
 import { useDataInputFormStore } from '@/stores/useDataInputFormStore';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
+import { getCurrentUser } from '@/stores/useAuthStore';
 
 type StringIndexable = { [x: string]: unknown };
 
@@ -422,7 +423,7 @@ export default defineComponent({
               this.dataShape,
               input,
               (
-                await User.instance()
+                await getCurrentUser()
               ).username,
               this.getTags(),
               undefined,
