@@ -7,7 +7,7 @@ import ForksView from './forksView.vue';
 import { Status } from '@/enums/Status';
 import { FieldType } from '@/enums/FieldType';
 import { DataShapeName } from '@/enums/DataShapeNames';
-import ChessUtils, { getRandomSquare } from '../../chessUtils';
+import ChessUtils from '../../chessUtils';
 
 export interface ForkPosition {
   fen: string;
@@ -97,33 +97,40 @@ export class ForkFinder extends Question {
       type: data[0]['Piece'] as PieceSymbol,
     };
 
+    console.log(`[fork] player piece: ${this.pieceType.type}, ${this.pieceType.color}`);
+
     this.positions = this.generatePositions(this.exerciseCount);
   }
 
   private generatePositions(numPositions: number): ForkPosition[] {
     const positions: ForkPosition[] = [];
     const pieceType = this.pieceType;
-    const maxEnemies = this.maxEnemyCount;
+    // const maxEnemies = this.maxEnemyCount;
 
     for (let i = 0; i < numPositions; i++) {
       // Generate 5 positions
       const chess = new Chess();
-      chess.clear();
+
+      const startingFen = '8/8/8/8/8/8/8/8 ' + this.playerColor + ' - - 0 1';
+      chess.load(startingFen, {
+        skipValidation: true,
+      });
 
       // 1. Choose whether this position should contain a fork (80% chance)
-      const shouldHaveFork = Math.random() < 0.8;
+      const shouldHaveFork = Math.random() <= 1;
+
+      console.log(`[fork] should have fork: ${shouldHaveFork}`);
 
       // 2. Place the attacking piece
       const attackerSquare = this.chooseAttackerPosition(pieceType);
+      console.log(`[fork] piece placed at ${attackerSquare}`);
       chess.put(pieceType, attackerSquare);
 
       // 3. Place enemy pieces
-      const enemyPlacement = this.placeEnemyPieces(
-        chess,
-        attackerSquare,
-        shouldHaveFork,
-        maxEnemies
-      );
+      const enemyPlacement = this.placeEnemyPieces(chess, attackerSquare, shouldHaveFork);
+
+      // 4. Remove the attacker piece
+      chess.remove(attackerSquare);
 
       // Store the position info (we'll add enemy pieces next)
       positions.push({
@@ -140,8 +147,7 @@ export class ForkFinder extends Question {
   private placeEnemyPieces(
     chess: Chess,
     attackerSquare: Square,
-    shouldHaveFork: boolean,
-    maxEnemies: number
+    shouldHaveFork: boolean
   ): PlacedEnemies {
     // Get all squares the attacker can reach
     const attackedSquares = new Set<Square>();
@@ -161,51 +167,27 @@ export class ForkFinder extends Question {
 
     if (shouldHaveFork) {
       // Choose 2-3 squares that can be attacked from some common square
-      const numTargets = Math.min(Math.floor(Math.random() * 2) + 2, maxEnemies);
+      // const numTargets = Math.min(Math.floor(Math.random() * 2) + 2, maxEnemies);
+      const numTargets = 2;
 
       // Find potential fork squares (squares that can attack multiple targets)
-      const possibleForkSquares = Array.from(attackedSquares);
+      let possibleForkSquares = Array.from(attackedSquares);
 
-      // Shuffle and try fork squares until we find one that works
-      for (let i = possibleForkSquares.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [possibleForkSquares[i], possibleForkSquares[j]] = [
-          possibleForkSquares[j],
-          possibleForkSquares[i],
-        ];
+      // Shuffle the squares to randomize the selection
+      possibleForkSquares = this.shuffleArray(possibleForkSquares);
+      for (const s of possibleForkSquares) {
+        console.log(`[fork] possible fork square: ${s}`);
       }
 
-      for (const forkSquare of possibleForkSquares) {
-        // Get squares this fork square can attack
-        chess.put(piece, forkSquare);
-        const forkMoves = chess.moves({ square: forkSquare, verbose: true });
-        chess.remove(forkSquare);
-
-        const targetSquares = forkMoves
-          .map((m) => m.to as Square)
-          .filter((s) => s !== attackerSquare); // Don't target the original attacker
-
-        if (targetSquares.length >= numTargets) {
-          // We found a valid fork square! Place the enemies
-          const selectedTargets = targetSquares.slice(0, numTargets).map((square) => ({
-            square,
-            piece: this.chooseRandomEnemyPiece(),
-          }));
-
-          // Place the enemy pieces
-          selectedTargets.forEach(({ square, piece }) => {
-            chess.put(piece, square);
-            result.pieces.set(square, piece);
-          });
-
-          result.forkSquares = [forkSquare];
-          result.value = selectedTargets.reduce(
-            (sum, { piece }) => sum + this.getPieceValue(piece),
-            0
-          );
-
-          break;
-        }
+      // place an enemy piece on the attacked squares
+      for (let i = 0; i < numTargets && i < possibleForkSquares.length; i++) {
+        const square = possibleForkSquares[i];
+        const enemyPiece = this.chooseRandomEnemyPiece();
+        console.log(`[fork] placing ${enemyPiece.type}(${enemyPiece.color}) at ${square}`);
+        chess.put(enemyPiece, square);
+        result.pieces.set(square, enemyPiece);
+        result.forkSquares.push(square);
+        result.value += this.getPieceValue(enemyPiece);
       }
     } else {
       // For non-fork positions, place 2-3 pieces that *cannot* be forked
@@ -243,11 +225,16 @@ export class ForkFinder extends Question {
     // Weighted selection favoring more valuable pieces
     const pieces: Array<[PieceSymbol, number]> = [
       ['q', 1], // Less common
+      ['p', 1],
       ['r', 2],
       ['b', 3],
       ['n', 3],
-      ['p', 2], // Pawns are medium frequency
     ];
+    // remove the current piece type from the list
+    pieces.splice(
+      pieces.findIndex(([piece]) => piece === this.pieceType.type),
+      1
+    );
 
     const totalWeight = pieces.reduce((sum, [_, weight]) => sum + weight, 0);
     let random = Math.random() * totalWeight;

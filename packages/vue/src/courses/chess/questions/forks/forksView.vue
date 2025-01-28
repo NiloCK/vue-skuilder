@@ -1,9 +1,6 @@
 <template>
   <div data-viewable="ForksView">
-    <p class="text-h5">
-      Find all squares where a {{ pieceType }}
-      can fork the enemy pieces:
-    </p>
+    <p class="text-h5">Find all squares where a ___ can fork the enemy pieces:</p>
 
     <div class="forks-board-container">
       <ChessBoard :position="boardPosition" :config="boardConfig" @square-click="handleSquareClick" />
@@ -23,6 +20,7 @@ import ChessBoard from '../../components/ChessBoard.vue';
 import { ForkFinder } from './index';
 import type { ChessPosition, BoardConfig } from '../../components/types';
 import type { ViewData } from '@/base-course/Interfaces/ViewData';
+import ChessUtils from '../../chessUtils';
 
 const props = defineProps<{
   data: ViewData[];
@@ -43,10 +41,15 @@ const currentPosition = computed(() => {
   return questionUtils.question.value?.getCurrentPosition();
 });
 
-const boardPosition = computed<ChessPosition>(() => ({
-  fen: currentPosition.value?.fen || '8/8/8/8/8/8/8/8 w - - 0 1',
-  orientation: 'white',
-}));
+const boardPosition = computed<ChessPosition>(() => {
+  const fen = currentPosition.value?.fen || '8/8/8/8/8/8/8/8 w - - 0 1';
+  const orientation = ChessUtils.toMove(fen);
+
+  return {
+    fen,
+    orientation,
+  };
+});
 
 const boardConfig: BoardConfig = {
   viewOnly: false,
