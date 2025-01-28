@@ -64,3 +64,25 @@ watch(
   { deep: true }
 );
 </script>
+
+<style scoped>
+.chess-board-container {
+  position: relative;
+  width: 100%;
+}
+
+.board-and-files {
+  position: relative;
+  width: 100%;
+  /* Create a square aspect ratio */
+  padding-bottom: 100%;
+}
+
+.board {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+</style>
