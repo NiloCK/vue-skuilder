@@ -56,6 +56,7 @@
 
           <tags-input ref="tagsInput" :hide-submit="true" :course-i-d="courseCfg.courseID" card-i-d="" />
           <v-btn
+            v-if="!previewComponent"
             class="float-right"
             type="submit"
             color="primary"
@@ -66,6 +67,7 @@
             Add card
             <v-icon end>mdi-plus-circle</v-icon>
           </v-btn>
+          <div v-else>Input validated: {{ inputIsValidated }}</div>
         </v-form>
       </v-col>
       <v-col cols="12" xl="6">
@@ -83,17 +85,13 @@ import TagsInput, { TagsInputInstance } from '@/components/Edit/TagsInput.vue';
 import { FieldInputInstance, isFieldInput } from '@/components/Edit/ViewableDataInputForm/FieldInput.types';
 import { alertUser } from '@/components/SnackbarService.vue';
 import Courses from '@/courses';
-import FillInView from '@/courses/default/questions/fillIn/fillIn.vue';
 import { NameSpacer, ShapeDescriptor } from '@/courses/NameSpacer';
 import { addNote55 } from '@/db/courseAPI';
 import { getCourseTagStubs } from '@/db/courseDB';
 import { FieldType } from '@/enums/FieldType';
 import { Status } from '@/enums/Status';
-import ENV from '@/ENVIRONMENT_VARS';
 import { CourseConfig } from '@/server/types';
 import _ from 'lodash';
-// import AudioInput from './FieldInputs/AudioInput.vue';
-// import ImageInput from './FieldInputs/ImageInput.vue';
 import IntegerInput from './FieldInputs/IntegerInput.vue';
 import MarkdownInput from './FieldInputs/MarkdownInput.vue';
 import MediaDragDropUploader from './FieldInputs/MediaDragDropUploader.vue';
@@ -105,8 +103,11 @@ import { CourseElo } from '@/tutor/Elo';
 import { useDataInputFormStore } from '@/stores/useDataInputFormStore';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { getCurrentUser } from '@/stores/useAuthStore';
+import { Question } from '@/base-course/Displayable';
 
 type StringIndexable = { [x: string]: unknown };
+
+type QorNull = null | typeof Question;
 
 interface ComponentData {
   tag: string;
@@ -145,6 +146,11 @@ export default defineComponent({
     dataShape: {
       type: Object as () => DataShape,
       required: true,
+    },
+    previewComponent: {
+      type: Object as () => QorNull,
+      required: false,
+      default: null,
     },
   },
 
@@ -250,7 +256,9 @@ export default defineComponent({
   watch: {
     dataShape: {
       handler() {
-        this.getImplementingViews();
+        if (!this.previewComponent) {
+          this.getImplementingViews();
+        }
       },
       immediate: true,
     },
@@ -274,6 +282,10 @@ export default defineComponent({
     this.dataInputFormStore.setDataShape(this.dataShape);
     console.log(`[DataInputForm].created: fields: ${JSON.stringify(this.dataShape.fields)}`);
     this.fieldInputRefs = new Array(this.dataShape.fields.length).fill(null);
+
+    if (this.previewComponent) {
+      this.getImplementingViews();
+    }
   },
 
   beforeUnmount() {
@@ -473,8 +485,9 @@ export default defineComponent({
     },
 
     getImplementingViews() {
-      if (ENV.MOCK) {
-        this.shapeViews = [FillInView];
+      if (this.previewComponent) {
+        console.log(`[DataInputForm] Getting previewComponent views`);
+        this.shapeViews = this.previewComponent.views;
         return;
       }
 
