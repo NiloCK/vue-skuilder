@@ -40,7 +40,7 @@ export default defineConfig({
       },
     }),
     eslint({
-      failOnError: true,
+      failOnError: process.env.NODE_ENV === 'production',
       failOnWarning: false,
       cache: false,
       include: ['src/**/*.js', 'src/**/*.vue', 'src/**/*.ts'], // Files to include
