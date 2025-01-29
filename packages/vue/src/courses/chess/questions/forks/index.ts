@@ -8,18 +8,18 @@ import { Status } from '@/enums/Status';
 import { FieldType } from '@/enums/FieldType';
 import { DataShapeName } from '@/enums/DataShapeNames';
 import ChessUtils from '../../chessUtils';
+import { Key } from '../../chessground/types';
 
 export interface ForkPosition {
   fen: string;
-  solutions: string[]; // squares where forks exist
+  solutions: Key[]; // squares where forks exist
   pieceType: Piece;
   value: number; // material value of the best fork
 }
 
 interface PlacedEnemies {
   pieces: Map<Square, Piece>; // The placed enemy pieces
-  forkSquares: Square[]; // Squares where forks exist (if any)
-  value: number; // Total material value of the best fork
+  solutions: Square[]; // Squares where forks exist (if any)
 }
 
 const forksDataShape: DataShape = {
@@ -83,6 +83,10 @@ export class ForkFinder extends Question {
     return [forksDataShape];
   }
 
+  public playerPiece(): Piece {
+    return this.pieceType;
+  }
+
   public views(): ViewComponent[] {
     return [ForksView];
   }
@@ -135,7 +139,7 @@ export class ForkFinder extends Question {
       // Store the position info (we'll add enemy pieces next)
       positions.push({
         fen: chess.fen(),
-        solutions: enemyPlacement.forkSquares,
+        solutions: enemyPlacement.solutions,
         pieceType,
         value: 0, // Will be calculated based on forked pieces
       });
@@ -156,18 +160,21 @@ export class ForkFinder extends Question {
 
     // Get squares our piece can attack
     const moves = chess.moves({ square: attackerSquare, verbose: true });
+    // remove the attacker so that its square can be analyzed by `findSolutions`
+    chess.remove(attackerSquare);
+
     moves.forEach((move) => attackedSquares.add(move.to as Square));
 
     // For a fork, we need at least two squares that can be attacked simultaneously
     const result: PlacedEnemies = {
       pieces: new Map(),
-      forkSquares: [],
-      value: 0,
+      solutions: [],
     };
 
     if (shouldHaveFork) {
-      // Choose 2-3 squares that can be attacked from some common square
       // const numTargets = Math.min(Math.floor(Math.random() * 2) + 2, maxEnemies);
+
+      // Choose 2 squares that can be attacked from some common square
       const numTargets = 2;
 
       // Find potential fork squares (squares that can attack multiple targets)
@@ -186,9 +193,8 @@ export class ForkFinder extends Question {
         console.log(`[fork] placing ${enemyPiece.type}(${enemyPiece.color}) at ${square}`);
         chess.put(enemyPiece, square);
         result.pieces.set(square, enemyPiece);
-        result.forkSquares.push(square);
-        result.value += this.getPieceValue(enemyPiece);
       }
+      result.solutions = this.findSolutions(chess);
     } else {
       // For non-fork positions, place 2-3 pieces that *cannot* be forked
       const numPieces = Math.floor(Math.random() * 2) + 2;
@@ -221,6 +227,69 @@ export class ForkFinder extends Question {
     return result;
   }
 
+  /**
+   *
+   * @param chess The board with enemy pieces placed
+   * @returns a list of safe squares to place the attacking piece to fork the enemy pieces
+   */
+  private findSolutions(chess: Chess): Square[] {
+    const solutions: Square[] = [];
+
+    // Get all squares on the board
+    for (const file of 'abcdefgh') {
+      for (const rank of '12345678') {
+        const square = (file + rank) as Square;
+
+        // check if the square is empty
+        if (chess.get(square)) continue;
+
+        console.log(`[forks.Solutions] considering sq: ${square}`);
+
+        // check for any attackers - only want safe squares
+        if (chess.isAttacked(square, ChessUtils.oppositeCjsColor(this.pieceType.color))) continue;
+
+        // Try placing the piece on this square
+        chess.put(this.pieceType, square);
+
+        // Get all squares this piece can attack from here
+        const moves = chess.moves({ square: square, verbose: true });
+        const attackedSquares = new Set(moves.map((m) => m.to));
+
+        // Count how many enemy pieces we can attack
+        let enemyPiecesAttacked = 0;
+        chess.board().forEach((row) => {
+          row.forEach((piece) => {
+            if (piece && piece.color !== this.pieceType.color) {
+              // console.log(
+              //   `\t[forks.Solutions] enemy piece: ${piece.type}(${piece.color}) at ${piece.square}`
+              // );
+              if (attackedSquares.has(piece.square)) {
+                enemyPiecesAttacked++;
+                // console.log(
+                //   `\t[forks.Solutions] can attack enemy piece: ${piece.type}(${piece.color}) at ${piece.square}`
+                // );
+              } else {
+                // console.log(
+                //   `\t[forks.Solutions] cannot attack enemy piece: ${piece.type}(${piece.color}) at ${piece.square}`
+                // );
+              }
+            }
+          });
+        });
+
+        // If we can attack both enemy pieces from here, it's a solution
+        if (enemyPiecesAttacked >= 2) {
+          solutions.push(square);
+        }
+
+        // Remove the piece before trying next square
+        chess.remove(square);
+      }
+    }
+
+    return solutions;
+  }
+
   private chooseRandomEnemyPiece(): Piece {
     // Weighted selection favoring more valuable pieces
     const pieces: Array<[PieceSymbol, number]> = [
@@ -247,18 +316,6 @@ export class ForkFinder extends Question {
     }
 
     return { type: 'p', color: ChessUtils.oppositeCjsColor(this.pieceType.color) }; // Fallback
-  }
-
-  private getPieceValue(piece: Piece): number {
-    const values: Record<PieceSymbol, number> = {
-      p: 1,
-      n: 3,
-      b: 3,
-      r: 5,
-      q: 9,
-      k: 0,
-    };
-    return values[piece.type];
   }
 
   private chooseAttackerPosition(pieceType: Piece): Square {
@@ -356,7 +413,7 @@ export class ForkFinder extends Question {
     // All solution squares must be found, no extra squares
     return (
       answer.length === current.solutions.length &&
-      answer.every((square) => current.solutions.includes(square))
+      answer.every((square) => current.solutions.includes(square as Key))
     );
   }
 
