@@ -111,6 +111,13 @@ const boardConfig = computed<Config>(() => {
 });
 
 const handleSquareClick = (square: Key) => {
+  // [ ] animate square w/
+  //   - capturing both enemy pieces if square is safe & correct
+  //   - getting captured by an eneym if square unsafe
+  //   - failing to capture if square is safe but not a fork ((how to show? - place piece and show available moves?))
+
+  // [ ] communicate w/ quesetionType for correct/incorrect handling
+
   console.log(`[forksView] clicked ${square}`);
   const index = selectedSquares.value.indexOf(square);
   if (index === -1) {
