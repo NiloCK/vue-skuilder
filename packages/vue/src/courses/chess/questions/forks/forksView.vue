@@ -1,26 +1,40 @@
 <template>
   <div data-viewable="ForksView">
-    <p class="text-h5">Find all squares where a ___ can fork the enemy pieces:</p>
+    <!-- <img :src="CheckMarkRaw" alt="" /> -->
+    <p class="text-h5">Find safe forking squares for the</p>
+    <p class="text-h3">{{ pieceImg }}</p>
 
     <div class="forks-board-container">
-      <ChessBoard :position="boardPosition" :config="boardConfig" @square-click="handleSquareClick" />
+      <ChessBoard :position="boardPosition" :config="boardConfig" />
     </div>
 
     <div class="selected-squares">Selected squares: {{ selectedSquares.join(', ') }}</div>
 
-    <v-btn @click="submitAnswer">Submit</v-btn>
-    <v-btn @click="clearSelection">Clear Selection</v-btn>
+    <v-btn color="primary" @click="submitAnswer">All Done</v-btn>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import ChessBoard from '../../components/ChessBoard.vue';
 import { ForkFinder } from './index';
-import type { ChessPosition, BoardConfig } from '../../components/types';
+import type { ChessPosition } from '../../components/types';
 import type { ViewData } from '@/base-course/Interfaces/ViewData';
 import ChessUtils from '../../chessUtils';
+import { Config } from '../../chessground/config';
+import { DrawShape } from '../../chessground/draw';
+import checkmark from '../../assets/checkmark.svg?raw';
+import xmark from '../../assets/x-mark.svg?raw';
+import { Key } from '../../chessground/types';
+
+console.log(`[forksView] checkmark: ${checkmark}`);
+
+const wrapSvg = (svg: string) => `
+  <g transform="translate(2 2) scale(0.3)">
+    ${svg}
+  </g>
+`;
 
 const props = defineProps<{
   data: ViewData[];
@@ -32,10 +46,22 @@ const emit = defineEmits(['emitResponse']);
 const viewableUtils = useViewable(props, emit, 'ForksView');
 const questionUtils = useQuestionView<ForkFinder>(viewableUtils);
 
-const selectedSquares = ref<string[]>([]);
+const selectedSquares = ref<Key[]>([]);
 
 // Initialize question
 questionUtils.question.value = new ForkFinder(props.data);
+
+const playerPiece = computed(() => {
+  return questionUtils.question.value?.playerPiece();
+});
+
+const pieceImg = computed(() => {
+  if (playerPiece.value) {
+    return ChessUtils.cjsPieceToString(playerPiece.value);
+  } else {
+    return '';
+  }
+});
 
 const currentPosition = computed(() => {
   return questionUtils.question.value?.getCurrentPosition();
@@ -43,6 +69,7 @@ const currentPosition = computed(() => {
 
 const boardPosition = computed<ChessPosition>(() => {
   const fen = currentPosition.value?.fen || '8/8/8/8/8/8/8/8 w - - 0 1';
+  console.log(`[forksView] Position: ${fen}`);
   const orientation = ChessUtils.toMove(fen);
 
   return {
@@ -51,22 +78,45 @@ const boardPosition = computed<ChessPosition>(() => {
   };
 });
 
-const boardConfig: BoardConfig = {
-  viewOnly: false,
-  movable: {
-    free: true,
-    color: 'both',
-    showDests: false,
-  },
-  coordinates: true,
-};
+const shapes = computed<DrawShape[]>(() => {
+  const ret: DrawShape[] = [];
+  selectedSquares.value.forEach((ss) => {
+    ret.push({
+      orig: ss,
+      customSvg: {
+        html: currentPosition.value?.solutions.includes(ss) ? checkmark : xmark,
+      },
+    });
+  });
+  return ret;
+});
 
-const handleSquareClick = (square: string) => {
+const boardConfig = computed<Config>(() => {
+  return {
+    viewOnly: false,
+    movable: {
+      free: true,
+      color: 'both',
+      showDests: false,
+    },
+    drawable: {
+      enabled: true,
+      shapes: shapes.value,
+    },
+    coordinates: false,
+    events: {
+      select: (square: Key) => handleSquareClick(square),
+    },
+  };
+});
+
+const handleSquareClick = (square: Key) => {
+  console.log(`[forksView] clicked ${square}`);
   const index = selectedSquares.value.indexOf(square);
   if (index === -1) {
-    selectedSquares.value.push(square);
+    selectedSquares.value = [...selectedSquares.value, square];
   } else {
-    selectedSquares.value.splice(index, 1);
+    selectedSquares.value = selectedSquares.value.filter((s) => s !== square);
   }
 };
 
@@ -77,9 +127,19 @@ const submitAnswer = () => {
   }
 };
 
-const clearSelection = () => {
-  selectedSquares.value = [];
-};
+watch(
+  () => shapes.value,
+  (newShapes) => {
+    console.log('shapes changed:', newShapes);
+  }
+);
+
+watch(
+  () => boardConfig.value,
+  (newConfig) => {
+    console.log('boardConfig changed:', newConfig);
+  }
+);
 </script>
 
 <style scoped>
