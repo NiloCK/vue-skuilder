@@ -16,12 +16,13 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { Chessground } from '../chessground/chessground';
+import { Config } from '../chessground/config';
 import type { Api as CgAPI } from '../chessground/api';
-import type { ChessPosition, BoardConfig, Move } from './types';
+import type { ChessPosition, Move } from './types';
 
 const props = defineProps<{
   position: ChessPosition;
-  config?: BoardConfig;
+  config?: Config;
   showCoordinates?: boolean;
 }>();
 
@@ -60,6 +61,16 @@ watch(
   () => props.position,
   (newPos) => {
     board.value?.set({ fen: newPos.fen });
+  },
+  { deep: true }
+);
+watch(
+  () => props.config,
+  (newConfig) => {
+    console.log('[ChessBoard] Config changed:', newConfig);
+    if (board.value) {
+      board.value.set(newConfig);
+    }
   },
   { deep: true }
 );
