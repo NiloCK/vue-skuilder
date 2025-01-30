@@ -19,16 +19,7 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  defineAsyncComponent,
-  ref,
-  computed,
-  PropType,
-  onMounted,
-  onUnmounted,
-  watchEffect,
-} from 'vue';
+import { defineComponent, defineAsyncComponent, ref, computed, PropType, onMounted, onUnmounted, watch } from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import AudioAutoPlayer from '@/base-course/Components/AudioAutoPlayer.vue';
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
@@ -60,7 +51,7 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const viewableUtils = useViewable(props, emit, 'FillInView');
-    const questionUtils = useQuestionView<BlanksCard>(viewableUtils, props.modifyDifficulty);
+    const questionUtils = useQuestionView<BlanksCard>(viewableUtils);
 
     questionUtils.question.value = new BlanksCard(props.data);
 
@@ -211,18 +202,22 @@ export default defineComponent({
     /**
      * update the question whenever the data changes
      */
-    watchEffect(() => {
-      try {
-        questionUtils.question.value = new BlanksCard(props.data);
-        // Update shuffled options whenever question changes
-        if (questionUtils.question.value?.options) {
-          const truncatedList = getTruncatedList();
-          shuffledOptions.value = _.shuffle(truncatedList);
+    watch(
+      () => props.data,
+      (newdata) => {
+        try {
+          questionUtils.question.value = new BlanksCard(newdata);
+          // Update shuffled options whenever question changes
+          if (questionUtils.question.value?.options) {
+            const truncatedList = getTruncatedList();
+            shuffledOptions.value = _.shuffle(truncatedList);
+          }
+        } catch (error) {
+          viewableUtils.logger.error('Failed to initialize/update question:', error);
         }
-      } catch (error) {
-        viewableUtils.logger.error('Failed to initialize/update question:', error);
-      }
-    });
+      },
+      { deep: true }
+    );
 
     return {
       ...viewableUtils,
