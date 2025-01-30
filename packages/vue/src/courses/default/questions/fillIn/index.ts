@@ -234,42 +234,6 @@ export class BlanksCard extends Question {
     }
   }
 
-  findAnswers(tok: marked.Token): {
-    answers: string[] | null;
-    options: string[] | null;
-  } | null {
-    // todo: enable multi-blanks
-    //
-
-    if (tok.type === 'text') {
-      if (isComponent(tok)) {
-        this.answersFromString(tok.raw.substring(2, tok.raw.length - 2));
-      }
-
-      if (containsComponent(tok)) {
-        const split = this.splitTextToken(tok as marked.Tokens.Text);
-        for (let i = 0; i < split.length; i++) {
-          if (isComponent(split[i])) {
-            return this.findAnswers(split[i]);
-          }
-        }
-      }
-    }
-
-    const toks: { tokens: marked.Token[] } = tok as { tokens: marked.Token[] };
-
-    if (toks.tokens) {
-      for (let i = 0; i < toks.tokens.length; i++) {
-        const candidate = this.findAnswers(toks.tokens[i]);
-        if (candidate !== null) {
-          return candidate;
-        }
-      }
-    }
-
-    return null;
-  }
-
   private answersFromString(s: string) {
     if (!s.startsWith('{{') || !s.endsWith('}}')) {
       throw new Error(`string ${s} is not fill-in text - must look like "{{someText}}"`);
