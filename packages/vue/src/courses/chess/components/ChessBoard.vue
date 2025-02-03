@@ -39,7 +39,8 @@ interface ChessBoardExpose {
 }
 
 defineExpose<ChessBoardExpose>({
-  playAnimation: async (moves: AnimationMove[], duration: number = 500) => {
+  playAnimation: async (moves: AnimationMove[], duration: number = 400) => {
+    console.log(`[ChessBoard] playAnimation called`);
     if (!board.value) return;
     if (animating.value) return;
 
@@ -49,7 +50,7 @@ defineExpose<ChessBoardExpose>({
     for (const move of moves) {
       // Handle piece placement if specified
       if (move.piece) {
-        board.value.setPieces(new Map([[move.to, ChessUtils.asCgPiece(move.piece)]]));
+        board.value.setPieces(new Map([[move.from, ChessUtils.asCgPiece(move.piece)]]));
         await new Promise((resolve) => setTimeout(resolve, duration / 2));
       }
       // Handle the move
@@ -60,6 +61,7 @@ defineExpose<ChessBoardExpose>({
     // Reset to original position
     setTimeout(() => {
       board.value?.set({ fen: originalFen });
+      animating.value = false;
     }, duration);
   },
 });
