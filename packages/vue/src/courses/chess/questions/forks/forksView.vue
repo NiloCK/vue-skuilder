@@ -5,7 +5,7 @@
     <p class="text-h3">{{ pieceImg }}</p>
 
     <div class="forks-board-container">
-      <ChessBoard :position="boardPosition" :config="boardConfig" />
+      <ChessBoard :position="boardPosition" :config="boardConfig" ref="chessboard" />
     </div>
 
     <div class="selected-squares">Selected squares: {{ selectedSquares.join(', ') }}</div>
@@ -27,6 +27,7 @@ import { DrawShape } from '../../chessground/draw';
 import checkmark from '../../assets/checkmark.svg?raw';
 import xmark from '../../assets/x-mark.svg?raw';
 import { Key } from '../../chessground/types';
+import { Chess, Piece, Square } from 'chess.js';
 
 console.log(`[forksView] checkmark: ${checkmark}`);
 
@@ -35,6 +36,8 @@ const wrapSvg = (svg: string) => `
     ${svg}
   </g>
 `;
+
+const chessboard = ref<InstanceType<typeof ChessBoard>>();
 
 const props = defineProps<{
   data: ViewData[];
@@ -99,6 +102,10 @@ const boardConfig = computed<Config>(() => {
       color: 'both',
       showDests: false,
     },
+    dropMode: {
+      active: true,
+      piece: playerPiece.value,
+    },
     drawable: {
       enabled: true,
       shapes: shapes.value,
@@ -106,6 +113,10 @@ const boardConfig = computed<Config>(() => {
     coordinates: false,
     events: {
       select: (square: Key) => handleSquareClick(square),
+    },
+    animation: {
+      enabled: true,
+      duration: 500,
     },
   };
 });
@@ -117,6 +128,42 @@ const handleSquareClick = (square: Key) => {
   //   - failing to capture if square is safe but not a fork ((how to show? - place piece and show available moves?))
 
   // [ ] communicate w/ quesetionType for correct/incorrect handling
+  //
+
+  // square is correct?
+  if (questionUtils.question.value?.getCurrentPosition().solutions.includes(square)) {
+    // animate capturing both enemy pieces
+    const chess = new Chess();
+    if (currentPosition.value) {
+      const enemyPieces: { p: Piece; s: Square }[] = [];
+
+      chess.load(currentPosition.value?.fen, {
+        skipValidation: true,
+      });
+      chess.board().forEach((rank) => {
+        if (rank) {
+          rank.forEach((square) => {
+            if (square && square.color !== playerPiece.value?.color) {
+              enemyPieces.push({ p: square, s: square.square });
+            }
+          });
+        }
+      });
+
+      chessboard.value?.playAnimation(
+        enemyPieces.map((p) => {
+          return {
+            from: square,
+            to: p.s,
+            piece: playerPiece.value!,
+          };
+        })
+      );
+    }
+  } else {
+    // animate getting captured by an enemy
+    // animate failing to capture - or - highlight available moves
+  }
 
   console.log(`[forksView] clicked ${square}`);
   const index = selectedSquares.value.indexOf(square);

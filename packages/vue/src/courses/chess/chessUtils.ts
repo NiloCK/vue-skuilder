@@ -1,5 +1,5 @@
-import { Color, Piece, PieceSymbol, Square } from 'chess.js';
-import { Color as CGColor } from './chessground/types';
+import { Color, Piece as cjsPiece, PieceSymbol, Square } from 'chess.js';
+import { Color as CGColor, Piece as cgPiece, Role as cgRole } from './chessground/types';
 
 /**
 
@@ -11,8 +11,6 @@ type Piece = {
 }
 
 type Color = "w" | "b"
-
-
 
 */
 
@@ -27,11 +25,43 @@ colors.
 Modification is to replace `white` and `black` with `cg-white` and `cg-black`.
 
 
+
 type Color = "cg-white" | "cg-black"
+
+interface Piece {
+  role: Role;
+  color: Color;
+  promoted?: boolean;
+}
+
+type Role = 'king' | 'queen' | 'rook' | 'bishop' | 'knight' | 'pawn';
+
 
 */
 
 const pieces: PieceSymbol[] = ['p', 'n', 'b', 'r', 'q', 'k'];
+
+const symbolToRole: {
+  [x in PieceSymbol]: cgRole;
+} = {
+  p: 'pawn',
+  n: 'knight',
+  b: 'bishop',
+  r: 'rook',
+  q: 'queen',
+  k: 'king',
+};
+
+const roleToSymbol: {
+  [x in cgRole]: PieceSymbol;
+} = {
+  pawn: 'p',
+  knight: 'n',
+  bishop: 'b',
+  rook: 'r',
+  queen: 'q',
+  king: 'k',
+};
 
 export default class ChessUtils {
   static getRandomCjsSquare(): Square {
@@ -40,13 +70,37 @@ export default class ChessUtils {
     return (files[Math.floor(Math.random() * 8)] + ranks[Math.floor(Math.random() * 8)]) as Square;
   }
 
-  static getRandomCjsPiece(): Piece {
+  static getRandomCjsPiece(): cjsPiece {
     const color: Color = Math.random() > 0.5 ? 'w' : 'b';
     return { type: pieces[Math.floor(Math.random() * 6)], color };
   }
 
   static getRandomCjsColor(): Color {
     return Math.random() > 0.5 ? 'w' : 'b';
+  }
+
+  static asCgPiece(piece: cjsPiece | cgPiece): cgPiece {
+    if ('role' in piece) {
+      // Already a cgPiece
+      return piece;
+    }
+    // Convert from cjsPiece
+    return {
+      role: symbolToRole[piece.type],
+      color: this.toCGColor(piece.color),
+    };
+  }
+
+  static asCjsPiece(piece: cjsPiece | cgPiece): cjsPiece {
+    if ('type' in piece) {
+      // Already a cjsPiece
+      return piece;
+    }
+    // Convert from cgPiece
+    return {
+      type: roleToSymbol[piece.role],
+      color: this.toCjsColor(piece.color),
+    };
   }
 
   static getRandomCGColor(): CGColor {
@@ -67,7 +121,7 @@ export default class ChessUtils {
     return color === 'w' ? 'cg-white' : 'cg-black';
   }
 
-  static cjsPieceToString(p: Piece): string {
+  static cjsPieceToString(p: cjsPiece): string {
     const pieceSymbols = {
       w: {
         r: '♖',
