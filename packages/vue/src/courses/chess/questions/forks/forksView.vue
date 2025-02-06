@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { useViewable, useQuestionView } from '@/base-course/CompositionViewable';
 import ChessBoard from '../../components/ChessBoard.vue';
 import { ForkFinder } from './index';
@@ -83,16 +83,12 @@ const boardPosition = computed<ChessPosition>(() => {
 });
 
 const shapes = computed<DrawShape[]>(() => {
-  const ret: DrawShape[] = [];
-  selectedSquares.value.forEach((ss) => {
-    ret.push({
-      orig: ss,
-      customSvg: {
-        html: currentPosition.value?.solutions.includes(ss) ? checkmark : xmark,
-      },
-    });
-  });
-  return ret;
+  return selectedSquares.value.map((ss) => ({
+    orig: ss,
+    customSvg: {
+      html: currentPosition.value?.solutions.includes(ss) ? checkmark : wrapSvg(xmark),
+    },
+  }));
 });
 
 const boardConfig = computed<Config>(() => {
@@ -129,17 +125,23 @@ const handleSquareClick = async (square: Key) => {
     return;
   }
 
-  handlingClick.value = true;
-
   if (selectedSquares.value?.includes(square)) {
     // don't reanimate or de-select
     console.log(`[forksView] square already selected`);
+
+    nextTick(() => {
+      chessboard.value?.updateConfig({
+        drawable: {
+          shapes: [...shapes.value],
+          enabled: true,
+        },
+      });
+    });
+
     return;
   }
-  // [ ] animate square w/
-  //   - [x] capturing both enemy pieces if square is safe & correct
-  //   - [x] getting captured by an eneym if square unsafe
-  //   - [x] failing to capture if square is safe but not a fork ((how to show? - place piece and show available moves?))
+
+  handlingClick.value = true;
 
   // [ ] communicate w/ quesetionType for correct/incorrect handling
   //

@@ -51,6 +51,7 @@ export interface ShowMoves {
 interface ChessBoardExpose {
   playAnimations: (moves: AnimationMove[]) => Promise<void> | void;
   showMoves: (sm: ShowMoves) => Promise<void> | void;
+  updateConfig: (config: Config) => void;
 }
 
 const playAnimation = async (move: AnimationMove, duration: number = 400) => {
@@ -80,6 +81,11 @@ const playAnimation = async (move: AnimationMove, duration: number = 400) => {
 };
 
 defineExpose<ChessBoardExpose>({
+  updateConfig: (config: Config) => {
+    if (board.value) {
+      board.value.set(config);
+    }
+  },
   playAnimations: async (moves: AnimationMove[], duration: number = 400) => {
     console.log(`[ChessBoard] playAnimations called`);
     if (!board.value) return;
