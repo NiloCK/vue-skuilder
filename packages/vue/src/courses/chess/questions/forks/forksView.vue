@@ -50,6 +50,7 @@ const viewableUtils = useViewable(props, emit, 'ForksView');
 const questionUtils = useQuestionView<ForkFinder>(viewableUtils);
 
 const selectedSquares = ref<Key[]>([]);
+const handlingClick = ref(false);
 
 // Initialize question
 questionUtils.question.value = new ForkFinder(props.data);
@@ -100,7 +101,7 @@ const boardConfig = computed<Config>(() => {
     movable: {
       free: true,
       color: 'both',
-      showDests: false,
+      showDests: true,
     },
     dropMode: {
       active: true,
@@ -121,57 +122,128 @@ const boardConfig = computed<Config>(() => {
   };
 });
 
-const handleSquareClick = (square: Key) => {
+const handleSquareClick = async (square: Key) => {
+  console.log(`[forksView] clicked ${square}`);
+  if (handlingClick.value) {
+    console.log(`[forksView] handling click already in progress`);
+    return;
+  }
+
+  handlingClick.value = true;
+
+  if (selectedSquares.value?.includes(square)) {
+    // don't reanimate or de-select
+    console.log(`[forksView] square already selected`);
+    return;
+  }
   // [ ] animate square w/
-  //   - capturing both enemy pieces if square is safe & correct
-  //   - getting captured by an eneym if square unsafe
-  //   - failing to capture if square is safe but not a fork ((how to show? - place piece and show available moves?))
+  //   - [x] capturing both enemy pieces if square is safe & correct
+  //   - [x] getting captured by an eneym if square unsafe
+  //   - [x] failing to capture if square is safe but not a fork ((how to show? - place piece and show available moves?))
 
   // [ ] communicate w/ quesetionType for correct/incorrect handling
   //
+
+  if (!currentPosition.value) {
+    console.warn(`[forksView] handling click w/ no currentPosition`);
+    throw new Error(`[forksView] handling click w/ no currentPosition`);
+  }
+
+  // animate the responses:
 
   // square is correct?
   if (questionUtils.question.value?.getCurrentPosition().solutions.includes(square)) {
     // animate capturing both enemy pieces
     const chess = new Chess();
-    if (currentPosition.value) {
-      const enemyPieces: { p: Piece; s: Square }[] = [];
+    chess.load(currentPosition.value?.fen, {
+      skipValidation: true,
+    });
 
-      chess.load(currentPosition.value?.fen, {
-        skipValidation: true,
-      });
-      chess.board().forEach((rank) => {
-        if (rank) {
-          rank.forEach((square) => {
-            if (square && square.color !== playerPiece.value?.color) {
-              enemyPieces.push({ p: square, s: square.square });
-            }
-          });
-        }
-      });
+    const enemyPieces: { p: Piece; s: Square }[] = [];
+    chess.board().forEach((rank) => {
+      if (rank) {
+        rank.forEach((square) => {
+          if (square && square.color !== playerPiece.value?.color) {
+            enemyPieces.push({ p: square, s: square.square });
+          }
+        });
+      }
+    });
 
-      chessboard.value?.playAnimation(
-        enemyPieces.map((p) => {
+    await chessboard.value?.playAnimations(
+      enemyPieces.map((p) => {
+        return {
+          from: square,
+          to: p.s,
+          movingPiece: playerPiece.value!,
+        };
+      })
+    );
+  } else {
+    // square is incorrect.
+
+    // animate getting captured by an enemy
+    const chess = new Chess();
+    console.log(currentPosition.value.fen);
+    chess.load(currentPosition.value.fen, {
+      skipValidation: true,
+    });
+
+    let pp: Piece;
+    if (playerPiece.value) {
+      pp = playerPiece.value;
+    } else {
+      console.warn(`[forksView] handling click w/ no playerPiece`);
+      return;
+    }
+
+    const attackers = chess.attackers(square as Square, ChessUtils.oppositeCjsColor(pp.color));
+
+    console.log(`[forksView] attackers: ${JSON.stringify(attackers)}`);
+
+    if (attackers.length) {
+      // incorrect because the square was not safe - animate getting captured by enemy(ies)
+      await chessboard.value?.playAnimations(
+        attackers.map((a) => {
           return {
-            from: square,
-            to: p.s,
-            piece: playerPiece.value!,
+            from: a,
+            to: square,
+            pieces: [[pp, square as Square]],
           };
         })
       );
+    } else {
+      // incorrect because the square does not attack both enemies.
+      // highlight available moves
+
+      console.log(`[forksView] no attackers found`);
+      console.log(`[forksView] calculating destination moves for square: ${square}`);
+
+      chess.put(pp, square as Square);
+
+      const moves = chess.moves({
+        square: square as Square,
+        verbose: true,
+      });
+      console.log(`[forksView] available moves: ${JSON.stringify(moves)}`);
+
+      const dests = moves.map((m) => m.to);
+
+      console.log(`[forksView] final destination moves for square '${square}': ${JSON.stringify(dests)}`);
+
+      await chessboard.value?.showMoves({
+        square: square as Square,
+        piece: ChessUtils.asCgPiece(pp),
+        dests,
+        duration: 3000,
+      });
     }
-  } else {
-    // animate getting captured by an enemy
-    // animate failing to capture - or - highlight available moves
   }
 
-  console.log(`[forksView] clicked ${square}`);
-  const index = selectedSquares.value.indexOf(square);
-  if (index === -1) {
-    selectedSquares.value = [...selectedSquares.value, square];
-  } else {
-    selectedSquares.value = selectedSquares.value.filter((s) => s !== square);
-  }
+  // add the square to selections
+  console.log(`[forksView] adding square ${square} to selectedSquares`);
+  handlingClick.value = false;
+  selectedSquares.value = [...selectedSquares.value, square];
 };
 
 const submitAnswer = () => {

@@ -19,8 +19,8 @@ import { Chessground } from '../chessground/chessground';
 import { Config } from '../chessground/config';
 import type { Api as CgAPI } from '../chessground/api';
 import type { ChessPosition, Move } from './types';
-import { Key, Piece as cgPiece } from '../chessground/types';
-import { Piece as cjsPiece } from 'chess.js';
+import { Dests, Key, PiecesDiff, Piece as cgPiece } from '../chessground/types';
+import { Piece as cjsPiece, Square } from 'chess.js';
 import ChessUtils from '../chessUtils';
 
 export interface AnimationMove {
@@ -30,17 +30,58 @@ export interface AnimationMove {
    * Optional piece - not necessary to provide
    * if the piece is already expected at the `from` square.
    */
+  movingPiece?: cgPiece | cjsPiece;
+  /**
+   * Optional pieces to place before animating the move.
+   */
+  pieces?: [cgPiece | cjsPiece, Key][];
+  duration?: number;
+}
+
+export interface ShowMoves {
+  square: Square;
+  /**
+   * Optional piece - if not already present
+   */
   piece?: cgPiece | cjsPiece;
+  dests: Key[];
   duration?: number;
 }
 
 interface ChessBoardExpose {
-  playAnimation: (moves: AnimationMove[]) => Promise<void> | void;
+  playAnimations: (moves: AnimationMove[]) => Promise<void> | void;
+  showMoves: (sm: ShowMoves) => Promise<void> | void;
 }
 
+const playAnimation = async (move: AnimationMove, duration: number = 400) => {
+  if (!board.value) return;
+
+  console.log(`[ChessBoard]: animating ${JSON.stringify(move)}`);
+
+  // Handle piece placement if specified
+  if (move.movingPiece || move.pieces) {
+    const placedPieces: PiecesDiff = new Map();
+    if (move.movingPiece) {
+      placedPieces.set(move.from, ChessUtils.asCgPiece(move.movingPiece));
+    }
+    if (move.pieces) {
+      for (const p of move.pieces) {
+        placedPieces.set(p[1], ChessUtils.asCgPiece(p[0]));
+      }
+    }
+    board.value.setPieces(placedPieces);
+
+    await new Promise((resolve) => setTimeout(resolve, duration / 2));
+  }
+  // Execute the move
+  board.value.move(move.from, move.to);
+
+  await new Promise((resolve) => setTimeout(resolve, duration));
+};
+
 defineExpose<ChessBoardExpose>({
-  playAnimation: async (moves: AnimationMove[], duration: number = 400) => {
-    console.log(`[ChessBoard] playAnimation called`);
+  playAnimations: async (moves: AnimationMove[], duration: number = 400) => {
+    console.log(`[ChessBoard] playAnimations called`);
     if (!board.value) return;
     if (animating.value) return;
 
@@ -48,21 +89,87 @@ defineExpose<ChessBoardExpose>({
     const originalFen = props.position.fen;
 
     for (const move of moves) {
-      // Handle piece placement if specified
-      if (move.piece) {
-        board.value.setPieces(new Map([[move.from, ChessUtils.asCgPiece(move.piece)]]));
-        await new Promise((resolve) => setTimeout(resolve, duration / 2));
-      }
-      // Handle the move
-      board.value.move(move.from, move.to);
-      await new Promise((resolve) => setTimeout(resolve, duration));
+      console.log(`[ChessBoard] found move ${JSON.stringify(move)}`);
+      await playAnimation(move, duration);
     }
 
     // Reset to original position
-    setTimeout(() => {
-      board.value?.set({ fen: originalFen });
+    await new Promise<void>((resolve) => {
+      setTimeout(() => {
+        const animState = board.value?.state.animation;
+        board.value?.set({
+          animation: {
+            enabled: false,
+          },
+        });
+        board.value?.set({ fen: originalFen });
+        board.value?.set({ animation: animState });
+        animating.value = false;
+        resolve();
+      }, duration);
+    });
+  },
+
+  showMoves: async (sm: ShowMoves) => {
+    try {
+      if (!board.value) {
+        console.log('[ChessBoard] showMoves aborted: board.value is not defined');
+        return;
+      }
+      if (animating.value) {
+        console.log('[ChessBoard] showMoves aborted: animation is already in progress');
+        return;
+      }
+
+      console.log(`[ChessBoard] showMoves started with parameters: ${JSON.stringify(sm)}`);
+      animating.value = true;
+      console.log('[ChessBoard] animating flag set to true');
+
+      const originalFen = props.position.fen;
+      console.log(`[ChessBoard] original FEN captured: ${originalFen}`);
+      const originalMovable = board.value.state.movable;
+      console.log(`[ChessBoard] original movable options captured: ${JSON.stringify(originalMovable)}`);
+
+      if (sm.piece) {
+        console.log(`[ChessBoard] setting piece ${JSON.stringify(sm.piece)} at square ${sm.square}`);
+        board.value.setPieces(new Map([[sm.square, ChessUtils.asCgPiece(sm.piece)]]));
+        console.log(`[ChessBoard] board pieces updated with provided piece at square ${sm.square}`);
+      }
+
+      console.log(`[ChessBoard] preparing to highlight moves from square ${sm.square}`);
+      const dests: Dests = new Map();
+      dests.set(sm.square, sm.dests);
+      console.log(`[ChessBoard] move destinations set for square ${sm.square}: ${JSON.stringify(sm.dests)}`);
+
+      board.value.set({
+        movable: {
+          ...originalMovable,
+          dests,
+          color: 'both',
+          showDests: true,
+        },
+      });
+      console.log("[ChessBoard] board movable options updated with new settings (color: 'both', showDests: true)");
+
+      board.value.selectSquare(sm.square, true);
+      console.log(`[ChessBoard] square ${sm.square} selected with highlighting enabled`);
+
+      await new Promise((resolve) => {
+        const waitDuration = sm.duration || 3000;
+        console.log(`[ChessBoard] waiting ${waitDuration}ms for move visualization`);
+        setTimeout(resolve, waitDuration);
+      });
+
+      console.log(`[ChessBoard] unselecting square ${sm.square} and resetting board state`);
+      board.value.selectSquare(null);
+      board.value.set({ fen: originalFen });
+      console.log(`[ChessBoard] board FEN reset to original: $fsle{originalFen}`);
+      board.value.set({ movable: originalMovable });
+      console.log('[ChessBoard] original movable settings restored');
+    } finally {
       animating.value = false;
-    }, duration);
+      console.log('[ChessBoard] animating flag set to false; showMoves concluded');
+    }
   },
 });
 
@@ -88,6 +195,7 @@ onMounted(() => {
   board.value = Chessground(boardElement.value, {
     ...props.config,
     fen: props.position.fen,
+
     orientation: props.position.orientation || 'cg-white',
     movable: {
       events: {
@@ -116,7 +224,7 @@ watch(
   () => props.config,
   (newConfig) => {
     console.log('[ChessBoard] Config changed:', newConfig);
-    if (board.value) {
+    if (board.value && newConfig) {
       board.value.set(newConfig);
     }
   },

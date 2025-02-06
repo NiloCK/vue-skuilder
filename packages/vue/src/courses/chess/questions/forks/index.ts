@@ -2,7 +2,7 @@
 import { Question, ViewComponent } from '@/base-course/Displayable';
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
-import { Chess, Piece, Square, Color, PieceSymbol } from 'chess.js';
+import { Chess, Piece as cjsPiece, Square, Color, PieceSymbol } from 'chess.js';
 import ForksView from './forksView.vue';
 import { Status } from '@/enums/Status';
 import { FieldType } from '@/enums/FieldType';
@@ -75,7 +75,7 @@ export class ForkFinder extends Question {
   private currentPositionIndex: number = 0;
   private maxEnemyCount: number;
   private exerciseCount: number;
-  private pieceType: Piece;
+  private pieceType: cjsPiece;
 
   private playerColor: Color = Math.random() > 0.5 ? 'w' : 'b';
 
@@ -83,7 +83,7 @@ export class ForkFinder extends Question {
     return [forksDataShape];
   }
 
-  public playerPiece(): Piece {
+  public playerPiece(): cjsPiece {
     return this.pieceType;
   }
 
@@ -290,7 +290,7 @@ export class ForkFinder extends Question {
     return solutions;
   }
 
-  private chooseRandomEnemyPiece(): Piece {
+  private chooseRandomEnemyPiece(): cjsPiece {
     // Weighted selection favoring more valuable pieces
     const pieces: Array<[PieceSymbol, number]> = [
       ['q', 1], // Less common
@@ -318,7 +318,7 @@ export class ForkFinder extends Question {
     return { type: 'p', color: ChessUtils.oppositeCjsColor(this.pieceType.color) }; // Fallback
   }
 
-  private chooseAttackerPosition(pieceType: Piece): Square {
+  private chooseAttackerPosition(pieceType: cjsPiece): Square {
     // For most pieces, central squares are typically better for forks
     // We'll weight the selection towards central squares
 
