@@ -19,6 +19,7 @@ import Study from './views/Study.vue';
 import User from './views/User.vue';
 import UIMocks from '@/mocks/UIMocks.vue';
 import ENV from './ENVIRONMENT_VARS';
+import DataInputFormTester from './dev/DataInputFormTester.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -35,6 +36,12 @@ const router = createRouter({
     // beforeEnter: () => authenticateAdmin ?
     //
     // const components: Component[] = [];
+    {
+      path: '/dif/:pathMatch(.*)',
+      name: 'testThePathComponent',
+      component: DataInputFormTester,
+      props: true,
+    },
     {
       path: '/md',
       component: MarkdownRenderer,
