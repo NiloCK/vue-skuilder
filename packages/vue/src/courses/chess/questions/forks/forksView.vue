@@ -1,6 +1,5 @@
 <template>
   <div data-viewable="ForksView">
-    <!-- <img :src="CheckMarkRaw" alt="" /> -->
     <p class="text-h5">Find safe forking squares for the</p>
     <p class="text-h3">{{ pieceImg }}</p>
 
@@ -8,9 +7,10 @@
       <ChessBoard :position="boardPosition" :config="boardConfig" ref="chessboard" />
     </div>
 
-    <div class="selected-squares">Selected squares: {{ selectedSquares.join(', ') }}</div>
+    <div v-if="findMore" class="text-h5">Find more forks!</div>
 
-    <v-btn color="primary" @click="submitAnswer">All Done</v-btn>
+    <v-btn v-if="selectedSquares.length === 0" color="primary" @click="checkAnswer">No forks!</v-btn>
+    <v-btn v-else color="primary" @click="checkAnswer">All done!</v-btn>
   </div>
 </template>
 
@@ -51,6 +51,8 @@ const questionUtils = useQuestionView<ForkFinder>(viewableUtils);
 
 const selectedSquares = ref<Key[]>([]);
 const handlingClick = ref(false);
+
+const findMore = ref(false);
 
 // Initialize question
 questionUtils.question.value = new ForkFinder(props.data);
@@ -120,6 +122,7 @@ const boardConfig = computed<Config>(() => {
 
 const handleSquareClick = async (square: Key) => {
   console.log(`[forksView] clicked ${square}`);
+  findMore.value = false;
   if (handlingClick.value) {
     console.log(`[forksView] handling click already in progress`);
     return;
@@ -246,6 +249,30 @@ const handleSquareClick = async (square: Key) => {
   console.log(`[forksView] adding square ${square} to selectedSquares`);
   handlingClick.value = false;
   selectedSquares.value = [...selectedSquares.value, square];
+};
+
+const checkAnswer = () => {
+  if (!currentPosition.value) {
+    throw new Error(`[forksView] checkAnswer w/ no currentPosition`);
+  }
+
+  let complete = true;
+  if (complete) {
+    for (const soln of currentPosition.value.solutions) {
+      if (!selectedSquares.value.includes(soln)) {
+        complete = false;
+        break;
+      }
+    }
+  }
+  if (complete) {
+    console.log(`[forksView] complete!`);
+  } else {
+    console.log(`[forksView] incomplete!`);
+
+    findMore.value = true;
+  }
+  submitAnswer();
 };
 
 const submitAnswer = () => {
