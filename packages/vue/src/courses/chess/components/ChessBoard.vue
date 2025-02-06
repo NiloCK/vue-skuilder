@@ -123,23 +123,16 @@ defineExpose<ChessBoardExpose>({
 
       console.log(`[ChessBoard] showMoves started with parameters: ${JSON.stringify(sm)}`);
       animating.value = true;
-      console.log('[ChessBoard] animating flag set to true');
 
       const originalFen = props.position.fen;
-      console.log(`[ChessBoard] original FEN captured: ${originalFen}`);
       const originalMovable = board.value.state.movable;
-      console.log(`[ChessBoard] original movable options captured: ${JSON.stringify(originalMovable)}`);
 
       if (sm.piece) {
-        console.log(`[ChessBoard] setting piece ${JSON.stringify(sm.piece)} at square ${sm.square}`);
         board.value.setPieces(new Map([[sm.square, ChessUtils.asCgPiece(sm.piece)]]));
-        console.log(`[ChessBoard] board pieces updated with provided piece at square ${sm.square}`);
       }
 
-      console.log(`[ChessBoard] preparing to highlight moves from square ${sm.square}`);
       const dests: Dests = new Map();
       dests.set(sm.square, sm.dests);
-      console.log(`[ChessBoard] move destinations set for square ${sm.square}: ${JSON.stringify(sm.dests)}`);
 
       board.value.set({
         movable: {
@@ -149,10 +142,8 @@ defineExpose<ChessBoardExpose>({
           showDests: true,
         },
       });
-      console.log("[ChessBoard] board movable options updated with new settings (color: 'both', showDests: true)");
 
       board.value.selectSquare(sm.square, true);
-      console.log(`[ChessBoard] square ${sm.square} selected with highlighting enabled`);
 
       await new Promise((resolve) => {
         const waitDuration = sm.duration || 3000;
