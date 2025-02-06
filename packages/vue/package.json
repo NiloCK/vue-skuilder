@@ -95,7 +95,7 @@
         "vite": "^6.0.7",
         "vite-plugin-eslint": "^1.8.1",
         "vite-plugin-pwa": "^0.21.1",
-        "vitest": "^3.0.2",
+        "vitest": "^3.0.5",
         "webpack-plugin-vuetify": "^3.0.3"
     },
     "engines": {
