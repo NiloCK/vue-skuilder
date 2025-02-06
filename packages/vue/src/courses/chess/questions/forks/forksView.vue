@@ -235,7 +235,7 @@ const handleSquareClick = async (square: Key) => {
         square: square as Square,
         piece: ChessUtils.asCgPiece(pp),
         dests,
-        duration: 3000,
+        duration: 2000,
       });
     }
   }
