@@ -13,12 +13,12 @@ import { Key } from '../../chessground/types';
 export interface ForkPosition {
   fen: string;
   solutions: Key[]; // squares where forks exist
-  pieceType: Piece;
+  pieceType: cjsPiece;
   value: number; // material value of the best fork
 }
 
 interface PlacedEnemies {
-  pieces: Map<Square, Piece>; // The placed enemy pieces
+  pieces: Map<Square, cjsPiece>; // The placed enemy pieces
   solutions: Square[]; // Squares where forks exist (if any)
 }
 
