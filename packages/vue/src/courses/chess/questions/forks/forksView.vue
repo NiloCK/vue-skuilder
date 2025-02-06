@@ -44,7 +44,9 @@ const props = defineProps<{
   modifyDifficulty?: number;
 }>();
 
-const emit = defineEmits(['emitResponse']);
+const emit = defineEmits<{
+  (event: string, ...args: unknown[]): void;
+}>();
 
 const viewableUtils = useViewable(props, emit, 'ForksView');
 const questionUtils = useQuestionView<ForkFinder>(viewableUtils);
