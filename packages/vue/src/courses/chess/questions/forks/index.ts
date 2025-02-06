@@ -37,32 +37,6 @@ const forksDataShape: DataShape = {
         },
       },
     },
-    {
-      name: 'Maximum Enemies',
-      type: FieldType.NUMBER,
-      validator: {
-        instructions: 'Enter the maximum number of enemies the piece can fork',
-        test: (s: string) => {
-          const n = parseInt(s);
-          return n >= 2 && n <= 8
-            ? { status: Status.ok, msg: '' }
-            : { status: Status.error, msg: 'Invalid number of enemies' };
-        },
-      },
-    },
-    {
-      name: 'Number of Exercises',
-      type: FieldType.NUMBER,
-      validator: {
-        instructions: 'Enter the number of exercises to generate',
-        test: (s: string) => {
-          const n = parseInt(s);
-          return n >= 1 && n <= 10
-            ? { status: Status.ok, msg: '' }
-            : { status: Status.error, msg: 'Invalid number of exercises' };
-        },
-      },
-    },
   ],
 };
 
@@ -73,8 +47,8 @@ export class ForkFinder extends Question {
 
   private positions: ForkPosition[];
   private currentPositionIndex: number = 0;
-  private maxEnemyCount: number;
-  private exerciseCount: number;
+  // private maxEnemyCount: number;
+  // private exerciseCount: number;
   private pieceType: cjsPiece;
 
   private playerColor: Color = Math.random() > 0.5 ? 'w' : 'b';
@@ -93,8 +67,8 @@ export class ForkFinder extends Question {
 
   constructor(data: ViewData[]) {
     super(data);
-    this.maxEnemyCount = data[0]['Maximum Enemies'] as number;
-    this.exerciseCount = data[0]['Number of Exercises'] as number;
+    // this.maxEnemyCount = data[0]['Maximum Enemies'] as number;
+    // this.exerciseCount = data[0]['Number of Exercises'] as number;
 
     this.pieceType = {
       color: this.playerColor,
@@ -103,7 +77,7 @@ export class ForkFinder extends Question {
 
     console.log(`[fork] player piece: ${this.pieceType.type}, ${this.pieceType.color}`);
 
-    this.positions = this.generatePositions(this.exerciseCount);
+    this.positions = this.generatePositions(1);
   }
 
   private generatePositions(numPositions: number): ForkPosition[] {
@@ -382,20 +356,6 @@ export class ForkFinder extends Question {
 
   public getCurrentPosition(): ForkPosition {
     return this.positions[this.currentPositionIndex];
-  }
-
-  public nextPosition(): boolean {
-    if (this.currentPositionIndex < this.positions.length - 1) {
-      this.currentPositionIndex++;
-      return true;
-    }
-    return false;
-  }
-
-  private getRandomValueablePiece(): string {
-    // Pieces ordered roughly by value
-    const pieces = ['q', 'r', 'b', 'n'];
-    return pieces[Math.floor(Math.random() * pieces.length)];
   }
 
   private shuffleArray<T>(array: T[]): T[] {

@@ -272,14 +272,7 @@ const checkAnswer = () => {
 
     findMore.value = true;
   }
-  submitAnswer();
-};
-
-const submitAnswer = () => {
   questionUtils.submitAnswer(selectedSquares.value);
-  if (questionUtils.question.value?.nextPosition()) {
-    selectedSquares.value = [];
-  }
 };
 
 watch(
