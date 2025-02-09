@@ -30,8 +30,7 @@ export default defineComponent({
     //   return (a as QuestionView<Question>).submitAnswer !== undefined;
     // },
     submit(answer: Answer) {
-      // const thisClassname = this.constructor.name;
-      return this.getQuestionViewAncestor().submitAnswer(answer);
+      return this.getQuestionViewAncestor().submitAnswer(answer, this.$options.name ?? 'UserInput');
     },
     getQuestionViewAncestor(): ViewComponent {
       let ancestor = this.$parent;

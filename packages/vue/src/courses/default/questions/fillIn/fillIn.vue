@@ -9,7 +9,7 @@
       <span>{{ obscuredAnswer }}</span>
     </div>
     <div v-else-if="priorAttempts == 2" class="text-center text-h6">
-      <span>{{ obscuredAnswer }}</span>
+      <span>{{ someAnswer }}</span>
     </div>
     <v-card-actions v-if="!isQuestion">
       <v-spacer></v-spacer>
@@ -139,7 +139,7 @@ export default defineComponent({
       ) {
         return gradeSpellingAttempt(questionUtils.priorAnswers.value[0][0] as string, sa);
       } else {
-        console.log(`found no UserInputString`); // [ ] rework this - finding `VueComponent` instead, which prevents grading.
+        console.log(`found no UserInputString`);
       }
 
       if (someAnswer.value) {
