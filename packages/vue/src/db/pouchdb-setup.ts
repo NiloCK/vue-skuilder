@@ -1,6 +1,6 @@
 import PouchDB from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
-import PouchDBAuth from 'pouchdb-authentication';
+import PouchDBAuth from '@nilock2/pouchdb-authentication';
 
 // Register plugins
 PouchDB.plugin(PouchDBFind);

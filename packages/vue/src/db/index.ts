@@ -9,7 +9,7 @@ import ENV from '../ENVIRONMENT_VARS';
 import { getCurrentUser } from '../stores/useAuthStore';
 import { GuestUsername } from '@/constants';
 import moment, { Moment } from 'moment';
-import PouchDBAuth from 'pouchdb-authentication';
+import PouchDBAuth from '@nilock2/pouchdb-authentication';
 import pouch from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
 import process from 'process';
