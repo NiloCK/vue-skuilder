@@ -58,6 +58,6 @@ export default defineConfig({
     extensions: ['.js', '.ts', '.json', '.vue'],
   },
   optimizeDeps: {
-    include: ['events', 'pouchdb-browser', 'pouchdb-find', 'pouchdb-authentication'],
+    include: ['events', 'pouchdb-browser', 'pouchdb-find'],
   },
 });
