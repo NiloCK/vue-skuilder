@@ -1,8 +1,10 @@
 import fs = require('fs');
-import childProcess = require('child-process-promise');
 import logger from '../logger';
+import { promisify } from 'util';
+import { exec as execCallback } from 'child_process';
+const exec = promisify(execCallback);
 
-const FFMPEG = require('ffmpeg-static');
+import FFMPEG from 'ffmpeg-static';
 logger.info(`FFMPEG path: ${FFMPEG}`);
 
 checkFFMPEGVersion().catch((e) => {
@@ -13,18 +15,23 @@ checkFFMPEGVersion().catch((e) => {
 
 async function checkFFMPEGVersion() {
   try {
+    if (!FFMPEG) {
+      const e = 'FFMPEG executable not found';
+      logger.error(e);
+      throw new Error(e);
+    }
     if (!fs.existsSync(FFMPEG)) {
       const e = `FFMPEG executable not found at path: ${FFMPEG}`;
       logger.error(e);
       throw new Error(e);
     }
 
-    const result = await childProcess.exec(`${FFMPEG} -version`);
+    const result = await exec(`${FFMPEG} -version`);
     const version = result.stdout.split('\n')[0];
     logger.info(`FFMPEG version: ${version}`);
 
     // Verify loudnorm filter availability
-    const filters = await childProcess.exec(`${FFMPEG} -filters | grep loudnorm`);
+    const filters = await exec(`${FFMPEG} -filters | grep loudnorm`);
     if (!filters.stdout.includes('loudnorm')) {
       throw new Error('loudnorm filter not available');
     }
@@ -56,7 +63,7 @@ interface LoudnessData {
  *
  * @param fileData the base-64 encoded mp3 data from couchdb
  */
-export async function normalize(fileData) {
+export async function normalize(fileData: string): Promise<string> {
   const encoding = 'base64';
   const tmpDir = fs.mkdtempSync(`audioNormalize-${encoding}-`);
   const fileName = tmpDir + '/file.mp3';
@@ -72,14 +79,14 @@ export async function normalize(fileData) {
   const NORMALIZED = tmpDir + '/normalized' + ext;
 
   try {
-    const elongated = await childProcess.exec(
-      FFMPEG + ` -i ${fileName} -af "adelay=10000|10000" ${PADDED}`
-    );
-    const info = await childProcess.exec(
+    // elongate
+    await exec(FFMPEG + ` -i ${fileName} -af "adelay=10000|10000" ${PADDED}`);
+    const info = await exec(
       FFMPEG + ` -i ${PADDED} -af loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json -f null -`
     );
     const data: LoudnessData = JSON.parse(info.stderr.substring(info.stderr.indexOf('{')));
-    const paddedNormalized = await childProcess.exec(
+    // normalize the elongated file
+    await exec(
       FFMPEG +
         ` -i ${PADDED} -af ` +
         `loudnorm=I=-16:TP=-1.5:LRA=11:measured_I=${data.input_i}:` +
@@ -87,15 +94,15 @@ export async function normalize(fileData) {
         `measured_thresh=${data.input_thresh}:offset=${data.target_offset}:linear=true:` +
         `print_format=summary -ar 48k ${PADDED_NORMALIZED}`
     );
-    const normalized = await childProcess.exec(
-      FFMPEG + ` -i ${PADDED_NORMALIZED} -ss 00:00:10.000 -acodec copy ${NORMALIZED}`
-    );
+    // cut off the elongated part
+    await exec(FFMPEG + ` -i ${PADDED_NORMALIZED} -ss 00:00:10.000 -acodec copy ${NORMALIZED}`);
     const ret = fs.readFileSync(NORMALIZED, {
       encoding,
     });
     return ret;
   } catch (e) {
     logger.error(e);
+    throw e;
   } finally {
     const files = fs.readdirSync(tmpDir);
     files.forEach((file) => {
