@@ -1,10 +1,8 @@
-import ffmpeg = require('ffmpeg-static');
 import fs = require('fs');
 import childProcess = require('child-process-promise');
 import logger from '../logger';
 
-// @ts-ignore
-const FFMPEG = ffmpeg.path;
+const FFMPEG = require('ffmpeg-static');
 logger.info(`FFMPEG path: ${FFMPEG}`);
 if (!fs.existsSync(FFMPEG)) {
   const e = `FFMPEG executable not found at path: ${FFMPEG}`;
