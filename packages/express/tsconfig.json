@@ -1,4 +1,5 @@
 {
+    "extends": "@tsconfig/node18/tsconfig.json",
     "compilerOptions": {
         "target": "ES2022", // Updated from ES5 for modern Node.js features
         "module": "NodeNext", // Updated from commonjs for modern module support
