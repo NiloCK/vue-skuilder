@@ -5,6 +5,7 @@ import logger from '../logger';
 
 // @ts-ignore
 const FFMPEG = ffmpeg.path;
+logger.info(`FFMPEG path: ${FFMPEG}`);
 
 /**
  * From FFMPEG's loudnorm output - loudness data on a media file
