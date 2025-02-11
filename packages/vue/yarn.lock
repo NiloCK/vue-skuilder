@@ -2622,10 +2622,10 @@
     source-map "0.5.6"
     tsconfig "^7.0.0"
 
-"@vuetify/loader-shared@^2.0.3":
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/@vuetify/loader-shared/-/loader-shared-2.0.3.tgz#11451c717e4a352ec311da52a79c857cd256c92f"
-  integrity sha512-Ss3GC7eJYkp2SF6xVzsT7FAruEmdihmn4OCk2+UocREerlXKWgOKKzTN5PN3ZVN5q05jHHrsNhTuWbhN61Bpdg==
+"@vuetify/loader-shared@^2.0.3", "@vuetify/loader-shared@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@vuetify/loader-shared/-/loader-shared-2.1.0.tgz#29410dce04a78fa9cd40c4d9bc417b8d61ce5103"
+  integrity sha512-dNE6Ceym9ijFsmJKB7YGW0cxs7xbYV8+1LjU6jd4P14xOt/ji4Igtgzt0rJFbxu+ZhAzqz853lhB0z8V9Dy9cQ==
   dependencies:
     upath "^2.0.1"
 
@@ -7896,11 +7896,11 @@ webmidi@^2.5.1:
   integrity sha512-T/KhiljH0cdaJxB5zl9BEpbFOpKovop8pqCcWLjNPIB8XduIGGg8DkA/NCvy5t2onYCXmn+oMYJ3oYcaIWSvlA==
 
 webpack-plugin-vuetify@^3.0.3:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/webpack-plugin-vuetify/-/webpack-plugin-vuetify-3.0.3.tgz#8f8827c5adabf723eca154e4d11a210f43ad8dd7"
-  integrity sha512-pYTLcrufc00PzqHZhG/zLylGE07uC0hB6SisvSYuN6hyjKCf9rtdm2UaIG7kExfhZa3U1WKU7mYXFi1jDEc+vQ==
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/webpack-plugin-vuetify/-/webpack-plugin-vuetify-3.1.0.tgz#322509f205aa1cd9fde9d2f65b703f8a67270006"
+  integrity sha512-+JCZSVA8E/HyGByLA0B1Byg3hSnStFatiBdxKvVpW6hXZR0VaOVIC9m1ZLICThA32sICf87DdRnMPBts4xSlfQ==
   dependencies:
-    "@vuetify/loader-shared" "^2.0.3"
+    "@vuetify/loader-shared" "^2.1.0"
     decache "^4.6.0"
     file-loader "^6.2.0"
     find-cache-dir "^5.0.0"
