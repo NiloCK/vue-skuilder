@@ -14,7 +14,6 @@ import {
 } from './client-requests/course-requests';
 import CouchDB, { useOrCreateCourseDB, useOrCreateDB } from './couchdb';
 import { requestIsAuthenticated } from './couchdb/authentication';
-import bodyParser = require('body-parser');
 import cors = require('cors');
 import cookieParser = require('cookie-parser');
 import fileSystem = require('fs');
@@ -42,7 +41,7 @@ export const courseDBDesignDoc = fileSystem.readFileSync(
 const app = express();
 
 app.use(cookieParser());
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(
   cors({
     credentials: true,
