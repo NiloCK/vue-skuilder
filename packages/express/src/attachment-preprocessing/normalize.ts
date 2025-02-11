@@ -6,6 +6,11 @@ import logger from '../logger';
 // @ts-ignore
 const FFMPEG = ffmpeg.path;
 logger.info(`FFMPEG path: ${FFMPEG}`);
+if (!fs.existsSync(FFMPEG)) {
+  const e = `FFMPEG executable not found at path: ${FFMPEG}`;
+  logger.error(e);
+  throw new Error(e);
+}
 
 /**
  * From FFMPEG's loudnorm output - loudness data on a media file
