@@ -180,7 +180,7 @@ async function joinClassroom(req: JoinClassroom['data']) {
     logger.info(`joinClassroom running...
         \tRequest: ${JSON.stringify(req)}`);
 
-    const cfg: ClassroomConfig = (await getClassroomConfig(classID))!;
+    const cfg: ClassroomConfig = (await getClassroomConfig(classID));
 
     if (req.registerAs === 'student') {
       if (cfg.students.indexOf(req.user) === -1) {
