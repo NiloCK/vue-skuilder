@@ -4,10 +4,34 @@ import logger from '../logger';
 
 const FFMPEG = require('ffmpeg-static');
 logger.info(`FFMPEG path: ${FFMPEG}`);
-if (!fs.existsSync(FFMPEG)) {
-  const e = `FFMPEG executable not found at path: ${FFMPEG}`;
-  logger.error(e);
-  throw new Error(e);
+
+checkFFMPEGVersion().catch((e) => {
+  const msg = 'FFMPEG version check failed';
+  logger.error(msg, e);
+  throw new Error(msg + e);
+});
+
+async function checkFFMPEGVersion() {
+  try {
+    if (!fs.existsSync(FFMPEG)) {
+      const e = `FFMPEG executable not found at path: ${FFMPEG}`;
+      logger.error(e);
+      throw new Error(e);
+    }
+
+    const result = await childProcess.exec(`${FFMPEG} -version`);
+    const version = result.stdout.split('\n')[0];
+    logger.info(`FFMPEG version: ${version}`);
+
+    // Verify loudnorm filter availability
+    const filters = await childProcess.exec(`${FFMPEG} -filters | grep loudnorm`);
+    if (!filters.stdout.includes('loudnorm')) {
+      throw new Error('loudnorm filter not available');
+    }
+  } catch (error) {
+    logger.error('FFMPEG version check failed:', error);
+    throw error;
+  }
 }
 
 /**
