@@ -12,7 +12,6 @@
     "license": "GPL-3.0-or-later",
     "dependencies": {
         "axios": "^1.7.4",
-        "child-process-promise": "^2.2.1",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
         "dotenv": "^16.4.7",
@@ -29,7 +28,6 @@
         "@babel/core": "^7.22.9",
         "@babel/preset-env": "^7.22.9",
         "@babel/preset-typescript": "^7.22.5",
-        "@types/child-process-promise": "^2.2.1",
         "@types/cookie-parser": "^1.4.8",
         "@types/cors": "^2.8.17",
         "@types/dotenv": "^8.2.3",
