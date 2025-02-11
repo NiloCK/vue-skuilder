@@ -1,15 +1,30 @@
 {
-    // "compileOnSave": true,
-    "files": ["src/app.ts"],
-    "exclude": ["node_modules"],
-    // "include": ["src"],
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "ES5",
-        "esModuleInterop": true,
-        "experimentalDecorators": true,
+        "target": "ES2022", // Updated from ES5 for modern Node.js features
+        "module": "NodeNext", // Updated from commonjs for modern module support
+        "moduleResolution": "NodeNext", // Added to support modern module resolution
         "outDir": "dist",
         "sourceMap": true,
-        "lib": ["es2015", "DOM"]
-    }
+
+        // Modern TypeScript best practices
+        "esModuleInterop": true,
+        "strict": true, // Recommended for better type safety
+        "skipLibCheck": true, // Speeds up compilation
+        "forceConsistentCasingInFileNames": true,
+
+        // Existing options maintained
+        "experimentalDecorators": true,
+
+        // Updated lib array for modern features
+        "lib": ["ES2022", "DOM"],
+
+        // Added for better module resolution
+        "baseUrl": ".",
+        "paths": {
+            "*": ["node_modules/*"]
+        }
+    },
+    // Changed from "files" to "include" for better project structure
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist"]
 }
