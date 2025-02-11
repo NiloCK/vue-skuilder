@@ -1,7 +1,9 @@
 import ffmpeg = require('ffmpeg-static');
 import fs = require('fs');
 import childProcess = require('child-process-promise');
+import logger from '../logger';
 
+// @ts-ignore
 const FFMPEG = ffmpeg.path;
 
 /**
@@ -65,6 +67,7 @@ export async function normalize(fileData) {
     });
     return ret;
   } catch (e) {
+    logger.error(e);
   } finally {
     const files = fs.readdirSync(tmpDir);
     files.forEach((file) => {
