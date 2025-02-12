@@ -1,6 +1,10 @@
-import Nano = require('nano');
+import Nano from 'nano';
 import express from 'express';
-import { ServerRequest, ServerRequestType as RequestEnum } from '../../vue/src/server/types';
+import type { Request, Response } from 'express';
+import {
+  ServerRequest,
+  ServerRequestType as RequestEnum,
+} from '../../vue/src/server/types';
 import PostProcess from './attachment-preprocessing';
 import {
   ClassroomCreationQueue,
@@ -14,9 +18,9 @@ import {
 } from './client-requests/course-requests';
 import CouchDB, { useOrCreateCourseDB, useOrCreateDB } from './couchdb';
 import { requestIsAuthenticated } from './couchdb/authentication';
-import cors = require('cors');
-import cookieParser = require('cookie-parser');
-import fileSystem = require('fs');
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import * as fileSystem from 'fs';
 import { prepareNote55 } from '../../vue/src/db/prepareNote55';
 import ENV from './utils/env';
 import morgan from 'morgan';
@@ -48,14 +52,18 @@ app.use(
     origin: true,
   })
 );
-app.use(morgan('combined', { stream: { write: (message) => logger.info(message.trim()) } }));
+app.use(
+  morgan('combined', {
+    stream: { write: (message: string) => logger.info(message.trim()) },
+  })
+);
 app.use('/logs', logsRouter);
 
 export interface VueClientRequest extends express.Request {
   body: ServerRequest;
 }
 
-app.get('/courses', async (req, res) => {
+app.get('/courses', async (req: Request, res: Response) => {
   const coursesDB = await useOrCreateDB(COURSE_DB_LOOKUP);
 
   const courseStubs = await coursesDB.list({
@@ -67,14 +75,14 @@ app.get('/courses', async (req, res) => {
   res.send(courses);
 });
 
-app.get('/course/:courseID/config', async (req, res) => {
+app.get('/course/:courseID/config', async (req: Request, res: Response) => {
   const courseDB = await useOrCreateCourseDB(req.params.courseID);
   const cfg = await courseDB.get('CourseConfig'); // [ ] pull courseConfig docName into global const
 
   res.json(cfg);
 });
 
-app.delete('/course/:courseID', async (req, res) => {
+app.delete('/course/:courseID', async (req: Request, res: Response) => {
   logger.info(`Delete request made on course ${req.params.courseID}...`);
   const auth = await requestIsAuthenticated(req);
   if (auth) {
@@ -86,7 +94,10 @@ app.delete('/course/:courseID', async (req, res) => {
     }
     const lookupDB = await useOrCreateDB(COURSE_DB_LOOKUP);
     const lookupDoc = await lookupDB.get(req.params.courseID);
-    const lookupResp = await lookupDB.destroy(req.params.courseID, lookupDoc._rev);
+    const lookupResp = await lookupDB.destroy(
+      req.params.courseID,
+      lookupDoc._rev
+    );
     if (lookupResp.ok) {
       res.json({ success: true });
     } else {
@@ -102,7 +113,9 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
   if (auth) {
     const body = req.body;
     logger.info(
-      `Authorized ${body.type ? body.type : '[unspecified request type]'} request made...`
+      `Authorized ${
+        body.type ? body.type : '[unspecified request type]'
+      } request made...`
     );
 
     if (body.type === RequestEnum.CREATE_CLASSROOM) {
@@ -155,15 +168,15 @@ async function postHandler(req: VueClientRequest, res: express.Response) {
   }
 }
 
-app.post('/', (req, res) => {
+app.post('/', (req: Request, res: Response) => {
   postHandler(req, res);
 });
 
-app.get('/version', (req, res) => {
+app.get('/version', (req: Request, res: Response) => {
   res.send(ENV.VERSION);
 });
 
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
   let status = `Express service is running.\nVersion: ${ENV.VERSION}\n`;
 
   CouchDB.session()
