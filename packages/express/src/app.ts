@@ -4,7 +4,8 @@ import type { Request, Response } from 'express';
 import {
   ServerRequest,
   ServerRequestType as RequestEnum,
-} from '../../vue/src/server/types';
+  prepareNote55,
+} from '@vue-skuilder/vue';
 import PostProcess from './attachment-preprocessing';
 import {
   ClassroomCreationQueue,
@@ -21,7 +22,6 @@ import { requestIsAuthenticated } from './couchdb/authentication';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import * as fileSystem from 'fs';
-import { prepareNote55 } from '../../vue/src/db/prepareNote55';
 import ENV from './utils/env';
 import morgan from 'morgan';
 import logger from './logger';

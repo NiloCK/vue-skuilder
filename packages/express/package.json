@@ -1,6 +1,6 @@
 {
-    "name": "sk-server",
-    "version": "1.0.0",
+    "name": "@vue-skuilder/express",
+    "version": "0.1.0",
     "description": "an API",
     "main": "app.js",
     "scripts": {
@@ -14,6 +14,7 @@
     "author": "Colin Kennedy",
     "license": "GPL-3.0-or-later",
     "dependencies": {
+        "@vue-skuilder/vue": "0.1.0",
         "axios": "^1.7.4",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
@@ -35,13 +36,13 @@
         "@types/cookie-parser": "^1.4.8",
         "@types/cors": "^2.8.17",
         "@types/dotenv": "^8.2.3",
-        "@types/express": "^5.0.0",
+        "@types/express": "4.17.21",
         "@types/ffmpeg-static": "^2.0.0",
         "@types/hashids": "^1.0.30",
         "@types/jest": "^29.5.14",
         "@types/morgan": "^1.9.9",
-        "@types/node": "^22.13.1",
-        "@types/pouchdb": "^6.3.2",
+        "@types/node": "18",
+        "@types/pouchdb": "^6.4.2",
         "@typescript-eslint/eslint-plugin": "^8.24.0",
         "@typescript-eslint/parser": "^8.24.0",
         "babel-jest": "^29.6.1",

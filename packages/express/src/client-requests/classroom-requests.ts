@@ -4,8 +4,8 @@ import {
   CreateClassroom,
   JoinClassroom,
   LeaveClassroom,
-} from '../../../vue/src/server/types';
-import { Status } from '../../../vue/src/enums/Status';
+  Status
+} from '@vue-skuilder/vue';
 import { classroomDbDesignDoc } from '../app';
 import CouchDB, { SecurityObject, docCount, useOrCreateDB } from '../couchdb';
 import AsyncProcessQueue, { Result } from '../utils/processQueue';

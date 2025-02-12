@@ -1,12 +1,12 @@
 import hashids from 'hashids';
 import { log } from 'util';
-import { CreateCourse } from '../../../vue/src/server/types';
+import { CreateCourse } from '@vue-skuilder/vue';
 import { SecurityObject, useOrCreateDB } from '../couchdb';
 import { postProcessCourse } from '../attachment-preprocessing';
 import CouchDB from '../couchdb';
 import AsyncProcessQueue from '../utils/processQueue';
 import nano = require('nano');
-import { Status } from '../../../vue/src/enums/Status';
+import { Status } from '@vue-skuilder/vue';
 
 /**
  * Fake fcn to allow usage in couchdb map fcns which, after passing
@@ -174,7 +174,7 @@ async function createCourse(cfg: CourseConfig): Promise<any> {
       status: Status.error,
     };
   }
-  
+
   const courseID = lookupInsert.id;
   cfg.courseID = courseID;
 

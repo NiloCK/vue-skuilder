@@ -1,10 +1,10 @@
 {
-    "name": "new-skuilder",
+    "name": "@vue-skuilder/vue",
     "version": "0.1.0",
-    "private": true,
     "scripts": {
         "dev": "vite",
         "build": "vite build",
+        "build-types": "tsc --project tsconfig.types.json",
         "serve": "vite preview",
         "lint": "eslint . --fix",
         "lint:check": "eslint .",
@@ -13,6 +13,8 @@
         "test:unit:coverage": "vitest run --coverage",
         "test:unit:ui": "vitest --ui"
     },
+    "main": "dist/index.js",
+    "types": "dist/exports.d.ts",
     "resolutions": {
         "url-parse": "1.5.10"
     },
@@ -101,6 +103,6 @@
         "webpack-plugin-vuetify": "^3.0.3"
     },
     "engines": {
-        "node": ">=16"
+        "node": ">=18"
     }
 }
