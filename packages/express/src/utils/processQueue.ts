@@ -1,3 +1,5 @@
+import { IServerRequest } from '@vue-skuilder/vue';
+
 interface Request {}
 export interface Result {
   status: 'ok' | 'awaiting' | 'warning' | 'error';
@@ -25,7 +27,10 @@ interface CompletedRequest<R> extends LabelledRequest<R> {
  * This queue executes async prcesses sequentially, waiting
  * for each to complete before launching the next.
  */
-export default class AsyncProcessQueue<T extends Request, R extends Result> {
+export default class AsyncProcessQueue<
+  T extends IServerRequest,
+  R extends Result
+> {
   private processRequest: ProcessingFunction<T>;
 
   private queue: LabelledRequest<T>[] = [];
