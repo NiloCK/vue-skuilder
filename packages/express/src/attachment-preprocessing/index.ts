@@ -5,7 +5,24 @@ import AsyncProcessQueue, { Result } from '../utils/processQueue';
 import { COURSE_DB_LOOKUP } from '../client-requests/course-requests';
 import logger from '../logger';
 
-const Q = new AsyncProcessQueue<AttachmentProcessingRequest, Result>(processDocAttachments);
+// @ts-ignore
+const Q = new AsyncProcessQueue<AttachmentProcessingRequest, Result>(
+  processDocAttachments
+);
+
+interface DocForProcessing extends nano.DocumentGetResponse {
+  processed?: boolean | string[];
+  _attachments: {
+    [key: string]: {
+      content_type: string;
+      data?: any;
+      digest?: string;
+      length?: number;
+      revpos?: number;
+      stub?: boolean;
+    };
+  };
+}
 
 /**
  * Apply post-processing to a course database. Runs continuously.
@@ -57,9 +74,12 @@ export default async function postProcess(): Promise<void> {
 }
 
 function filterFactory(courseID: string) {
-  const courseDatabase = CouchDB.use(`coursedb-${courseID}`);
+  const courseDatabase = CouchDB.use<DocForProcessing>(`coursedb-${courseID}`);
 
-  return async function filterChanges(error, changeItem: nano.DatabaseChangesResultItem) {
+  return async function filterChanges(
+    error: any,
+    changeItem: nano.DatabaseChangesResultItem
+  ) {
     try {
       const docNoAttachments = await courseDatabase.get(changeItem.id, {
         attachments: false,
@@ -68,7 +88,8 @@ function filterFactory(courseID: string) {
       if (
         docNoAttachments._attachments &&
         Object.keys(docNoAttachments._attachments).length > 0 &&
-        (docNoAttachments['processed'] === undefined || docNoAttachments['processed'] === false)
+        (docNoAttachments['processed'] === undefined ||
+          docNoAttachments['processed'] === false)
       ) {
         const doc = await courseDatabase.get(changeItem.id, {
           attachments: true,
@@ -100,7 +121,9 @@ function filterFactory(courseID: string) {
   };
 }
 
-async function processDocAttachments(request: AttachmentProcessingRequest): Promise<Result> {
+async function processDocAttachments(
+  request: AttachmentProcessingRequest
+): Promise<Result> {
   if (request.fields.length == 0) {
     logger.info(`No attachments to process for ${request.docID}`);
     return {
@@ -109,7 +132,9 @@ async function processDocAttachments(request: AttachmentProcessingRequest): Prom
       status: 'warning',
     };
   }
-  const courseDatabase = CouchDB.use(`coursedb-${request.courseID}`);
+  const courseDatabase = CouchDB.use<DocForProcessing>(
+    `coursedb-${request.courseID}`
+  );
 
   const doc = await courseDatabase.get(request.docID, {
     attachments: true,
@@ -155,7 +180,8 @@ async function processDocAttachments(request: AttachmentProcessingRequest): Prom
   return resp;
 }
 
-interface DatabaseChangesResultItemWithDoc extends nano.DatabaseChangesResultItem {
+interface DatabaseChangesResultItemWithDoc
+  extends nano.DatabaseChangesResultItem {
   doc: nano.DocumentGetResponse;
   courseID: string;
 }

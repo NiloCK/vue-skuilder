@@ -15,7 +15,7 @@ type Env = {
 
 function getVar(name: string): string {
   if (process.env[name]) {
-    return process.env[name] as string;
+    return process.env[name];
   } else {
     throw new Error(`${name} not defined in environment`);
   }

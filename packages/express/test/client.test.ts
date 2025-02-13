@@ -14,6 +14,9 @@ const credentials = {
 
 beforeAll(async () => {
   serverProcess = exec('yarn serve');
+  if (!serverProcess || !serverProcess.stdout) {
+    abort();
+  }
   serverProcess.stdout.on('data', (data) => {
     console.log(data);
   });
@@ -106,6 +109,10 @@ test('Course Methods', async () => {
 // });
 
 afterAll(async () => {
+  if (!serverProcess || !serverProcess.stdin || !serverProcess.stdout || !serverProcess.stderr) {
+    return;
+  }
+
   // see https://stackoverflow.com/questions/54562879/jest-open-handle-when-using-node-exec/75830272#75830272
   serverProcess.stdin.destroy();
   serverProcess.stdout.destroy();
