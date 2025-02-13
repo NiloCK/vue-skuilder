@@ -27,6 +27,7 @@ const cardsByInexperienceDoc = {
   _id: '_design/cardsByInexperience',
   views: {
     cardsByInexperience: {
+      // @ts-expect-error - this function needs to be plain JS in order to land correctly as a design doc function in CouchDBKs
       map: function (doc) {
         if (doc.docType && doc.docType === 'CARD') {
           if (doc.elo && doc.elo.global && typeof doc.elo.global.count == 'number') {
@@ -225,6 +226,7 @@ async function createCourse(cfg: CourseConfig): Promise<any> {
 export type CreateCourseResp = CreateCourse['response'];
 
 export const CourseCreationQueue = new AsyncProcessQueue<
+  // @ts-ignore
   CreateCourse['data'],
   CreateCourse['response']
 >(createCourse);
