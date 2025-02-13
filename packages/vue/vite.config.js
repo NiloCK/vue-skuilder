@@ -3,21 +3,21 @@ import vue from '@vitejs/plugin-vue';
 import { VitePWA } from 'vite-plugin-pwa';
 import eslint from 'vite-plugin-eslint';
 import { fileURLToPath, URL } from 'node:url';
-import path from 'path';
+import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
-    target: 'es2017',
+    target: 'es2020',
     minify: 'terser',
     terserOptions: {
       keep_classnames: true,
     },
-    // lib: {
-    //   entry: path.resolve(__dirname, './src/exports.ts'),
-    //   name: 'vue-skuilder',
-    //   fileName: format => `exports.${format}.js`,
-    // },
+    lib: {
+      entry: resolve(__dirname, 'src/exports.ts'),
+      formats: ['es'],
+      fileName: 'exports',
+    },
   },
   define: {
     global: 'window',
