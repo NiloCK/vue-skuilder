@@ -209,16 +209,19 @@ async function joinClassroom(req: JoinClassroom['data']) {
 }
 
 export const ClassroomLeaveQueue = new AsyncProcessQueue<
+  // @ts-ignore
   LeaveClassroom['data'] & { username: string },
   LeaveClassroom['response']
 >(leaveClassroom);
 
 export const ClassroomJoinQueue = new AsyncProcessQueue<
+  // @ts-ignore
   JoinClassroom['data'],
   JoinClassroom['response']
 >(joinClassroom);
 
 export const ClassroomCreationQueue = new AsyncProcessQueue<
+  // @ts-ignore
   CreateClassroom['data'],
   CreateClassroom['response']
 >(createClassroom);
