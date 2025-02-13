@@ -1,14 +1,16 @@
 import { DataShape } from '../base-course/Interfaces/DataShape';
 import { Status } from '../enums/Status';
 
+export interface IServerResponse {
+  errorText?: string;
+  status: Status;
+  ok: boolean;
+}
+
 export interface IServerRequest {
   type: ServerRequestType;
   user: string;
-  response: {
-    errorText?: string;
-    status: Status;
-    ok: boolean;
-  } | null;
+  response: IServerResponse | null;
   /**
    * milliseconds to wait for a request to complete before timing out
    */
