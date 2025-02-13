@@ -1,6 +1,7 @@
 export { Status } from './enums/Status';
 export {
   CreateCourse,
+  CourseConfig,
   CreateClassroom,
   JoinClassroom,
   ClassroomConfig,

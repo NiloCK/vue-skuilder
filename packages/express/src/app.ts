@@ -26,6 +26,7 @@ import ENV from './utils/env';
 import morgan from 'morgan';
 import logger from './logger';
 import logsRouter from './routes/logs';
+import { CourseConfig } from '@vue-skuilder/vue/src/server/types';
 
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
@@ -64,13 +65,17 @@ export interface VueClientRequest extends express.Request {
 }
 
 app.get('/courses', async (req: Request, res: Response) => {
-  const coursesDB = await useOrCreateDB(COURSE_DB_LOOKUP);
+  const coursesDB = await useOrCreateDB<CourseConfig>(COURSE_DB_LOOKUP);
 
   const courseStubs = await coursesDB.list({
     include_docs: true,
   });
   const courses = courseStubs.rows.map((stub) => {
-    return `${stub.id} - ${stub.doc['name']}`;
+    if (stub.doc) {
+      return `${stub.id} - ${stub.doc['name']}`;
+    } else {
+      return `${stub.id} - [no name]`;
+    }
   });
   res.send(courses);
 });
