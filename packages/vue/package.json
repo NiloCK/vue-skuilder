@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
+        "build": "vite build && yarn build-types",
         "build-types": "tsc --project tsconfig.types.json",
         "serve": "vite preview",
         "lint": "eslint . --fix",
@@ -13,7 +13,7 @@
         "test:unit:coverage": "vitest run --coverage",
         "test:unit:ui": "vitest --ui"
     },
-    "main": "dist/index.js",
+    "main": "dist/exports.js",
     "types": "dist/exports.d.ts",
     "resolutions": {
         "url-parse": "1.5.10"
