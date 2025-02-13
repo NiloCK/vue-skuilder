@@ -29,8 +29,12 @@ export async function useOrCreateCourseDB(courseID: string): Promise<Nano.Docume
   return useOrCreateDB(`coursedb-${courseID}`);
 }
 
-export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<unknown>> {
-  const ret = CouchDB.use(dbName);
+interface NanoError extends Error {
+  statusCode?: number;
+}
+
+export async function useOrCreateDB<T>(dbName: string): Promise<Nano.DocumentScope<T>> {
+  const ret = CouchDB.use<T>(dbName);
 
   try {
     await ret.info();
@@ -39,9 +43,10 @@ export async function useOrCreateDB(dbName: string): Promise<Nano.DocumentScope<
     try {
       await CouchDB.db.create(dbName);
       return ret;
-    } catch (createErr) {
-      // If error is "database already exists", return existing db
-      if (createErr.statusCode === 412) {
+      } catch (error: unknown) {
+        const createErr = error as NanoError;
+        // If error is "database already exists", return existing db
+        if (createErr.statusCode === 412) {
         return ret;
       }
       throw createErr;
