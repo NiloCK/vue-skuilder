@@ -1,5 +1,5 @@
 export { Status } from './enums/Status';
-export {
+export type {
   CreateCourse,
   CourseConfig,
   CreateClassroom,
