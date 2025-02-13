@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue';
 import { VitePWA } from 'vite-plugin-pwa';
 import eslint from 'vite-plugin-eslint';
 import { fileURLToPath, URL } from 'node:url';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,6 +13,11 @@ export default defineConfig({
     terserOptions: {
       keep_classnames: true,
     },
+    // lib: {
+    //   entry: path.resolve(__dirname, './src/exports.ts'),
+    //   name: 'vue-skuilder',
+    //   fileName: format => `exports.${format}.js`,
+    // },
   },
   define: {
     global: 'window',
