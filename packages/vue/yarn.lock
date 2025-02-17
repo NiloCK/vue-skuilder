@@ -2274,9 +2274,9 @@
   integrity sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==
 
 "@types/simplemde@^1.11.7":
-  version "1.11.7"
-  resolved "https://registry.yarnpkg.com/@types/simplemde/-/simplemde-1.11.7.tgz#c8bd9f54ff46db7f311a989004eb5815acedf429"
-  integrity sha512-b3yirBar1gqb9clgJJKpx+Or3txkOOkm5sffhRKaBUfh7+1D2Aimx2RKXGS1LK9S5KyNmug3lwpGJtaID9cOnA==
+  version "1.11.11"
+  resolved "https://registry.yarnpkg.com/@types/simplemde/-/simplemde-1.11.11.tgz#29eeaf36aed02750b0cd28acfe0dac7575fe507d"
+  integrity sha512-H3ml0YJtx9XMs2pGHwQy/UHzkg9W3Ke3QikQ/jHhEZj1dfmPbWqIvaNyNrt3dtiVlztWhMgK02+Rmoem+Jot/Q==
 
 "@types/stack-utils@^2.0.0":
   version "2.0.3"
