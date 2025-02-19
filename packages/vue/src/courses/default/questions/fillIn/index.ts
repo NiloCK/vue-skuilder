@@ -234,7 +234,15 @@ export class BlanksCard extends Question {
     }
   }
 
-  private answersFromString(s: string) {
+  /**
+   * Parses a string to extract answer options and distractors for a fill-in question.
+   * The input string must be wrapped in curly braces and can contain multiple answers/distractors separated by | and ||.
+   * For example: "{{answer1|answer2||distractor1|distractor2}}"
+   * @param s The input string containing answers and optional distractors
+   * @returns An object containing the parsed answers array and shuffled options array (or null if no distractors)
+   * @throws Error if input string is not properly formatted with {{ }}
+   */
+  private optionsFromString(s: string) {
     if (!s.startsWith('{{') || !s.endsWith('}}')) {
       throw new Error(`string ${s} is not fill-in text - must look like "{{someText}}"`);
     }
@@ -242,12 +250,15 @@ export class BlanksCard extends Question {
     const split = s.split('||');
     if (split.length > 1) {
       const answers = split[0].split('|');
-      const distractors = split[1].split('|');
+      // remove answers from distractors (makes for easier editing to allow answers in the distractor list)
+      const distractors = split[1].split('|').filter((d) => !answers.includes(d));
 
-      distractors.push(answers[randomInt(0, answers.length - 1)]);
+      const options = distractors;
+      options.push(answers[randomInt(0, answers.length - 1)]);
+
       return {
         answers,
-        options: _.shuffle(distractors),
+        options: _.shuffle(options),
       };
     } else {
       return {
@@ -268,7 +279,7 @@ export class BlanksCard extends Question {
     const recombines = [];
     for (let i = 0; i < splits.length; i++) {
       try {
-        const parsedOptions = this.answersFromString(splits[i]);
+        const parsedOptions = this.optionsFromString(splits[i]);
         this.answers = parsedOptions.answers;
         this.options = parsedOptions.options;
         if (this.options?.length) {
