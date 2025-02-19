@@ -15,7 +15,7 @@
         </div>
       </div>
     </div>
-    <div v-if="showPromotionDialog.value" class="puzzle-promotion-dialog">
+    <div v-if="showPromotionDialog" class="puzzle-promotion-dialog">
       <button v-for="piece in promotionPieces" :key="piece.value" @click="handlePromotion(piece.value)">
         {{ playerColor === 'cg-white' ? piece.whiteSymbol : piece.blackSymbol }}
         {{ piece.name }}
@@ -93,7 +93,7 @@ export default defineComponent({
   setup(props, { emit }) {
     // Initialize base utilities
     const viewableUtils = useViewable(props, emit, 'PuzzleView');
-    const questionUtils = useQuestionView<ChessPuzzle>(viewableUtils, props.modifyDifficulty);
+    const questionUtils = useQuestionView<ChessPuzzle>(viewableUtils);
 
     // State
     const boardElement = ref<HTMLElement | null>(null);
