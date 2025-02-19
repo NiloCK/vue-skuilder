@@ -412,7 +412,7 @@ export default defineComponent({
 
     async submit() {
       if (this.checkInput()) {
-        console.log(`[DataInputForm] Store: ${JSON.stringify(this.fieldStore)}`);
+        console.log(`[DataInputForm] Store: ${JSON.stringify(this.fieldStore.inputs)}`);
         console.log(`[DataInputForm] ConvertedStore: ${JSON.stringify(this.convertedInput)}`);
         this.uploading = true;
 
