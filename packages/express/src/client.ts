@@ -4,7 +4,7 @@ import {
   CourseConfig,
   CreateCourse,
   ServerRequestType,
-} from '../../vue/src/server/types';
+} from '@vue-skuilder/common';
 import { CreateCourseResp } from './client-requests/course-requests';
 
 export default class SkldrClient {
@@ -28,9 +28,13 @@ export default class SkldrClient {
       response: null,
     };
 
-    const resp = await axios.post<any, AxiosResponse<CreateCourseResp>>(`${this.server}`, request, {
-      auth: auth,
-    });
+    const resp = await axios.post<any, AxiosResponse<CreateCourseResp>>(
+      `${this.server}`,
+      request,
+      {
+        auth: auth,
+      }
+    );
 
     return resp;
   }

@@ -1,12 +1,12 @@
 import hashids from 'hashids';
 import { log } from 'util';
-import { CreateCourse } from '@vue-skuilder/vue';
+import { CreateCourse } from '@vue-skuilder/common';
 import { SecurityObject, useOrCreateDB } from '../couchdb';
 import { postProcessCourse } from '../attachment-preprocessing';
 import CouchDB from '../couchdb';
 import AsyncProcessQueue from '../utils/processQueue';
 import nano = require('nano');
-import { Status } from '@vue-skuilder/vue';
+import { Status } from '@vue-skuilder/common';
 
 /**
  * Fake fcn to allow usage in couchdb map fcns which, after passing
@@ -17,7 +17,11 @@ function emit(key?: unknown, value?: unknown) {
 }
 
 export const COURSE_DB_LOOKUP = 'coursedb-lookup';
-const courseHasher = new hashids(COURSE_DB_LOOKUP, 6, 'abcdefghijkmnopqrstuvwxyz23456789');
+const courseHasher = new hashids(
+  COURSE_DB_LOOKUP,
+  6,
+  'abcdefghijkmnopqrstuvwxyz23456789'
+);
 
 function getCourseDBName(courseID: string): string {
   return `coursedb-${courseID}`;
@@ -30,7 +34,11 @@ const cardsByInexperienceDoc = {
       // @ts-expect-error - this function needs to be plain JS in order to land correctly as a design doc function in CouchDBKs
       map: function (doc) {
         if (doc.docType && doc.docType === 'CARD') {
-          if (doc.elo && doc.elo.global && typeof doc.elo.global.count == 'number') {
+          if (
+            doc.elo &&
+            doc.elo.global &&
+            typeof doc.elo.global.count == 'number'
+          ) {
             emit(doc.elo.global.count, doc.elo);
           } else if (doc.elo && typeof doc.elo == 'number') {
             emit(0, doc.elo);
@@ -134,7 +142,9 @@ function insertDesignDoc(
       courseDB
         .insert(doc)
         .catch((e) => {
-          log(`Error inserting design doc ${doc._id} in course-${courseID}: ${e}`);
+          log(
+            `Error inserting design doc ${doc._id} in course-${courseID}: ${e}`
+          );
         })
         .then((resp) => {
           if (resp && resp.ok) {
@@ -144,7 +154,11 @@ function insertDesignDoc(
     });
 }
 
-const courseDBDesignDocs: { _id: string }[] = [elodoc, tagsDoc, cardsByInexperienceDoc];
+const courseDBDesignDocs: { _id: string }[] = [
+  elodoc,
+  tagsDoc,
+  cardsByInexperienceDoc,
+];
 
 export async function initCourseDBDesignDocInsert(): Promise<void> {
   const lookup = await useOrCreateDB(COURSE_DB_LOOKUP);
@@ -221,7 +235,6 @@ async function createCourse(cfg: CourseConfig): Promise<any> {
     courseID: courseID,
   };
 }
-
 
 export type CreateCourseResp = CreateCourse['response'];
 

@@ -5,6 +5,7 @@
     "module": "NodeNext", // Updated from commonjs for modern module support
     "moduleResolution": "NodeNext", // Added to support modern module resolution
     "outDir": "dist",
+    "rootDir": "src",
     "sourceMap": true,
 
     // Modern TypeScript best practices
@@ -22,11 +23,12 @@
     // Added for better module resolution
     "baseUrl": ".",
     "paths": {
-      "@vue-skuilder/*": ["../*/src"],
+      "@vue-skuilder/vue": ["../vue/src"],
+      "@/*": ["src/*"],
       "*": ["node_modules/*"]
     },
     "typeRoots": ["./node_modules/@types", "./types"],
-    "types": ["node"],
+    // "types": ["node"],
 
     "moduleDetection": "force",
     "composite": true,
@@ -35,6 +37,6 @@
   },
   // Changed from "files" to "include" for better project structure
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
   "references": [{ "path": "../vue" }]
 }

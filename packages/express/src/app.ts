@@ -5,7 +5,7 @@ import {
   ServerRequest,
   ServerRequestType as RequestEnum,
   prepareNote55,
-} from '@vue-skuilder/vue';
+} from '@vue-skuilder/common';
 import PostProcess from './attachment-preprocessing';
 import {
   ClassroomCreationQueue,
@@ -26,7 +26,7 @@ import ENV from './utils/env';
 import morgan from 'morgan';
 import logger from './logger';
 import logsRouter from './routes/logs';
-import { CourseConfig } from '@vue-skuilder/vue/src/server/types';
+import { CourseConfig } from '@vue-skuilder/common';
 
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection at:', promise, 'reason:', reason);

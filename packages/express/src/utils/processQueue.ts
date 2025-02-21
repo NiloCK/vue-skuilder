@@ -1,4 +1,4 @@
-import { IServerRequest } from '@vue-skuilder/vue';
+import { IServerRequest } from '@vue-skuilder/common';
 
 interface Request {}
 export interface Result {
