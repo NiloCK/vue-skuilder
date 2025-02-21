@@ -1,5 +1,7 @@
 {
+  "name": "@vue-skuilder/client",
   "version": "0.1.0",
+  "private": true,
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -30,7 +32,6 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "client",
   "author": "Colin Kennedy",
   "module": "dist/client.esm.js",
   "size-limit": [
