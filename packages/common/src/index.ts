@@ -1,7 +1,8 @@
-export { Status } from './enums/Status';
-export type {
+export { Status } from './wire-format';
+export {
   CreateCourse,
   CourseConfig,
+  AddCourseDataPayload,
   CreateClassroom,
   JoinClassroom,
   ClassroomConfig,
@@ -12,4 +13,4 @@ export type {
   IServerResponse,
 } from './wire-format';
 
-export { prepareNote55 } from './db/prepareNote55';
+export { prepareNote55 } from './course-data';

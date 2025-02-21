@@ -2,6 +2,13 @@
     "name": "@vue-skuilder/common",
     "private": true,
     "version": "0.1.0",
-    "types": "src/index.ts",
-    "packageManager": "yarn@4.6.0"
+    "main": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc"
+    },
+    "types": "dist/index.d.ts",
+    "packageManager": "yarn@4.6.0",
+    "devDependencies": {
+        "typescript": "^4.5.5"
+    }
 }

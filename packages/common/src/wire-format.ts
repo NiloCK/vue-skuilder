@@ -1,5 +1,4 @@
-import { DataShape } from '../base-course/Interfaces/DataShape';
-import { Status } from '../enums/Status';
+import { DataShape } from './course-data';
 
 export enum Status {
   awaitingResponse = 'awaiting',
