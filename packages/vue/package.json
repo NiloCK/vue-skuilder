@@ -14,14 +14,6 @@
         "test:unit:coverage": "vitest run --coverage",
         "test:unit:ui": "vitest --ui"
     },
-    "main": "dist/exports.js",
-    "types": "dist/exports.d.ts",
-    "exports": {
-        ".": {
-            "types": "./dist/exports.d.ts",
-            "import": "./dist/exports.js"
-        }
-    },
     "files": [
         "dist",
         "src"
