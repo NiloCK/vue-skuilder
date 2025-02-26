@@ -3,7 +3,7 @@ on:
   pull_request:
     paths:
       - 'packages/vue/**'
-      - 'packages/common/**' # since vue depends on common
+      - 'packages/common/**'
       - '.github/workflows/build-vue.yml'
 jobs:
   build-vue-spa:
@@ -26,19 +26,19 @@ jobs:
       - name: Install dependencies
         run: |
           yarn --version
-          yarn install
-
-      - name: Verify workspace setup
-        run: yarn workspaces list
+          yarn install --immutable
 
       - name: Build common package
-        run: yarn workspace @vue-skuilder/common build
+        working-directory: ./packages/common
+        run: yarn build
 
       - name: Setup Vue environment
         run: printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
 
       - name: Build Vue package
-        run: yarn workspace @vue-skuilder/vue build
+        working-directory: ./packages/vue
+        run: yarn build
 
       - name: Run Vue tests
-        run: yarn workspace @vue-skuilder/vue test:unit
+        working-directory: ./packages/vue
+        run: yarn test:unit
