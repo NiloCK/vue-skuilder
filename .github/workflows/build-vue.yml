@@ -37,7 +37,9 @@ jobs:
 
       - name: Build Vue package
         working-directory: ./packages/vue
-        run: yarn build
+        run: |
+          yarn install
+          yarn build
 
       - name: Run Vue tests
         working-directory: ./packages/vue
