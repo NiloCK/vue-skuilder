@@ -1,5 +1,6 @@
 {
     "name": "@vue-skuilder/vue",
+    "private": true,
     "version": "0.1.0",
     "scripts": {
         "dev": "vite",
