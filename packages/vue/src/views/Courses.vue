@@ -79,7 +79,7 @@ import CourseEditor from '@/components/Courses/CourseEditor.vue';
 import CourseStubCard from '@/components/Courses/CourseStubCard.vue';
 import _ from 'lodash';
 import serverRequest from '../server';
-import { ServerRequestType, CourseConfig } from '../server/types';
+import { ServerRequestType, CourseConfig } from '@vue-skuilder/common';
 import { alertUser } from '../components/SnackbarService.vue';
 import { getCourseList } from '@/db/courseDB';
 import { User } from '../db/userDB';

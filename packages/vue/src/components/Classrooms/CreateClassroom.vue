@@ -48,7 +48,7 @@ import { log } from '@/logshim';
 import { registerUserForClassroom } from '../../db/userDB';
 import { Status } from '../../enums/Status';
 import serverRequest from '../../server';
-import { ClassroomConfig, CreateClassroom, ServerRequestType } from '../../server/types';
+import { ClassroomConfig, CreateClassroom, ServerRequestType } from '@vue-skuilder/common';
 import { alertUser } from '../SnackbarService.vue';
 import { defineComponent } from 'vue';
 import { getCurrentUser } from '@/stores/useAuthStore';
