@@ -1,22 +1,17 @@
 {
-    "devDependencies": {
-        "@typescript-eslint/eslint-plugin": "^4.14.0",
-        "@typescript-eslint/parser": "^4.14.0",
-        "eslint": "^7.18.0",
-        "eslint-config-prettier": "^10.0.1",
-        "eslint-plugin-prettier": "^3.3.1",
-        "eslint-plugin-prettier-vue": "^5.0.0",
-        "eslint-plugin-vue": "^7.5.0",
-        "prettier": "^2.2.1",
-        "typescript": "^5.7.2"
-    },
     "name": "vue-skuilder",
     "scripts": {
-        "serve": "./test-couch/test-couch.sh start && lerna run serve --stream",
-        "build": "lerna run --no-bail --stream build"
+        "dev:vue": "yarn workspace @vue-skuilder/vue dev",
+        "dev:express": "yarn workspace @vue-skuilder/express dev",
+        "build": "yarn workspace @vue-skuilder/common build && yarn workspace @vue-skuilder/vue build && yarn workspace @vue-skuilder/express build",
+        "dev": "yarn workspace @vue-skuilder/common build && concurrently \"yarn dev:vue\" \"yarn dev:express\""
     },
     "private": true,
     "workspaces": [
         "packages/*"
-    ]
+    ],
+    "packageManager": "yarn@4.6.0",
+    "devDependencies": {
+        "concurrently": "^9.1.2"
+    }
 }
