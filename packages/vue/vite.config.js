@@ -13,11 +13,6 @@ export default defineConfig({
     terserOptions: {
       keep_classnames: true,
     },
-    lib: {
-      entry: resolve(__dirname, 'src/exports.ts'),
-      formats: ['es'],
-      fileName: 'exports',
-    },
   },
   define: {
     global: 'window',
