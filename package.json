@@ -3,8 +3,14 @@
     "scripts": {
         "dev:vue": "yarn workspace @vue-skuilder/vue dev",
         "dev:express": "yarn workspace @vue-skuilder/express dev",
+        "dev:couchdb": "node scripts/dev-couchdb.js start",
         "build": "yarn workspace @vue-skuilder/common build && yarn workspace @vue-skuilder/vue build && yarn workspace @vue-skuilder/express build",
-        "dev": "yarn workspace @vue-skuilder/common build && concurrently \"yarn dev:vue\" \"yarn dev:express\""
+        "dev": "yarn workspace @vue-skuilder/common build && node scripts/dev-couchdb.js start && concurrently \"yarn dev:vue\" \"yarn dev:express\"",
+        "couchdb:start": "node scripts/dev-couchdb.js start",
+        "couchdb:stop": "node scripts/dev-couchdb.js stop",
+        "couchdb:status": "node scripts/dev-couchdb.js status",
+        "couchdb:remove": "node scripts/dev-couchdb.js remove",
+        "postdev": "node scripts/dev-couchdb.js stop"
     },
     "private": true,
     "workspaces": [
