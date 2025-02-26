@@ -4,8 +4,8 @@ import {
   CreateClassroom,
   JoinClassroom,
   LeaveClassroom,
-} from '../../../vue/src/server/types';
-import { Status } from '../../../vue/src/enums/Status';
+  Status,
+} from '@vue-skuilder/common';
 import { classroomDbDesignDoc } from '../app';
 import CouchDB, { SecurityObject, docCount, useOrCreateDB } from '../couchdb';
 import AsyncProcessQueue, { Result } from '../utils/processQueue';
@@ -147,7 +147,9 @@ async function createClassroom(config: ClassroomConfig) {
   return ret;
 }
 
-async function leaveClassroom(req: LeaveClassroom['data'] & { username: string }) {
+async function leaveClassroom(
+  req: LeaveClassroom['data'] & { username: string }
+) {
   const cfg: ClassroomConfig = await getClassroomConfig(req.classID);
   if (cfg) {
     const index = cfg.students.indexOf(req.username);
@@ -180,7 +182,7 @@ async function joinClassroom(req: JoinClassroom['data']) {
     logger.info(`joinClassroom running...
         \tRequest: ${JSON.stringify(req)}`);
 
-    const cfg: ClassroomConfig = (await getClassroomConfig(classID))!;
+    const cfg: ClassroomConfig = await getClassroomConfig(classID);
 
     if (req.registerAs === 'student') {
       if (cfg.students.indexOf(req.user) === -1) {
@@ -209,16 +211,19 @@ async function joinClassroom(req: JoinClassroom['data']) {
 }
 
 export const ClassroomLeaveQueue = new AsyncProcessQueue<
+  // @ts-ignore
   LeaveClassroom['data'] & { username: string },
   LeaveClassroom['response']
 >(leaveClassroom);
 
 export const ClassroomJoinQueue = new AsyncProcessQueue<
+  // @ts-ignore
   JoinClassroom['data'],
   JoinClassroom['response']
 >(joinClassroom);
 
 export const ClassroomCreationQueue = new AsyncProcessQueue<
+  // @ts-ignore
   CreateClassroom['data'],
   CreateClassroom['response']
 >(createClassroom);

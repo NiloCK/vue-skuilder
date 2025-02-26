@@ -55,7 +55,7 @@
 import { defineComponent } from 'vue';
 import Mousetrap from 'mousetrap';
 import serverRequest from '../../server';
-import { CourseConfig, CreateCourse, DataShape55, QuestionType55, ServerRequestType } from '../../server/types';
+import { CourseConfig, CreateCourse, DataShape55, QuestionType55, ServerRequestType } from '@vue-skuilder/common';
 import { alertUser } from '../SnackbarService.vue';
 import { getCurrentUser } from '@/stores/useAuthStore';
 
