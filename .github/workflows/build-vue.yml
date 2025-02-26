@@ -3,25 +3,35 @@ on:
   pull_request:
     paths:
       - 'packages/vue/**'
+      - 'packages/common/**' # since vue depends on common
       - '.github/workflows/build-vue.yml'
 jobs:
   build-vue-spa:
-    runs-on: ubuntu-latest # todo: use whatever is on the DO droplet
+    runs-on: ubuntu-latest
     steps:
-      - run: echo "🎉 The job was triggered by a ${{ github.event_name }} on commit ${{ github.SHA }}"
-      - name: Check out repository code
-        uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4 # Updated to the latest version
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4 # Updated to the latest version
         with:
           node-version: 18
-      - run: npm install -g yarn@1.22.17 # version? 1.22.17 -> 1.22.19 current
-      - run: npm install -g lerna@3.22.1 # version? 3.22.1 -> 6.6.2 current
+          cache: 'yarn' # Enable caching for Yarn
 
-      - run: lerna bootstrap
-      - name: Build and Test
-        run: |
-          printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
-          cd ./packages/vue
-          yarn build
-          yarn test:unit
-          # yarn test:e2e:headless
+      - name: Enable Corepack for Yarn 4
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build common package
+        run: yarn workspace @vue-skuilder/common build
+
+      - name: Setup Vue environment
+        run: printf "${{ secrets.VUE_ENV }}" > ./packages/vue/.env.production
+
+      - name: Build Vue package
+        run: yarn workspace @vue-skuilder/vue build
+
+      - name: Run Vue tests
+        run: yarn workspace @vue-skuilder/vue test:unit
