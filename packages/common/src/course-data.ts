@@ -1,6 +1,6 @@
-import { Status } from '.';
-import { DisplayableData, DocType } from './db';
-import { NameSpacer } from './namespacer';
+import { Status } from './wire-format.js';
+import { DisplayableData, DocType } from './db.js';
+import { NameSpacer } from './namespacer.js';
 
 export interface DataShape {
   name: DataShapeName;

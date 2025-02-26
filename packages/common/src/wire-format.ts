@@ -1,4 +1,4 @@
-import { DataShape } from './course-data';
+import { DataShape } from './course-data.js';
 
 export enum Status {
   awaitingResponse = 'awaiting',
