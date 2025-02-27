@@ -3,11 +3,12 @@ import vue from '@vitejs/plugin-vue';
 import { VitePWA } from 'vite-plugin-pwa';
 import eslint from 'vite-plugin-eslint';
 import { fileURLToPath, URL } from 'node:url';
+import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
-    target: 'es2017',
+    target: 'es2020',
     minify: 'terser',
     terserOptions: {
       keep_classnames: true,

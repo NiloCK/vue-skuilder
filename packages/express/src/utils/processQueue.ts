@@ -1,3 +1,5 @@
+import { IServerRequest } from '@vue-skuilder/common';
+
 interface Request {}
 export interface Result {
   status: 'ok' | 'awaiting' | 'warning' | 'error';
@@ -14,7 +16,7 @@ interface LabelledRequest<R> {
 }
 
 interface FailedRequest<R> extends LabelledRequest<R> {
-  result: Result;
+  result: Result | null;
   error: any;
 }
 interface CompletedRequest<R> extends LabelledRequest<R> {
@@ -25,7 +27,10 @@ interface CompletedRequest<R> extends LabelledRequest<R> {
  * This queue executes async prcesses sequentially, waiting
  * for each to complete before launching the next.
  */
-export default class AsyncProcessQueue<T extends Request, R extends Result> {
+export default class AsyncProcessQueue<
+  T extends IServerRequest,
+  R extends Result
+> {
   private processRequest: ProcessingFunction<T>;
 
   private queue: LabelledRequest<T>[] = [];
@@ -104,11 +109,27 @@ export default class AsyncProcessQueue<T extends Request, R extends Result> {
       const res = this.completed.find((val) => {
         return val.id === jobID;
       });
-      return res.result as R;
+      if (res) {
+        return res.result as R;
+      } else {
+        return {
+          error: 'No result found',
+          ok: false,
+          status: 'error',
+        } as R;
+      }
     } else if (status === 'error') {
       const res = this.errors.find((val) => {
         return val.id === jobID;
       });
+      if (!res) {
+        return {
+          error: 'Job failed - no error log found',
+          ok: false,
+          status: 'error',
+        } as R;
+      }
+
       if (res.result) {
         return res.result as R;
       } else {
@@ -162,18 +183,18 @@ export default class AsyncProcessQueue<T extends Request, R extends Result> {
             result: result,
           });
         } else {
-          if (result)
+          if (result) {
             this.errors.push({
               id: req.id,
               request: req.request,
               result: result,
               error: result.error,
             });
-          else {
+          } else {
             this.errors.push({
               id: req.id,
               request: req.request,
-              error: result.error,
+              error: 'error',
               result: null,
             });
           }

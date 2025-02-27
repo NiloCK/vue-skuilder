@@ -7,7 +7,7 @@ export interface ViewData {
 export function displayableDataToViewData(data: DisplayableData): ViewData {
   const ret: ViewData = {};
   data.data.forEach((field) => {
-    ret[field.name] = field.data;
+    ret[field.name] = field.data as string | number | boolean;
   });
   if (data._attachments) {
     Object.getOwnPropertyNames(data._attachments).forEach((attachment) => {
