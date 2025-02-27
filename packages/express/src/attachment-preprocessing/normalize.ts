@@ -1,10 +1,19 @@
-import fs = require('fs');
-import logger from '../logger';
+import fs from 'fs';
+import logger from '../logger.js';
 import { promisify } from 'util';
 import { exec as execCallback } from 'child_process';
 const exec = promisify(execCallback);
 
-import FFMPEG from 'ffmpeg-static';
+import FFMPEGstatic from 'ffmpeg-static';
+if (!FFMPEGstatic) {
+  const e = 'FFMPEGstatic executable not found';
+  logger.error(e);
+  throw new Error(e);
+}
+
+// string | null here - but we know it's a string from the above check
+const FFMPEG = FFMPEGstatic as unknown as string;
+
 logger.info(`FFMPEG path: ${FFMPEG}`);
 
 checkFFMPEGVersion().catch((e) => {
@@ -15,11 +24,6 @@ checkFFMPEGVersion().catch((e) => {
 
 async function checkFFMPEGVersion() {
   try {
-    if (!FFMPEG) {
-      const e = 'FFMPEG executable not found';
-      logger.error(e);
-      throw new Error(e);
-    }
     if (!fs.existsSync(FFMPEG)) {
       const e = `FFMPEG executable not found at path: ${FFMPEG}`;
       logger.error(e);
@@ -82,9 +86,12 @@ export async function normalize(fileData: string): Promise<string> {
     // elongate
     await exec(FFMPEG + ` -i ${fileName} -af "adelay=10000|10000" ${PADDED}`);
     const info = await exec(
-      FFMPEG + ` -i ${PADDED} -af loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json -f null -`
+      FFMPEG +
+        ` -i ${PADDED} -af loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json -f null -`
     );
-    const data: LoudnessData = JSON.parse(info.stderr.substring(info.stderr.indexOf('{')));
+    const data: LoudnessData = JSON.parse(
+      info.stderr.substring(info.stderr.indexOf('{'))
+    );
     // normalize the elongated file
     await exec(
       FFMPEG +
@@ -95,7 +102,10 @@ export async function normalize(fileData: string): Promise<string> {
         `print_format=summary -ar 48k ${PADDED_NORMALIZED}`
     );
     // cut off the elongated part
-    await exec(FFMPEG + ` -i ${PADDED_NORMALIZED} -ss 00:00:10.000 -acodec copy ${NORMALIZED}`);
+    await exec(
+      FFMPEG +
+        ` -i ${PADDED_NORMALIZED} -ss 00:00:10.000 -acodec copy ${NORMALIZED}`
+    );
     const ret = fs.readFileSync(NORMALIZED, {
       encoding,
     });

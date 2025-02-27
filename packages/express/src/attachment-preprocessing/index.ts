@@ -1,9 +1,9 @@
-import CouchDB, { useOrCreateDB } from '../couchdb';
-import nano = require('nano');
-import { normalize } from './normalize';
-import AsyncProcessQueue, { Result } from '../utils/processQueue';
-import { COURSE_DB_LOOKUP } from '../client-requests/course-requests';
-import logger from '../logger';
+import CouchDB, { useOrCreateDB } from '../couchdb/index.js';
+import nano from 'nano';
+import { normalize } from './normalize.js';
+import AsyncProcessQueue, { Result } from '../utils/processQueue.js';
+import { COURSE_DB_LOOKUP } from '../client-requests/course-requests.js';
+import logger from '../logger.js';
 
 // @ts-ignore
 const Q = new AsyncProcessQueue<AttachmentProcessingRequest, Result>(

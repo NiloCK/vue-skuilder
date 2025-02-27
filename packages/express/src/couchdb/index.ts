@@ -1,7 +1,7 @@
-import Nano = require('nano');
+import Nano from 'nano';
 import process from 'process';
-import ENV from '../utils/env';
-import logger from '../logger';
+import ENV from '../utils/env.js'; 
+import logger from '../logger.js';
 
 const url = ENV.COUCHDB_SERVER;
 const protocol: string = ENV.COUCHDB_PROTOCOL;

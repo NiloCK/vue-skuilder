@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "ES2022", // Updated from ES5 for modern Node.js features
     "module": "NodeNext", // Updated from commonjs for modern module support
-    "moduleResolution": "NodeNext", // Added to support modern module resolution
+    "moduleResolution": "nodenext", // Added to support modern module resolution
     "outDir": "dist",
     "rootDir": "src",
     "sourceMap": true,

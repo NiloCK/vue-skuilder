@@ -1,8 +1,8 @@
 import express, { Request, Response } from 'express';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { requestIsAdminAuthenticated } from '../couchdb/authentication';
-import logger from '../logger';
+import { requestIsAdminAuthenticated } from '../couchdb/authentication.js';
+import logger from '../logger.js';
 import process from 'process';
 
 const router = express.Router();

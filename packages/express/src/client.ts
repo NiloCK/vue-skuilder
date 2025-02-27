@@ -5,7 +5,7 @@ import {
   CreateCourse,
   ServerRequestType,
 } from '@vue-skuilder/common';
-import { CreateCourseResp } from './client-requests/course-requests';
+import { CreateCourseResp } from './client-requests/course-requests.js';
 
 export default class SkldrClient {
   server: string;

@@ -6,10 +6,14 @@ import {
   LeaveClassroom,
   Status,
 } from '@vue-skuilder/common';
-import { classroomDbDesignDoc } from '../app';
-import CouchDB, { SecurityObject, docCount, useOrCreateDB } from '../couchdb';
-import AsyncProcessQueue, { Result } from '../utils/processQueue';
-import logger from '../logger';
+import { classroomDbDesignDoc } from '../app.js';
+import CouchDB, {
+  SecurityObject,
+  docCount,
+  useOrCreateDB,
+} from '../couchdb/index.js';
+import AsyncProcessQueue, { Result } from '../utils/processQueue.js';
+import logger from '../logger.js';
 
 export const CLASSROOM_DB_LOOKUP = 'classdb-lookup';
 const CLASSROOM_CONFIG = 'ClassroomConfig';

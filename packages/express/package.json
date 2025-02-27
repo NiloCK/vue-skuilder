@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "description": "an API",
     "main": "dist/app.js",
+    "type": "module",
     "types": "dist/app.d.ts",
     "scripts": {
         "clean": "rimraf dist",

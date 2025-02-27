@@ -6,26 +6,26 @@ import {
   ServerRequestType as RequestEnum,
   prepareNote55,
 } from '@vue-skuilder/common';
-import PostProcess from './attachment-preprocessing';
+import PostProcess from './attachment-preprocessing/index.js';
 import {
   ClassroomCreationQueue,
   ClassroomJoinQueue,
   ClassroomLeaveQueue,
-} from './client-requests/classroom-requests';
+} from './client-requests/classroom-requests.js';
 import {
   COURSE_DB_LOOKUP,
   CourseCreationQueue,
   initCourseDBDesignDocInsert,
-} from './client-requests/course-requests';
-import CouchDB, { useOrCreateCourseDB, useOrCreateDB } from './couchdb';
-import { requestIsAuthenticated } from './couchdb/authentication';
+} from './client-requests/course-requests.js';
+import CouchDB, { useOrCreateCourseDB, useOrCreateDB } from './couchdb/index.js';
+import { requestIsAuthenticated } from './couchdb/authentication.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import * as fileSystem from 'fs';
-import ENV from './utils/env';
+import ENV from './utils/env.js';
 import morgan from 'morgan';
-import logger from './logger';
-import logsRouter from './routes/logs';
+import logger from './logger.js';
+import logsRouter from './routes/logs.js';
 import { CourseConfig } from '@vue-skuilder/common';
 
 process.on('unhandledRejection', (reason, promise) => {
