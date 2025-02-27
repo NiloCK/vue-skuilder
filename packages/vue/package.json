@@ -92,7 +92,7 @@
         "process": "^0.11.10",
         "sass": "^1.83.0",
         "stream-browserify": "^3.0.0",
-        "terser-webpack-plugin": "^1.4.1",
+        "terser": "^5.39.0",
         "timers-browserify": "^2.0.12",
         "ts-jest": "^29",
         "typescript": "~5.7.2",
