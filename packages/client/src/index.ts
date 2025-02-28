@@ -1,13 +1,12 @@
 import * as fs from 'fs';
-// import { addNote55 } from '../../vue/src/db/courseDB';
-// import PouchDb from 'pouchdb-core';
-import console from 'console';
-import Blob from 'buffer';
 import axios from 'axios';
+
 // import { addNote55 } from 'new-skuilder';
 
 // const spellingCourseID = 'a9fae15687220aa6ce62018005087c95';
 // testAPI();
+
+type AudioData = Buffer;
 
 makeSpellingNotes();
 makeSelectionNotes();
@@ -59,7 +58,7 @@ function isCVCeWord(w: string): boolean {
 
 function cardText(w: string): string {
   return `Spell the word:
-  
+
 {{ ${w} }}`;
 }
 
@@ -114,7 +113,7 @@ function spellingCardTags(w: string): string[] {
 
 type spellingNote = {
   md: string;
-  audio: Blob.Blob;
+  audio: AudioData;
   tags: string[];
 };
 
