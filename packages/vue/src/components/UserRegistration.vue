@@ -65,7 +65,7 @@ import { defineComponent } from 'vue';
 import { User } from '@/db/userDB';
 import { log } from '@/logshim';
 import { alertUser } from './SnackbarService.vue';
-import { Status } from '../enums/Status';
+import { Status } from '@vue-skuilder/common';
 import { getCurrentUser, useAuthStore } from '@/stores/useAuthStore';
 
 export default defineComponent({

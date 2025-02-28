@@ -15,7 +15,7 @@ import {
   VuetifyRule,
 } from '../../../base-course/Interfaces/ValidatingFunction';
 import { ValidationResult } from '../../../base-course/Interfaces/ValidationResult';
-import { Status } from '../../../enums/Status';
+import { Status } from '@vue-skuilder/common';
 // import { CourseElo } from '../../../tutor/Elo';
 import { useFieldInputStore } from '@/stores/useFieldInputStore';
 import { CourseElo } from '@/tutor/Elo';

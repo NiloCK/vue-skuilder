@@ -66,8 +66,7 @@ import { defineComponent } from 'vue';
 import { getCredentialledCourseConfig } from '@/db/courseAPI';
 import { getTag, updateTag } from '@/db/courseDB';
 import { DocType, Tag } from '@/db/types';
-import { Status } from '@/enums/Status';
-import { CourseConfig } from '@/server/types';
+import { Status, CourseConfig } from '@vue-skuilder/common';
 import CourseCardBrowser from './CourseCardBrowser.vue';
 import { alertUser } from '../SnackbarService.vue';
 

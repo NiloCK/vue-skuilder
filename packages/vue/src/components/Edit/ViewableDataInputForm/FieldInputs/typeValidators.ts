@@ -1,4 +1,4 @@
-import { Status } from '../../../../enums/Status';
+import { Status } from '@vue-skuilder/common';
 import { ValidationResult } from '../../../../base-course/Interfaces/ValidationResult';
 
 const okResult: ValidationResult = {

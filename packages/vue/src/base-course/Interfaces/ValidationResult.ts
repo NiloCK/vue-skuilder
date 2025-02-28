@@ -1,4 +1,4 @@
-import { Status } from '../../enums/Status';
+import { Status } from '@vue-skuilder/common';
 
 export interface ValidationResult {
   status: Status;

@@ -1,6 +1,6 @@
 import { isInteger } from 'lodash';
 import { Validator } from '../../../base-course/Interfaces/Validator';
-import { Status } from '../../../enums/Status';
+import { Status } from '@vue-skuilder/common';
 
 /**
  * Returns an integer between (inclusive) the two inputs

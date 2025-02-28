@@ -6,7 +6,7 @@ import { ViewData } from '../../../../base-course/Interfaces/ViewData';
 import { randomInt } from '../../../../courses/math/utility';
 import { DataShapeName } from '../../../../enums/DataShapeNames';
 import { FieldType } from '../../../../enums/FieldType';
-import { Status } from '../../../../enums/Status';
+import { Status } from '@vue-skuilder/common';
 import _ from 'lodash';
 import { marked } from 'marked';
 import FillInView from './fillIn.vue';

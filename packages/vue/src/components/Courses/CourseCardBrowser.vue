@@ -116,7 +116,7 @@ import { removeTagFromCard } from '@/db/courseDB';
 import { CardData, DisplayableData, DocType, Tag } from '@/db/types';
 import { defineComponent } from 'vue';
 import { alertUser } from '../SnackbarService.vue';
-import { Status } from '@/enums/Status';
+import { Status } from '@vue-skuilder/common';
 
 function isConstructor(obj: unknown) {
   try {

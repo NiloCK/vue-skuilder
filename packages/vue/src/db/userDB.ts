@@ -1,4 +1,4 @@
-import { Status } from '../enums/Status';
+import { Status } from '@vue-skuilder/common';
 import ENV from '../ENVIRONMENT_VARS';
 import { GuestUsername } from '@/constants';
 import { UserConfig } from '../stores/useConfigStore';

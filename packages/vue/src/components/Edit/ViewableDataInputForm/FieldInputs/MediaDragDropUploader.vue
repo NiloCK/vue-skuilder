@@ -40,7 +40,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import FieldInput from '../OptionsFieldInput';
-import { Status } from '@/enums/Status';
+import { Status } from '@vue-skuilder/common';
 import { FieldInputSetupReturn } from '../OptionsFieldInput';
 
 interface MediaItem {

@@ -1,5 +1,5 @@
 import { Validator } from '../Interfaces/Validator';
-import { Status } from '../../enums/Status';
+import { Status } from '@vue-skuilder/common';
 
 export const NonEmptyString: Validator = {
   instructions: '',

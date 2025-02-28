@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { Status } from '@/enums/Status';
+import { Status } from '@vue-skuilder/common';
 
 interface SnackbarOptions {
   text: string;
