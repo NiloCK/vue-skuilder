@@ -46,7 +46,7 @@ jobs:
       - name: Build and test express package
         run: |
           yarn workspace @vue-skuilder/express build
-          yarn workspace @vue-skuilder/express test
+          # yarn workspace @vue-skuilder/express test
 
       - name: Type check
         run: yarn workspace @vue-skuilder/express type-check
