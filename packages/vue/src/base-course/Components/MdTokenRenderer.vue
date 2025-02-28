@@ -2,7 +2,8 @@
   <span v-if="isText(token)">
     <span v-if="!token.tokens || token.tokens.length === 0">
       <span v-if="isComponent(token)">
-        <component :is="parsedComponent(token).is" v-if="!last" :text="parsedComponent(token).text" />
+        <!-- <component :is="parsedComponent(token).is" v-if="!last" :text="parsedComponent(token).text" /> -->
+        <component :is="getComponent(parsedComponent(token).is)" v-if="!last" :text="parsedComponent(token).text" />
       </span>
       <span v-else-if="containsComponent(token)">
         <md-token-renderer v-for="(subTok, j) in splitTextToken(token)" :key="j" :token="subTok" />
@@ -120,6 +121,14 @@ import {
 import CodeBlockRenderer from './CodeBlockRenderer.vue';
 import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
 import { MarkedToken, Tokens } from 'marked';
+import { markRaw } from 'vue';
+
+// Register components to be used in the template
+// In Vue 3 with <script setup>, components used via :is must be explicitly registered
+const components = {
+  fillIn: markRaw(FillInInput),
+  // Add other dynamic components here
+};
 
 // Define component props
 const props = defineProps({
@@ -134,19 +143,19 @@ const props = defineProps({
   },
 });
 
-// Register components for runtime use
-const components = {
-  fillIn: FillInInput,
-  RadioMultipleChoice,
-};
-
 // Methods
 function isComponent(token: MarkedToken): boolean {
-  return _isComponent(token);
+  console.log('[isComponent] Pre: Input token:', token);
+  const result = _isComponent(token);
+  console.log('[isComponent] Post: Result:', result);
+  return result;
 }
 
 function containsComponent(token: MarkedToken): boolean {
-  return _containsComponent(token);
+  console.log('[containsComponent] Pre: Input token:', token);
+  const result = _containsComponent(token);
+  console.log('[containsComponent] Post: Result:', result);
+  return result;
 }
 
 function splitTextToken(token: MarkedToken): Tokens.Text[] {
@@ -180,10 +189,19 @@ function parsedComponent(token: MarkedToken): {
     text = token.raw;
   }
 
+  console.log('[parsedComponent] Token:', token);
+  console.log('[parsedComponent] Text extracted:', text);
+
+  // This now returns a component from our registered components object
   return {
-    is: 'fillIn',
+    is: 'fillIn', // This should match a key in the components object
     text,
   };
+}
+
+function getComponent(componentName: string) {
+  // Return the component instance from our components object
+  return components[componentName as keyof typeof components];
 }
 
 function decodeBasicEntities(text: string): string {
@@ -199,7 +217,7 @@ function isText(tok: TokenOrComponent): boolean {
   return (tok as any).inLink === undefined && tok.type === 'text';
 }
 
-// Make these functions available to the template
+// Make these functions and objects available to the template
 defineExpose({
   isComponent,
   containsComponent,
@@ -208,19 +226,12 @@ defineExpose({
   parsedComponent,
   decodeBasicEntities,
   isText,
+  components,
+  getComponent,
 });
 </script>
 
 <style lang="css" scoped>
-/* @import './../../../node_modules/highlight.js/styles/atelier-seaside-light.css'; */
-/* @import './../../../node_modules/highlight.js/styles/stackoverflow-light.css'; */
-/* @import './../../../node_modules/highlight.js/styles/xt256.css'; */
-/* @import './../../../node_modules/highlight.js/styles/zenburn.css'; */
-/* @import './../../../node_modules/highlight.js/styles/tomorrow.css'; */
-/* @import './../../../node_modules/highlight.js/styles/lioshi.css'; */
-/* @import './../../../node_modules/highlight.js/styles/rainbow.css'; */
-/* @import './../../../node_modules/highlight.js/styles/monokai-sublime.css'; */
-
 blockquote {
   border-left: 3px teal solid;
   padding-left: 8px;
