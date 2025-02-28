@@ -130,9 +130,9 @@ const components = {
 };
 
 // Define component props
-const props = defineProps({
+defineProps({
   token: {
-    type: Object as any, // We'll fix the typing later
+    type: TokenOrComponent, // We'll fix the typing later
     required: true,
   },
   last: {
@@ -144,16 +144,12 @@ const props = defineProps({
 
 // Methods
 function isComponent(token: MarkedToken): boolean {
-  console.log('[isComponent] Pre: Input token:', token);
   const result = _isComponent(token);
-  console.log('[isComponent] Post: Result:', result);
   return result;
 }
 
 function containsComponent(token: MarkedToken): boolean {
-  console.log('[containsComponent] Pre: Input token:', token);
   const result = _containsComponent(token);
-  console.log('[containsComponent] Post: Result:', result);
   return result;
 }
 
@@ -187,9 +183,6 @@ function parsedComponent(token: MarkedToken): {
   } else if ('raw' in token && typeof token.raw === 'string') {
     text = token.raw;
   }
-
-  console.log('[parsedComponent] Token:', token);
-  console.log('[parsedComponent] Text extracted:', text);
 
   // This now returns a component from our registered components object
   return {
