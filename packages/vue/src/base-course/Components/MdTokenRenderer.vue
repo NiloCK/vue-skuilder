@@ -2,7 +2,8 @@
   <span v-if="isText(token)">
     <span v-if="!token.tokens || token.tokens.length === 0">
       <span v-if="isComponent(token)">
-        <component :is="parsedComponent(token).is" v-if="!last" :text="parsedComponent(token).text" />
+        <!-- <component :is="parsedComponent(token).is" v-if="!last" :text="parsedComponent(token).text" /> -->
+        <component :is="getComponent(parsedComponent(token).is)" v-if="!last" :text="parsedComponent(token).text" />
       </span>
       <span v-else-if="containsComponent(token)">
         <md-token-renderer v-for="(subTok, j) in splitTextToken(token)" :key="j" :token="subTok" />
@@ -92,7 +93,8 @@
 
   <span v-else-if="token.type === 'html'" v-html="token.raw"></span>
 
-  <highlightjs v-else-if="token.type === 'code'" class="hljs_render pa-2" :language="token.lang" :code="token.text" />
+  <code-block-renderer v-else-if="token.type === 'code'" :code="token.text" :language="token.lang" />
+  <!-- <highlightjs v-else-if="token.type === 'code'" class="hljs_render pa-2" :language="token.lang" :code="token.text" /> -->
 
   <code v-else-if="token.type === 'codespan'" class="codespan" v-html="token.text"></code>
 
@@ -107,112 +109,122 @@
   </em>
 </template>
 
-<script lang="ts">
-import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
+<script setup lang="ts">
 import {
-  containsComponent,
-  isComponent,
-  splitParagraphToken,
-  splitTextToken,
+  containsComponent as _containsComponent,
+  isComponent as _isComponent,
+  splitParagraphToken as _splitParagraphToken,
+  splitTextToken as _splitTextToken,
   TokenOrComponent,
 } from '@/courses/default/questions/fillIn';
+import CodeBlockRenderer from './CodeBlockRenderer.vue';
 import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
-import { marked } from 'marked';
-import { defineComponent } from 'vue';
+import { MarkedToken, Tokens } from 'marked';
+import { markRaw } from 'vue';
+import { PropType } from 'vue';
 
-// import hljs from 'highlight.js';
-// import 'highlight.js/styles/atelier-seaside-light.css'; // Move CSS import here
-// import 'highlight.js/styles/atelier-seaside-light.css';
-import hljsVuePlugin from '@highlightjs/vue-plugin';
+// Register components to be used in the template
+// In Vue 3 with <script setup>, components used via :is must be explicitly registered
+const components = {
+  fillIn: markRaw(FillInInput),
+  // Add other dynamic components here
+};
 
-export default defineComponent({
-  name: 'MdTokenRenderer',
-
-  components: {
-    fillIn: FillInInput,
-    RadioMultipleChoice,
-    highlightjs: hljsVuePlugin.component,
+// Define component props
+defineProps({
+  token: {
+    type: Object as PropType<TokenOrComponent>,
+    required: true,
   },
-
-  props: {
-    token: {
-      type: Object as () => marked.Token | TokenOrComponent,
-      required: true,
-    },
-    last: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
+  last: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
+});
 
-  methods: {
-    isComponent(token: marked.Token): boolean {
-      return isComponent(token);
-    },
+// Methods
+function isComponent(token: MarkedToken): boolean {
+  const result = _isComponent(token);
+  return result;
+}
 
-    containsComponent(token: marked.Token): boolean {
-      return containsComponent(token);
-    },
+function containsComponent(token: MarkedToken): boolean {
+  const result = _containsComponent(token);
+  return result;
+}
 
-    splitTextToken(token: marked.Tokens.Text): marked.Token[] {
-      return splitTextToken(token);
-    },
+function splitTextToken(token: MarkedToken): Tokens.Text[] {
+  return _splitTextToken(token);
+}
 
-    splitParagraphToken(token: marked.Tokens.Paragraph): TokenOrComponent[] {
-      return splitParagraphToken(token);
-    },
+function splitParagraphToken(token: Tokens.Paragraph): TokenOrComponent[] {
+  return _splitParagraphToken(token);
+}
 
-    parsedComponent(
-      token: marked.Tokens.Text
-    ): {
-      is: string;
-      text: string;
-    } {
-      // [ ] switching on component types & loading custom component
-      //
-      // sketch:
-      // const demoustached = token.text.slice(2, token.text.length - 2);
-      // const firstToken = demoustached.split(' ')[0];
-      // if (firstToken.charAt(firstToken.length - 1) == '>') {
-      //   return {
-      //     is: firstToken.slice(0, firstToken.length - 1),
-      //     text: demoustached.slice(firstToken.length + 1, demoustached.length),
-      //   };
-      // }
+function parsedComponent(token: MarkedToken): {
+  is: string;
+  text: string;
+} {
+  // [ ] switching on component types & loading custom component
+  //
+  // sketch:
+  // const demoustached = token.text.slice(2, token.text.length - 2);
+  // const firstToken = demoustached.split(' ')[0];
+  // if (firstToken.charAt(firstToken.length - 1) == '>') {
+  //   return {
+  //     is: firstToken.slice(0, firstToken.length - 1),
+  //     text: demoustached.slice(firstToken.length + 1, demoustached.length),
+  //   };
+  // }
 
-      return {
-        is: 'fillIn',
-        text: token.text,
-      };
-    },
+  let text = '';
+  if ('text' in token && typeof token.text === 'string') {
+    text = token.text;
+  } else if ('raw' in token && typeof token.raw === 'string') {
+    text = token.raw;
+  }
 
-    decodeBasicEntities(text: string): string {
-      return text
-        .replace(/&#39;/g, "'")
-        .replace(/&quot;/g, '"')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>');
-    },
+  // This now returns a component from our registered components object
+  return {
+    is: 'fillIn', // This should match a key in the components object
+    text,
+  };
+}
 
-    isText(tok: TokenOrComponent): tok is marked.Tokens.Text {
-      return (tok as marked.Tokens.Tag).inLink === undefined && tok.type === 'text';
-    },
-  },
+function getComponent(componentName: string) {
+  // Return the component instance from our components object
+  return components[componentName as keyof typeof components];
+}
+
+function decodeBasicEntities(text: string): string {
+  return text
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+}
+
+function isText(tok: TokenOrComponent): boolean {
+  return (tok as any).inLink === undefined && tok.type === 'text';
+}
+
+// Make these functions and objects available to the template
+defineExpose({
+  isComponent,
+  containsComponent,
+  splitTextToken,
+  splitParagraphToken,
+  parsedComponent,
+  decodeBasicEntities,
+  isText,
+  components,
+  getComponent,
 });
 </script>
 
 <style lang="css" scoped>
-/* @import './../../../node_modules/highlight.js/styles/atelier-seaside-light.css'; */
-/* @import './../../../node_modules/highlight.js/styles/stackoverflow-light.css'; */
-/* @import './../../../node_modules/highlight.js/styles/xt256.css'; */
-/* @import './../../../node_modules/highlight.js/styles/zenburn.css'; */
-/* @import './../../../node_modules/highlight.js/styles/tomorrow.css'; */
-/* @import './../../../node_modules/highlight.js/styles/lioshi.css'; */
-/* @import './../../../node_modules/highlight.js/styles/rainbow.css'; */
-/* @import './../../../node_modules/highlight.js/styles/monokai-sublime.css'; */
-
 blockquote {
   border-left: 3px teal solid;
   padding-left: 8px;

@@ -2228,13 +2228,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@highlightjs/vue-plugin@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "@highlightjs/vue-plugin@npm:2.1.0"
+"@highlightjs/vue-plugin@npm:^2.1.2":
+  version: 2.1.2
+  resolution: "@highlightjs/vue-plugin@npm:2.1.2"
   peerDependencies:
     highlight.js: ^11.0.1
     vue: ^3
-  checksum: 10c0/c2f71940606319d8505c2adcc552ae57a48fb3ac19a2b495ea716ced1cc0828db17226b0912c8698f7e112cdad74b4fc9eb450f68cbd800eb91f1cced56f275b
+  checksum: 10c0/418b5142398aaf187a85e4f23f5ffaceee210b4a72678a77d841e973963e5791fc927c412153bf0cacfcdbc35e04d2b7c7eedf17d241295306e956697ae9c675
   languageName: node
   linkType: hard
 
@@ -4948,7 +4948,7 @@ __metadata:
   dependencies:
     "@babel/core": "npm:^7.26.9"
     "@babel/plugin-proposal-class-static-block": "npm:^7.21.0"
-    "@highlightjs/vue-plugin": "npm:^2.1.0"
+    "@highlightjs/vue-plugin": "npm:^2.1.2"
     "@mdi/font": "npm:^7.3.67"
     "@nilock2/pouchdb-authentication": "npm:^1.0.2"
     "@testing-library/jest-dom": "npm:^6.6.3"
