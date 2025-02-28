@@ -41,7 +41,7 @@ if (instance) {
   instance.appContext.app.component('highlightjs', hljsVuePlugin.component);
 }
 
-const props = defineProps({
+defineProps({
   code: {
     type: String,
     required: true,
