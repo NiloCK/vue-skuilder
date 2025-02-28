@@ -8,7 +8,7 @@ import { DataShapeName } from '../../../../enums/DataShapeNames';
 import { FieldType } from '../../../../enums/FieldType';
 import { Status } from '@vue-skuilder/common';
 import _ from 'lodash';
-import { marked } from 'marked';
+import { marked, MarkedToken, Tokens } from 'marked';
 import FillInView from './fillIn.vue';
 
 /**
@@ -64,7 +64,7 @@ function splitText(
   return { left, middle, right };
 }
 
-export function splitTextToken(token: marked.Tokens.Text): marked.Tokens.Text[] {
+export function splitTextToken(token: Tokens.Text): Tokens.Text[] {
   if (containsComponent(token)) {
     const textChunks = splitByDelimiters(token.text, '{{', '}}');
     const rawChunks = splitByDelimiters(token.raw, '{{', '}}');
@@ -85,10 +85,10 @@ export function splitTextToken(token: marked.Tokens.Text): marked.Tokens.Text[] 
   }
 }
 
-export type TokenOrComponent = marked.Token | { type: 'component'; raw: string };
+export type TokenOrComponent = MarkedToken | { type: 'component'; raw: string };
 
-export function splitParagraphToken(token: marked.Tokens.Paragraph): TokenOrComponent[] {
-  let ret: marked.Token[] = [];
+export function splitParagraphToken(token: Tokens.Paragraph): TokenOrComponent[] {
+  let ret: MarkedToken[] = [];
 
   if (containsComponent(token)) {
     const textChunks = splitByDelimiters(token.text, '{{', '}}');
@@ -99,16 +99,16 @@ export function splitParagraphToken(token: marked.Tokens.Paragraph): TokenOrComp
           type: 'text',
           text: textChunks[i],
           raw: rawChunks[i],
-        } as marked.Tokens.Text;
+        } as Tokens.Text;
 
         if (isComponent(textToken)) {
           ret.push(textToken);
         } else {
           marked.lexer(rawChunks[i]).forEach((t) => {
             if (t.type === 'paragraph') {
-              ret = ret.concat(t.tokens);
+              ret = ret.concat(t.tokens as MarkedToken[]);
             } else {
-              ret.push(t);
+              ret.push(t as MarkedToken);
             }
           });
         }
@@ -123,7 +123,7 @@ export function splitParagraphToken(token: marked.Tokens.Paragraph): TokenOrComp
   return ret;
 }
 
-export function containsComponent(token: marked.Token) {
+export function containsComponent(token: MarkedToken) {
   if (token.type === 'text' || token.type === 'paragraph') {
     const opening = token.raw.indexOf('{{');
     const closing = token.raw.indexOf('}}');
@@ -138,7 +138,7 @@ export function containsComponent(token: marked.Token) {
   }
 }
 
-export function isComponent(token: marked.Token) {
+export function isComponent(token: MarkedToken) {
   return token.type === 'text' && token.text.startsWith('{{') && token.text.endsWith('}}');
 }
 
@@ -199,12 +199,12 @@ export class BlanksCard extends Question {
   public answers: string[] | null = null;
   public options: string[] | null = null;
 
-  public splitTextToken(token: marked.Tokens.Text): marked.Tokens.Text[] {
+  public splitTextToken(token: Tokens.Text): Tokens.Text[] {
     if (containsComponent(token)) {
       const text = splitText(token.text, '{{', '}}');
       const raw = splitText(token.raw, '{{', '}}');
 
-      const ret: marked.Tokens.Text[] = [];
+      const ret: Tokens.Text[] = [];
 
       if (raw.left.length > 0) {
         ret.push({
