@@ -4,27 +4,19 @@
   "private": true,
   "license": "MIT",
   "main": "dist/index.js",
+  "module": "dist/index.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist",
     "src"
   ],
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "scripts": {
-    "start": "tsdx watch",
-    "build": "tsdx build",
-    "test": "tsdx test",
-    "lint": "tsdx lint",
-    "prepare": "tsdx build",
-    "size": "size-limit",
-    "analyze": "size-limit --why"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsdx lint"
-    }
+    "build": "rimraf dist && tsc && rollup --bundleConfigAsCjs -c",
+    "dev": "rollup --bundleConfigAsCjs -c -w",
+    "lint": "eslint 'src/**/*.ts'"
   },
   "prettier": {
     "printWidth": 80,
@@ -33,23 +25,24 @@
     "trailingComma": "es5"
   },
   "author": "Colin Kennedy",
-  "module": "dist/client.esm.js",
-  "size-limit": [
-    {
-      "path": "dist/client.cjs.production.min.js",
-      "limit": "10 KB"
-    },
-    {
-      "path": "dist/client.esm.js",
-      "limit": "10 KB"
-    }
-  ],
   "dependencies": {
     "axios": "^1.7.4",
     "command-line-args": "^5.2.1"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/jest": "^29.5.12",
     "@types/node": "^20.2.5",
-    "tsdx": "^0.14.1"
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.12.1",
+    "ts-jest": "^29.1.2",
+    "tslib": "^2.6.2",
+    "typescript": "^5.4.2"
   }
 }
