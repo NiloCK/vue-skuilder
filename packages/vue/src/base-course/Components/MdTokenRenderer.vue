@@ -121,6 +121,7 @@ import CodeBlockRenderer from './CodeBlockRenderer.vue';
 import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
 import { MarkedToken, Tokens } from 'marked';
 import { markRaw } from 'vue';
+import { PropType } from 'vue';
 
 // Register components to be used in the template
 // In Vue 3 with <script setup>, components used via :is must be explicitly registered
@@ -132,7 +133,7 @@ const components = {
 // Define component props
 defineProps({
   token: {
-    type: TokenOrComponent, // We'll fix the typing later
+    type: Object as PropType<TokenOrComponent>,
     required: true,
   },
   last: {
