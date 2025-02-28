@@ -92,7 +92,8 @@
 
   <span v-else-if="token.type === 'html'" v-html="token.raw"></span>
 
-  <highlightjs v-else-if="token.type === 'code'" class="hljs_render pa-2" :language="token.lang" :code="token.text" />
+  <code-block-renderer v-else-if="token.type === 'code'" :code="token.text" :language="token.lang" />
+  <!-- <highlightjs v-else-if="token.type === 'code'" class="hljs_render pa-2" :language="token.lang" :code="token.text" /> -->
 
   <code v-else-if="token.type === 'codespan'" class="codespan" v-html="token.text"></code>
 
@@ -107,99 +108,106 @@
   </em>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
 import {
-  containsComponent,
-  isComponent,
-  splitParagraphToken,
-  splitTextToken,
+  containsComponent as _containsComponent,
+  isComponent as _isComponent,
+  splitParagraphToken as _splitParagraphToken,
+  splitTextToken as _splitTextToken,
   TokenOrComponent,
 } from '@/courses/default/questions/fillIn';
+import CodeBlockRenderer from './CodeBlockRenderer.vue';
 import FillInInput from '@/courses/default/questions/fillIn/fillInInput.vue';
-import { marked } from 'marked';
-import { defineComponent } from 'vue';
+import { MarkedToken, Tokens } from 'marked';
 
-// import hljs from 'highlight.js';
-// import 'highlight.js/styles/atelier-seaside-light.css'; // Move CSS import here
-// import 'highlight.js/styles/atelier-seaside-light.css';
-import hljsVuePlugin from '@highlightjs/vue-plugin';
-
-export default defineComponent({
-  name: 'MdTokenRenderer',
-
-  components: {
-    fillIn: FillInInput,
-    RadioMultipleChoice,
-    highlightjs: hljsVuePlugin.component,
+// Define component props
+const props = defineProps({
+  token: {
+    type: Object as any, // We'll fix the typing later
+    required: true,
   },
-
-  props: {
-    token: {
-      type: Object as () => marked.Token | TokenOrComponent,
-      required: true,
-    },
-    last: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
+  last: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
+});
 
-  methods: {
-    isComponent(token: marked.Token): boolean {
-      return isComponent(token);
-    },
+// Register components for runtime use
+const components = {
+  fillIn: FillInInput,
+  RadioMultipleChoice,
+};
 
-    containsComponent(token: marked.Token): boolean {
-      return containsComponent(token);
-    },
+// Methods
+function isComponent(token: MarkedToken): boolean {
+  return _isComponent(token);
+}
 
-    splitTextToken(token: marked.Tokens.Text): marked.Token[] {
-      return splitTextToken(token);
-    },
+function containsComponent(token: MarkedToken): boolean {
+  return _containsComponent(token);
+}
 
-    splitParagraphToken(token: marked.Tokens.Paragraph): TokenOrComponent[] {
-      return splitParagraphToken(token);
-    },
+function splitTextToken(token: MarkedToken): Tokens.Text[] {
+  return _splitTextToken(token);
+}
 
-    parsedComponent(
-      token: marked.Tokens.Text
-    ): {
-      is: string;
-      text: string;
-    } {
-      // [ ] switching on component types & loading custom component
-      //
-      // sketch:
-      // const demoustached = token.text.slice(2, token.text.length - 2);
-      // const firstToken = demoustached.split(' ')[0];
-      // if (firstToken.charAt(firstToken.length - 1) == '>') {
-      //   return {
-      //     is: firstToken.slice(0, firstToken.length - 1),
-      //     text: demoustached.slice(firstToken.length + 1, demoustached.length),
-      //   };
-      // }
+function splitParagraphToken(token: Tokens.Paragraph): TokenOrComponent[] {
+  return _splitParagraphToken(token);
+}
 
-      return {
-        is: 'fillIn',
-        text: token.text,
-      };
-    },
+function parsedComponent(token: MarkedToken): {
+  is: string;
+  text: string;
+} {
+  // [ ] switching on component types & loading custom component
+  //
+  // sketch:
+  // const demoustached = token.text.slice(2, token.text.length - 2);
+  // const firstToken = demoustached.split(' ')[0];
+  // if (firstToken.charAt(firstToken.length - 1) == '>') {
+  //   return {
+  //     is: firstToken.slice(0, firstToken.length - 1),
+  //     text: demoustached.slice(firstToken.length + 1, demoustached.length),
+  //   };
+  // }
 
-    decodeBasicEntities(text: string): string {
-      return text
-        .replace(/&#39;/g, "'")
-        .replace(/&quot;/g, '"')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>');
-    },
+  let text = '';
+  if ('text' in token && typeof token.text === 'string') {
+    text = token.text;
+  } else if ('raw' in token && typeof token.raw === 'string') {
+    text = token.raw;
+  }
 
-    isText(tok: TokenOrComponent): tok is marked.Tokens.Text {
-      return (tok as marked.Tokens.Tag).inLink === undefined && tok.type === 'text';
-    },
-  },
+  return {
+    is: 'fillIn',
+    text,
+  };
+}
+
+function decodeBasicEntities(text: string): string {
+  return text
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+}
+
+function isText(tok: TokenOrComponent): boolean {
+  return (tok as any).inLink === undefined && tok.type === 'text';
+}
+
+// Make these functions available to the template
+defineExpose({
+  isComponent,
+  containsComponent,
+  splitTextToken,
+  splitParagraphToken,
+  parsedComponent,
+  decodeBasicEntities,
+  isText,
 });
 </script>
 
