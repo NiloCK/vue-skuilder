@@ -34,15 +34,24 @@ export function postProcessCourse(courseID: string): void {
 
     const crsString = `coursedb-${courseID}`;
 
-    CouchDB.db.follow(
-      crsString,
-      {
-        feed: 'continuous',
-        db: crsString,
-        include_docs: false,
-      },
-      filterFactory(courseID)
-    );
+    // Get database instance
+    const db = CouchDB.use(crsString);
+
+    const courseFilter = filterFactory(courseID);
+
+    db.changesReader
+      .start({
+        // feed: 'continuous',
+        includeDocs: false,
+      })
+      .on('change', (change: nano.DatabaseChangesResultItem) => {
+        courseFilter(change).catch((e) => {
+          logger.error(`Error in CourseFilter for ${courseID}: ${e}`);
+        });
+      })
+      .on('error', (err: Error) => {
+        logger.error(`Error in changes feed for ${crsString}: ${err}`);
+      });
   } catch (e) {
     logger.error(`Error in postProcessCourse: ${e}`);
   }
@@ -77,7 +86,6 @@ function filterFactory(courseID: string) {
   const courseDatabase = CouchDB.use<DocForProcessing>(`coursedb-${courseID}`);
 
   return async function filterChanges(
-    error: any,
     changeItem: nano.DatabaseChangesResultItem
   ) {
     try {
