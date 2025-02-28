@@ -35,7 +35,7 @@ import Courses from '@/courses';
 import { NameSpacer, QuestionDescriptor } from '@/courses/NameSpacer';
 import { addNote55, getCredentialledCourseConfig } from '@/db/courseAPI';
 import { updateCredentialledCourseConfig } from '@/db/courseDB';
-import { CourseConfig, DataShape55, QuestionType55 } from '@/server/types';
+import { CourseConfig, DataShape55, QuestionType55 } from '@vue-skuilder/common';
 import * as _ from 'lodash';
 import { getCurrentUser } from '@/stores/useAuthStore';
 

@@ -4,7 +4,7 @@ import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { ViewData } from '@/base-course/Interfaces/ViewData';
 import { DataShapeName } from '@/enums/DataShapeNames';
 import { FieldType } from '@/enums/FieldType';
-import { Status } from '@/enums/Status';
+import { Status } from '@vue-skuilder/common';
 import FallingLettersView from './FallingLetters.vue';
 
 const data = function () {

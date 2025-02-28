@@ -4,7 +4,7 @@ import { FieldDefinition } from '../../../../base-course/Interfaces/FieldDefinit
 import { ViewData } from '../../../../base-course/Interfaces/ViewData';
 import { DataShapeName } from '../../../../enums/DataShapeNames';
 import { FieldType } from '../../../../enums/FieldType';
-import { Status } from '../../../../enums/Status';
+import { Status } from '@vue-skuilder/common';
 import { Answer } from '../../../../base-course/Displayable';
 import TextBox from './textBox.vue';
 import _ from 'lodash';

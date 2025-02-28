@@ -1,6 +1,6 @@
-import { Status } from '@/enums/Status';
+import { Status } from '@vue-skuilder/common';
 import ENV from '../ENVIRONMENT_VARS';
-import { ServerRequest } from './types';
+import { ServerRequest } from '@vue-skuilder/common';
 
 const SERVER = ENV.EXPRESS_SERVER_PROTOCOL + '://' + ENV.EXPRESS_SERVER_URL;
 

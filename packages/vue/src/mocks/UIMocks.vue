@@ -144,7 +144,7 @@ import DataInputForm from '../components/Edit/ViewableDataInputForm/DataInputFor
 import LetterQuestionView from '@/courses/typing/questions/single-letter/typeSingleLetter.vue';
 import FallingLettersView from '@/courses/typing/questions/falling-letters/FallingLetters.vue';
 import CardViewer from '@/components/Study/CardViewer.vue';
-import { Status } from '@/enums/Status';
+import { Status } from '@vue-skuilder/common';
 import { ValidationResult } from '@/base-course/Interfaces/ValidationResult';
 
 export default defineComponent({

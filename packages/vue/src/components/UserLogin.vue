@@ -48,7 +48,7 @@ import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { alertUser } from '@/components/SnackbarService.vue';
 import { log } from '@/logshim';
-import { Status } from '@/enums/Status';
+import { Status } from '@vue-skuilder/common';
 import { User } from '@/db/userDB';
 import { getCurrentUser, useAuthStore } from '@/stores/useAuthStore';
 import { useConfigStore } from '@/stores/useConfigStore';

@@ -33,3 +33,14 @@ vue/Caddyfile
 
 # Cyrpress build artifacts
 /packages/vue/cypress
+
+# yarn 2+ files
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# TypeScript incremental build info
+*.tsbuildinfo

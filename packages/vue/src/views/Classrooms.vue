@@ -97,9 +97,9 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import serverRequest from '@/server/index';
-import { ServerRequestType, JoinClassroom, LeaveClassroom, DeleteClassroom } from '@/server/types';
+import { ServerRequestType, JoinClassroom, LeaveClassroom, DeleteClassroom } from '@vue-skuilder/common';
 import { alertUser } from '@/components/SnackbarService.vue';
-import { Status } from '@/enums/Status';
+import { Status } from '@vue-skuilder/common';
 import ClassroomEditor from '@/components/Classrooms/CreateClassroom.vue';
 import { registerUserForClassroom, getUserClassrooms, dropUserFromClassroom } from '../db/userDB';
 import { getClassroomConfig } from '../db/classroomDB';

@@ -14,6 +14,7 @@
         "allowJs": true,
         "esModuleInterop": true,
         "sourceMap": true,
+        "composite": true,
         "baseUrl": ".",
         "types": ["node", "jest", "@types/jest", "vuetify", "vite/client"],
         "paths": {

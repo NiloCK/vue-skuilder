@@ -121,7 +121,8 @@ import { marked } from 'marked';
 import { defineComponent } from 'vue';
 
 // import hljs from 'highlight.js';
-import 'highlight.js/styles/atelier-seaside-light.css'; // Move CSS import here
+// import 'highlight.js/styles/atelier-seaside-light.css'; // Move CSS import here
+// import 'highlight.js/styles/atelier-seaside-light.css';
 import hljsVuePlugin from '@highlightjs/vue-plugin';
 
 export default defineComponent({
@@ -162,7 +163,9 @@ export default defineComponent({
       return splitParagraphToken(token);
     },
 
-    parsedComponent(token: marked.Tokens.Text): {
+    parsedComponent(
+      token: marked.Tokens.Text
+    ): {
       is: string;
       text: string;
     } {
@@ -201,7 +204,7 @@ export default defineComponent({
 </script>
 
 <style lang="css" scoped>
-@import './../../../node_modules/highlight.js/styles/atelier-seaside-light.css';
+/* @import './../../../node_modules/highlight.js/styles/atelier-seaside-light.css'; */
 /* @import './../../../node_modules/highlight.js/styles/stackoverflow-light.css'; */
 /* @import './../../../node_modules/highlight.js/styles/xt256.css'; */
 /* @import './../../../node_modules/highlight.js/styles/zenburn.css'; */

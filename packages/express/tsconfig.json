@@ -1,15 +1,42 @@
 {
-    // "compileOnSave": true,
-    "files": ["src/app.ts"],
-    "exclude": ["node_modules"],
-    // "include": ["src"],
-    "compilerOptions": {
-        "module": "commonjs",
-        "target": "ES5",
-        "esModuleInterop": true,
-        "experimentalDecorators": true,
-        "outDir": "dist",
-        "sourceMap": true,
-        "lib": ["es2015", "DOM"]
-    }
+  "extends": "@tsconfig/node18/tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022", // Updated from ES5 for modern Node.js features
+    "module": "NodeNext", // Updated from commonjs for modern module support
+    "moduleResolution": "nodenext", // Added to support modern module resolution
+    "outDir": "dist",
+    "rootDir": "src",
+    "sourceMap": true,
+
+    // Modern TypeScript best practices
+    "esModuleInterop": true,
+    "strict": true, // Recommended for better type safety
+    "skipLibCheck": true, // Speeds up compilation
+    "forceConsistentCasingInFileNames": true,
+
+    // Existing options maintained
+    "experimentalDecorators": true,
+
+    // Updated lib array for modern features
+    "lib": ["ES2022", "DOM"],
+
+    // Added for better module resolution
+    "baseUrl": ".",
+    "paths": {
+      "@vue-skuilder/vue": ["../vue/src"],
+      "@/*": ["src/*"],
+      "*": ["node_modules/*"]
+    },
+    "typeRoots": ["./node_modules/@types", "./types"],
+    // "types": ["node"],
+
+    "moduleDetection": "force",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true
+  },
+  // Changed from "files" to "include" for better project structure
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
+  "references": [{ "path": "../vue" }]
 }

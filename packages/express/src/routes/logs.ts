@@ -1,14 +1,14 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { requestIsAdminAuthenticated } from '../couchdb/authentication';
-import logger from '../logger';
+import { requestIsAdminAuthenticated } from '../couchdb/authentication.js';
+import logger from '../logger.js';
 import process from 'process';
 
 const router = express.Router();
 
 // Get list of available log files
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request, res: Response) => {
   // [ ] add an auth mechanism. Below fcn is based on
   //     the CouchDB auth mechanism, forwarded from the web-app (not direct-access of server).
   //
@@ -77,7 +77,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/:filename', async (req, res) => {
+router.get('/:filename', async (req: Request, res: Response) => {
   try {
     const filename = req.params.filename;
     // Sanitize filename to prevent directory traversal
@@ -203,7 +203,11 @@ router.get('/:filename', async (req, res) => {
                   levelClass = line.level.toLowerCase();
                 }
                 return `<div class="log-entry ${levelClass}">
-                ${typeof line === 'object' ? JSON.stringify(line, null, 2) : line}
+                ${
+                  typeof line === 'object'
+                    ? JSON.stringify(line, null, 2)
+                    : line
+                }
               </div>`;
               })
               .join('')}
@@ -220,7 +224,7 @@ router.get('/:filename', async (req, res) => {
 });
 
 // Get contents of specific log file
-router.get('/:filename/raw', async (req, res) => {
+router.get('/:filename/raw', async (req: Request, res: Response) => {
   // const auth = await requestIsAdminAuthenticated(req);
   // if (!auth) {
   //   res.status(401).json({ error: 'Unauthorized' });

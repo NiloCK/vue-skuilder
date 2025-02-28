@@ -3,7 +3,7 @@ import { RadioSelectAnswer } from '../../../../base-course/Components/RadioMulti
 import { Question } from '../../../../base-course/Displayable';
 import { DataShapeName } from '../../../../enums/DataShapeNames';
 import { FieldType } from '../../../../enums/FieldType';
-import { Status } from '../../../../enums/Status';
+import { Status } from '@vue-skuilder/common';
 import IdentifyKeyView from './IdentifyKey.vue';
 
 /**

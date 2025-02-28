@@ -3,36 +3,50 @@ on:
   pull_request:
     paths:
       - 'packages/express/**'
+      - 'packages/common/**' # Added common since it's a dependency
       - '.github/workflows/build-express.yml'
+      - 'package.json'
+      - 'yarn.lock'
+
 jobs:
   build-express-app:
-    runs-on: ubuntu-latest # todo: use whatever is on the DO droplet
+    runs-on: ubuntu-latest
     steps:
-      - run: echo "🎉 The job was triggered by a ${{ github.event_name }} on commit ${{ github.SHA }}"
-      - name: Check out repository code
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Start CouchDB
         uses: iamssen/couchdb-github-action@master
         with:
-          couchdb-version: 2.3.1 # production version
-      - uses: actions/setup-node@v3
+          couchdb-version: 2.3.1 # match production version
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
-      - run: npm install -g yarn@1.22.17
-      - run: npm install -g lerna@3.22.1 # 4.0.0 ?
-      #- run: npm install -g typescript@4.5.5
-      - run: lerna bootstrap
-      - name: Build and Test
+          node-version: 18
+          cache: 'yarn'
+
+      - name: Install Yarn
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Configure environment
         run: |
-          echo COUCHDB_SERVER=localhost:5984 >> ./packages/express/.env.development.local
-          echo COUCHDB_PROTOCOL=http >> ./packages/express/.env.development.local
-          echo COUCHDB_ADMIN=admin >> ./packages/express/.env.development.local
-          echo COUCHDB_PASSWORD=password >> ./packages/express/.env.development.local
-          echo VERSION=${{ github.SHA }} >> ./packages/express/.env.development.local
-          cd ./packages/express
-          yarn remove @types/jest
-          # yarn remove @types/pouchdb
-          yarn build
-          # nohup yarn serve & # Run the server in the background
-          # sleep 15s
-          yarn test
+          echo "COUCHDB_SERVER=localhost:5984" >> ./packages/express/.env.development.local
+          echo "COUCHDB_PROTOCOL=http" >> ./packages/express/.env.development.local
+          echo "COUCHDB_ADMIN=admin" >> ./packages/express/.env.development.local
+          echo "COUCHDB_PASSWORD=password" >> ./packages/express/.env.development.local
+          echo "VERSION=${{ github.sha }}" >> ./packages/express/.env.development.local
+
+      - name: Build common package
+        run: yarn workspace @vue-skuilder/common build
+
+      - name: Build and test express package
+        run: |
+          yarn workspace @vue-skuilder/express build
+          # yarn workspace @vue-skuilder/express test
+
+      - name: Type check
+        run: yarn workspace @vue-skuilder/express type-check

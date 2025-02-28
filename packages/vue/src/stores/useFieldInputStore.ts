@@ -1,6 +1,6 @@
 import { DataShape } from '@/base-course/Interfaces/DataShape';
 import { fieldConverters, FieldType } from '@/enums/FieldType';
-import { Status } from '@/enums/Status';
+import { Status } from '@vue-skuilder/common';
 import { defineStore } from 'pinia';
 
 interface MediaInputs {
