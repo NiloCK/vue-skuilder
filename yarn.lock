@@ -3594,7 +3594,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/canvas-confetti@npm:^1.3.0":
+"@types/canvas-confetti@npm:^1.9.0":
   version: 1.9.0
   resolution: "@types/canvas-confetti@npm:1.9.0"
   checksum: 10c0/ffe2c674d466b8e13472c81ab2a97056f3433fd40a3513dbc1bb76764e4e7c3ff0a2a58d37b16ea6a245c831077c553db321b069dda6572eab59f2be61137b2e
@@ -4667,7 +4667,7 @@ __metadata:
     "@testing-library/jest-dom": "npm:^6.6.3"
     "@testing-library/vue": "npm:^8.1.0"
     "@tonaljs/tonal": "npm:^3.6.0"
-    "@types/canvas-confetti": "npm:^1.3.0"
+    "@types/canvas-confetti": "npm:^1.9.0"
     "@types/dom-mediacapture-record": "npm:^1.0.9"
     "@types/jest": "npm:^29"
     "@types/lodash": "npm:^4.14.136"
@@ -4694,7 +4694,7 @@ __metadata:
     autoprefixer: "npm:^10.4.20"
     babel-jest: "npm:^29"
     buffer: "npm:^6.0.3"
-    canvas-confetti: "npm:^1.3.2"
+    canvas-confetti: "npm:^1.9.3"
     chess.js: "npm:1.0.0"
     eslint: "npm:^9.18.0"
     eslint-config-prettier: "npm:^10.0.1"
@@ -6161,7 +6161,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"canvas-confetti@npm:^1.3.2":
+"canvas-confetti@npm:^1.9.3":
   version: 1.9.3
   resolution: "canvas-confetti@npm:1.9.3"
   checksum: 10c0/94c6f16591660d5ed4a48afb8da65902826ce6b38edc7644d62521aa9bf9ef5b950aa4396e980e7fe0a38e5f41a991a6d984721412a54c9fba4de3682c1eead0
