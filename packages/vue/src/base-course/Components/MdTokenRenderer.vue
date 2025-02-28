@@ -110,7 +110,6 @@
 </template>
 
 <script setup lang="ts">
-import RadioMultipleChoice from '@/base-course/Components/RadioMultipleChoice.vue';
 import {
   containsComponent as _containsComponent,
   isComponent as _isComponent,
