@@ -1,8 +1,12 @@
 import dotenv from 'dotenv';
 import process from 'process';
+import fs from 'fs';
 
 dotenv.config({
-  path: process.argv && process.argv.length == 3 ? process.argv[2] : '.env.development.local',
+  path:
+    process.argv && process.argv.length == 3
+      ? process.argv[2]
+      : '.env.development',
 });
 
 type Env = {
