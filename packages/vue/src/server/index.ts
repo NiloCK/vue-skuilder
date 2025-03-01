@@ -4,6 +4,12 @@ import { ServerRequest } from '@vue-skuilder/common';
 
 const SERVER = ENV.EXPRESS_SERVER_PROTOCOL + '://' + ENV.EXPRESS_SERVER_URL;
 
+/**
+* Makes an authenticated request to the express backend and returns the response.
+
+* @param requestData
+* @returns
+*/
 export default async function serverRequest<T extends ServerRequest>(requestData: T): Promise<T> {
   return new Promise<T>((resolve) => {
     try {
