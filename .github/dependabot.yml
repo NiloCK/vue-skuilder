@@ -5,11 +5,39 @@
 
 version: 2
 updates:
+  # Configuration for minor and patch updates (grouped)
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
       interval: 'weekly'
+    # Only allow minor and patch updates
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
     groups:
       dependencies:
         patterns:
           - '*'
+        exclude-patterns:
+          - '@types/*' # Exclude type definitions from grouping for better clarity
+    labels:
+      - 'dependencies'
+      - 'minor-patch-update'
+
+  # Separate configuration for major version updates
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'monthly' # Check less frequently to avoid PR noise
+    # Only include major updates
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-minor', 'version-update:semver-patch']
+    # Don't group major updates so they can be reviewed individually
+    open-pull-requests-limit: 5 # Limit the number of open PRs for major updates
+    labels:
+      - 'dependencies'
+      - 'major-update'
+      - 'breaking-change'
+    assignees:
+      - 'nilock'
