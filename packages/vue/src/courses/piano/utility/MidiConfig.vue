@@ -1,7 +1,8 @@
 <template>
   <v-card>
-    <v-card-title class="text-h5 bg-grey-lighten-2" primary-title> Configure Midi Device </v-card-title>
-
+    <v-toolbar dense>
+      <v-toolbar-title>Configure Midi Device</v-toolbar-title>
+    </v-toolbar>
     <v-card-text>
       <v-form v-if="midiSupported" onsubmit="return false;">
         <v-select
@@ -11,8 +12,46 @@
           hint="Play some notes on your input device to test the connection"
         ></v-select>
         <v-select v-model="selectedOutput" :items="outputs" label="Select Output"></v-select>
-        <v-btn :loading="updatePending" @click="saveSettings"> Save these settings </v-btn>
-        <v-btn color="primary" @click="playSound">Test midi output</v-btn>
+        <v-divider class="my-4"></v-divider>
+        <h3 class="text-subtitle-1 mb-2">Keyboard Range</h3>
+
+        <v-select
+          v-model="selectedKeyboardRange"
+          :items="keyboardRangeOptions"
+          label="Select Keyboard Range"
+          @update:model-value="updateCustomRangeFromPreset"
+        ></v-select>
+
+        <div v-if="selectedKeyboardRange === 'custom'" class="custom-range-inputs d-flex gap-4">
+          <v-select
+            v-model="lowestNote"
+            :items="noteOptions"
+            label="Lowest Note"
+            @update:model-value="updateRangeAndCheckChanges"
+          ></v-select>
+
+          <v-select
+            v-model="highestNote"
+            :items="noteOptions"
+            label="Highest Note"
+            @update:model-value="updateRangeAndCheckChanges"
+          ></v-select>
+        </div>
+
+        <piano-range-visualizer :lowest-note="lowestNote" :highest-note="highestNote" />
+
+        <div class="d-flex justify-space-between mt-3">
+          <v-btn color="primary" @click="playSound">Test midi output</v-btn>
+          <v-btn
+            :loading="updatePending"
+            :disabled="!configChanged && !updatePending"
+            color="info"
+            class="save-button"
+            @click="saveSettings"
+          >
+            Save these settings
+          </v-btn>
+        </div>
       </v-form>
       <div v-else>
         <p>This quilt requires a midi input device, which is not supported by this browser.</p>
@@ -45,6 +84,7 @@ import { Status } from '@vue-skuilder/common';
 import { User } from '@/db/userDB';
 import { InputEventNoteon } from 'webmidi';
 import { getCurrentUser } from '@/stores/useAuthStore';
+import PianoRangeVisualizer from './PianoRangeVisualizer.vue';
 
 interface MidiDevice {
   text: string;
@@ -52,6 +92,10 @@ interface MidiDevice {
 }
 export default defineComponent({
   name: 'MidiConfig',
+
+  components: {
+    PianoRangeVisualizer,
+  },
 
   props: {
     _id: {
@@ -69,6 +113,97 @@ export default defineComponent({
     const selectedOutput = ref<string>('');
     const updatePending = ref(false);
     const user = ref<User>();
+
+    // managing config state updates
+    const savedInputId = ref<string>('');
+    const savedOutputId = ref<string>('');
+    const configChanged = ref(false);
+
+    // Keyboard range
+    const selectedKeyboardRange = ref('full-88');
+    const lowestNote = ref(21); // A0
+    const highestNote = ref(108); // C8
+    const savedKeyboardRange = ref('');
+    const savedLowestNote = ref(0);
+    const savedHighestNote = ref(0);
+
+    const noteOptions = ref<Array<{ title: string; value: number }>>([]);
+
+    // Initialize noteOptions with all MIDI notes (0-127) with proper naming
+    const initNoteOptions = () => {
+      const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+      const options = [];
+
+      // Generate all 128 MIDI notes with proper labeling
+      for (let i = 0; i <= 127; i++) {
+        const octave = Math.floor(i / 12) - 1;
+        const noteName = noteNames[i % 12];
+
+        options.push({
+          title: `${noteName}${octave} (${i})`, // Format: "C4 (60)"
+          value: i,
+        });
+      }
+
+      noteOptions.value = options;
+    };
+
+    const keyboardRangeOptions = ref([
+      { title: 'Full 88-key Piano (A0-C8)', value: 'full-88' },
+      { title: '76-key Keyboard (E1-G7)', value: '76-key' },
+      { title: '61-key Keyboard (C2-C7)', value: '61-key' },
+      { title: '49-key Keyboard (C3-C7)', value: '49-key' },
+      { title: '37-key Keyboard (C3-C6)', value: '37-key' },
+      { title: '25-key Keyboard (C4-C6)', value: '25-key' },
+      { title: 'Custom Range', value: 'custom' },
+    ]);
+
+    const checkConfigChanged = () => {
+      configChanged.value =
+        selectedInput.value !== savedInputId.value ||
+        selectedOutput.value !== savedOutputId.value ||
+        selectedKeyboardRange.value !== savedKeyboardRange.value ||
+        (selectedKeyboardRange.value === 'custom' &&
+          (lowestNote.value !== savedLowestNote.value || highestNote.value !== savedHighestNote.value));
+    };
+
+    const updateCustomRangeFromPreset = () => {
+      switch (selectedKeyboardRange.value) {
+        case 'full-88':
+          lowestNote.value = 21; // A0
+          highestNote.value = 108; // C8
+          break;
+        case '76-key':
+          lowestNote.value = 28; // E1
+          highestNote.value = 103; // G7
+          break;
+        case '61-key':
+          lowestNote.value = 36; // C2
+          highestNote.value = 96; // C7
+          break;
+        case '49-key':
+          lowestNote.value = 48; // C3
+          highestNote.value = 96; // C7
+          break;
+        case '37-key':
+          lowestNote.value = 48; // C3
+          highestNote.value = 84; // C6
+          break;
+        case '25-key':
+          lowestNote.value = 60; // C4
+          highestNote.value = 84; // C6
+          break;
+      }
+      checkConfigChanged();
+    };
+
+    const updateRangeAndCheckChanges = () => {
+      // Ensure lowest is always below highest
+      if (lowestNote.value >= highestNote.value) {
+        highestNote.value = lowestNote.value + 12; // At least an octave higher
+      }
+      checkConfigChanged();
+    };
 
     const playSound = () => {
       midi.value?.play([
@@ -244,20 +379,58 @@ export default defineComponent({
 
     watch(selectedInput, () => {
       midi.value?.selectInput(selectedInput.value);
+      checkConfigChanged();
     });
 
     watch(selectedOutput, () => {
       midi.value?.selectOutput(selectedOutput.value);
+      checkConfigChanged();
     });
 
     const retrieveSettings = async () => {
       const s = await user.value?.getCourseSettings(props._id);
+
       if (s?.midiinput) {
-        selectedInput.value = s.midiinput.toString();
+        const savedInput = s.midiinput.toString();
+        const inputExists = inputs.value.some((input) => input.value === savedInput);
+        if (inputExists) {
+          selectedInput.value = savedInput;
+          savedInputId.value = savedInput;
+        }
       }
+
       if (s?.midioutput) {
-        selectedOutput.value = s.midioutput.toString();
+        const savedOutput = s.midioutput.toString();
+        const outputExists = outputs.value.some((output) => output.value === savedOutput);
+        if (outputExists) {
+          selectedOutput.value = savedOutput;
+          savedOutputId.value = savedOutput;
+        }
       }
+
+      // Load keyboard range settings
+      if (s?.keyboardRange) {
+        savedKeyboardRange.value = s.keyboardRange.toString();
+        selectedKeyboardRange.value = savedKeyboardRange.value;
+      }
+
+      if (s?.lowestNote) {
+        savedLowestNote.value = parseInt(s.lowestNote.toString());
+        lowestNote.value = savedLowestNote.value;
+      }
+
+      if (s?.highestNote) {
+        savedHighestNote.value = parseInt(s.highestNote.toString());
+        highestNote.value = savedHighestNote.value;
+      }
+
+      // If we have custom values but not the 'custom' range type, set it
+      if (s?.lowestNote && s?.highestNote && !s?.keyboardRange) {
+        selectedKeyboardRange.value = 'custom';
+      }
+
+      // Initialize with no pending changes after loading
+      configChanged.value = false;
     };
 
     const saveSettings = async () => {
@@ -271,12 +444,39 @@ export default defineComponent({
           key: 'midioutput',
           value: selectedOutput.value,
         },
+        {
+          key: 'keyboardRange',
+          value: selectedKeyboardRange.value,
+        },
+        {
+          key: 'lowestNote',
+          value: lowestNote.value,
+        },
+        {
+          key: 'highestNote',
+          value: highestNote.value,
+        },
       ]);
+
+      // Update saved state references
+      savedInputId.value = selectedInput.value;
+      savedOutputId.value = selectedOutput.value;
+      savedKeyboardRange.value = selectedKeyboardRange.value;
+      savedLowestNote.value = lowestNote.value;
+      savedHighestNote.value = highestNote.value;
+
+      configChanged.value = false;
       updatePending.value = false;
+
+      alertUser({
+        text: 'Settings updated.',
+        status: Status.ok,
+      });
     };
 
     onMounted(async () => {
       user.value = await getCurrentUser();
+      initNoteOptions();
       try {
         midi.value = await SkMidi.instance();
         midiSupported.value = midi.value.state === 'ready' || midi.value.state === 'nodevice';
@@ -291,24 +491,30 @@ export default defineComponent({
           inputs.value = midi.value.inputs
             .filter((i) => i.state === 'connected')
             .map((i) => ({
-              text: `${i.manufacturer}: ${i.name}`,
+              title: `${i.manufacturer}: ${i.name}`,
               value: i.id,
             }));
           outputs.value = midi.value?.outputs
             .filter((i) => i.state === 'connected')
             .map((i) => ({
-              text: `${i.manufacturer}: ${i.name}`,
+              title: `${i.manufacturer}: ${i.name}`,
               value: i.id,
             }));
         } else {
-          inputs.value = [{ text: 'No inputs available', value: '' }];
-          outputs.value = [{ text: 'No outputs available', value: '' }];
+          inputs.value = [{ title: 'No inputs available', value: '' }];
+          outputs.value = [{ title: 'No outputs available', value: '' }];
         }
 
-        selectedInput.value = inputs.value[0].text;
-        selectedOutput.value = outputs.value[0].text;
+        await retrieveSettings();
 
-        retrieveSettings();
+        // Only set defaults if no saved settings were loaded
+        if (!selectedInput.value && inputs.value.length > 0) {
+          selectedInput.value = inputs.value[0].value;
+        }
+
+        if (!selectedOutput.value && outputs.value.length > 0) {
+          selectedOutput.value = outputs.value[0].value;
+        }
       }
     });
 
@@ -321,7 +527,26 @@ export default defineComponent({
       updatePending,
       playSound,
       saveSettings,
+      configChanged,
+      lowestNote,
+      highestNote,
+      keyboardRangeOptions,
+      selectedKeyboardRange,
+      noteOptions,
+      updateCustomRangeFromPreset,
+      updateRangeAndCheckChanges,
     };
   },
 });
 </script>
+
+<style scoped>
+.save-button {
+  transition: opacity 0.5s ease-out;
+  opacity: 1;
+}
+
+.save-button.v-btn--disabled:not(.v-btn--loading) {
+  opacity: 0;
+}
+</style>

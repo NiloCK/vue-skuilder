@@ -297,6 +297,8 @@ class SkMidi {
   private _noteonListeners: ((e: InputEventNoteon) => void)[] = [];
   private _noteoffListeners: ((e: InputEventNoteoff) => void)[] = [];
 
+  private static _initializedWithUserConfig = false;
+
   private midiAccess: WebMidi.MIDIAccess;
 
   private _state: 'nodevice' | 'notsupported' | 'ready';
@@ -312,7 +314,6 @@ class SkMidi {
         navigator.requestMIDIAccess().then((access) => {
           this.midiAccess = access;
           this.midiAccess.onstatechange = (e) => {
-            // this.init().then(this._stateChangeListener);
             alertUser({
               text: `Midi device ${e.port.name} is ${e.port.state}`,
               status: e.port.state === 'connected' ? Status.ok : Status.error,
@@ -324,6 +325,7 @@ class SkMidi {
         this._state = 'notsupported';
       }
     }
+
     try {
       this.webmidi.disable();
     } catch (e) {
@@ -332,7 +334,7 @@ class SkMidi {
     }
 
     return new Promise<boolean>((resolve, reject) => {
-      this.webmidi.enable((err) => {
+      this.webmidi.enable(async (err) => {
         if (err) {
           this._state = 'notsupported';
           console.log(`Webmidi not enabled: ${err}`);
@@ -345,8 +347,15 @@ class SkMidi {
           console.log(`Inputs: ${JSON.stringify(this.webmidi.inputs)}`);
           console.log(`Outputs: ${JSON.stringify(this.webmidi.outputs)}`);
 
+          // set defaults first
           this.output = this.webmidi.outputs[0];
           this.input = this.webmidi.inputs[0];
+
+          // but try to load configurfed devices
+          if (!SkMidi._initializedWithUserConfig) {
+            await this.loadUserConfiguration();
+            SkMidi._initializedWithUserConfig = true;
+          }
 
           if (this.input && this.output) {
             console.log('midi init state: ready');
@@ -363,6 +372,43 @@ class SkMidi {
       });
     });
   }
+
+  private async loadUserConfiguration(): Promise<void> {
+    try {
+      // Import necessary modules
+      const { getCurrentUser } = await import('@/stores/useAuthStore');
+      const user = await getCurrentUser();
+
+      if (!user) {
+        console.log('No user found, using default MIDI configuration');
+        return;
+      }
+
+      // Get all course settings that might have MIDI configurations
+      const courses = await user.getActiveCourses();
+      for (const course of courses) {
+        const settings = await user.getCourseSettings(course.courseID);
+        if (settings?.midiinput || settings?.midioutput) {
+          // We found MIDI settings, use the first valid ones
+          if (settings.midiinput && this.webmidi.getInputById(settings.midiinput.toString())) {
+            this.selectInput(settings.midiinput.toString());
+            console.log(`Loaded saved MIDI input: ${settings.midiinput}`);
+          }
+
+          if (settings.midioutput && this.webmidi.getOutputById(settings.midioutput.toString())) {
+            this.selectOutput(settings.midioutput.toString());
+            console.log(`Loaded saved MIDI output: ${settings.midioutput}`);
+          }
+
+          // Once we've found and applied settings, we can stop searching
+          break;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load user MIDI configuration:', error);
+    }
+  }
+
   private _stateChangeListener: () => void;
 
   public setStateChangeListener(f: () => void) {
