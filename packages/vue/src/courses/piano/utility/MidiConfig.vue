@@ -15,13 +15,13 @@
         <div class="d-flex justify-space-between mt-3">
           <v-btn color="primary" @click="playSound">Test midi output</v-btn>
           <v-btn
-            v-if="configChanged"
             :loading="updatePending"
-            :disabled="!configChanged"
+            :disabled="!configChanged && !updatePending"
             color="info"
+            class="save-button"
             @click="saveSettings"
           >
-            <span v-if="configChanged">Save these settings</span><span v-else>Settings saved</span>
+            Save these settings
           </v-btn>
         </div>
       </v-form>
@@ -379,3 +379,14 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.save-button {
+  transition: opacity 0.5s ease-out;
+  opacity: 1;
+}
+
+.save-button.v-btn--disabled:not(.v-btn--loading) {
+  opacity: 0;
+}
+</style>
