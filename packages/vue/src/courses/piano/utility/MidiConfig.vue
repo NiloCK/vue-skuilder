@@ -1,7 +1,8 @@
 <template>
   <v-card>
-    <v-card-title class="text-h5 bg-grey-lighten-2" primary-title> Configure Midi Device </v-card-title>
-
+    <v-toolbar dense>
+      <v-toolbar-title>Configure Midi Device</v-toolbar-title>
+    </v-toolbar>
     <v-card-text>
       <v-form v-if="midiSupported" onsubmit="return false;">
         <v-select
@@ -11,8 +12,8 @@
           hint="Play some notes on your input device to test the connection"
         ></v-select>
         <v-select v-model="selectedOutput" :items="outputs" label="Select Output"></v-select>
-        <v-btn :loading="updatePending" @click="saveSettings"> Save these settings </v-btn>
-        <v-btn color="primary" @click="playSound">Test midi output</v-btn>
+        <v-btn class="mx-2" :loading="updatePending" @click="saveSettings"> Save these settings </v-btn>
+        <v-btn class="mx-2" color="primary" @click="playSound">Test midi output</v-btn>
       </v-form>
       <div v-else>
         <p>This quilt requires a midi input device, which is not supported by this browser.</p>
