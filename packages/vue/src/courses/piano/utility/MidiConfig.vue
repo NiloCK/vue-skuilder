@@ -253,11 +253,35 @@ export default defineComponent({
 
     const retrieveSettings = async () => {
       const s = await user.value?.getCourseSettings(props._id);
+
       if (s?.midiinput) {
-        selectedInput.value = s.midiinput.toString();
+        const savedInput = s.midiinput.toString();
+        // Check if the saved input device is still available
+        const inputExists = inputs.value.some((input) => input.value === savedInput);
+        if (inputExists) {
+          selectedInput.value = savedInput;
+        } else {
+          alertUser({
+            text: `Configured MIDI input device is no longer available`,
+            status: Status.error,
+          });
+          console.warn('Previously saved MIDI input device is no longer available');
+        }
       }
+
       if (s?.midioutput) {
-        selectedOutput.value = s.midioutput.toString();
+        const savedOutput = s.midioutput.toString();
+        // Check if the saved output device is still available
+        const outputExists = outputs.value.some((output) => output.value === savedOutput);
+        if (outputExists) {
+          selectedOutput.value = savedOutput;
+        } else {
+          alertUser({
+            text: `Configured MIDI output device is no longer available`,
+            status: Status.error,
+          });
+          console.warn('Previously saved MIDI output device is no longer available');
+        }
       }
     };
 
@@ -306,10 +330,16 @@ export default defineComponent({
           outputs.value = [{ title: 'No outputs available', value: '' }];
         }
 
-        selectedInput.value = inputs.value.length > 0 ? inputs.value[0].value : '';
-        selectedOutput.value = outputs.value.length > 0 ? outputs.value[0].value : '';
+        await retrieveSettings();
 
-        retrieveSettings();
+        // Only set defaults if no saved settings were loaded
+        if (!selectedInput.value && inputs.value.length > 0) {
+          selectedInput.value = inputs.value[0].value;
+        }
+
+        if (!selectedOutput.value && outputs.value.length > 0) {
+          selectedOutput.value = outputs.value[0].value;
+        }
       }
     });
 
