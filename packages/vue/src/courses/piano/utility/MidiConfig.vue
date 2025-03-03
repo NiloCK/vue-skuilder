@@ -291,22 +291,22 @@ export default defineComponent({
           inputs.value = midi.value.inputs
             .filter((i) => i.state === 'connected')
             .map((i) => ({
-              text: `${i.manufacturer}: ${i.name}`,
+              title: `${i.manufacturer}: ${i.name}`,
               value: i.id,
             }));
           outputs.value = midi.value?.outputs
             .filter((i) => i.state === 'connected')
             .map((i) => ({
-              text: `${i.manufacturer}: ${i.name}`,
+              title: `${i.manufacturer}: ${i.name}`,
               value: i.id,
             }));
         } else {
-          inputs.value = [{ text: 'No inputs available', value: '' }];
-          outputs.value = [{ text: 'No outputs available', value: '' }];
+          inputs.value = [{ title: 'No inputs available', value: '' }];
+          outputs.value = [{ title: 'No outputs available', value: '' }];
         }
 
-        selectedInput.value = inputs.value[0].text;
-        selectedOutput.value = outputs.value[0].text;
+        selectedInput.value = inputs.value.length > 0 ? inputs.value[0].value : '';
+        selectedOutput.value = outputs.value.length > 0 ? outputs.value[0].value : '';
 
         retrieveSettings();
       }
