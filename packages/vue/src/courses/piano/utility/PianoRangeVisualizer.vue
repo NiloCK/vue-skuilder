@@ -1,7 +1,7 @@
 <template>
   <div class="piano-range-container">
     <div class="piano-wrapper" ref="pianoWrapper">
-      <svg :width="svgWidth" :height="keyHeight + 10" class="piano-svg">
+      <svg :width="svgWidth" :height="keyHeight + 20" class="piano-svg">
         <!-- Background to show full piano range for context -->
         <g class="background-keys" opacity="0.15">
           <template v-for="i in 88" :key="`bg-${i}`">
