@@ -12,8 +12,18 @@
           hint="Play some notes on your input device to test the connection"
         ></v-select>
         <v-select v-model="selectedOutput" :items="outputs" label="Select Output"></v-select>
-        <v-btn class="mx-2" :loading="updatePending" @click="saveSettings"> Save these settings </v-btn>
-        <v-btn class="mx-2" color="primary" @click="playSound">Test midi output</v-btn>
+        <div class="d-flex justify-space-between mt-3">
+          <v-btn color="primary" @click="playSound">Test midi output</v-btn>
+          <v-btn
+            v-if="configChanged"
+            :loading="updatePending"
+            :disabled="!configChanged"
+            color="info"
+            @click="saveSettings"
+          >
+            <span v-if="configChanged">Save these settings</span><span v-else>Settings saved</span>
+          </v-btn>
+        </div>
       </v-form>
       <div v-else>
         <p>This quilt requires a midi input device, which is not supported by this browser.</p>
@@ -70,6 +80,15 @@ export default defineComponent({
     const selectedOutput = ref<string>('');
     const updatePending = ref(false);
     const user = ref<User>();
+
+    // managing config state updates
+    const savedInputId = ref<string>('');
+    const savedOutputId = ref<string>('');
+    const configChanged = ref(false);
+
+    const checkConfigChanged = () => {
+      configChanged.value = selectedInput.value !== savedInputId.value || selectedOutput.value !== savedOutputId.value;
+    };
 
     const playSound = () => {
       midi.value?.play([
@@ -245,10 +264,12 @@ export default defineComponent({
 
     watch(selectedInput, () => {
       midi.value?.selectInput(selectedInput.value);
+      checkConfigChanged();
     });
 
     watch(selectedOutput, () => {
       midi.value?.selectOutput(selectedOutput.value);
+      checkConfigChanged();
     });
 
     const retrieveSettings = async () => {
@@ -256,33 +277,24 @@ export default defineComponent({
 
       if (s?.midiinput) {
         const savedInput = s.midiinput.toString();
-        // Check if the saved input device is still available
         const inputExists = inputs.value.some((input) => input.value === savedInput);
         if (inputExists) {
           selectedInput.value = savedInput;
-        } else {
-          alertUser({
-            text: `Configured MIDI input device is no longer available`,
-            status: Status.error,
-          });
-          console.warn('Previously saved MIDI input device is no longer available');
+          savedInputId.value = savedInput;
         }
       }
 
       if (s?.midioutput) {
         const savedOutput = s.midioutput.toString();
-        // Check if the saved output device is still available
         const outputExists = outputs.value.some((output) => output.value === savedOutput);
         if (outputExists) {
           selectedOutput.value = savedOutput;
-        } else {
-          alertUser({
-            text: `Configured MIDI output device is no longer available`,
-            status: Status.error,
-          });
-          console.warn('Previously saved MIDI output device is no longer available');
+          savedOutputId.value = savedOutput;
         }
       }
+
+      // Initialize with no pending changes after loading
+      configChanged.value = false;
     };
 
     const saveSettings = async () => {
@@ -297,7 +309,17 @@ export default defineComponent({
           value: selectedOutput.value,
         },
       ]);
+
+      // Update saved state references
+      savedInputId.value = selectedInput.value;
+      savedOutputId.value = selectedOutput.value;
+      configChanged.value = false;
       updatePending.value = false;
+
+      alertUser({
+        text: 'Settings updated.',
+        status: Status.ok,
+      });
     };
 
     onMounted(async () => {
@@ -352,6 +374,7 @@ export default defineComponent({
       updatePending,
       playSound,
       saveSettings,
+      configChanged,
     };
   },
 });
