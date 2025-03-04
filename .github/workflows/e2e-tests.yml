@@ -1,0 +1,56 @@
+name: E2E Tests
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Run daily at midnight
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive' # Get submodule for couchdb snapshot
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Install Cypress
+        run: yarn cypress install
+
+      - name: Run E2E tests
+        run: |
+          # Start the dev environment in background
+          yarn dev &
+          # Wait for the server to be ready
+          npx wait-on http://localhost:8080
+          # Run Cypress tests
+          yarn cypress run
+          # Clean up
+          kill $(lsof -t -i:8080)
+          yarn couchdb:stop
+
+      - name: Upload screenshots on failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+
+      - name: Upload videos
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: cypress-videos
+          path: cypress/videos
