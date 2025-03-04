@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: '0 0 * * *' # Run daily at midnight
   workflow_dispatch: # Allow manual triggering
+  push:
+    paths:
+      - '.github/workflows/e2e-tests.yml'
 
 jobs:
   e2e-tests:
@@ -29,16 +32,28 @@ jobs:
       - name: Install Cypress
         run: yarn cypress install
 
-      - name: Run E2E tests
+      - name: Setup and wait for services
         run: |
           # Start the dev environment in background
           yarn dev &
-          # Wait for the server to be ready
+          # Wait for the webserver to be ready
           npx wait-on http://localhost:5173
+          # Wait for the database to be ready
+          npx wait-on http://localhost:5984
+          # Wait for the backend to be ready
+          npx wait-on http://localhost:3000
+
+      - name: Run E2E tests
+        run: |
           # Run Cypress tests
           yarn cypress run
+
+      - name: Cleanup services
+        if: always()
+        run: |
           # Clean up
-          kill $(lsof -t -i:5173)
+          kill $(lsof -t -i:5173) || true
+          kill $(lsof -t -i:3000) || true
           yarn couchdb:stop
 
       - name: Upload screenshots on failure
