@@ -17,6 +17,13 @@ jobs:
         with:
           submodules: 'recursive' # Get submodule for couchdb snapshot
 
+      - name: Display submodule information
+        run: |
+          echo "Submodule information:"
+          git submodule status
+          echo "CouchDB snapshot details:"
+          cd test-couch && git log -1 --pretty=format:'%h - %s (%cr) <%an>'
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
