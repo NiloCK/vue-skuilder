@@ -42,15 +42,17 @@ jobs:
           yarn couchdb:stop
 
       - name: Upload screenshots on failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
+          retention-days: 7 # Optional: set retention period
 
       - name: Upload videos
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: cypress-videos
           path: cypress/videos
+          retention-days: 7 # Optional: set retention period
