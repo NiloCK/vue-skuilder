@@ -34,11 +34,11 @@ jobs:
           # Start the dev environment in background
           yarn dev &
           # Wait for the server to be ready
-          npx wait-on http://localhost:8080
+          npx wait-on http://localhost:5173
           # Run Cypress tests
           yarn cypress run
           # Clean up
-          kill $(lsof -t -i:8080)
+          kill $(lsof -t -i:5173)
           yarn couchdb:stop
 
       - name: Upload screenshots on failure
