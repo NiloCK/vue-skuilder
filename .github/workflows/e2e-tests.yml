@@ -45,9 +45,6 @@ jobs:
           yarn dev &
           # Wait for the webserver to be ready
           npx wait-on http://localhost:5173
-          # run debug script
-          chmod +x ./scripts/ci-debug.sh
-          .scripts/ci-debug.sh
           # Wait for the database to be ready
           npx wait-on http://localhost:5984
           # Wait for the backend to be ready
