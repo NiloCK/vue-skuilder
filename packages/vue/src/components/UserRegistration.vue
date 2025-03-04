@@ -169,7 +169,7 @@ Author: ${this.author}
         this.awaitingResponse = false;
       } else {
         alertUser({
-          text: 'Secret join code is not correct.',
+          text: 'Passwords do not match.',
           status: Status.error,
         });
         this.awaitingResponse = false;
