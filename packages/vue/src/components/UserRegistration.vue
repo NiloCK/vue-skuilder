@@ -3,13 +3,13 @@
     <v-card-title v-if="!registrationRoute" class="text-h5 bg-grey-lighten-2"> Create an Account </v-card-title>
 
     <v-card-text>
-      <v-form onsubmit="return false;">
+      <v-form @submit.prevent="createUser">
         <v-text-field
           id=""
           ref="userNameTextField"
           v-model="username"
           autofocus
-          name="name"
+          name="username"
           label="Choose a Username"
           prepend-icon="mdi-account-circle"
           :error="usernameError"
@@ -19,7 +19,7 @@
         <v-text-field
           v-model="password"
           prepend-icon="mdi-lock"
-          name="name"
+          name="password"
           hover="Show password"
           label="Create a password"
           hint=""
@@ -31,7 +31,7 @@
         <v-text-field
           v-model="retypedPassword"
           prepend-icon="mdi-lock"
-          name="name"
+          name="retypedPassword"
           hover="Show password"
           label="Retype your password"
           hint=""
@@ -47,7 +47,7 @@
           Username or password was incorrect.
           <v-btn color="pink" variant="text" @click="badLoginAttempt = false"> Close </v-btn>
         </v-snackbar>
-        <v-btn class="mr-2" type="submit" :loading="awaitingResponse" :color="buttonStatus.color" @click="createUser">
+        <v-btn class="mr-2" type="submit" :loading="awaitingResponse" :color="buttonStatus.color">
           <v-icon start>mdi-lock-open</v-icon>
           Create Account
         </v-btn>
@@ -169,7 +169,7 @@ Author: ${this.author}
         this.awaitingResponse = false;
       } else {
         alertUser({
-          text: 'Secret join code is not correct.',
+          text: 'Passwords do not match.',
           status: Status.error,
         });
         this.awaitingResponse = false;
