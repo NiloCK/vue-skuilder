@@ -33,6 +33,7 @@ import { defineComponent, PropType } from 'vue';
 import { User } from '@/db/userDB';
 import { useConfigStore } from '@/stores/useConfigStore';
 import { getCurrentUser } from '@/stores/useAuthStore';
+import { useRoute } from 'vue-router';
 
 interface Language {
   name: string;
@@ -51,11 +52,14 @@ export default defineComponent({
 
   setup() {
     const configStore = useConfigStore();
+    const route = useRoute();
 
     const darkMode = configStore.config.darkMode;
     const likesConfetti = configStore.config.likesConfetti;
 
-    return { configStore, darkMode, likesConfetti };
+    const isNewUser = route.path.endsWith('new');
+
+    return { configStore, darkMode, likesConfetti, route, isNewUser };
   },
 
   data() {
@@ -73,15 +77,6 @@ export default defineComponent({
       ] as Language[],
       selectedLanguages: [] as string[],
     };
-  },
-
-  computed: {
-    isNewUser(): boolean {
-      console.error(`Not implemented: User.isNewUser`);
-      return false;
-      // [ ] #vue3 - $route not available.
-      // return this.$route.path.endsWith('new');
-    },
   },
 
   async created() {
