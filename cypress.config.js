@@ -10,7 +10,7 @@ module.exports = defineConfig({
     },
   },
   //  increase the default timeout for slower operations
-  defaultCommandTimeout: 30000,
+  defaultCommandTimeout: 10000,
   // Viewport configuration
   viewportWidth: 1280,
   viewportHeight: 800,
