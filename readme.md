@@ -11,9 +11,9 @@ General tooling for interactive tutoring systems, with experimentation toward
 Think: the FOSS lovechild of anki, duolingo, wikipedia, and MathAcadamy, with a more generalized surface area for the types of content and skills that can be exercised.
 
 Aiming toward effective libraries and a main learner-loop to enable:
-a. independent authoring of individual courses
-b. community developed courses
-c. a platform to support both a. and b.
+- a. independent authoring of individual courses
+- b. community developed courses
+- c. a platform to support both a. and b.
 
 ## Project Architecture
 
