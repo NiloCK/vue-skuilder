@@ -2,71 +2,62 @@
 
 [![image](https://user-images.githubusercontent.com/10780590/132559883-8d65a1ef-d930-468b-8805-7e1003e05c7d.png)](https://www.youtube.com/watch?v=a6tvHMvF8Mo)
 
-An experiment in mass-collaborative authoring of general, intelligent tutoring systems.
+General tooling for interactive tutoring systems, with experimentation toward
+- mass-collaborative authoring
+- mixture-of-expert-systems guided learning
+- self-healing courses via proactive surfacing of learning bottlenecks
+- content inheritance between courses
 
+Think: the FOSS lovechild of anki, duolingo, wikipedia, and MathAcadamy, with a more generalized surface area for the types of content and skills that can be exercised.
 
-# Usage
+Aiming toward effective libraries and a main learner-loop to enable:
+a. independent authoring of individual courses
+b. community developed courses
+c. a platform to support both a. and b.
 
-## Installation
+## Project Architecture
 
-After cloning the repository,
+This monorepo contains three primary components:
 
-- `npm install` or `yarn install`
+- **Vue SPA Frontend** (`packages/vue`): Vue 3 + Vuetify 3 progressive web app
+- **Express API** (`packages/express`): Node.js backend API
+- **CouchDB Database**: Storage layer with replication protocol support
 
-The app needs to be configured with the url of a CouchDB (or other database respecting the CouchDB replication protocol) server. See `/src/ENVIRONMENT_VARS.ts` to point the app toward a specific database. The default value, for ease of development startup, points to an in-browser pouch-db database.
+## Development Quick Start
 
-The alternate value in `ENVIRONMENT_VARS.TS` points to the default url of a locally running CouchDB database.
+### Prerequisites
 
-- [CouchDB Website](http://couchdb.apache.org/)
+- Node.js 18+
+- Yarn
+- Docker (for development database)
 
-Note that CORS may need to be enabled in your CouchDB install.
+### Commands
 
-# Development
+```bash
+git clone https://github.com/nilock/vue-skuilder.git
+cd vue-skuilder
+git submodule init
+yarn install
+yarn dev
+```
 
-This project is scaffolded with [vue-cli 3](https://cli.vuejs.org/). See the vue-cli docs for more detail on build / deployment / environment configuation.
-
-## Development Build / Serve
-
-**Prerequisites**:
-- initialize the test database submodule with `git submodule init`
-- install `docker`
-
-`npm run serve` or `yarn serve` from the project root.
-
-Does:
-- in-memory build of the project and hosts with the webpack dev server.  Hot reloading and source maps included for in-browser debugging.
-- runs the express server backend.
-- launches a couchdb backend with [test data](http://github.com/nilock/skuilder-test-data) as a docker container
-
-## UI Component browsing with mock data
-
-`npm run test:ui` or `yarn test:ui` from `./packages/vue`
-
-Builds and runs the front-end with mock data sources. Navigate to `localhost:8080/uimocks`.
-
-## Debugging
-
-The project can be debugged inside of VSCode using the existing settings from `./vscode/launch.json`. After starting a development server with `yarn serve` / `npm run serve`, hitting F5 will launch VSCode's debugger and attach to the process. Launch configurations for Firefox and Chrome are present. They need the VSCode [debugger for firefox](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-firefox-debug) and [debugger for chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) exensions, respectively.
-
-As of now, only the firefox debugger is functioning reliably (see #2).
-
-Component state / props / virtual DOM exploration is also available in the browser via [vue-devtools](https://github.com/vuejs/vue-devtools).
-
-- [Firefox Addon](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-- [Chrome Extension](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+This will:
+- Build the common package
+- Start a local CouchDB instance in Docker with test data
+- Launch the Express backend server
+- Launch the Vue frontend (http://localhost:5173)
 
 ## Production Build
 
-Check for relevant flags in `/src/ENVIRONMENT_VARS.ts` before building for production.
+```bash
+yarn build
+```
 
-- `npm run build` or `yarn build`
+This builds all packages and outputs the frontend as a static web app in the `packages/vue/dist` folder and the backend in `packages/express/dist`.
 
-Outputs a static web page in the `/build` folder.
+## License
 
-# License
+This project is licensed under:
 
-The project in general follows the AGPL-3.0 licence. However, materials in `/src/base-course/` fall under the MIT licence (this folder will eventually be pulled to its own repository/package - see #3).
-
-[AGPL-3.0](https://opensource.org/licenses/AGPL-3.0)
-
-[MIT](https://opensource.org/licenses/MIT)
+- **AGPL-3.0** for the core platform: [License](https://opensource.org/licenses/AGPL-3.0)
+- **MIT** for materials in base course content: [License](https://opensource.org/licenses/MIT)
