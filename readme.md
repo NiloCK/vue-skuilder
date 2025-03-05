@@ -1,6 +1,4 @@
-![E2E Tests](https://github.com/nilock/vue-skuilder/actions/workflows/e2e-tests.yml/badge.svg)
-
-[![image](https://user-images.githubusercontent.com/10780590/132559883-8d65a1ef-d930-468b-8805-7e1003e05c7d.png)](https://www.youtube.com/watch?v=a6tvHMvF8Mo)
+![E2E Tests](https://github.com/patched-network/vue-skuilder/actions/workflows/e2e-tests.yml/badge.svg)
 
 General tooling for interactive tutoring systems, with experimentation toward
 - mass-collaborative authoring
@@ -28,13 +26,13 @@ This monorepo contains three primary components:
 ### Prerequisites
 
 - Node.js 18+
-- Yarn
+- Yarn 4 (or corepack)
 - Docker (for development database)
 
 ### Commands
 
 ```bash
-git clone https://github.com/nilock/vue-skuilder.git
+git clone https://github.com/patched-network/vue-skuilder.git
 cd vue-skuilder
 git submodule init
 yarn install
