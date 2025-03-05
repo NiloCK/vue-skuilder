@@ -34,7 +34,7 @@ This monorepo contains three primary components:
 ```bash
 git clone https://github.com/patched-network/vue-skuilder.git
 cd vue-skuilder
-git submodule init
+git submodule update --init --recursive
 yarn install
 yarn dev
 ```
