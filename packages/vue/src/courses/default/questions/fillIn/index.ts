@@ -249,9 +249,12 @@ export class BlanksCard extends Question {
     s = s.substring(2, s.length - 2);
     const split = s.split('||');
     if (split.length > 1) {
-      const answers = split[0].split('|');
+      const answers = split[0].split('|').map((a) => a.trim());
       // remove answers from distractors (makes for easier editing to allow answers in the distractor list)
-      const distractors = split[1].split('|').filter((d) => !answers.includes(d));
+      const distractors = split[1]
+        .split('|')
+        .map((d) => d.trim())
+        .filter((d) => !answers.includes(d));
 
       const options = distractors;
       options.push(answers[randomInt(0, answers.length - 1)]);
